@@ -1,0 +1,43 @@
+defmodule Treby.Accounts.User do
+  use Ecto.Schema
+  import Ecto.Changeset
+  alias Bcrypt
+
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
+  schema "users" do
+    field :email, :string
+    field :password, :string, virtual: true, redact: true
+    field :password_hash, :string, redact: true
+    field :name, :string
+    field :role, :string, default: "member"
+
+    belongs_to :tenant, Treby.Tenants.Tenant
+
+    timestamps(type: :utc_datetime)
+  end
+
+  @doc false
+  def changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :password, :name, :role])
+    |> validate_required([:email, :password, :name])
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_length(:password, min: 6, message: "must be at least 6 characters")
+    |> unique_constraint([:tenant_id, :email])
+    |> hash_password()
+  end
+
+  defp hash_password(changeset) do
+    case get_change(changeset, :password) do
+      nil ->
+        changeset
+
+      password ->
+        changeset
+        |> put_change(:password_hash, Bcrypt.hash_pwd_salt(password))
+        |> delete_change(:password)
+    end
+  end
+end

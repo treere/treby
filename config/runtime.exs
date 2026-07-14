@@ -116,4 +116,12 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Req
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+
+  # Configure S3 for production
+  config :ex_aws, :s3,
+    scheme: System.get_env("S3_SCHEME", "https://"),
+    host: System.get_env("S3_HOST", "s3.amazonaws.com"),
+    port: String.to_integer(System.get_env("S3_PORT", "443")),
+    access_key_id: System.get_env("S3_ACCESS_KEY_ID"),
+    secret_access_key: System.get_env("S3_SECRET_ACCESS_KEY")
 end

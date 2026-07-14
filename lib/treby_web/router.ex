@@ -14,24 +14,50 @@ defmodule TrebyWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :require_auth do
+    plug TrebyWeb.Plugs.Auth
+  end
+
+  # Public routes
   scope "/", TrebyWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/:tenant_slug/careers", CareersLive.Index
+    live "/:tenant_slug/careers/:job_id", CareersLive.Show
+    live "/:tenant_slug/careers/:job_id/apply", CareersLive.Apply
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", TrebyWeb do
-  #   pipe_through :api
-  # end
+  # Auth routes (no auth required)
+  scope "/", TrebyWeb do
+    pipe_through :browser
+
+    get "/login", SessionController, :new
+    post "/session", SessionController, :create
+    delete "/session", SessionController, :delete
+    get "/register", RegistrationController, :new
+    post "/register", RegistrationController, :create
+  end
+
+  # Authenticated routes
+  scope "/app", TrebyWeb do
+    pipe_through [:browser, :require_auth]
+
+    live "/", DashboardLive
+    live "/jobs", JobsLive.Index
+    live "/jobs/:id", JobsLive.Show
+    live "/candidates", CandidatesLive.Index
+    live "/pipeline/:job_id", PipelineLive.Index
+    live "/analytics", AnalyticsLive.Index
+    live "/settings", SettingsLive.Index
+    live "/settings/pipeline", SettingsLive.Pipeline
+    live "/settings/fields", SettingsLive.Fields
+    live "/settings/team", SettingsLive.Team
+    live "/settings/branding", SettingsLive.Branding
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:treby, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do

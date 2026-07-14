@@ -24,12 +24,42 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/treby"
 import topbar from "../vendor/topbar"
+import Sortable from "../vendor/sortable.min.js"
+
+// Make Sortable available globally for LiveView hooks
+window.Sortable = Sortable
+
+// SortableJS Hook for LiveView
+const SortableHook = {
+  mounted() {
+    this.stageId = this.el.dataset.stageId
+    this.sortable = Sortable.create(this.el, {
+      group: "pipeline",
+      animation: 150,
+      ghostClass: "opacity-50",
+      dragClass: "shadow-lg",
+      onEnd: (evt) => {
+        const applicationId = evt.item.dataset.applicationId
+        const newStageId = evt.to.dataset.stageId
+        this.pushEvent("move_candidate", {
+          application_id: applicationId,
+          stage_id: newStageId
+        })
+      }
+    })
+  },
+  destroyed() {
+    if (this.sortable) {
+      this.sortable.destroy()
+    }
+  }
+}
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  hooks: {...colocatedHooks, Sortable: SortableHook},
 })
 
 // Show progress bar on live navigation and form submits

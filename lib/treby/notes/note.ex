@@ -22,7 +22,7 @@ defmodule Treby.Notes.Note do
     note
     |> cast(attrs, [:content, :type, :rating, :tenant_id, :application_id, :author_id])
     |> validate_required([:content, :application_id, :author_id])
-    |> validate_inclusion(:type, ~w(note feedback))
+    |> validate_inclusion(:type, ~w(note feedback interview_feedback))
     |> validate_number(:rating, greater_than_or_equal_to: 1, less_than_or_equal_to: 5)
   end
 end

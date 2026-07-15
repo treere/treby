@@ -35,38 +35,61 @@ defmodule TrebyWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar px-4 sm:px-6 lg:px-8">
-      <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
-        </a>
-      </div>
-      <div class="flex-none">
-        <ul class="flex flex-column px-1 space-x-4 items-center">
-          <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
-          </li>
-          <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
-          </li>
-          <li>
-            <.theme_toggle />
-          </li>
-          <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
-              Get Started <span aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </header>
+    <div class="min-h-screen bg-gray-50">
+      <nav class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16">
+            <div class="flex">
+              <.link navigate={~p"/app"} class="flex-shrink-0 flex items-center">
+                <span class="text-xl font-bold text-blue-600">Treby</span>
+              </.link>
+              <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <.link
+                  navigate={~p"/app/jobs"}
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  Jobs
+                </.link>
+                <.link
+                  navigate={~p"/app/candidates"}
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  Candidates
+                </.link>
+                <.link
+                  navigate={~p"/app/analytics"}
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  Analytics
+                </.link>
+                <.link
+                  navigate={~p"/app/settings"}
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  Settings
+                </.link>
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              <span :if={@current_scope} class="text-sm text-gray-600">
+                {@current_scope.name}
+              </span>
+              <.link
+                href={~p"/session"}
+                method="delete"
+                class="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Logout
+              </.link>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-    <main class="px-4 py-20 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl space-y-4">
+      <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {render_slot(@inner_block)}
-      </div>
-    </main>
+      </main>
+    </div>
 
     <.flash_group flash={@flash} />
     """

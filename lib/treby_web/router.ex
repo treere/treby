@@ -26,6 +26,8 @@ defmodule TrebyWeb.Router do
     live "/:tenant_slug/careers", CareersLive.Index
     live "/:tenant_slug/careers/:job_id", CareersLive.Show
     live "/:tenant_slug/careers/:job_id/apply", CareersLive.Apply
+    get "/invite/:token", InviteController, :show
+    post "/invite/:token", InviteController, :create
   end
 
   # Auth routes (no auth required)
@@ -47,6 +49,7 @@ defmodule TrebyWeb.Router do
     live "/jobs", JobsLive.Index
     live "/jobs/:id", JobsLive.Show
     live "/candidates", CandidatesLive.Index
+    live "/candidates/:id", CandidatesLive.Show
     live "/pipeline/:job_id", PipelineLive.Index
     live "/analytics", AnalyticsLive.Index
     live "/settings", SettingsLive.Index
@@ -54,6 +57,8 @@ defmodule TrebyWeb.Router do
     live "/settings/fields", SettingsLive.Fields
     live "/settings/team", SettingsLive.Team
     live "/settings/branding", SettingsLive.Branding
+
+    get "/applications/:id/resume", ResumeController, :show
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -13,6 +13,7 @@ defmodule Treby.Candidates.Candidate do
     field :custom_fields, :map, default: %{}
 
     belongs_to :tenant, Treby.Tenants.Tenant
+    has_many :applications, Treby.Pipeline.Application
 
     timestamps(type: :utc_datetime)
   end

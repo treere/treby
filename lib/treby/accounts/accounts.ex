@@ -33,6 +33,10 @@ defmodule Treby.Accounts do
     Repo.delete(user)
   end
 
+  def remove_user_from_tenant(%User{} = user) do
+    Repo.delete(user)
+  end
+
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end

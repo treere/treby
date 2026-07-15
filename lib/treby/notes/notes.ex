@@ -17,6 +17,13 @@ defmodule Treby.Notes do
 
   def get_note!(id), do: Repo.get!(Note, id) |> preload([:author])
 
+  def get_note!(tenant_id, id) do
+    Note
+    |> where([n], n.tenant_id == ^tenant_id and n.id == ^id)
+    |> preload([:author])
+    |> Repo.one!()
+  end
+
   def create_note(attrs \\ %{}) do
     %Note{}
     |> Note.changeset(attrs)

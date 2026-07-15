@@ -50,24 +50,24 @@
 - [x] 6.3 Create PipelineLive.Index (Kanban board for a job)
 - [x] 6.4 Implement SortableJS hook for drag-and-drop
 - [x] 6.5 Handle move_candidate event (update stage_id)
-- [ ] 6.6 Add real-time updates via PubSub
-- [ ] 6.7 Create pipeline stage management UI (Settings → Pipeline)
+- [x] 6.6 Add real-time updates via PubSub
+- [x] 6.7 Create pipeline stage management UI (Settings → Pipeline)
 
 ## 7. Notes
 
 - [x] 7.1 Create notes migration (id, tenant_id, application_id, author_id, content, type, rating, timestamps)
-- [ ] 7.2 Create Treby.Notes context with CRUD functions
-- [ ] 7.3 Create note form component (on candidate profile)
-- [ ] 7.4 Display notes list on candidate profile
-- [ ] 7.5 Implement delete note (author only)
+- [x] 7.2 Create Treby.Notes context with CRUD functions
+- [x] 7.3 Create note form component (on candidate profile)
+- [x] 7.4 Display notes list on candidate profile
+- [x] 7.5 Implement delete note (author only)
 
 ## 8. File Upload
 
 - [x] 8.1 Create Treby.Uploads module (S3 client wrapper)
-- [ ] 8.2 Implement resume upload flow (LiveView upload → S3)
-- [ ] 8.3 Implement logo upload flow (Settings → Branding)
-- [ ] 8.4 Add file validation (size, type)
-- [ ] 8.5 Add secure resume access (presigned URLs or proxy)
+- [x] 8.2 Implement resume upload flow (LiveView upload → S3)
+- [x] 8.3 Implement logo upload flow (Settings → Branding)
+- [x] 8.4 Add file validation (size, type)
+- [x] 8.5 Add secure resume access (presigned URLs or proxy)
 
 ## 9. Career Page
 
@@ -82,12 +82,12 @@
 
 ## 10. Custom Fields
 
-- [ ] 10.1 Create custom_fields migration (id, tenant_id, name, field_type, applies_to, options, required, position, timestamps)
-- [ ] 10.2 Create Treby.Customization context
-- [ ] 10.3 Create custom field management UI (Settings → Fields)
-- [ ] 10.4 Implement dynamic form rendering based on field definitions
-- [ ] 10.5 Add custom field validation (required, type checks)
-- [ ] 10.6 Display custom fields on candidate profile and job detail
+- [x] 10.1 Create custom_fields migration (id, tenant_id, name, field_type, applies_to, options, required, position, timestamps)
+- [x] 10.2 Create Treby.Customization context
+- [x] 10.3 Create custom field management UI (Settings → Fields)
+- [x] 10.4 Implement dynamic form rendering based on field definitions
+- [x] 10.5 Add custom field validation (required, type checks)
+- [x] 10.6 Display custom fields on candidate profile and job detail
 
 ## 11. Team Management
 
@@ -100,25 +100,25 @@
 
 ## 12. Branding
 
-- [ ] 12.1 Store branding in tenant.settings JSONB
-- [ ] 12.2 Create branding settings UI (Settings → Branding)
-- [ ] 12.3 Apply branding to career page (logo, colors, text)
-- [ ] 12.4 Add branding preview in settings
+- [x] 12.1 Store branding in tenant.settings JSONB
+- [x] 12.2 Create branding settings UI (Settings → Branding)
+- [x] 12.3 Apply branding to career page (logo, colors, text)
+- [x] 12.4 Add branding preview in settings
 
 ## 13. Analytics
 
-- [ ] 13.1 Implement pipeline count queries (candidates per stage per job)
-- [ ] 13.2 Implement time-to-hire calculation
-- [ ] 13.3 Implement stage conversion rate calculation
-- [ ] 13.4 Create AnalyticsLive.Index (analytics dashboard)
-- [ ] 13.5 Display charts/visualizations (bar charts for pipeline, metrics cards)
+- [x] 13.1 Implement pipeline count queries (candidates per stage per job)
+- [x] 13.2 Implement time-to-hire calculation
+- [x] 13.3 Implement stage conversion rate calculation
+- [x] 13.4 Create AnalyticsLive.Index (analytics dashboard)
+- [x] 13.5 Display charts/visualizations (bar charts for pipeline, metrics cards)
 
 ## 14. Polish & Testing
 
 - [x] 14.1 Add seed data for development (demo tenant, jobs, candidates)
-- [ ] 14.2 Add integration tests for tenant isolation
-- [ ] 14.3 Add integration tests for auth flows
-- [ ] 14.4 Add integration tests for career page application flow
-- [ ] 14.5 Test drag-and-drop functionality
-- [ ] 14.6 Test file upload to MinIO
+- [x] 14.2 Add integration tests for tenant isolation
+- [x] 14.3 Add integration tests for auth flows
+- [x] 14.4 Add integration tests for career page application flow
+- [x] 14.5 Test drag-and-drop functionality
+- [x] 14.6 Test file upload to MinIO
 - [x] 14.7 Run mix precommit and fix any issues

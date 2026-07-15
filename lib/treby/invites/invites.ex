@@ -6,6 +6,7 @@ defmodule Treby.Invites do
   import Ecto.Query, warn: false
   alias Treby.Repo
   alias Treby.Invites.Invite
+  alias Treby.InvitesEmail
 
   def list_invites(tenant_id) do
     Invite
@@ -26,9 +27,19 @@ defmodule Treby.Invites do
 
     expires_at = DateTime.utc_now() |> DateTime.add(7, :day)
 
-    %Invite{}
-    |> Invite.changeset(Map.merge(attrs, %{"token" => token, "expires_at" => expires_at}))
-    |> Repo.insert()
+    result =
+      %Invite{}
+      |> Invite.changeset(Map.merge(attrs, %{"token" => token, "expires_at" => expires_at}))
+      |> Repo.insert()
+
+    case result do
+      {:ok, invite} ->
+        send_invite_email(invite)
+        {:ok, invite}
+
+      error ->
+        error
+    end
   end
 
   def accept_invite(%Invite{} = invite) do
@@ -39,5 +50,16 @@ defmodule Treby.Invites do
 
   def delete_invite(%Invite{} = invite) do
     Repo.delete(invite)
+  end
+
+  defp send_invite_email(%Invite{} = invite) do
+    invite_url = "/invite/#{invite.token}"
+    tenant = Repo.get!(Treby.Tenants.Tenant, invite.tenant_id)
+    email = InvitesEmail.invite_email(invite, tenant, invite_url)
+
+    case Treby.Mailer.deliver(email) do
+      {:ok, _} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
   end
 end

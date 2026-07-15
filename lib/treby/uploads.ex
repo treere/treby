@@ -14,9 +14,9 @@ defmodule Treby.Uploads do
 
   def get_presigned_url(key, opts \\ []) do
     expires_in = Keyword.get(opts, :expires_in, 3600)
+    config = ExAws.Config.new(:s3)
 
-    @bucket
-    |> ExAws.S3.presigned_url(:get, key, expires_in: expires_in)
+    ExAws.S3.presigned_url(config, :get, @bucket, key, expires_in: expires_in)
   end
 
   def delete_file(key) do

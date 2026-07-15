@@ -30,7 +30,19 @@ defmodule Treby.Pipeline do
   end
 
   def delete_pipeline_stage(%PipelineStage{} = pipeline_stage) do
-    Repo.delete(pipeline_stage)
+    if has_active_applications?(pipeline_stage.id) do
+      {:error, :has_active_applications}
+    else
+      Repo.delete(pipeline_stage)
+    end
+  end
+
+  defp has_active_applications?(stage_id) do
+    Application
+    |> where([a], a.pipeline_stage_id == ^stage_id)
+    |> select([a], count(a.id))
+    |> Repo.one()
+    |> Kernel.>(0)
   end
 
   def change_pipeline_stage(%PipelineStage{} = pipeline_stage, attrs \\ %{}) do
@@ -63,6 +75,13 @@ defmodule Treby.Pipeline do
     |> Repo.all()
   end
 
+  def list_applications_for_candidate(tenant_id, candidate_id) do
+    Application
+    |> where([a], a.tenant_id == ^tenant_id and a.candidate_id == ^candidate_id)
+    |> preload([:job, :pipeline_stage])
+    |> Repo.all()
+  end
+
   def list_applications_by_stage(job_id) do
     stages = list_pipeline_stages_for_job(job_id)
 
@@ -89,8 +108,106 @@ defmodule Treby.Pipeline do
     |> Repo.all()
   end
 
+  # Analytics queries
+
+  def pipeline_counts_per_stage(tenant_id) do
+    PipelineStage
+    |> where([ps], ps.tenant_id == ^tenant_id)
+    |> order_by([ps], ps.position)
+    |> Repo.all()
+    |> Enum.map(fn stage ->
+      count =
+        Application
+        |> where([a], a.pipeline_stage_id == ^stage.id)
+        |> select([a], count(a.id))
+        |> Repo.one()
+
+      %{stage: stage, count: count}
+    end)
+  end
+
+  def pipeline_counts_per_stage_for_job(job_id) do
+    stages = list_pipeline_stages_for_job(job_id)
+
+    Application
+    |> where([a], a.job_id == ^job_id)
+    |> group_by([a], a.pipeline_stage_id)
+    |> select([a], %{stage_id: a.pipeline_stage_id, count: count(a.id)})
+    |> Repo.all()
+    |> then(fn counts ->
+      counts_map = Map.new(counts, &{&1.stage_id, &1.count})
+
+      Enum.map(stages, fn stage ->
+        %{stage: stage, count: Map.get(counts_map, stage.id, 0)}
+      end)
+    end)
+  end
+
+  def average_time_to_hire(tenant_id) do
+    hired_stage =
+      PipelineStage
+      |> where([ps], ps.tenant_id == ^tenant_id and ps.name == "Hired")
+      |> Repo.one()
+
+    case hired_stage do
+      nil ->
+        nil
+
+      stage ->
+        Application
+        |> where([a], a.tenant_id == ^tenant_id and a.pipeline_stage_id == ^stage.id)
+        |> select([a], avg(fragment("EXTRACT(DAY FROM (? - ?))", a.updated_at, a.inserted_at)))
+        |> Repo.one()
+    end
+  end
+
+  def stage_conversion_rates(tenant_id) do
+    stages = list_pipeline_stages(tenant_id)
+
+    stages
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.flat_map(fn [from_stage, to_stage] ->
+      from_count =
+        Application
+        |> where([a], a.tenant_id == ^tenant_id)
+        |> where(
+          [a],
+          a.pipeline_stage_id == ^from_stage.id or
+            fragment(
+              "EXISTS (SELECT 1 FROM applications a2 WHERE a2.id = ? AND a2.updated_at > a.inserted_at)",
+              a.id
+            )
+        )
+        |> select([a], count(a.id))
+        |> Repo.one()
+
+      to_count =
+        Application
+        |> where([a], a.tenant_id == ^tenant_id and a.pipeline_stage_id == ^to_stage.id)
+        |> select([a], count(a.id))
+        |> Repo.one()
+
+      rate = if from_count > 0, do: round(to_count / from_count * 100), else: 0
+
+      [
+        %{
+          from: from_stage,
+          to: to_stage,
+          rate: rate
+        }
+      ]
+    end)
+  end
+
   def get_application!(id),
     do: Repo.get!(Application, id) |> preload([:candidate, :pipeline_stage, :job])
+
+  def get_application!(tenant_id, id) do
+    Application
+    |> where([a], a.tenant_id == ^tenant_id and a.id == ^id)
+    |> preload([:candidate, :pipeline_stage, :job])
+    |> Repo.one!()
+  end
 
   def create_application(attrs \\ %{}) do
     %Application{}
@@ -99,8 +216,27 @@ defmodule Treby.Pipeline do
   end
 
   def move_application(%Application{} = application, stage_id) do
-    application
-    |> Application.changeset(%{pipeline_stage_id: stage_id})
-    |> Repo.update()
+    result =
+      application
+      |> Application.changeset(%{pipeline_stage_id: stage_id})
+      |> Repo.update()
+
+    case result do
+      {:ok, app} ->
+        Phoenix.PubSub.broadcast(
+          Treby.PubSub,
+          "pipeline:#{app.job_id}",
+          {:pipeline_updated, app.job_id}
+        )
+
+        {:ok, app}
+
+      error ->
+        error
+    end
+  end
+
+  def subscribe_to_pipeline(job_id) do
+    Phoenix.PubSub.subscribe(Treby.PubSub, "pipeline:#{job_id}")
   end
 end

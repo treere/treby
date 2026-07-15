@@ -14,6 +14,7 @@ defmodule Treby.Tenants.Tenant do
     has_many :jobs, Treby.Jobs.Job
     has_many :candidates, Treby.Candidates.Candidate
     has_many :applications, Treby.Pipeline.Application
+    has_many :career_pages, Treby.Careers.CareerPage
 
     timestamps(type: :utc_datetime)
   end

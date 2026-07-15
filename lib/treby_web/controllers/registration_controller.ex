@@ -1,7 +1,8 @@
 defmodule TrebyWeb.RegistrationController do
   use TrebyWeb, :controller
 
-  alias Treby.{Accounts, Tenants}
+  alias Treby.{Tenants, Repo}
+  alias Treby.Accounts.User
 
   def new(conn, _params) do
     render(conn, "new.html")
@@ -13,13 +14,15 @@ defmodule TrebyWeb.RegistrationController do
            slug: user_params["company_slug"]
          }) do
       {:ok, tenant} ->
-        case Accounts.create_user(%{
+        case tenant
+             |> Ecto.build_assoc(:users)
+             |> User.changeset(%{
                email: user_params["email"],
                password: user_params["password"],
                name: user_params["name"],
-               role: "admin",
-               tenant_id: tenant.id
-             }) do
+               role: "admin"
+             })
+             |> Repo.insert() do
           {:ok, user} ->
             conn
             |> put_session("user_id", user.id)
@@ -29,7 +32,7 @@ defmodule TrebyWeb.RegistrationController do
 
           {:error, _changeset} ->
             conn
-            |> put_flash(:error, "Could not create user")
+            |> put_flash(:error, "Email already registered or invalid data")
             |> redirect(to: ~p"/register")
         end
 

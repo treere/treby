@@ -197,25 +197,25 @@ export default {
 - Time-to-hire: AVG difference between applied_at and hired_at
 - Stage conversion: Count candidates who moved from stage A to B
 
-### 9. Career page: Customizable via tenant settings JSONB
+### 9. Career page: Dedicated career_pages table
 
-**Decision:** Career page appearance stored in `tenant.settings` JSONB column.
+**Decision:** Career page settings stored in a dedicated `career_pages` table with structured fields.
 
 **Rationale:**
-- Simple key-value storage for branding (logo, color, text)
-- No separate settings table needed
-- Career page reads settings from tenant on each request
-- Admin can update via Settings → Branding UI
+- Normalized schema with proper types and constraints (better than JSONB for this use case)
+- Dedicated fields: `title`, `description`, `logo_url`, `primary_color`, `published`
+- Type-safe queries and validations
+- Cleaner API than drilling into JSONB
 
 **Implementation:**
-```json
-{
-  "career_page": {
-    "logo_url": "/uploads/logos/acme.png",
-    "primary_color": "#3b82f6",
-    "title": "Join our team",
-    "description": "Help us build the future..."
-  }
+```elixir
+# CareerPage schema
+%CareerPage{
+  title: "Join our team",
+  description: "Help us build the future...",
+  logo_url: "/uploads/logos/acme.png",
+  primary_color: "#3b82f6",
+  published: true
 }
 ```
 

@@ -169,15 +169,7 @@ defmodule Treby.Pipeline do
     |> Enum.flat_map(fn [from_stage, to_stage] ->
       from_count =
         Application
-        |> where([a], a.tenant_id == ^tenant_id)
-        |> where(
-          [a],
-          a.pipeline_stage_id == ^from_stage.id or
-            fragment(
-              "EXISTS (SELECT 1 FROM applications a2 WHERE a2.id = ? AND a2.updated_at > a.inserted_at)",
-              a.id
-            )
-        )
+        |> where([a], a.tenant_id == ^tenant_id and a.pipeline_stage_id == ^from_stage.id)
         |> select([a], count(a.id))
         |> Repo.one()
 

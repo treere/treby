@@ -18,6 +18,22 @@ defmodule TrebyWeb.CandidatesLive.Show do
     candidate_fields = Customization.list_custom_fields_for(tenant.id, "candidate")
     application_fields = Customization.list_custom_fields_for(tenant.id, "application")
 
+    # Load all interviews for this candidate's applications
+    application_ids = Enum.map(applications, & &1.id)
+
+    interviews =
+      if application_ids != [] do
+        import Ecto.Query
+
+        Treby.Interviews.InterviewEvent
+        |> where([e], e.application_id in ^application_ids)
+        |> order_by([e], desc: e.start_at_utc)
+        |> preload([:application, :interviewer])
+        |> Treby.Repo.all()
+      else
+        []
+      end
+
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
@@ -25,6 +41,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(applications: applications_with_notes)
      |> assign(candidate_fields: candidate_fields)
      |> assign(application_fields: application_fields)
+     |> assign(interviews: interviews)
      |> assign(show_note_form: nil)
      |> assign(note_form: to_form(%{}, as: :note))}
   end
@@ -67,6 +84,73 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
           </div>
         </div>
+
+        <%= if @interviews != [] do %>
+          <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Scheduled Interviews</h2>
+            <div class="space-y-3">
+              <%= for interview <- @interviews do %>
+                <div class={[
+                  "bg-white rounded-lg shadow p-4",
+                  interview.status == "cancelled" && "opacity-60"
+                ]}>
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <p class={[
+                        "font-medium text-gray-900",
+                        interview.status == "cancelled" && "line-through"
+                      ]}>
+                        {interview.application.job.title}
+                      </p>
+                      <div class={[
+                        "flex items-center gap-4 mt-1 text-sm",
+                        interview.status == "cancelled" && "line-through",
+                        interview.status == "cancelled" && "text-gray-400",
+                        interview.status != "cancelled" && "text-gray-500"
+                      ]}>
+                        <span class="flex items-center gap-1">
+                          <.icon name="hero-calendar" class="w-4 h-4" />
+                          {Elixir.Calendar.strftime(interview.start_at_utc, "%B %d, %Y")}
+                        </span>
+                        <span class="flex items-center gap-1">
+                          <.icon name="hero-clock" class="w-4 h-4" />
+                          {Elixir.Calendar.strftime(interview.start_at_utc, "%H:%M")} - {Elixir.Calendar.strftime(
+                            interview.end_at_utc,
+                            "%H:%M"
+                          )}
+                        </span>
+                        <span class="flex items-center gap-1">
+                          <.icon name="hero-user" class="w-4 h-4" />
+                          {interview.interviewer.name}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class={[
+                        "px-2 py-1 text-xs rounded-full",
+                        if(interview.status == "scheduled",
+                          do: "bg-green-100 text-green-800",
+                          else: "bg-gray-100 text-gray-800"
+                        )
+                      ]}>
+                        {interview.status}
+                      </span>
+                      <%= if interview.video_conf_url do %>
+                        <a
+                          href={interview.video_conf_url}
+                          target="_blank"
+                          class="px-3 py-1 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100"
+                        >
+                          Join Meet
+                        </a>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
 
         <div class="mt-8">
           <h2 class="text-xl font-semibold text-gray-800 mb-4">Applications</h2>

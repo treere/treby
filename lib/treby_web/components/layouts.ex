@@ -57,6 +57,12 @@ defmodule TrebyWeb.Layouts do
                   Candidates
                 </.link>
                 <.link
+                  navigate={~p"/app/interviews"}
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  Interviews
+                </.link>
+                <.link
                   navigate={~p"/app/analytics"}
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >

@@ -57,6 +57,9 @@ config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+# Configure timezone database for availability calculations
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
@@ -69,6 +72,11 @@ config :ex_aws, :s3,
   scheme: "http://",
   host: "localhost",
   port: 9000
+
+# Google Calendar OAuth
+config :treby,
+  google_client_id: System.get_env("GOOGLE_CLIENT_ID"),
+  google_client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

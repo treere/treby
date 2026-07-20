@@ -8,6 +8,7 @@ defmodule Treby.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Treby.Vault,
       TrebyWeb.Telemetry,
       Treby.Repo,
       {DNSCluster, query: Application.get_env(:treby, :dns_cluster_query) || :ignore},

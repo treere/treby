@@ -10,6 +10,27 @@ defmodule TrebyWeb.PipelineLive.Index do
     stages = Pipeline.list_pipeline_stages(tenant.id)
     applications_by_stage = Pipeline.list_applications_by_stage(job_id)
 
+    # Load upcoming interviews for this job's applications
+    application_ids =
+      applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
+
+    upcoming_interviews =
+      if application_ids != [] do
+        import Ecto.Query
+
+        Treby.Interviews.InterviewEvent
+        |> where(
+          [e],
+          e.application_id in ^application_ids and e.status == "scheduled" and
+            e.start_at_utc > ^DateTime.utc_now()
+        )
+        |> order_by([e], asc: e.start_at_utc)
+        |> Treby.Repo.all()
+        |> Enum.group_by(& &1.application_id)
+      else
+        %{}
+      end
+
     if connected?(socket) do
       Pipeline.subscribe_to_pipeline(job_id)
     end
@@ -19,12 +40,37 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(job: job)
      |> assign(stages: stages)
-     |> assign(applications_by_stage: applications_by_stage)}
+     |> assign(applications_by_stage: applications_by_stage)
+     |> assign(upcoming_interviews: upcoming_interviews)}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
     applications_by_stage = Pipeline.list_applications_by_stage(job_id)
-    {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
+
+    application_ids =
+      applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
+
+    upcoming_interviews =
+      if application_ids != [] do
+        import Ecto.Query
+
+        Treby.Interviews.InterviewEvent
+        |> where(
+          [e],
+          e.application_id in ^application_ids and e.status == "scheduled" and
+            e.start_at_utc > ^DateTime.utc_now()
+        )
+        |> order_by([e], asc: e.start_at_utc)
+        |> Treby.Repo.all()
+        |> Enum.group_by(& &1.application_id)
+      else
+        %{}
+      end
+
+    {:noreply,
+     socket
+     |> assign(applications_by_stage: applications_by_stage)
+     |> assign(upcoming_interviews: upcoming_interviews)}
   end
 
   def render(assigns) do
@@ -72,6 +118,16 @@ defmodule TrebyWeb.PipelineLive.Index do
               >
                 <p class="font-medium text-gray-900">{application.candidate.name}</p>
                 <p class="text-sm text-gray-500">{application.candidate.email}</p>
+                <%= case Map.get(@upcoming_interviews, application.id) do %>
+                  <% [next_interview | _] -> %>
+                    <div class="mt-2 flex items-center gap-1 text-xs text-green-700 bg-green-50 rounded px-2 py-1">
+                      <.icon name="hero-video-camera" class="w-3 h-3" />
+                      <span>
+                        {Elixir.Calendar.strftime(next_interview.start_at_utc, "%b %d %H:%M")}
+                      </span>
+                    </div>
+                  <% _ -> %>
+                <% end %>
                 <a
                   :if={application.resume_url}
                   href={~p"/app/applications/#{application.id}/resume"}

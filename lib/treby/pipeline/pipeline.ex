@@ -192,7 +192,7 @@ defmodule Treby.Pipeline do
   end
 
   def get_application!(id),
-    do: Repo.get!(Application, id) |> preload([:candidate, :pipeline_stage, :job])
+    do: Repo.get!(Application, id) |> Repo.preload([:candidate, :pipeline_stage, :job])
 
   def get_application!(tenant_id, id) do
     Application

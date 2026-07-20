@@ -1,5 +1,11 @@
 import Config
 
+# Cloak encryption key (only override if env var is set)
+if System.get_env("CLOAK_KEY") do
+  config :treby,
+    cloak_key: System.get_env("CLOAK_KEY")
+end
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration

@@ -39,3 +39,8 @@ config :phoenix_live_view,
 # Sort query params output of verified routes for robust url comparisons
 config :phoenix,
   sort_verified_routes_query_params: true
+
+# Test encryption key (32-byte key, base64-encoded)
+# Generated with: Base.encode64(:crypto.strong_rand_bytes(32))
+config :treby,
+  cloak_key: "UQVYmhYYQXaLkfBpEaH2DgjLKOncqb/helAShHEZJo8="

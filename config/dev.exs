@@ -98,3 +98,7 @@ config :ex_aws, :s3,
   port: 9000,
   access_key_id: "treby",
   secret_access_key: "treby_password"
+
+# Dev encryption key (32-byte key, base64-encoded)
+config :treby,
+  cloak_key: "dGVzdGtleWZvcmRldnRlc3RrZXlmb3JkZXZ0ZXN0a2V5MTIzNA=="

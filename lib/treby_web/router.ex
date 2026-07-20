@@ -18,30 +18,7 @@ defmodule TrebyWeb.Router do
     plug TrebyWeb.Plugs.Auth
   end
 
-  # Public routes
-  scope "/", TrebyWeb do
-    pipe_through :browser
-
-    get "/", PageController, :home
-    live "/:tenant_slug/careers", CareersLive.Index
-    live "/:tenant_slug/careers/:job_id", CareersLive.Show
-    live "/:tenant_slug/careers/:job_id/apply", CareersLive.Apply
-    get "/invite/:token", InviteController, :show
-    post "/invite/:token", InviteController, :create
-  end
-
-  # Auth routes (no auth required)
-  scope "/", TrebyWeb do
-    pipe_through :browser
-
-    get "/login", SessionController, :new
-    post "/session", SessionController, :create
-    delete "/session", SessionController, :delete
-    get "/register", RegistrationController, :new
-    post "/register", RegistrationController, :create
-  end
-
-  # Authenticated routes
+  # Authenticated routes (before public catch-all to avoid route collisions)
   scope "/app", TrebyWeb do
     pipe_through [:browser, :require_auth]
 
@@ -57,8 +34,44 @@ defmodule TrebyWeb.Router do
     live "/settings/fields", SettingsLive.Fields
     live "/settings/team", SettingsLive.Team
     live "/settings/branding", SettingsLive.Branding
+    live "/settings/calendar", SettingsLive.Calendar
+    live "/settings/availability", SettingsLive.Availability
+    live "/schedule/:application_id", ScheduleLive.Index
+    live "/interviews", InterviewsLive.Index
 
     get "/applications/:id/resume", ResumeController, :show
+  end
+
+  # Auth routes (no auth required)
+  scope "/", TrebyWeb do
+    pipe_through :browser
+
+    get "/login", SessionController, :new
+    post "/session", SessionController, :create
+    delete "/session", SessionController, :delete
+    get "/register", RegistrationController, :new
+    post "/register", RegistrationController, :create
+  end
+
+  # Public routes (after authenticated routes to avoid collisions)
+  scope "/", TrebyWeb do
+    pipe_through :browser
+
+    get "/", PageController, :home
+    live "/:tenant_slug/careers", CareersLive.Index
+    live "/:tenant_slug/careers/:job_id", CareersLive.Show
+    live "/:tenant_slug/careers/:job_id/apply", CareersLive.Apply
+    live "/:tenant_slug/schedule/:token", SchedulingLive.Booking
+    get "/invite/:token", InviteController, :show
+    post "/invite/:token", InviteController, :create
+  end
+
+  # Auth-required routes (for OAuth callbacks)
+  scope "/auth", TrebyWeb do
+    pipe_through [:browser, :require_auth]
+
+    get "/google", GoogleAuthController, :new
+    get "/google/callback", GoogleAuthController, :callback
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

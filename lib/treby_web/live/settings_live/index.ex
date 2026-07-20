@@ -49,6 +49,22 @@ defmodule TrebyWeb.SettingsLive.Index do
             <h2 class="text-lg font-semibold text-gray-900">Custom Fields</h2>
             <p class="mt-2 text-sm text-gray-600">Define custom fields for candidates and jobs</p>
           </.link>
+
+          <.link
+            navigate={~p"/app/settings/calendar"}
+            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h2 class="text-lg font-semibold text-gray-900">Calendar</h2>
+            <p class="mt-2 text-sm text-gray-600">Connect Google Calendar for interview scheduling</p>
+          </.link>
+
+          <.link
+            navigate={~p"/app/settings/availability"}
+            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h2 class="text-lg font-semibold text-gray-900">Availability</h2>
+            <p class="mt-2 text-sm text-gray-600">Set your available hours for interviews</p>
+          </.link>
         </div>
       </div>
     </Layouts.app>

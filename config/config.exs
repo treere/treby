@@ -63,6 +63,9 @@ config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Configure Gettext default locale
+config :treby, TrebyWeb.Gettext, default_locale: "en"
+
 # Configure S3/MinIO
 config :ex_aws,
   json_codec: Jason,

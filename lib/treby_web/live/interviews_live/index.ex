@@ -4,6 +4,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
   alias Treby.{Accounts, Interviews}
 
   def mount(_params, session, socket) do
+    socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Treby.Tenants.get_tenant!(session["tenant_id"])
     users = Accounts.list_users(tenant.id)
@@ -66,7 +67,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user}>
+    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-6xl mx-auto">
         <div class="flex items-center justify-between mb-8">
           <div>

@@ -5,6 +5,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
   alias Treby.Customization.CustomField
 
   def mount(_params, session, socket) do
+    socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
     custom_fields = Customization.list_custom_fields(tenant.id)
@@ -23,7 +24,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user}>
+    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>

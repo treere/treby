@@ -31,6 +31,10 @@ defmodule TrebyWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :locale, :string,
+    default: "en",
+    doc: "the current locale"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -48,35 +52,36 @@ defmodule TrebyWeb.Layouts do
                   navigate={~p"/app/jobs"}
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
-                  Jobs
+                  {gettext("Jobs")}
                 </.link>
                 <.link
                   navigate={~p"/app/candidates"}
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
-                  Candidates
+                  {gettext("Candidates")}
                 </.link>
                 <.link
                   navigate={~p"/app/interviews"}
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
-                  Interviews
+                  {gettext("Interviews")}
                 </.link>
                 <.link
                   navigate={~p"/app/analytics"}
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
-                  Analytics
+                  {gettext("Analytics")}
                 </.link>
                 <.link
                   navigate={~p"/app/settings"}
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
-                  Settings
+                  {gettext("Settings")}
                 </.link>
               </div>
             </div>
             <div class="flex items-center space-x-4">
+              <.locale_switcher locale={@locale} />
               <span :if={@current_scope} class="text-sm text-gray-600">
                 {@current_scope.name}
               </span>
@@ -85,7 +90,7 @@ defmodule TrebyWeb.Layouts do
                 method="delete"
                 class="text-sm text-gray-600 hover:text-gray-900"
               >
-                Logout
+                {gettext("Logout")}
               </.link>
             </div>
           </div>
@@ -98,6 +103,49 @@ defmodule TrebyWeb.Layouts do
     </div>
 
     <.flash_group flash={@flash} />
+    """
+  end
+
+  @doc """
+  Locale switcher dropdown for changing language.
+  """
+  attr :locale, :string, required: true
+
+  def locale_switcher(assigns) do
+    ~H"""
+    <div class="relative" id="locale-switcher">
+      <button
+        type="button"
+        class="flex items-center gap-x-1 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+        phx-click={JS.toggle(to: "#locale-dropdown")}
+      >
+        <.icon name="hero-language" class="h-4 w-4" />
+        {String.upcase(@locale)}
+      </button>
+      <div
+        id="locale-dropdown"
+        class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50"
+      >
+        <.link
+          href="/locale/en"
+          class={[
+            "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
+            @locale == "en" && "font-bold text-blue-600"
+          ]}
+        >
+          English
+        </.link>
+        <.link
+          href="/locale/it"
+          class={[
+            "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
+            @locale == "it" && "font-bold text-blue-600"
+          ]}
+        >
+          Italiano
+        </.link>
+      </div>
+    </div>
     """
   end
 

@@ -1,0 +1,227 @@
+msgid ""
+msgstr ""
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/treby_web/components/core_components.ex:375
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Azioni"
+
+#: lib/treby_web/live/home_live.ex:87
+#, elixir-autogen, elixir-format
+msgid "A better way to hire"
+msgstr "Un modo migliore per assumere"
+
+#: lib/treby_web/components/layouts.ex:73
+#, elixir-autogen, elixir-format
+msgid "Analytics"
+msgstr "Analisi"
+
+#: lib/treby_web/live/home_live.ex:147
+#, elixir-autogen, elixir-format
+msgid "All rights reserved"
+msgstr "Tutti i diritti riservati"
+
+#: lib/treby_web/components/layouts.ex:176
+#: lib/treby_web/components/layouts.ex:188
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr "Tentativo di riconnessione"
+
+#: lib/treby_web/live/settings_live/index.ex:65
+#, elixir-autogen, elixir-format
+msgid "Availability"
+msgstr "Disponibilità"
+
+#: lib/treby_web/live/settings_live/index.ex:33
+#, elixir-autogen, elixir-format
+msgid "Branding"
+msgstr "Branding"
+
+#: lib/treby_web/live/home_live.ex:109
+#, elixir-autogen, elixir-format
+msgid "Candidate Tracking"
+msgstr "Tracciamento Candidati"
+
+#: lib/treby_web/components/layouts.ex:61
+#, elixir-autogen, elixir-format
+msgid "Candidates"
+msgstr "Candidati"
+
+#: lib/treby_web/live/settings_live/index.ex:57
+#, elixir-autogen, elixir-format
+msgid "Calendar"
+msgstr "Calendario"
+
+#: lib/treby_web/live/settings_live/index.ex:18
+#, elixir-autogen, elixir-format
+msgid "Company settings for"
+msgstr "Impostazioni aziendali per"
+
+#: lib/treby_web/live/settings_live/index.ex:58
+#, elixir-autogen, elixir-format
+msgid "Connect Google Calendar for interview scheduling"
+msgstr "Connetti Google Calendar per la pianificazione dei colloqui"
+
+#: lib/treby_web/live/home_live.ex:102
+#, elixir-autogen, elixir-format
+msgid "Create and manage job postings with custom fields, salary ranges, and department assignments. Track applicants through your pipeline."
+msgstr "Crea e gestisci offerte di lavoro con campi personalizzati, fasce retributive e assegnazioni ai dipartimenti. Traccia i candidati nella tua pipeline."
+
+#: lib/treby_web/live/settings_live/index.ex:49
+#, elixir-autogen, elixir-format
+msgid "Custom Fields"
+msgstr "Campi Personalizzati"
+
+#: lib/treby_web/live/settings_live/index.ex:34
+#, elixir-autogen, elixir-format
+msgid "Customize career page appearance"
+msgstr "Personalizza l'aspetto della pagina carriere"
+
+#: lib/treby_web/live/settings_live/index.ex:26
+#, elixir-autogen, elixir-format
+msgid "Customize your hiring pipeline stages"
+msgstr "Personalizza le fasi della tua pipeline di assunzione"
+
+#: lib/treby_web/live/settings_live/index.ex:50
+#, elixir-autogen, elixir-format
+msgid "Define custom fields for candidates and jobs"
+msgstr "Definisci campi personalizzati per candidati e offerte di lavoro"
+
+#: lib/treby_web/live/home_live.ex:85
+#, elixir-autogen, elixir-format
+msgid "Everything you need"
+msgstr "Tutto quello che ti serve"
+
+#: lib/treby_web/live/home_live.ex:90
+#, elixir-autogen, elixir-format
+msgid "From posting jobs to extending offers, Treby gives you the tools to find and hire the best talent efficiently."
+msgstr "Dalla pubblicazione delle offerte all'invio delle proposte, Treby ti offre gli strumenti per trovare e assumere i migliori talenti in modo efficiente."
+
+#: lib/treby_web/live/home_live.ex:35
+#, elixir-autogen, elixir-format
+msgid "Get started"
+msgstr "Inizia"
+
+#: lib/treby_web/live/home_live.ex:67
+#, elixir-autogen, elixir-format
+msgid "Get started free"
+msgstr "Inizia gratis"
+
+#: lib/treby_web/live/home_live.ex:57
+#, elixir-autogen, elixir-format
+msgid "Hire smarter with Treby"
+msgstr "Assumi meglio con Treby"
+
+#: lib/treby_web/live/home_live.ex:120
+#, elixir-autogen, elixir-format
+msgid "Interview Scheduling"
+msgstr "Pianificazione Colloqui"
+
+#: lib/treby_web/components/layouts.ex:67
+#, elixir-autogen, elixir-format
+msgid "Interviews"
+msgstr "Colloqui"
+
+#: lib/treby_web/live/home_live.ex:98
+#, elixir-autogen, elixir-format
+msgid "Job Management"
+msgstr "Gestione Lavori"
+
+#: lib/treby_web/components/layouts.ex:55
+#, elixir-autogen, elixir-format
+msgid "Jobs"
+msgstr "Lavori"
+
+#: lib/treby_web/live/home_live.ex:113
+#, elixir-autogen, elixir-format
+msgid "Keep all candidate information in one place. Track resumes, notes, interview feedback, and communication history."
+msgstr "Tutte le informazioni sui candidati in un unico posto. Traccia curriculum, note, feedback dei colloqui e cronologia delle comunicazioni."
+
+#: lib/treby_web/live/settings_live/index.ex:73
+#: lib/treby_web/live/settings_live/language.ex:24
+#: lib/treby_web/live/settings_live/language.ex:31
+#, elixir-autogen, elixir-format
+msgid "Language"
+msgstr "Lingua"
+
+#: lib/treby_web/live/home_live.ex:29
+#: lib/treby_web/live/home_live.ex:73
+#, elixir-autogen, elixir-format
+msgid "Log in"
+msgstr "Accedi"
+
+#: lib/treby_web/components/layouts.ex:93
+#, elixir-autogen, elixir-format
+msgid "Logout"
+msgstr "Esci"
+
+#: lib/treby_web/live/settings_live/index.ex:42
+#, elixir-autogen, elixir-format
+msgid "Manage team members and invites"
+msgstr "Gestisci membri del team e inviti"
+
+#: lib/treby_web/live/home_live.ex:141
+#, elixir-autogen, elixir-format
+msgid "Modern applicant tracking for growing teams."
+msgstr "Tracciamento candidati moderno per team in crescita."
+
+#: lib/treby_web/live/settings_live/index.ex:25
+#, elixir-autogen, elixir-format
+msgid "Pipeline Stages"
+msgstr "Fasi della Pipeline"
+
+#: lib/treby_web/live/home_live.ex:124
+#, elixir-autogen, elixir-format
+msgid "Schedule interviews with integrated calendar support. Candidates can self-schedule using your custom booking page."
+msgstr "Pianifica colloqui con supporto calendario integrato. I candidati possono prenotarsi autonomamente utilizzando la tua pagina di prenotazione personalizzata."
+
+#: lib/treby_web/live/settings_live/index.ex:66
+#, elixir-autogen, elixir-format
+msgid "Set your available hours for interviews"
+msgstr "Imposta le tue ore disponibili per i colloqui"
+
+#: lib/treby_web/live/settings_live/index.ex:74
+#: lib/treby_web/live/settings_live/language.ex:25
+#, elixir-autogen, elixir-format
+msgid "Set your preferred language"
+msgstr "Imposta la tua lingua preferita"
+
+#: lib/treby_web/live/settings_live/language.ex:37
+#, elixir-autogen, elixir-format
+msgid "Save"
+msgstr "Salva"
+
+#: lib/treby_web/components/layouts.ex:79
+#: lib/treby_web/live/settings_live/index.ex:17
+#: lib/treby_web/live/settings_live/language.ex:21
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: lib/treby_web/components/layouts.ex:183
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr "Qualcosa è andato storto!"
+
+#: lib/treby_web/live/home_live.ex:60
+#, elixir-autogen, elixir-format
+msgid "Streamline your hiring process from job posting to offer letter. Manage candidates, schedule interviews, and track your pipeline — all in one place."
+msgstr "Semplifica il tuo processo di assunzione dalla pubblicazione dell'offerta alla lettera di assunzione. Gestisci candidati, programma colloqui e traccia la tua pipeline — tutto in un unico posto."
+
+#: lib/treby_web/live/settings_live/index.ex:41
+#, elixir-autogen, elixir-format
+msgid "Team"
+msgstr "Team"
+
+## Layouts.flash_group
+#: lib/treby_web/components/layouts.ex:171
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr "Non riusciamo a trovare internet"
+
+#: lib/treby_web/components/core_components.ex:81
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr "chiudi"

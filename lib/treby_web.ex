@@ -52,6 +52,8 @@ defmodule TrebyWeb do
     quote do
       use Phoenix.LiveView
 
+      import TrebyWeb.Hooks.SetLocale, only: [set_locale_from_session: 2]
+
       unquote(html_helpers())
     end
   end

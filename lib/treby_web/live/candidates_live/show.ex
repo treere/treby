@@ -4,6 +4,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
   alias Treby.{Accounts, Tenants, Candidates, Pipeline, Notes, Customization}
 
   def mount(%{"id" => id}, session, socket) do
+    socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
     candidate = Candidates.get_candidate!(tenant.id, id)
@@ -48,7 +49,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user}>
+    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <.link navigate={~p"/app/candidates"} class="text-blue-600 hover:text-blue-900 text-sm">
           &larr; Back to Candidates

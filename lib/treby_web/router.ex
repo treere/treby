@@ -5,6 +5,7 @@ defmodule TrebyWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
+    plug TrebyWeb.Plugs.SetLocale
     plug :put_root_layout, html: {TrebyWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
@@ -36,6 +37,7 @@ defmodule TrebyWeb.Router do
     live "/settings/branding", SettingsLive.Branding
     live "/settings/calendar", SettingsLive.Calendar
     live "/settings/availability", SettingsLive.Availability
+    live "/settings/language", SettingsLive.Language
     live "/schedule/:application_id", ScheduleLive.Index
     live "/interviews", InterviewsLive.Index
 
@@ -46,6 +48,7 @@ defmodule TrebyWeb.Router do
   scope "/", TrebyWeb do
     pipe_through :browser
 
+    get "/locale/:locale", LocaleController, :set
     get "/login", SessionController, :new
     post "/session", SessionController, :create
     delete "/session", SessionController, :delete

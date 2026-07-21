@@ -12,6 +12,7 @@ defmodule Treby.Accounts.User do
     field :password_hash, :string, redact: true
     field :name, :string
     field :role, :string, default: "member"
+    field :locale, :string, default: "en"
 
     belongs_to :tenant, Treby.Tenants.Tenant
 
@@ -39,5 +40,11 @@ defmodule Treby.Accounts.User do
         |> put_change(:password_hash, Bcrypt.hash_pwd_salt(password))
         |> delete_change(:password)
     end
+  end
+
+  def locale_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:locale])
+    |> validate_inclusion(:locale, ~w(en it))
   end
 end

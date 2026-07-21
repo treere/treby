@@ -5,6 +5,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
   alias Treby.Careers.CareerPage
 
   def mount(_params, session, socket) do
+    socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
 
@@ -28,7 +29,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user}>
+    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="mb-8">
           <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">

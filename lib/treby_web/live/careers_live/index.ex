@@ -3,7 +3,8 @@ defmodule TrebyWeb.CareersLive.Index do
 
   alias Treby.{Tenants, Careers, Jobs}
 
-  def mount(%{"tenant_slug" => tenant_slug}, _session, socket) do
+  def mount(%{"tenant_slug" => tenant_slug}, session, socket) do
+    socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
     career_page = Careers.get_published_career_page_by_tenant(tenant.id)
     jobs = Jobs.list_open_jobs(tenant.id)

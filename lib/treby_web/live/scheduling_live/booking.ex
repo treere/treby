@@ -3,7 +3,9 @@ defmodule TrebyWeb.SchedulingLive.Booking do
 
   alias Treby.{Availability, Interviews, Calendar}
 
-  def mount(%{"tenant_slug" => _slug, "token" => token}, _session, socket) do
+  def mount(%{"tenant_slug" => _slug, "token" => token}, session, socket) do
+    socket = set_locale_from_session(socket, session)
+
     case Interviews.get_booking_token(token) do
       nil ->
         {:ok,

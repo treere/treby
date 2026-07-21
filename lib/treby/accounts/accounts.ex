@@ -29,6 +29,12 @@ defmodule Treby.Accounts do
     |> Repo.update()
   end
 
+  def update_locale(%User{} = user, locale) do
+    user
+    |> User.locale_changeset(%{locale: locale})
+    |> Repo.update()
+  end
+
   def delete_user(%User{} = user) do
     Repo.delete(user)
   end

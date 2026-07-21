@@ -57,7 +57,7 @@ defmodule TrebyWeb.Router do
   scope "/", TrebyWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive
     live "/:tenant_slug/careers", CareersLive.Index
     live "/:tenant_slug/careers/:job_id", CareersLive.Show
     live "/:tenant_slug/careers/:job_id/apply", CareersLive.Apply

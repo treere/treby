@@ -13,8 +13,6 @@ defmodule TrebyWeb.BookingPageTest do
         slug: "booking-test-#{System.unique_integer([:positive])}"
       })
 
-    Pipeline.create_default_pipeline_stages(tenant)
-
     {:ok, user} =
       tenant
       |> Ecto.build_assoc(:users)
@@ -85,8 +83,10 @@ defmodule TrebyWeb.BookingPageTest do
       })
       |> Repo.insert()
 
+    pipeline_id = job.pipeline_id || Treby.Pipeline.default_pipeline_id(job.tenant_id)
+
     stage =
-      Repo.one!(from s in Pipeline.PipelineStage, where: s.tenant_id == ^tenant.id, limit: 1)
+      Repo.one!(from s in Pipeline.PipelineStage, where: s.pipeline_id == ^pipeline_id, limit: 1)
 
     {:ok, application} =
       tenant

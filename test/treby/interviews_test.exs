@@ -104,7 +104,7 @@ defmodule Treby.InterviewsTest do
 
   describe "booking tokens" do
     test "generate_booking_token/1 creates token with expiry", %{
-      user: user,
+      user: _user,
       interviewer: interviewer,
       tenant: tenant
     } do
@@ -120,12 +120,11 @@ defmodule Treby.InterviewsTest do
 
       assert {:ok, %BookingToken{} = token} = Interviews.generate_booking_token(attrs)
       assert token.token != nil
-      assert token.expires_at > DateTime.utc_now()
+      assert DateTime.after?(token.expires_at, DateTime.utc_now())
       assert token.used_at == nil
     end
 
     test "get_booking_token/1 returns valid unused token", %{
-      user: user,
       interviewer: interviewer,
       tenant: tenant
     } do
@@ -145,7 +144,6 @@ defmodule Treby.InterviewsTest do
     end
 
     test "get_booking_token/1 returns nil for used token", %{
-      user: user,
       interviewer: interviewer,
       tenant: tenant
     } do
@@ -165,7 +163,6 @@ defmodule Treby.InterviewsTest do
     end
 
     test "get_booking_token/1 returns nil for expired token", %{
-      user: user,
       interviewer: interviewer,
       tenant: tenant
     } do
@@ -189,7 +186,6 @@ defmodule Treby.InterviewsTest do
     end
 
     test "use_booking_token/1 marks token as used", %{
-      user: user,
       interviewer: interviewer,
       tenant: tenant
     } do
@@ -228,11 +224,15 @@ defmodule Treby.InterviewsTest do
   end
 
   defp insert_tenant do
-    Treby.Repo.insert!(%Treby.Tenants.Tenant{
-      name: "Test Tenant",
-      slug: "test-#{System.unique_integer([:positive])}"
-    })
-    |> then(&{:ok, &1})
+    tenant =
+      Treby.Repo.insert!(%Treby.Tenants.Tenant{
+        name: "Test Tenant",
+        slug: "test-#{System.unique_integer([:positive])}"
+      })
+
+    Treby.Pipeline.create_default_pipeline_stages(tenant)
+
+    {:ok, tenant}
   end
 
   defp insert_user(tenant_id) do
@@ -246,12 +246,15 @@ defmodule Treby.InterviewsTest do
   end
 
   defp insert_job(tenant_id) do
+    pipeline_id = Treby.Pipeline.default_pipeline_id(tenant_id)
+
     {:ok, job} =
       %Treby.Jobs.Job{}
       |> Ecto.Changeset.change(%{
         title: "Test Job",
         description: "A test job posting",
-        tenant_id: tenant_id
+        tenant_id: tenant_id,
+        pipeline_id: pipeline_id
       })
       |> Treby.Repo.insert()
 
@@ -271,11 +274,14 @@ defmodule Treby.InterviewsTest do
     {:ok, candidate}
   end
 
-  defp insert_application(tenant_id, job_id, candidate_id) do
+  defp insert_application(_tenant_id, job_id, candidate_id) do
+    job = Treby.Repo.get!(Treby.Jobs.Job, job_id)
+    pipeline_id = job.pipeline_id || Treby.Pipeline.default_pipeline_id(job.tenant_id)
+
     stage =
       case Treby.Repo.one(
              from s in Treby.Pipeline.PipelineStage,
-               where: s.tenant_id == ^tenant_id,
+               where: s.pipeline_id == ^pipeline_id,
                limit: 1
            ) do
         nil ->
@@ -285,7 +291,7 @@ defmodule Treby.InterviewsTest do
               name: "Applied",
               position: 0,
               color: "#3B82F6",
-              tenant_id: tenant_id
+              pipeline_id: pipeline_id
             })
             |> Treby.Repo.insert()
 
@@ -301,7 +307,7 @@ defmodule Treby.InterviewsTest do
         job_id: job_id,
         candidate_id: candidate_id,
         pipeline_stage_id: stage.id,
-        tenant_id: tenant_id,
+        tenant_id: job.tenant_id,
         applied_at: DateTime.utc_now() |> DateTime.truncate(:second)
       })
       |> Treby.Repo.insert()

@@ -9,8 +9,9 @@ defmodule Treby.Pipeline.PipelineStage do
     field :name, :string
     field :position, :integer, default: 0
     field :color, :string, default: "#3b82f6"
+    field :stage_type, :string
 
-    belongs_to :tenant, Treby.Tenants.Tenant
+    belongs_to :pipeline, Treby.Pipeline.Pipeline
 
     timestamps(type: :utc_datetime)
   end
@@ -18,7 +19,7 @@ defmodule Treby.Pipeline.PipelineStage do
   @doc false
   def changeset(pipeline_stage, attrs) do
     pipeline_stage
-    |> cast(attrs, [:name, :position, :color, :tenant_id])
-    |> validate_required([:name, :position, :tenant_id])
+    |> cast(attrs, [:name, :position, :color, :pipeline_id, :stage_type])
+    |> validate_required([:name, :position])
   end
 end

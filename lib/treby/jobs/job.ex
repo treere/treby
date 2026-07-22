@@ -13,6 +13,7 @@ defmodule Treby.Jobs.Job do
     field :custom_fields, :map, default: %{}
 
     belongs_to :tenant, Treby.Tenants.Tenant
+    belongs_to :pipeline, Treby.Pipeline.Pipeline
 
     timestamps(type: :utc_datetime)
   end
@@ -20,7 +21,7 @@ defmodule Treby.Jobs.Job do
   @doc false
   def changeset(job, attrs) do
     job
-    |> cast(attrs, [:title, :description, :salary_range, :status, :custom_fields])
+    |> cast(attrs, [:title, :description, :salary_range, :status, :custom_fields, :pipeline_id])
     |> validate_required([:title, :description])
     |> validate_inclusion(:status, ~w(open closed))
   end

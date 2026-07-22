@@ -15,7 +15,7 @@ defmodule Treby.Notes do
     |> Repo.all()
   end
 
-  def get_note!(id), do: Repo.get!(Note, id) |> preload([:author])
+  def get_note!(id), do: Repo.get!(Note, id) |> Repo.preload([:author])
 
   def get_note!(tenant_id, id) do
     Note

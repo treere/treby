@@ -8,9 +8,9 @@ defmodule TrebyWeb.AnalyticsLive.Index do
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
 
-    pipeline_counts = Pipeline.pipeline_counts_per_stage(tenant.id)
-    avg_hire_days = Pipeline.average_time_to_hire(tenant.id)
-    conversion_rates = Pipeline.stage_conversion_rates(tenant.id)
+    pipeline_id = Pipeline.default_pipeline_id(tenant.id)
+    pipeline_counts = Pipeline.pipeline_counts_per_stage(pipeline_id)
+    avg_hire_days = Pipeline.average_time_to_hire(pipeline_id)
     jobs = Jobs.list_jobs(tenant.id)
 
     {:ok,
@@ -18,7 +18,6 @@ defmodule TrebyWeb.AnalyticsLive.Index do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(pipeline_counts: pipeline_counts)
      |> assign(avg_hire_days: avg_hire_days)
-     |> assign(conversion_rates: conversion_rates)
      |> assign(jobs: jobs)}
   end
 
@@ -77,22 +76,37 @@ defmodule TrebyWeb.AnalyticsLive.Index do
           </div>
         </div>
 
-        <%!-- Conversion Rates --%>
-        <div :if={@conversion_rates != []} class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">Stage Conversion Rates</h2>
-          <div class="space-y-3">
-            <div :for={rate <- @conversion_rates} class="flex items-center gap-4">
-              <span class="text-sm text-gray-700 w-48">
-                {rate.from.name} &rarr; {rate.to.name}
-              </span>
-              <div class="flex-1 bg-gray-100 rounded-full h-4">
+        <%!-- Hiring Funnel --%>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Hiring Funnel</h2>
+          <div class="flex flex-col items-center gap-1">
+            <div
+              :for={{item, idx} <- Enum.with_index(@pipeline_counts)}
+              class="flex items-center gap-4 w-full max-w-lg"
+            >
+              <div class="w-28 text-right flex items-center justify-end gap-2">
+                <div class="w-3 h-3 rounded-full" style={"background-color: #{item.stage.color}"}>
+                </div>
+                <span class="text-sm font-medium text-gray-700">{item.stage.name}</span>
+              </div>
+              <div class="flex-1 flex justify-center">
                 <div
-                  class="h-4 rounded-full bg-green-500"
-                  style={"width: #{rate.rate}%"}
+                  class="h-8 rounded flex items-center justify-center transition-all"
+                  style={
+                    "background-color: #{item.stage.color};
+                     width: #{total = Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end);
+                               if total > 0, do: max(item.count / total * 100, item.count > 0 && 8 || 0), else: 0}%"
+                  }
                 >
+                  <span :if={item.count > 0} class="text-xs font-semibold text-white">
+                    {item.count}
+                  </span>
                 </div>
               </div>
-              <span class="w-12 text-sm font-medium text-gray-700 text-right">{rate.rate}%</span>
+              <span class="w-10 text-sm text-gray-500 text-right">
+                {total = Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end)
+                if total > 0, do: "#{trunc(item.count / total * 100)}%", else: "0%"}
+              </span>
             </div>
           </div>
         </div>

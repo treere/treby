@@ -42,7 +42,7 @@ defmodule Treby.Interviews do
   def get_event!(id) do
     InterviewEvent
     |> Repo.get!(id)
-    |> preload([:application, :interviewer, :scheduled_by, :tenant])
+    |> Repo.preload([:application, :interviewer, :scheduled_by, :tenant])
   end
 
   def schedule_interview(attrs) do
@@ -111,10 +111,10 @@ defmodule Treby.Interviews do
     application = Pipeline.get_application!(application_id)
     job = Treby.Jobs.get_job!(application.job_id)
 
-    # Find the "Interview" stage for this job's tenant
+    # Find the interview stage for this job's pipeline
     interview_stage =
-      Pipeline.list_pipeline_stages(job.tenant_id)
-      |> Enum.find(&(&1.name == "Interview"))
+      Pipeline.list_pipeline_stages_for_job(job.id)
+      |> Enum.find(&(&1.stage_type == "interview"))
 
     if interview_stage do
       Pipeline.move_application(application, interview_stage.id)

@@ -8,7 +8,6 @@ defmodule TrebyWeb.PipelineLive.Index do
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
     job = Jobs.get_job!(tenant.id, job_id)
-    stages = Pipeline.list_pipeline_stages(tenant.id)
     applications_by_stage = Pipeline.list_applications_by_stage(job_id)
 
     # Load upcoming interviews for this job's applications
@@ -40,7 +39,6 @@ defmodule TrebyWeb.PipelineLive.Index do
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(job: job)
-     |> assign(stages: stages)
      |> assign(applications_by_stage: applications_by_stage)
      |> assign(upcoming_interviews: upcoming_interviews)}
   end

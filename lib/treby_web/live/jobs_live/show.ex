@@ -1,7 +1,7 @@
 defmodule TrebyWeb.JobsLive.Show do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Jobs, Customization}
+  alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline}
 
   def mount(%{"id" => id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -9,12 +9,14 @@ defmodule TrebyWeb.JobsLive.Show do
     tenant = Tenants.get_tenant!(session["tenant_id"])
     job = Jobs.get_job!(tenant.id, id)
     job_fields = Customization.list_custom_fields_for(tenant.id, "job")
+    pipelines = Pipeline.list_pipelines(tenant.id)
 
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(job: job)
      |> assign(job_fields: job_fields)
+     |> assign(pipelines: pipelines)
      |> assign(editing: false)
      |> assign(form: to_form(Jobs.change_job(job)))}
   end
@@ -53,6 +55,14 @@ defmodule TrebyWeb.JobsLive.Show do
             <.input field={@form[:description]} type="textarea" label="Description" />
             <.input field={@form[:salary_range]} type="text" label="Salary Range" />
             <.input field={@form[:status]} type="select" label="Status" options={["open", "closed"]} />
+
+            <.input
+              field={@form[:pipeline_id]}
+              type="select"
+              label="Pipeline"
+              options={Enum.map(@pipelines, &{&1.name, &1.id})}
+              prompt="Default pipeline"
+            />
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
               <h3 class="text-sm font-medium text-gray-700 mb-3">Custom Fields</h3>

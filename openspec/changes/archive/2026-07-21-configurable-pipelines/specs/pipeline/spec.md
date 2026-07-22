@@ -1,10 +1,4 @@
-# Pipeline
-
-## Purpose
-
-Provide a Kanban-style pipeline board for managing candidates through hiring stages with real-time collaboration.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Kanban board view
 The system SHALL display a Kanban board for each job showing candidates in pipeline stages from the job's assigned pipeline.
@@ -23,28 +17,16 @@ The system SHALL display a Kanban board for each job showing candidates in pipel
 - **THEN** the card shows a camera icon indicating an interview is scheduled
 - **AND** if an interview is scheduled, the card shows the interview date/time
 
-### Requirement: Drag-and-drop stage transition
-The system SHALL allow dragging candidate cards between stages.
-
-#### Scenario: Move candidate to new stage
-- **WHEN** a user drags a candidate card from one stage column to another
-- **THEN** the candidate's application is updated to the new stage
-- **AND** the change is reflected in real-time for all connected users
-
-#### Scenario: Drop in same stage
-- **WHEN** a user drops a card in the same stage column
-- **THEN** no change is made
-
 ### Requirement: Pipeline stages management
-The system SHALL allow admins to customize pipeline stages.
+The system SHALL allow admins to customize pipeline stages within a specific pipeline.
 
 #### Scenario: Add new stage
-- **WHEN** an admin adds a new pipeline stage
-- **THEN** the stage appears on the Kanban board
+- **WHEN** an admin adds a new pipeline stage to a pipeline
+- **THEN** the stage appears on the Kanban board for jobs using that pipeline
 
 #### Scenario: Remove stage
 - **WHEN** an admin removes a pipeline stage with no candidates
-- **THEN** the stage is deleted from the board
+- **THEN** the stage is deleted from the pipeline
 
 #### Scenario: Remove stage with candidates
 - **WHEN** an admin removes a stage with candidates
@@ -52,10 +34,3 @@ The system SHALL allow admins to customize pipeline stages.
 - **AND** the admin selects a destination stage for the candidates
 - **AND** all candidates are moved to the selected stage
 - **AND** the original stage is deleted
-
-### Requirement: Real-time updates
-The system SHALL broadcast pipeline changes to all connected clients.
-
-#### Scenario: Multi-user real-time sync
-- **WHEN** one user moves a candidate to a new stage
-- **THEN** all other users viewing the same pipeline see the change immediately

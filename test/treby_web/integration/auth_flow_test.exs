@@ -1,7 +1,7 @@
 defmodule TrebyWeb.AuthFlowTest do
   use TrebyWeb.ConnCase, async: false
 
-  alias Treby.{Tenants, Pipeline, Repo}
+  alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
 
   defp setup_tenant do
@@ -10,8 +10,6 @@ defmodule TrebyWeb.AuthFlowTest do
         name: "Auth Test Corp",
         slug: "auth-test-#{System.unique_integer([:positive])}"
       })
-
-    Pipeline.create_default_pipeline_stages(tenant)
 
     {:ok, user} =
       tenant

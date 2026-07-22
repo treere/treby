@@ -32,6 +32,7 @@ defmodule TrebyWeb.Router do
     live "/analytics", AnalyticsLive.Index
     live "/settings", SettingsLive.Index
     live "/settings/pipeline", SettingsLive.Pipeline
+    live "/settings/pipeline/:id", SettingsLive.PipelineStages
     live "/settings/fields", SettingsLive.Fields
     live "/settings/team", SettingsLive.Team
     live "/settings/branding", SettingsLive.Branding

@@ -1,7 +1,7 @@
 defmodule TrebyWeb.CareerPageTest do
   use TrebyWeb.ConnCase, async: false
 
-  alias Treby.{Tenants, Pipeline, Repo}
+  alias Treby.{Tenants, Repo}
   alias Treby.Careers.CareerPage
 
   defp setup_tenant_with_career_page do
@@ -10,8 +10,6 @@ defmodule TrebyWeb.CareerPageTest do
         name: "Career Test Corp",
         slug: "career-test-#{System.unique_integer([:positive])}"
       })
-
-    Pipeline.create_default_pipeline_stages(tenant)
 
     {:ok, career_page} =
       tenant

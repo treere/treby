@@ -1,13 +1,12 @@
 defmodule TrebyWeb.TenantIsolationTest do
   use TrebyWeb.ConnCase, async: false
 
-  alias Treby.{Tenants, Jobs, Candidates, Pipeline, Repo}
+  alias Treby.{Tenants, Jobs, Candidates, Repo}
   alias Treby.Accounts.User
 
   defp create_tenant_with_user(attrs \\ %{}) do
     tenant_attrs = Map.merge(%{name: "Test Corp", slug: "test-corp"}, attrs[:tenant] || %{})
     {:ok, tenant} = Tenants.create_tenant(tenant_attrs)
-    Pipeline.create_default_pipeline_stages(tenant)
 
     {:ok, user} =
       tenant

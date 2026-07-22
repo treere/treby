@@ -1,7 +1,7 @@
 defmodule TrebyWeb.JobsLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Jobs, Customization}
+  alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline}
   alias Treby.Jobs.Job
 
   def mount(_params, session, socket) do
@@ -10,12 +10,16 @@ defmodule TrebyWeb.JobsLive.Index do
     tenant = Tenants.get_tenant!(session["tenant_id"])
     jobs = Jobs.list_jobs(tenant.id)
     job_fields = Customization.list_custom_fields_for(tenant.id, "job")
+    pipelines = Pipeline.list_pipelines(tenant.id)
+    default_pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(jobs: jobs)
      |> assign(job_fields: job_fields)
+     |> assign(pipelines: pipelines)
+     |> assign(default_pipeline_id: default_pipeline_id)
      |> assign(filter: "all")
      |> assign(show_form: false)
      |> assign(form: to_form(Jobs.change_job(%Job{})))}
@@ -69,6 +73,14 @@ defmodule TrebyWeb.JobsLive.Index do
               type="text"
               label="Salary Range"
               placeholder="$100k-$150k"
+            />
+
+            <.input
+              field={@form[:pipeline_id]}
+              type="select"
+              label="Pipeline"
+              options={Enum.map(@pipelines, &{&1.name, &1.id})}
+              prompt="Default pipeline"
             />
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">

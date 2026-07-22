@@ -11,8 +11,8 @@ defmodule TrebyWeb.PipelineDragDropTest do
         slug: "pipeline-test-#{System.unique_integer([:positive])}"
       })
 
-    Pipeline.create_default_pipeline_stages(tenant)
-    stages = Pipeline.list_pipeline_stages(tenant.id)
+    pipeline_id = Pipeline.default_pipeline_id(tenant.id)
+    stages = Pipeline.list_pipeline_stages(pipeline_id)
 
     {:ok, _user} =
       tenant

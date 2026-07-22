@@ -79,7 +79,7 @@ defmodule TrebyWeb.GoogleAuthController do
   end
 
   defp google_redirect_uri(conn) do
-    URI.to_string(%{
+    URI.to_string(%URI{
       scheme: to_string(conn.scheme),
       host: conn.host,
       port: conn.port,

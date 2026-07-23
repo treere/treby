@@ -134,6 +134,9 @@ defmodule TrebyWeb.JobsLive.Index do
                   Status
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Public
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -155,6 +158,20 @@ defmodule TrebyWeb.JobsLive.Index do
                   <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if job.status == "open", do: "bg-green-100 text-green-800", else: "bg-gray-100 text-gray-800"}"}>
                     {job.status}
                   </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button
+                    phx-click="toggle_visibility"
+                    phx-value-job_id={job.id}
+                    disabled={job.status != "open"}
+                    class={"inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium #{if job.visible, do: "bg-blue-100 text-blue-800 hover:bg-blue-200", else: "bg-gray-100 text-gray-500 hover:bg-gray-200"} #{if job.status != "open", do: "opacity-50 cursor-not-allowed"}"}
+                  >
+                    <.icon
+                      name={if job.visible, do: "hero-globe-alt", else: "hero-lock-closed"}
+                      class="w-3 h-3"
+                    />
+                    {if job.visible, do: "Public", else: "Private"}
+                  </button>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <.link
@@ -257,6 +274,20 @@ defmodule TrebyWeb.JobsLive.Index do
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to update job status")}
+    end
+  end
+
+  def handle_event("toggle_visibility", %{"job_id" => job_id}, socket) do
+    job = Jobs.get_job!(socket.assigns.current_tenant.id, job_id)
+    new_visible = !job.visible
+
+    case Jobs.update_job(job, %{visible: new_visible}) do
+      {:ok, _job} ->
+        jobs = Jobs.list_jobs(socket.assigns.current_tenant.id)
+        {:noreply, assign(socket, jobs: jobs)}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to update visibility")}
     end
   end
 end

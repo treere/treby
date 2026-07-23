@@ -39,6 +39,14 @@ defmodule TrebyWeb.JobsLive.Show do
           </div>
           <div class="flex gap-2">
             <button
+              id="copy-public-link"
+              phx-hook=".CopyToClipboard"
+              data-url={~p"/#{@current_tenant.slug}/careers/#{@job.id}"}
+              class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 inline-flex items-center gap-1"
+            >
+              <.icon name="hero-link" class="w-4 h-4" /> Copy Public Link
+            </button>
+            <button
               phx-click="start_editing"
               class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 inline-flex items-center gap-1"
             >
@@ -213,7 +221,24 @@ defmodule TrebyWeb.JobsLive.Show do
         </div>
       </div>
     </Layouts.app>
+
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".CopyToClipboard">
+      export default {
+        mounted() {
+          this.el.addEventListener("click", () => {
+            const url = this.el.dataset.url;
+            navigator.clipboard.writeText(url).then(() => {
+              this.pushEvent("copy_link_success", {});
+            });
+          });
+        }
+      }
+    </script>
     """
+  end
+
+  def handle_event("copy_link_success", _params, socket) do
+    {:noreply, put_flash(socket, :info, "Public link copied to clipboard")}
   end
 
   def handle_event("start_editing", _, socket) do

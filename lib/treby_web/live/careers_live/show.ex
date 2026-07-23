@@ -6,7 +6,14 @@ defmodule TrebyWeb.CareersLive.Show do
   def mount(%{"tenant_slug" => tenant_slug, "job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
-    job = Jobs.get_job!(tenant.id, job_id)
+
+    job =
+      try do
+        Jobs.get_job!(tenant.id, job_id)
+      rescue
+        Ecto.NoResultsError -> nil
+      end
+
     career_page = Careers.get_published_career_page_by_tenant(tenant.id)
 
     {:ok,
@@ -24,13 +31,21 @@ defmodule TrebyWeb.CareersLive.Show do
           &larr; Back to all positions
         </.link>
 
-        <div class="mt-8 bg-white rounded-lg shadow p-8">
-          <img
-            :if={@career_page && @career_page.logo_url}
-            src={@career_page.logo_url}
-            class="h-12 mb-4"
-            alt={@tenant.name}
-          />
+        <div :if={@job && @job.status == "open"} class="mt-8 bg-white rounded-lg shadow p-8">
+          <div :if={@career_page} class="flex items-center gap-4 mb-6">
+            <img
+              :if={@career_page.logo_url}
+              src={@career_page.logo_url}
+              class="h-12"
+              alt={@tenant.name}
+            />
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">{@tenant.name}</h2>
+              <p :if={@career_page.description} class="text-sm text-gray-500">
+                {@career_page.description}
+              </p>
+            </div>
+          </div>
 
           <h1 class="text-3xl font-bold text-gray-900">{@job.title}</h1>
 
@@ -46,6 +61,35 @@ defmodule TrebyWeb.CareersLive.Show do
             style={"background-color: #{@career_page && @career_page.primary_color || "#3b82f6"}"}
           >
             Apply Now
+          </.link>
+        </div>
+
+        <div
+          :if={@job && @job.status != "open"}
+          class="mt-8 bg-white rounded-lg shadow p-8 text-center"
+        >
+          <h1 class="text-2xl font-bold text-gray-900">This position is no longer available</h1>
+          <p class="mt-4 text-gray-600">
+            The job you're looking for has been closed or removed.
+          </p>
+          <.link
+            navigate={~p"/#{@tenant.slug}/careers"}
+            class="mt-6 inline-block text-blue-600 hover:text-blue-900"
+          >
+            View other positions
+          </.link>
+        </div>
+
+        <div :if={!@job} class="mt-8 bg-white rounded-lg shadow p-8 text-center">
+          <h1 class="text-2xl font-bold text-gray-900">Position not found</h1>
+          <p class="mt-4 text-gray-600">
+            The job you're looking for doesn't exist or has been removed.
+          </p>
+          <.link
+            navigate={~p"/#{@tenant.slug}/careers"}
+            class="mt-6 inline-block text-blue-600 hover:text-blue-900"
+          >
+            View other positions
           </.link>
         </div>
       </div>

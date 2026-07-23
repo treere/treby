@@ -10,6 +10,7 @@ defmodule Treby.Jobs.Job do
     field :description, :string
     field :salary_range, :string
     field :status, :string, default: "open"
+    field :visible, :boolean, default: true
     field :custom_fields, :map, default: %{}
 
     belongs_to :tenant, Treby.Tenants.Tenant
@@ -21,7 +22,15 @@ defmodule Treby.Jobs.Job do
   @doc false
   def changeset(job, attrs) do
     job
-    |> cast(attrs, [:title, :description, :salary_range, :status, :custom_fields, :pipeline_id])
+    |> cast(attrs, [
+      :title,
+      :description,
+      :salary_range,
+      :status,
+      :visible,
+      :custom_fields,
+      :pipeline_id
+    ])
     |> validate_required([:title, :description])
     |> validate_inclusion(:status, ~w(open closed))
   end

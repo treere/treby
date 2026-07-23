@@ -21,6 +21,50 @@ defmodule Treby.Jobs do
     |> Repo.all()
   end
 
+  def list_visible_jobs(tenant_id) do
+    Job
+    |> where([j], j.tenant_id == ^tenant_id and j.status == "open" and j.visible == true)
+    |> order_by([j], j.title)
+    |> Repo.all()
+  end
+
+  def list_all_visible_jobs do
+    Job
+    |> join(:inner, [j], t in assoc(j, :tenant))
+    |> where([j, t], j.status == "open" and j.visible == true)
+    |> preload([j, t], tenant: t)
+    |> order_by([j, t], asc: t.name, asc: j.title)
+    |> Repo.all()
+  end
+
+  def search_visible_jobs(tenant_id, query) do
+    ilike_query = "%#{query}%"
+
+    Job
+    |> where(
+      [j],
+      j.tenant_id == ^tenant_id and j.status == "open" and j.visible == true and
+        (ilike(j.title, ^ilike_query) or ilike(j.description, ^ilike_query))
+    )
+    |> order_by([j], j.title)
+    |> Repo.all()
+  end
+
+  def search_all_visible_jobs(query) do
+    ilike_query = "%#{query}%"
+
+    Job
+    |> join(:inner, [j], t in assoc(j, :tenant))
+    |> where(
+      [j, t],
+      j.status == "open" and j.visible == true and
+        (ilike(j.title, ^ilike_query) or ilike(j.description, ^ilike_query))
+    )
+    |> preload([j, t], tenant: t)
+    |> order_by([j, t], asc: t.name, asc: j.title)
+    |> Repo.all()
+  end
+
   def get_job!(id), do: Repo.get!(Job, id)
 
   def get_job!(tenant_id, id) do

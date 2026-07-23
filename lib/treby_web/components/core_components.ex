@@ -502,4 +502,63 @@ defmodule TrebyWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  @doc """
+  Renders an activity timeline showing recent events for an entity.
+  """
+  attr :events, :list, required: true
+
+  def activity_timeline(assigns) do
+    ~H"""
+    <div class="space-y-3">
+      <div :for={event <- @events} class="flex items-start gap-3">
+        <div class={[
+          "w-2 h-2 rounded-full mt-2 flex-shrink-0",
+          event.event_type |> event_color()
+        ]}>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm text-gray-800">{format_event(event)}</p>
+          <p class="text-xs text-gray-400">{relative_time(event.inserted_at)}</p>
+        </div>
+      </div>
+      <div :if={@events == []} class="text-sm text-gray-500">
+        No activity yet.
+      </div>
+    </div>
+    """
+  end
+
+  defp event_color("application_stage_changed"), do: "bg-blue-500"
+  defp event_color("note_created"), do: "bg-yellow-500"
+  defp event_color("interview_scheduled"), do: "bg-purple-500"
+  defp event_color("interview_cancelled"), do: "bg-red-500"
+  defp event_color("candidate_created"), do: "bg-green-500"
+  defp event_color("candidate_updated"), do: "bg-gray-500"
+  defp event_color(_), do: "bg-gray-400"
+
+  defp format_event(%{event_type: "application_stage_changed", metadata: meta}) do
+    "Moved from #{meta["old_stage"] || "—"} to #{meta["new_stage"] || "—"}"
+  end
+
+  defp format_event(%{event_type: "note_created"}), do: "Added a note"
+  defp format_event(%{event_type: "interview_scheduled"}), do: "Interview scheduled"
+  defp format_event(%{event_type: "interview_cancelled"}), do: "Interview cancelled"
+  defp format_event(%{event_type: "candidate_created"}), do: "Candidate created"
+  defp format_event(%{event_type: "candidate_updated"}), do: "Candidate updated"
+
+  defp format_event(%{event_type: type}),
+    do: String.replace(type, "_", " ") |> String.capitalize()
+
+  defp relative_time(dt) do
+    diff = DateTime.diff(DateTime.utc_now(), dt, :second)
+
+    cond do
+      diff < 60 -> "just now"
+      diff < 3600 -> "#{div(diff, 60)}m ago"
+      diff < 86400 -> "#{div(diff, 3600)}h ago"
+      diff < 604_800 -> "#{div(diff, 86400)}d ago"
+      true -> Calendar.strftime(dt, "%b %d, %Y")
+    end
+  end
 end

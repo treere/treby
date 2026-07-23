@@ -25,9 +25,30 @@ defmodule Treby.Notes do
   end
 
   def create_note(attrs \\ %{}) do
-    %Note{}
-    |> Note.changeset(attrs)
-    |> Repo.insert()
+    result =
+      %Note{}
+      |> Note.changeset(attrs)
+      |> Repo.insert()
+
+    case result do
+      {:ok, note} ->
+        Treby.Activities.log_event(
+          "note_created",
+          "application",
+          note.application_id,
+          %{
+            note_type: note.type,
+            rating: note.rating,
+            actor_id: note.author_id,
+            tenant_id: note.tenant_id
+          }
+        )
+
+        {:ok, note}
+
+      error ->
+        error
+    end
   end
 
   def update_note(%Note{} = note, attrs) do

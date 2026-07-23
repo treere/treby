@@ -82,7 +82,9 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                 </div>
                 <p class="text-sm text-gray-500">
                   {gettext("%{count} stages", count: length(pipeline.pipeline_stages))} &middot; {gettext(
-                    "%{count} active jobs", count: Pipeline.count_active_jobs(pipeline.id))}
+                    "%{count} active jobs",
+                    count: Pipeline.count_active_jobs(pipeline.id)
+                  )}
                 </p>
               </div>
             </div>

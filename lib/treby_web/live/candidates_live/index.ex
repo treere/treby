@@ -1,7 +1,7 @@
 defmodule TrebyWeb.CandidatesLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Candidates, Pipeline, Customization}
+  alias Treby.{Accounts, Tenants, Candidates, Pipeline, Jobs, Customization}
   alias Treby.Candidates.Candidate
 
   def mount(_params, session, socket) do
@@ -10,6 +10,8 @@ defmodule TrebyWeb.CandidatesLive.Index do
     tenant = Tenants.get_tenant!(session["tenant_id"])
     candidates = Candidates.list_candidates(tenant.id)
     candidate_fields = Customization.list_custom_fields_for(tenant.id, "candidate")
+    jobs = Jobs.list_jobs(tenant.id)
+    pipeline_stages = list_all_stages(tenant.id)
 
     candidates_with_counts =
       Enum.map(candidates, fn candidate ->
@@ -22,6 +24,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(candidates: candidates_with_counts)
      |> assign(candidate_fields: candidate_fields)
+     |> assign(jobs: jobs)
+     |> assign(pipeline_stages: pipeline_stages)
+     |> assign(search: "")
+     |> assign(filter_job_id: "")
+     |> assign(filter_stage_id: "")
      |> assign(show_form: false)
      |> assign(form: to_form(Candidates.change_candidate(%Candidate{})))}
   end
@@ -38,6 +45,44 @@ defmodule TrebyWeb.CandidatesLive.Index do
           >
             + Add Candidate
           </button>
+        </div>
+
+        <div class="mb-6 flex flex-wrap gap-4 items-center">
+          <form phx-change="search" class="flex-1 min-w-[200px]">
+            <input
+              type="text"
+              name="search"
+              value={@search}
+              placeholder="Search by name or email..."
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+            />
+          </form>
+          <form phx-change="filter_job" class="min-w-[180px]">
+            <select
+              name="job_id"
+              class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+            >
+              <option value="">All Jobs</option>
+              <option :for={job <- @jobs} value={job.id} selected={job.id == @filter_job_id}>
+                {job.title}
+              </option>
+            </select>
+          </form>
+          <form phx-change="filter_stage" class="min-w-[180px]">
+            <select
+              name="stage_id"
+              class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+            >
+              <option value="">All Stages</option>
+              <option
+                :for={stage <- @pipeline_stages}
+                value={stage.id}
+                selected={stage.id == @filter_stage_id}
+              >
+                {stage.name}
+              </option>
+            </select>
+          </form>
         </div>
 
         <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
@@ -215,5 +260,59 @@ defmodule TrebyWeb.CandidatesLive.Index do
     :ok = Candidates.delete_candidate(candidate)
     candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
     {:noreply, assign(socket, candidates: candidates)}
+  end
+
+  def handle_event("search", %{"search" => search}, socket) do
+    candidates = filter_candidates(socket.assigns, search: search)
+
+    {:noreply,
+     socket
+     |> assign(search: search)
+     |> assign(candidates: candidates)}
+  end
+
+  def handle_event("filter_job", %{"job_id" => job_id}, socket) do
+    candidates = filter_candidates(socket.assigns, job_id: job_id)
+
+    {:noreply,
+     socket
+     |> assign(filter_job_id: job_id)
+     |> assign(candidates: candidates)}
+  end
+
+  def handle_event("filter_stage", %{"stage_id" => stage_id}, socket) do
+    candidates = filter_candidates(socket.assigns, stage_id: stage_id)
+
+    {:noreply,
+     socket
+     |> assign(filter_stage_id: stage_id)
+     |> assign(candidates: candidates)}
+  end
+
+  defp filter_candidates(assigns, overrides) do
+    filters = %{
+      search: overrides[:search] || assigns.search,
+      job_id: overrides[:job_id] || assigns.filter_job_id,
+      stage_id: overrides[:stage_id] || assigns.filter_stage_id
+    }
+
+    candidates = Candidates.list_candidates(assigns.current_tenant.id, filters)
+
+    Enum.map(candidates, fn candidate ->
+      applications =
+        Pipeline.list_applications_for_candidate(assigns.current_tenant.id, candidate.id)
+
+      Map.put(candidate, :application_count, length(applications))
+    end)
+  end
+
+  defp list_all_stages(tenant_id) do
+    pipelines = Pipeline.list_pipelines(tenant_id)
+
+    pipelines
+    |> Enum.flat_map(fn pipeline ->
+      Pipeline.list_pipeline_stages(pipeline.id)
+    end)
+    |> Enum.sort_by(& &1.position)
   end
 end

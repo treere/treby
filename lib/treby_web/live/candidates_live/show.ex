@@ -1,7 +1,7 @@
 defmodule TrebyWeb.CandidatesLive.Show do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Candidates, Pipeline, Notes, Customization}
+  alias Treby.{Accounts, Tenants, Candidates, Pipeline, Notes, Customization, Activities}
 
   def mount(%{"id" => id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -35,6 +35,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
         []
       end
 
+    # Load activity timeline
+    activities = Activities.list_events_for_entity("candidate", candidate.id, limit: 20)
+
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
@@ -43,8 +46,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(candidate_fields: candidate_fields)
      |> assign(application_fields: application_fields)
      |> assign(interviews: interviews)
+     |> assign(activities: activities)
      |> assign(show_note_form: nil)
-     |> assign(note_form: to_form(%{}, as: :note))}
+     |> assign(note_form: to_form(%{}, as: :note))
+     |> assign(editing?: false)
+     |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))}
   end
 
   def render(assigns) do
@@ -56,20 +62,99 @@ defmodule TrebyWeb.CandidatesLive.Show do
         </.link>
 
         <div class="mt-6 bg-white rounded-lg shadow p-8">
-          <div class="flex justify-between items-start">
-            <div>
-              <h1 class="text-2xl font-bold text-gray-900">{@candidate.name}</h1>
-              <p class="text-gray-600">{@candidate.email}</p>
-              <p :if={@candidate.phone} class="text-gray-600">{@candidate.phone}</p>
-              <p :if={@candidate.linkedin_url} class="mt-2">
-                <.link
-                  href={@candidate.linkedin_url}
-                  target="_blank"
-                  class="text-blue-600 hover:text-blue-900"
-                >
-                  LinkedIn Profile
-                </.link>
-              </p>
+          <%= if @editing? do %>
+            <h2 class="text-lg font-semibold mb-4">Edit Candidate</h2>
+            <.form
+              for={@edit_form}
+              id="edit-candidate-form"
+              phx-submit="save_edit"
+              class="space-y-4"
+            >
+              <.input field={@edit_form[:name]} type="text" label="Name" />
+              <.input field={@edit_form[:email]} type="email" label="Email" />
+              <.input field={@edit_form[:phone]} type="text" label="Phone" />
+              <.input field={@edit_form[:linkedin_url]} type="url" label="LinkedIn URL" />
+
+              <div :if={@candidate_fields != []} class="border-t pt-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Custom Fields</h3>
+                <div :for={field <- @candidate_fields} class="mb-3">
+                  <%= cond do %>
+                    <% field.field_type == "select" -> %>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">{field.name}</label>
+                      <select
+                        name={"custom_fields[#{field.id}]"}
+                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                      >
+                        <option value="">—</option>
+                        <option
+                          :for={opt <- field.options}
+                          value={opt}
+                          selected={opt == Map.get(@candidate.custom_fields || %{}, field.id)}
+                        >
+                          {opt}
+                        </option>
+                      </select>
+                    <% field.field_type == "date" -> %>
+                      <.input
+                        name={"custom_fields[#{field.id}]"}
+                        type="date"
+                        label={field.name}
+                        value={Map.get(@candidate.custom_fields || %{}, field.id, "")}
+                      />
+                    <% field.field_type == "number" -> %>
+                      <.input
+                        name={"custom_fields[#{field.id}]"}
+                        type="number"
+                        label={field.name}
+                        value={Map.get(@candidate.custom_fields || %{}, field.id, "")}
+                      />
+                    <% field.field_type == "url" -> %>
+                      <.input
+                        name={"custom_fields[#{field.id}]"}
+                        type="url"
+                        label={field.name}
+                        value={Map.get(@candidate.custom_fields || %{}, field.id, "")}
+                      />
+                    <% true -> %>
+                      <.input
+                        name={"custom_fields[#{field.id}]"}
+                        type="text"
+                        label={field.name}
+                        value={Map.get(@candidate.custom_fields || %{}, field.id, "")}
+                      />
+                  <% end %>
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <.button type="submit">Save</.button>
+                <.button type="button" phx-click="cancel_edit" class="bg-gray-500">
+                  Cancel
+                </.button>
+              </div>
+            </.form>
+          <% else %>
+            <div class="flex justify-between items-start">
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900">{@candidate.name}</h1>
+                <p class="text-gray-600">{@candidate.email}</p>
+                <p :if={@candidate.phone} class="text-gray-600">{@candidate.phone}</p>
+                <p :if={@candidate.linkedin_url} class="mt-2">
+                  <.link
+                    href={@candidate.linkedin_url}
+                    target="_blank"
+                    class="text-blue-600 hover:text-blue-900"
+                  >
+                    LinkedIn Profile
+                  </.link>
+                </p>
+              </div>
+              <button
+                phx-click="start_edit"
+                class="text-sm text-blue-600 hover:text-blue-900 border border-blue-600 rounded px-3 py-1"
+              >
+                Edit
+              </button>
             </div>
 
             <div :if={@candidate_fields != []} class="mt-6 border-t pt-4">
@@ -83,7 +168,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 </div>
               </dl>
             </div>
-          </div>
+          <% end %>
         </div>
 
         <%= if @interviews != [] do %>
@@ -292,6 +377,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
           </div>
         </div>
+
+        <%!-- Activity Timeline --%>
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Activity</h2>
+          <.activity_timeline events={@activities} />
+        </div>
       </div>
     </Layouts.app>
     """
@@ -338,6 +429,38 @@ defmodule TrebyWeb.CandidatesLive.Show do
        |> put_flash(:info, "Note deleted")}
     else
       {:noreply, put_flash(socket, :error, "You can only delete your own notes")}
+    end
+  end
+
+  def handle_event("start_edit", _, socket) do
+    {:noreply,
+     socket
+     |> assign(editing?: true)
+     |> assign(edit_form: to_form(Candidates.change_candidate(socket.assigns.candidate)))}
+  end
+
+  def handle_event("cancel_edit", _, socket) do
+    {:noreply,
+     socket
+     |> assign(editing?: false)
+     |> assign(edit_form: to_form(Candidates.change_candidate(socket.assigns.candidate)))}
+  end
+
+  def handle_event("save_edit", %{"candidate" => candidate_params}, socket) do
+    candidate = socket.assigns.candidate
+    metadata = %{actor_id: socket.assigns.current_user.id}
+
+    case Candidates.update_candidate(candidate, candidate_params, metadata) do
+      {:ok, updated} ->
+        {:noreply,
+         socket
+         |> assign(candidate: updated)
+         |> assign(editing?: false)
+         |> assign(edit_form: to_form(Candidates.change_candidate(updated)))
+         |> put_flash(:info, "Candidate updated successfully.")}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, edit_form: to_form(changeset))}
     end
   end
 

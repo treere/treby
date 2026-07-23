@@ -59,6 +59,20 @@ defmodule Treby.Interviews do
         # Send notifications
         send_interview_notifications(event)
 
+        # Log the event
+        event = Repo.preload(event, [:application, :interviewer])
+
+        Treby.Activities.log_event(
+          "interview_scheduled",
+          "application",
+          event.application_id,
+          %{
+            interviewer_name: event.interviewer && event.interviewer.name,
+            start_at: event.start_at_utc,
+            tenant_id: event.tenant_id
+          }
+        )
+
         {:ok, event}
 
       error ->
@@ -72,9 +86,28 @@ defmodule Treby.Interviews do
       Treby.Calendar.delete_event(event.scheduled_by_id, event.google_event_id)
     end
 
-    event
-    |> InterviewEvent.changeset(%{status: "cancelled"})
-    |> Repo.update()
+    result =
+      event
+      |> InterviewEvent.changeset(%{status: "cancelled"})
+      |> Repo.update()
+
+    case result do
+      {:ok, cancelled_event} ->
+        Treby.Activities.log_event(
+          "interview_cancelled",
+          "application",
+          event.application_id,
+          %{
+            cancelled_by: event.scheduled_by_id,
+            tenant_id: event.tenant_id
+          }
+        )
+
+        {:ok, cancelled_event}
+
+      error ->
+        error
+    end
   end
 
   defp send_interview_notifications(event) do

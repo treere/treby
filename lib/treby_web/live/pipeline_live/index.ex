@@ -40,7 +40,8 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(job: job)
      |> assign(applications_by_stage: applications_by_stage)
-     |> assign(upcoming_interviews: upcoming_interviews)}
+     |> assign(upcoming_interviews: upcoming_interviews)
+     |> assign(review_filter: "all")}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
@@ -86,6 +87,30 @@ defmodule TrebyWeb.PipelineLive.Index do
             </.link>
             <h1 class="text-2xl font-bold mt-2">{@job.title} - Pipeline</h1>
           </div>
+          <div class="flex gap-2">
+            <button
+              phx-click="filter_review"
+              value="all"
+              class={[
+                "px-3 py-1 text-sm rounded-lg",
+                @review_filter == "all" && "bg-blue-600 text-white",
+                @review_filter != "all" && "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ]}
+            >
+              All
+            </button>
+            <button
+              phx-click="filter_review"
+              value="new"
+              class={[
+                "px-3 py-1 text-sm rounded-lg",
+                @review_filter == "new" && "bg-blue-600 text-white",
+                @review_filter != "new" && "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ]}
+            >
+              New Only
+            </button>
+          </div>
         </div>
 
         <div class="flex gap-4 overflow-x-auto pb-4">
@@ -111,11 +136,20 @@ defmodule TrebyWeb.PipelineLive.Index do
             >
               <div
                 :for={application <- applications}
+                :if={@review_filter == "all" or not application.reviewed}
                 id={"application-#{application.id}"}
                 class="bg-white rounded-lg p-4 shadow-sm cursor-move hover:shadow-md transition-shadow"
                 data-application-id={application.id}
               >
-                <p class="font-medium text-gray-900">{application.candidate.name}</p>
+                <div class="flex items-center gap-2">
+                  <p class="font-medium text-gray-900">{application.candidate.name}</p>
+                  <span
+                    :if={not application.reviewed}
+                    class="text-xs bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium"
+                  >
+                    NEW
+                  </span>
+                </div>
                 <p class="text-sm text-gray-500">{application.candidate.email}</p>
                 <%= case Map.get(@upcoming_interviews, application.id) do %>
                   <% [next_interview | _] -> %>
@@ -158,5 +192,22 @@ defmodule TrebyWeb.PipelineLive.Index do
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to move candidate")}
     end
+  end
+
+  def handle_event("toggle_review", %{"application_id" => application_id}, socket) do
+    application = Pipeline.get_application!(application_id)
+
+    case Pipeline.toggle_reviewed(application) do
+      {:ok, _app} ->
+        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+        {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
+
+      {:error, _} ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("filter_review", %{"value" => filter}, socket) do
+    {:noreply, assign(socket, review_filter: filter)}
   end
 end

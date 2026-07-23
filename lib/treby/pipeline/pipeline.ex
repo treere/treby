@@ -266,6 +266,8 @@ defmodule Treby.Pipeline do
   end
 
   def move_application(%Application{} = application, stage_id) do
+    old_stage_id = application.pipeline_stage_id
+
     result =
       application
       |> Application.changeset(%{pipeline_stage_id: stage_id})
@@ -279,6 +281,21 @@ defmodule Treby.Pipeline do
           {:pipeline_updated, app.job_id}
         )
 
+        # Log the stage change
+        old_stage = if old_stage_id, do: get_pipeline_stage!(old_stage_id)
+        new_stage = get_pipeline_stage!(stage_id)
+
+        Treby.Activities.log_event(
+          "application_stage_changed",
+          "application",
+          app.id,
+          %{
+            old_stage: old_stage && old_stage.name,
+            new_stage: new_stage && new_stage.name,
+            tenant_id: app.tenant_id
+          }
+        )
+
         {:ok, app}
 
       error ->
@@ -288,6 +305,26 @@ defmodule Treby.Pipeline do
 
   def subscribe_to_pipeline(job_id) do
     Phoenix.PubSub.subscribe(Treby.PubSub, "pipeline:#{job_id}")
+  end
+
+  # Review state
+
+  def mark_reviewed(%Application{} = application) do
+    application
+    |> Application.changeset(%{reviewed: true})
+    |> Repo.update()
+  end
+
+  def mark_unreviewed(%Application{} = application) do
+    application
+    |> Application.changeset(%{reviewed: false})
+    |> Repo.update()
+  end
+
+  def toggle_reviewed(%Application{} = application) do
+    application
+    |> Application.changeset(%{reviewed: not application.reviewed})
+    |> Repo.update()
   end
 
   # Analytics queries

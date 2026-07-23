@@ -153,7 +153,8 @@ defmodule TrebyWeb.CareersLive.Apply do
       "pipeline_stage_id" => socket.assigns.first_stage.id,
       "applied_at" => DateTime.utc_now(),
       "resume_url" => resume_url,
-      "custom_fields" => custom_fields_values
+      "custom_fields" => custom_fields_values,
+      "reviewed" => false
     }
 
     case Pipeline.create_application(application_attrs) do

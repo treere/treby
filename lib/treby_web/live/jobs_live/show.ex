@@ -10,6 +10,7 @@ defmodule TrebyWeb.JobsLive.Show do
     job = Jobs.get_job!(tenant.id, id)
     job_fields = Customization.list_custom_fields_for(tenant.id, "job")
     pipelines = Pipeline.list_pipelines(tenant.id)
+    applications = Pipeline.list_applications_for_job(job.id)
 
     {:ok,
      socket
@@ -17,6 +18,7 @@ defmodule TrebyWeb.JobsLive.Show do
      |> assign(job: job)
      |> assign(job_fields: job_fields)
      |> assign(pipelines: pipelines)
+     |> assign(applications: applications)
      |> assign(editing: false)
      |> assign(form: to_form(Jobs.change_job(job)))}
   end
@@ -27,23 +29,26 @@ defmodule TrebyWeb.JobsLive.Show do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link navigate={~p"/app/jobs"} class="text-blue-600 hover:text-blue-900 text-sm">
-              &larr; Back to Jobs
+            <.link
+              navigate={~p"/app/jobs"}
+              class="text-blue-600 hover:text-blue-900 text-sm inline-flex items-center gap-1"
+            >
+              <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back to Jobs")}
             </.link>
             <h1 class="text-2xl font-bold mt-2">{@job.title}</h1>
           </div>
           <div class="flex gap-2">
             <button
               phx-click="start_editing"
-              class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
+              class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 inline-flex items-center gap-1"
             >
-              Edit
+              <.icon name="hero-pencil" class="w-4 h-4" /> Edit
             </button>
             <.link
               navigate={~p"/app/pipeline/#{@job.id}"}
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-flex items-center gap-1"
             >
-              View Pipeline
+              <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> View Pipeline
             </.link>
           </div>
         </div>
@@ -160,6 +165,50 @@ defmodule TrebyWeb.JobsLive.Show do
                 </dl>
               </div>
             </dl>
+          </div>
+        </div>
+
+        <%!-- Candidates Section --%>
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">
+            Candidates
+            <span :if={@applications != []} class="text-sm font-normal text-gray-500">
+              ({length(@applications)})
+            </span>
+          </h2>
+          <div :if={@applications == []} class="text-center text-gray-500 py-8">
+            No candidates yet
+          </div>
+          <div :if={@applications != []} class="space-y-4">
+            <div
+              :for={app <- @applications}
+              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+            >
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span class="text-sm font-medium text-blue-700">
+                    {String.first(app.candidate.name || "?")}{String.first(
+                      String.replace(app.candidate.name || "", ~r/ .*/, "") || ""
+                    )}
+                  </span>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">{app.candidate.name}</p>
+                  <p class="text-sm text-gray-500">{app.candidate.email}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <span
+                  class="px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                  style={"background-color: #{app.pipeline_stage.color}"}
+                >
+                  {app.pipeline_stage.name}
+                </span>
+                <span class="text-sm text-gray-500">
+                  {Calendar.strftime(app.inserted_at, "%b %d, %Y")}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

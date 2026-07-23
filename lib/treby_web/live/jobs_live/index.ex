@@ -33,9 +33,9 @@ defmodule TrebyWeb.JobsLive.Index do
           <h1 class="text-2xl font-bold">Jobs</h1>
           <button
             phx-click="show_create_form"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-flex items-center gap-1"
           >
-            + New Job
+            <.icon name="hero-plus" class="w-4 h-4" /> {gettext("New Job")}
           </button>
         </div>
 
@@ -142,7 +142,7 @@ defmodule TrebyWeb.JobsLive.Index do
               <tr :for={job <- @jobs} class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <.link
-                    navigate={~p"/app/pipeline/#{job.id}"}
+                    navigate={~p"/app/jobs/#{job.id}"}
                     class="text-blue-600 hover:text-blue-900 font-medium"
                   >
                     {job.title}
@@ -159,15 +159,19 @@ defmodule TrebyWeb.JobsLive.Index do
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <.link
                     navigate={~p"/app/pipeline/#{job.id}"}
-                    class="text-blue-600 hover:text-blue-900 mr-3"
+                    class="text-blue-600 hover:text-blue-900 mr-3 inline-flex items-center gap-1"
                   >
-                    Pipeline
+                    <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> Pipeline
                   </.link>
                   <button
                     phx-click="toggle_status"
                     phx-value-job_id={job.id}
-                    class="text-yellow-600 hover:text-yellow-900"
+                    class="text-yellow-600 hover:text-yellow-900 inline-flex items-center gap-1"
                   >
+                    <.icon
+                      name={if job.status == "open", do: "hero-x-mark", else: "hero-arrow-path"}
+                      class="w-4 h-4"
+                    />
                     {if job.status == "open", do: "Close", else: "Reopen"}
                   </button>
                 </td>

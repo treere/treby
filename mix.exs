@@ -72,7 +72,8 @@ defmodule Treby.MixProject do
       {:ex_aws_s3, "~> 2.5"},
       {:finch, "~> 0.19"},
       {:cloak_ecto, "~> 1.3.0"},
-      {:tzdata, "~> 1.1"}
+      {:tzdata, "~> 1.1"},
+      {:nimble_csv, "~> 1.2"}
     ]
   end
 

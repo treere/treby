@@ -34,6 +34,8 @@ defmodule TrebyWeb.Router do
       live "/analytics", AnalyticsLive.Index
       live "/schedule/:application_id", ScheduleLive.Index
       live "/interviews", InterviewsLive.Index
+      live "/import", ImportLive.Index
+      live "/compare", ComparisonLive.Index
 
       get "/applications/:id/resume", ResumeController, :show
     end
@@ -54,6 +56,7 @@ defmodule TrebyWeb.Router do
       live "/settings/language", SettingsLive.Language
       live "/settings/scorecards", SettingsLive.Scorecards
       live "/settings/emails", SettingsLive.EmailTemplates
+      live "/settings/sources", SettingsLive.Sources
     end
   end
 
@@ -81,6 +84,13 @@ defmodule TrebyWeb.Router do
     live "/:tenant_slug/schedule/:token", SchedulingLive.Booking
     get "/invite/:token", InviteController, :show
     post "/invite/:token", InviteController, :create
+  end
+
+  # Webhook routes (public, no auth)
+  scope "/webhooks", TrebyWeb do
+    pipe_through :api
+
+    post "/inbound", EmailWebhookController, :create
   end
 
   # Auth-required routes (for OAuth callbacks)

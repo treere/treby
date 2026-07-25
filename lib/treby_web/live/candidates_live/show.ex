@@ -9,7 +9,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
     Notes,
     Customization,
     Activities,
-    Scorecards
+    Scorecards,
+    EmailThreads
   }
 
   def mount(%{"id" => id}, session, socket) do
@@ -51,6 +52,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
     # Load activity timeline
     activities = Activities.list_events_for_entity("candidate", candidate.id, limit: 20)
 
+    # Load email threads
+    email_threads = EmailThreads.list_threads_for_candidate(candidate.id)
+
+    # Get user email for sending replies
+    user_email = user.email
+
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
@@ -62,10 +69,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(scorecards: scorecards)
      |> assign(aggregate_scores: aggregate_scores)
      |> assign(activities: activities)
+     |> assign(email_threads: email_threads)
+     |> assign(user_email: user_email)
      |> assign(show_note_form: nil)
      |> assign(note_form: to_form(%{}, as: :note))
      |> assign(editing?: false)
-     |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))}
+     |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))
+     |> assign(replying_to_thread: nil)
+     |> assign(reply_form: to_form(%{}, as: :reply))}
   end
 
   def render(assigns) do
@@ -483,6 +494,95 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
           </div>
         </div>
+
+        <%!-- Email Threads --%>
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Email History</h2>
+
+          <div :if={@email_threads == []} class="text-gray-500 text-sm">
+            No email threads yet.
+          </div>
+
+          <div :for={thread <- @email_threads} class="border rounded-lg mb-4 last:mb-0">
+            <div class="p-4 border-b bg-gray-50 rounded-t-lg">
+              <div class="flex justify-between items-center">
+                <div>
+                  <span class="font-medium text-gray-900">{thread.subject}</span>
+                  <span class="text-sm text-gray-500 ml-2">
+                    ({length(thread.messages)} message{length(thread.messages) != 1 && "s"})
+                  </span>
+                </div>
+                <span class="text-xs text-gray-400">
+                  {Calendar.strftime(thread.last_message_at, "%b %d, %Y at %H:%M")}
+                </span>
+              </div>
+            </div>
+
+            <div class="p-4 space-y-3">
+              <div
+                :for={message <- Enum.reverse(thread.messages)}
+                class={[
+                  "p-3 rounded-lg text-sm",
+                  message.direction == "inbound" && "bg-blue-50 border-l-4 border-blue-400",
+                  message.direction == "outbound" && "bg-green-50 border-l-4 border-green-400 ml-8"
+                ]}
+              >
+                <div class="flex justify-between items-center mb-1">
+                  <span class="font-medium text-gray-700">
+                    {message.direction == "inbound" && "From: #{message.from_address}"}
+                    {message.direction == "outbound" && "From: #{message.from_address}"}
+                  </span>
+                  <span class="text-xs text-gray-400">
+                    {Calendar.strftime(
+                      message.sent_at || message.received_at,
+                      "%b %d, %Y at %H:%M"
+                    )}
+                  </span>
+                </div>
+                <div class="text-gray-600 whitespace-pre-wrap">
+                  {message.body}
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 border-t">
+              <button
+                phx-click="show_reply_form"
+                phx-value-thread_id={thread.id}
+                class="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Reply
+              </button>
+
+              <.form
+                :if={@replying_to_thread == thread.id}
+                for={@reply_form}
+                id={"reply-form-#{thread.id}"}
+                phx-submit="send_reply"
+                phx-value-thread_id={thread.id}
+                class="mt-4 space-y-3"
+              >
+                <.input
+                  field={@reply_form[:body]}
+                  type="textarea"
+                  label="Reply"
+                  placeholder="Type your reply..."
+                  rows={4}
+                />
+                <div class="flex gap-2">
+                  <.button type="submit" class="text-sm">Send Reply</.button>
+                  <button
+                    type="button"
+                    phx-click="cancel_reply"
+                    class="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </.form>
+            </div>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     """
@@ -561,6 +661,44 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
       {:error, changeset} ->
         {:noreply, assign(socket, edit_form: to_form(changeset))}
+    end
+  end
+
+  def handle_event("show_reply_form", %{"thread_id" => thread_id}, socket) do
+    {:noreply,
+     socket
+     |> assign(replying_to_thread: thread_id)
+     |> assign(reply_form: to_form(%{}, as: :reply))}
+  end
+
+  def handle_event("cancel_reply", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(replying_to_thread: nil)
+     |> assign(reply_form: to_form(%{}, as: :reply))}
+  end
+
+  def handle_event("send_reply", %{"thread_id" => thread_id, "reply" => params}, socket) do
+    body = Map.get(params, "body", "")
+
+    case EmailThreads.send_reply(
+           thread_id,
+           socket.assigns.user_email,
+           body,
+           socket.assigns.current_tenant.id
+         ) do
+      {:ok, _message} ->
+        # Refresh threads
+        email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
+
+        {:noreply,
+         socket
+         |> assign(email_threads: email_threads, replying_to_thread: nil)
+         |> assign(reply_form: to_form(%{}, as: :reply))
+         |> put_flash(:info, "Reply sent")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Failed to send reply: #{inspect(reason)}")}
     end
   end
 

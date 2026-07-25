@@ -10,6 +10,7 @@ defmodule Treby.Pipeline.Application do
     field :applied_at, :utc_datetime
     field :custom_fields, :map, default: %{}
     field :reviewed, :boolean, default: false
+    field :source, :string
 
     belongs_to :tenant, Treby.Tenants.Tenant
     belongs_to :job, Treby.Jobs.Job
@@ -32,7 +33,8 @@ defmodule Treby.Pipeline.Application do
       :job_id,
       :candidate_id,
       :pipeline_stage_id,
-      :reviewed
+      :reviewed,
+      :source
     ])
     |> validate_required([:job_id, :candidate_id, :pipeline_stage_id, :applied_at])
   end

@@ -81,6 +81,17 @@ defmodule TrebyWeb.SettingsLive.Index do
           </.link>
 
           <.link
+            :if={@current_user.role == "admin"}
+            navigate={~p"/app/settings/sources"}
+            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h2 class="text-lg font-semibold text-gray-900">{gettext("Sources")}</h2>
+            <p class="mt-2 text-sm text-gray-600">
+              {gettext("Manage how candidates find you")}
+            </p>
+          </.link>
+
+          <.link
             navigate={~p"/app/settings/calendar"}
             class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >

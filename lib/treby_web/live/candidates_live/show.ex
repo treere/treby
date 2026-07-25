@@ -1,7 +1,16 @@
 defmodule TrebyWeb.CandidatesLive.Show do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Candidates, Pipeline, Notes, Customization, Activities}
+  alias Treby.{
+    Accounts,
+    Tenants,
+    Candidates,
+    Pipeline,
+    Notes,
+    Customization,
+    Activities,
+    Scorecards
+  }
 
   def mount(%{"id" => id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -35,6 +44,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
         []
       end
 
+    # Load scorecards for this candidate
+    scorecards = Scorecards.list_scorecards_for_candidate(candidate.id)
+    aggregate_scores = Scorecards.compute_aggregate_scores(candidate.id)
+
     # Load activity timeline
     activities = Activities.list_events_for_entity("candidate", candidate.id, limit: 20)
 
@@ -46,6 +59,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(candidate_fields: candidate_fields)
      |> assign(application_fields: application_fields)
      |> assign(interviews: interviews)
+     |> assign(scorecards: scorecards)
+     |> assign(aggregate_scores: aggregate_scores)
      |> assign(activities: activities)
      |> assign(show_note_form: nil)
      |> assign(note_form: to_form(%{}, as: :note))
@@ -382,6 +397,91 @@ defmodule TrebyWeb.CandidatesLive.Show do
         <div class="mt-8 bg-white rounded-lg shadow p-6">
           <h2 class="text-lg font-semibold mb-4">Activity</h2>
           <.activity_timeline events={@activities} />
+        </div>
+
+        <%!-- Scorecards --%>
+        <div
+          :if={@scorecards != [] || @aggregate_scores.total_scorecards > 0}
+          class="mt-8 bg-white rounded-lg shadow p-6"
+        >
+          <h2 class="text-lg font-semibold mb-4">Scorecards</h2>
+
+          <%!-- Aggregate View --%>
+          <div :if={@aggregate_scores.total_scorecards > 0} class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-sm font-medium text-gray-700 mb-3">
+              Aggregate ({@aggregate_scores.total_scorecards} scorecard{@aggregate_scores.total_scorecards >
+                1 && "s"})
+            </h3>
+
+            <div :if={@aggregate_scores.avg_scores != %{}} class="mb-4">
+              <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">Average Scores</h4>
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  :for={{criterion, avg} <- @aggregate_scores.avg_scores}
+                  class="flex justify-between text-sm"
+                >
+                  <span class="text-gray-600">{criterion}</span>
+                  <span class="font-medium text-gray-900">{Float.round(avg, 1)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div :if={@aggregate_scores.recommendation_counts != %{}}>
+              <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">Recommendations</h4>
+              <div class="flex gap-3">
+                <div :for={{rec, count} <- @aggregate_scores.recommendation_counts} class="text-sm">
+                  <span class="text-gray-600">
+                    {String.capitalize(rec |> String.replace("_", " "))}
+                  </span>
+                  <span class="font-medium text-gray-900 ml-1">({count})</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <%!-- Individual Scorecards --%>
+          <div class="space-y-4">
+            <div :for={scorecard <- @scorecards} class="border rounded-lg p-4">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <span class="font-medium text-gray-900">{scorecard.interviewer.name}</span>
+                  <span class="text-sm text-gray-500 ml-2">
+                    {Calendar.strftime(scorecard.inserted_at, "%b %d, %Y")}
+                  </span>
+                </div>
+                <span
+                  :if={scorecard.recommendation}
+                  class={[
+                    "px-2 py-1 text-xs rounded-full",
+                    case scorecard.recommendation do
+                      "hire" -> "bg-green-100 text-green-800"
+                      "lean_hire" -> "bg-blue-100 text-blue-800"
+                      "lean_no_hire" -> "bg-yellow-100 text-yellow-800"
+                      "no_hire" -> "bg-orange-100 text-orange-800"
+                      "strong_no_hire" -> "bg-red-100 text-red-800"
+                      _ -> "bg-gray-100 text-gray-800"
+                    end
+                  ]}
+                >
+                  {scorecard.recommendation |> String.replace("_", " ") |> String.capitalize()}
+                </span>
+              </div>
+
+              <div :if={scorecard.scores != %{}} class="grid grid-cols-2 gap-2 mb-3">
+                <div
+                  :for={{criterion, value} <- scorecard.scores}
+                  class="flex justify-between text-sm"
+                >
+                  <span class="text-gray-600">{criterion}</span>
+                  <span class="font-medium text-gray-900">{value}</span>
+                </div>
+              </div>
+
+              <div :if={scorecard.notes} class="text-sm text-gray-600 border-t pt-2">
+                {scorecard.notes}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layouts.app>

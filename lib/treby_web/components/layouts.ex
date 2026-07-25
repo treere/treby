@@ -73,6 +73,7 @@ defmodule TrebyWeb.Layouts do
                   {gettext("Analytics")}
                 </.link>
                 <.link
+                  :if={@current_scope && @current_scope.role == "admin"}
                   navigate={~p"/app/settings"}
                   class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >

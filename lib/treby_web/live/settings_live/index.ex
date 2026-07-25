@@ -20,6 +20,7 @@ defmodule TrebyWeb.SettingsLive.Index do
 
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <.link
+            :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/pipeline"}
             class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
@@ -38,6 +39,7 @@ defmodule TrebyWeb.SettingsLive.Index do
           </.link>
 
           <.link
+            :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/team"}
             class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
@@ -46,12 +48,35 @@ defmodule TrebyWeb.SettingsLive.Index do
           </.link>
 
           <.link
+            :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/fields"}
             class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
             <h2 class="text-lg font-semibold text-gray-900">{gettext("Custom Fields")}</h2>
             <p class="mt-2 text-sm text-gray-600">
               {gettext("Define custom fields for candidates and jobs")}
+            </p>
+          </.link>
+
+          <.link
+            :if={@current_user.role == "admin"}
+            navigate={~p"/app/settings/scorecards"}
+            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h2 class="text-lg font-semibold text-gray-900">{gettext("Scorecard Templates")}</h2>
+            <p class="mt-2 text-sm text-gray-600">
+              {gettext("Define evaluation criteria for interviews")}
+            </p>
+          </.link>
+
+          <.link
+            :if={@current_user.role == "admin"}
+            navigate={~p"/app/settings/emails"}
+            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h2 class="text-lg font-semibold text-gray-900">{gettext("Email Templates")}</h2>
+            <p class="mt-2 text-sm text-gray-600">
+              {gettext("Configure email templates for stage transitions")}
             </p>
           </.link>
 

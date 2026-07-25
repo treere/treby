@@ -121,20 +121,32 @@ defmodule Treby.Pipeline do
 
   def get_pipeline_stage!(id), do: Repo.get!(PipelineStage, id)
 
-  def create_pipeline_stage(attrs \\ %{}) do
-    %PipelineStage{}
-    |> PipelineStage.changeset(attrs)
-    |> Repo.insert()
+  def create_pipeline_stage(attrs \\ %{}, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      %PipelineStage{}
+      |> PipelineStage.changeset(attrs)
+      |> Repo.insert()
+    end
   end
 
-  def update_pipeline_stage(%PipelineStage{} = pipeline_stage, attrs) do
-    pipeline_stage
-    |> PipelineStage.changeset(attrs)
-    |> Repo.update()
+  def update_pipeline_stage(%PipelineStage{} = pipeline_stage, attrs, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      pipeline_stage
+      |> PipelineStage.changeset(attrs)
+      |> Repo.update()
+    end
   end
 
-  def delete_pipeline_stage(%PipelineStage{} = pipeline_stage) do
-    Repo.delete(pipeline_stage)
+  def delete_pipeline_stage(%PipelineStage{} = pipeline_stage, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      Repo.delete(pipeline_stage)
+    end
   end
 
   def reassign_and_delete_stage(%PipelineStage{} = stage, target_stage_id) do
@@ -329,6 +341,28 @@ defmodule Treby.Pipeline do
 
   # Analytics queries
 
+  def pipeline_counts_per_stage(nil) do
+    PipelineStage
+    |> order_by([ps], ps.position)
+    |> Repo.all()
+    |> Enum.group_by(& &1.name)
+    |> Enum.map(fn {_name, stages} ->
+      count =
+        Enum.reduce(stages, 0, fn stage, acc ->
+          stage_count =
+            Application
+            |> where([a], a.pipeline_stage_id == ^stage.id)
+            |> select([a], count(a.id))
+            |> Repo.one()
+
+          acc + stage_count
+        end)
+
+      %{stage: List.first(stages), count: count}
+    end)
+    |> Enum.sort_by(& &1.stage.position)
+  end
+
   def pipeline_counts_per_stage(pipeline_id) do
     PipelineStage
     |> where([ps], ps.pipeline_id == ^pipeline_id)
@@ -362,6 +396,25 @@ defmodule Treby.Pipeline do
     end)
   end
 
+  def average_time_to_hire(nil) do
+    hired_stages =
+      PipelineStage
+      |> where([ps], ps.stage_type == "hired")
+      |> select([ps], ps.id)
+      |> Repo.all()
+
+    case hired_stages do
+      [] ->
+        nil
+
+      stage_ids ->
+        Application
+        |> where([a], a.pipeline_stage_id in ^stage_ids)
+        |> select([a], avg(fragment("EXTRACT(DAY FROM (? - ?))", a.updated_at, a.inserted_at)))
+        |> Repo.one()
+    end
+  end
+
   def average_time_to_hire(pipeline_id) do
     hired_stage =
       PipelineStage
@@ -378,6 +431,49 @@ defmodule Treby.Pipeline do
         |> select([a], avg(fragment("EXTRACT(DAY FROM (? - ?))", a.updated_at, a.inserted_at)))
         |> Repo.one()
     end
+  end
+
+  def stage_conversion_rates(nil) do
+    stage_type_order = ["new", "interview", "offer", "hired"]
+
+    stages_by_type =
+      PipelineStage
+      |> where([ps], not is_nil(ps.stage_type))
+      |> Repo.all()
+      |> Enum.group_by(& &1.stage_type)
+
+    stage_type_order
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.flat_map(fn [from_type, to_type] ->
+      from_stage_ids = stages_by_type |> Map.get(from_type, []) |> Enum.map(& &1.id)
+      to_stage_ids = stages_by_type |> Map.get(to_type, []) |> Enum.map(& &1.id)
+
+      from_count =
+        if from_stage_ids == [] do
+          0
+        else
+          Application
+          |> where([a], a.pipeline_stage_id in ^from_stage_ids)
+          |> select([a], count(a.id))
+          |> Repo.one()
+        end
+
+      to_count =
+        if to_stage_ids == [] do
+          0
+        else
+          Application
+          |> where([a], a.pipeline_stage_id in ^to_stage_ids)
+          |> select([a], count(a.id))
+          |> Repo.one()
+        end
+
+      from_stage = %{name: String.capitalize(from_type), color: "#6B7280", id: from_type}
+      to_stage = %{name: String.capitalize(to_type), color: "#6B7280", id: to_type}
+      rate = if from_count > 0, do: round(to_count / from_count * 100), else: 0
+
+      [%{from: from_stage, to: to_stage, rate: rate}]
+    end)
   end
 
   def stage_conversion_rates(pipeline_id) do
@@ -407,6 +503,94 @@ defmodule Treby.Pipeline do
           rate: rate
         }
       ]
+    end)
+  end
+
+  def time_in_stage_metrics(tenant_id, nil) do
+    application_ids =
+      Application
+      |> join(:inner, [a], j in Treby.Jobs.Job, on: a.job_id == j.id)
+      |> where([a, j], j.tenant_id == ^tenant_id)
+      |> select([a], a.id)
+      |> Repo.all()
+
+    all_stages = PipelineStage |> order_by([ps], ps.position) |> Repo.all()
+    do_time_in_stage_metrics(application_ids, all_stages)
+  end
+
+  def time_in_stage_metrics(_tenant_id, pipeline_id) do
+    stages = list_pipeline_stages(pipeline_id)
+
+    application_ids =
+      Application
+      |> join(:inner, [a], ps in PipelineStage, on: a.pipeline_stage_id == ps.id)
+      |> where([a, ps], ps.pipeline_id == ^pipeline_id)
+      |> select([a], a.id)
+      |> Repo.all()
+
+    do_time_in_stage_metrics(application_ids, stages)
+  end
+
+  defp do_time_in_stage_metrics([], _stages), do: []
+
+  defp do_time_in_stage_metrics(application_ids, stages) do
+    alias Treby.Activities.ActivityLog
+
+    events =
+      ActivityLog
+      |> where(
+        [a],
+        a.action == "application_stage_changed" and
+          a.entity_type == "application" and
+          a.entity_id in ^application_ids
+      )
+      |> order_by([a], asc: a.inserted_at)
+      |> Repo.all()
+
+    events_by_app = Enum.group_by(events, & &1.entity_id)
+
+    stage_durations =
+      Enum.flat_map(events_by_app, fn {_app_id, app_events} ->
+        app_events
+        |> Enum.chunk_every(2, 1, :discard)
+        |> Enum.flat_map(fn
+          [event1, event2] ->
+            old_stage_name = event1.metadata["new_stage"]
+            duration_days = DateTime.diff(event2.inserted_at, event1.inserted_at, :day)
+            [%{stage_name: old_stage_name, duration_days: duration_days}]
+
+          [_single_event] ->
+            stage_name = List.last(app_events).metadata["new_stage"]
+
+            duration_days =
+              DateTime.diff(DateTime.utc_now(), List.last(app_events).inserted_at, :day)
+
+            [%{stage_name: stage_name, duration_days: duration_days}]
+        end)
+      end)
+
+    stage_durations
+    |> Enum.group_by(& &1.stage_name)
+    |> Enum.map(fn {stage_name, durations} ->
+      avg_days =
+        durations |> Enum.map(& &1.duration_days) |> then(fn ds -> Enum.sum(ds) / length(ds) end)
+
+      stage = Enum.find(stages, &(&1.name == stage_name))
+      %{stage: stage, avg_days: avg_days, count: length(durations)}
+    end)
+    |> Enum.sort_by(& &1.stage.position)
+  end
+
+  def per_pipeline_conversion_rates(_tenant_id, pipeline_id) do
+    stage_conversion_rates(pipeline_id)
+  end
+
+  def all_pipelines_conversion_rates(tenant_id) do
+    pipelines = list_pipelines(tenant_id)
+
+    Enum.flat_map(pipelines, fn pipeline ->
+      stage_conversion_rates(pipeline.id)
+      |> Enum.map(fn rate -> Map.put(rate, :pipeline, pipeline) end)
     end)
   end
 end

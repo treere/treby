@@ -202,8 +202,11 @@ defmodule TrebyWeb.SettingsLive.Fields do
 
     result =
       case socket.assigns.editing_field do
-        nil -> Customization.create_custom_field(attrs)
-        field -> Customization.update_custom_field(field, field_params)
+        nil ->
+          Customization.create_custom_field(attrs, socket.assigns.current_user)
+
+        field ->
+          Customization.update_custom_field(field, field_params, socket.assigns.current_user)
       end
 
     case result do
@@ -215,6 +218,9 @@ defmodule TrebyWeb.SettingsLive.Fields do
          |> assign(custom_fields: custom_fields, show_form: false, editing_field: nil)
          |> put_flash(:info, "Field saved")}
 
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can manage custom fields")}
+
       {:error, changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end
@@ -223,12 +229,15 @@ defmodule TrebyWeb.SettingsLive.Fields do
   def handle_event("delete_field", %{"field_id" => field_id}, socket) do
     field = Customization.get_custom_field!(socket.assigns.current_tenant.id, field_id)
 
-    case Customization.delete_custom_field(field) do
+    case Customization.delete_custom_field(field, socket.assigns.current_user) do
       {:ok, _} ->
         custom_fields = Customization.list_custom_fields(socket.assigns.current_tenant.id)
 
         {:noreply,
          assign(socket, custom_fields: custom_fields) |> put_flash(:info, "Field deleted")}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can delete custom fields")}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete field")}

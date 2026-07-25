@@ -23,10 +23,19 @@ defmodule Treby.Accounts do
     |> Repo.insert()
   end
 
-  def update_user(%User{} = user, attrs) do
-    user
-    |> User.changeset(attrs)
-    |> Repo.update()
+  def update_user(%User{} = user, attrs, actor \\ nil) do
+    cond do
+      actor && actor.id == user.id && Map.has_key?(attrs, "role") && attrs["role"] != "admin" ->
+        {:error, :cannot_demote_self}
+
+      actor && actor.role != "admin" && Map.has_key?(attrs, "role") ->
+        {:error, :unauthorized}
+
+      true ->
+        user
+        |> User.changeset(attrs)
+        |> Repo.update()
+    end
   end
 
   def update_locale(%User{} = user, locale) do
@@ -39,8 +48,12 @@ defmodule Treby.Accounts do
     Repo.delete(user)
   end
 
-  def remove_user_from_tenant(%User{} = user) do
-    Repo.delete(user)
+  def remove_user_from_tenant(%User{} = user, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      Repo.delete(user)
+    end
   end
 
   def change_user(%User{} = user, attrs \\ %{}) do

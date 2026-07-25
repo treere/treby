@@ -23,26 +23,38 @@ defmodule TrebyWeb.Router do
   scope "/app", TrebyWeb do
     pipe_through [:browser, :require_auth]
 
-    live "/", DashboardLive
-    live "/jobs", JobsLive.Index
-    live "/jobs/:id", JobsLive.Show
-    live "/candidates", CandidatesLive.Index
-    live "/candidates/:id", CandidatesLive.Show
-    live "/pipeline/:job_id", PipelineLive.Index
-    live "/analytics", AnalyticsLive.Index
-    live "/settings", SettingsLive.Index
-    live "/settings/pipeline", SettingsLive.Pipeline
-    live "/settings/pipeline/:id", SettingsLive.PipelineStages
-    live "/settings/fields", SettingsLive.Fields
-    live "/settings/team", SettingsLive.Team
-    live "/settings/branding", SettingsLive.Branding
-    live "/settings/calendar", SettingsLive.Calendar
-    live "/settings/availability", SettingsLive.Availability
-    live "/settings/language", SettingsLive.Language
-    live "/schedule/:application_id", ScheduleLive.Index
-    live "/interviews", InterviewsLive.Index
+    live_session :default,
+      on_mount: [{TrebyWeb.Hooks.SetLocale, :set_locale}] do
+      live "/", DashboardLive
+      live "/jobs", JobsLive.Index
+      live "/jobs/:id", JobsLive.Show
+      live "/candidates", CandidatesLive.Index
+      live "/candidates/:id", CandidatesLive.Show
+      live "/pipeline/:job_id", PipelineLive.Index
+      live "/analytics", AnalyticsLive.Index
+      live "/schedule/:application_id", ScheduleLive.Index
+      live "/interviews", InterviewsLive.Index
 
-    get "/applications/:id/resume", ResumeController, :show
+      get "/applications/:id/resume", ResumeController, :show
+    end
+
+    live_session :admin,
+      on_mount: [
+        {TrebyWeb.Hooks.SetLocale, :set_locale},
+        {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
+      ] do
+      live "/settings", SettingsLive.Index
+      live "/settings/pipeline", SettingsLive.Pipeline
+      live "/settings/pipeline/:id", SettingsLive.PipelineStages
+      live "/settings/fields", SettingsLive.Fields
+      live "/settings/team", SettingsLive.Team
+      live "/settings/branding", SettingsLive.Branding
+      live "/settings/calendar", SettingsLive.Calendar
+      live "/settings/availability", SettingsLive.Availability
+      live "/settings/language", SettingsLive.Language
+      live "/settings/scorecards", SettingsLive.Scorecards
+      live "/settings/emails", SettingsLive.EmailTemplates
+    end
   end
 
   # Auth routes (no auth required)

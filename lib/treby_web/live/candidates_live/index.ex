@@ -190,6 +190,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
+                    :if={@current_user.role == "admin"}
                     phx-click="delete_candidate"
                     phx-value-candidate_id={candidate.id}
                     class="text-red-600 hover:text-red-900"
@@ -257,9 +258,20 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("delete_candidate", %{"candidate_id" => candidate_id}, socket) do
     candidate = Candidates.get_candidate!(socket.assigns.current_tenant.id, candidate_id)
-    :ok = Candidates.delete_candidate(candidate)
-    candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
-    {:noreply, assign(socket, candidates: candidates)}
+
+    case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
+      :ok ->
+        candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
+
+        {:noreply,
+         assign(socket, candidates: candidates) |> put_flash(:info, "Candidate deleted")}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can delete candidates")}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete candidate")}
+    end
   end
 
   def handle_event("search", %{"search" => search}, socket) do

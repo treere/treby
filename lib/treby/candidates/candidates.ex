@@ -116,8 +116,12 @@ defmodule Treby.Candidates do
     end
   end
 
-  def delete_candidate(%Candidate{} = candidate) do
-    Repo.delete(candidate)
+  def delete_candidate(%Candidate{} = candidate, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      Repo.delete(candidate)
+    end
   end
 
   def change_candidate(%Candidate{} = candidate, attrs \\ %{}) do

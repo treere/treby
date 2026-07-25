@@ -29,20 +29,32 @@ defmodule Treby.Customization do
     |> Repo.one!()
   end
 
-  def create_custom_field(attrs \\ %{}) do
-    %CustomField{}
-    |> CustomField.changeset(attrs)
-    |> Repo.insert()
+  def create_custom_field(attrs \\ %{}, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      %CustomField{}
+      |> CustomField.changeset(attrs)
+      |> Repo.insert()
+    end
   end
 
-  def update_custom_field(%CustomField{} = custom_field, attrs) do
-    custom_field
-    |> CustomField.changeset(attrs)
-    |> Repo.update()
+  def update_custom_field(%CustomField{} = custom_field, attrs, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      custom_field
+      |> CustomField.changeset(attrs)
+      |> Repo.update()
+    end
   end
 
-  def delete_custom_field(%CustomField{} = custom_field) do
-    Repo.delete(custom_field)
+  def delete_custom_field(%CustomField{} = custom_field, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      Repo.delete(custom_field)
+    end
   end
 
   def change_custom_field(%CustomField{} = custom_field, attrs \\ %{}) do

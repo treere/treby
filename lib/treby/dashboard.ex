@@ -64,7 +64,10 @@ defmodule Treby.Dashboard do
   def pipeline_snapshot(tenant_id) do
     jobs =
       Treby.Jobs.Job
-      |> where([j], j.tenant_id == ^tenant_id and j.status == "open")
+      |> where(
+        [j],
+        j.tenant_id == ^tenant_id and j.status == "open" and not is_nil(j.pipeline_id)
+      )
       |> Repo.all()
 
     Enum.map(jobs, fn job ->

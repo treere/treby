@@ -1,0 +1,330 @@
+defmodule TrebyWeb.SettingsLive.Scorecards do
+  use TrebyWeb, :live_view
+
+  alias Treby.{Accounts, Tenants, Scorecards}
+
+  def mount(_params, session, socket) do
+    socket = set_locale_from_session(socket, session)
+    user = Accounts.get_user!(session["user_id"])
+    tenant = Tenants.get_tenant!(session["tenant_id"])
+    templates = Scorecards.list_scorecard_templates(tenant.id)
+
+    {:ok,
+     socket
+     |> assign(current_user: user, current_tenant: tenant)
+     |> assign(templates: templates)
+     |> assign(show_form: false)
+     |> assign(editing_template: nil)
+     |> assign(form_name: "")
+     |> assign(criteria: [])}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+      <div class="p-8">
+        <div class="flex justify-between items-center mb-8">
+          <div>
+            <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+              &larr; {gettext("Back to Settings")}
+            </.link>
+            <h1 class="text-2xl font-bold mt-2">{gettext("Scorecard Templates")}</h1>
+            <p class="mt-1 text-gray-600">
+              {gettext("Define evaluation criteria for interviews")}
+            </p>
+          </div>
+          <button
+            phx-click="show_create_form"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            + {gettext("Add Template")}
+          </button>
+        </div>
+
+        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+          <h2 class="text-lg font-semibold mb-4">
+            {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
+          </h2>
+          <form
+            id="template-form"
+            phx-submit="save_template"
+            phx-change="form_changed"
+            class="space-y-4"
+          >
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                {gettext("Template Name")}
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={@form_name}
+                placeholder={gettext("e.g. Engineering Interview")}
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700">{gettext("Criteria")}</label>
+              <div
+                :for={{criterion, idx} <- Enum.with_index(@criteria)}
+                class="flex gap-2 items-center"
+              >
+                <span class="text-sm text-gray-500 w-8">{idx + 1}.</span>
+                <input
+                  type="text"
+                  name={"criteria[#{idx}][name]"}
+                  value={criterion["name"]}
+                  class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                  placeholder={gettext("Criterion name")}
+                />
+                <select
+                  name={"criteria[#{idx}][type]"}
+                  class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                >
+                  <option value="number_1_5" selected={criterion["type"] == "number_1_5"}>
+                    {gettext("Number (1-5)")}
+                  </option>
+                  <option value="yes_no_maybe" selected={criterion["type"] == "yes_no_maybe"}>
+                    {gettext("Yes/No/Maybe")}
+                  </option>
+                  <option value="text" selected={criterion["type"] == "text"}>
+                    {gettext("Text")}
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  phx-click="remove_criterion"
+                  phx-value-index={idx}
+                  class="text-red-600 hover:text-red-900"
+                >
+                  <.icon name="hero-x-mark" class="w-5 h-5" />
+                </button>
+              </div>
+
+              <div
+                id="criterion-adder"
+                phx-hook=".CriterionAdder"
+                class="flex gap-2 items-center mt-2"
+              >
+                <input
+                  type="text"
+                  id="new_criterion_name"
+                  placeholder={gettext("New criterion name")}
+                  class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                />
+                <select
+                  id="new_criterion_type"
+                  class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                >
+                  <option value="number_1_5">{gettext("Number (1-5)")}</option>
+                  <option value="yes_no_maybe">{gettext("Yes/No/Maybe")}</option>
+                  <option value="text">{gettext("Text")}</option>
+                </select>
+                <button
+                  type="button"
+                  id="add-criterion-btn"
+                  class="bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 text-sm"
+                >
+                  + {gettext("Add")}
+                </button>
+              </div>
+              <script :type={Phoenix.LiveView.ColocatedHook} name=".CriterionAdder">
+                export default {
+                  mounted() {
+                    document.getElementById("add-criterion-btn").addEventListener("click", () => {
+                      const name = document.getElementById("new_criterion_name").value;
+                      const type = document.getElementById("new_criterion_type").value;
+                      if (name.trim()) {
+                        this.pushEvent("add_criterion", { new_criterion_name: name, new_criterion_type: type });
+                      }
+                    });
+                  }
+                }
+              </script>
+            </div>
+
+            <div class="flex gap-2">
+              <.button type="submit">{gettext("Save")}</.button>
+              <.button type="button" phx-click="cancel_form" class="bg-gray-500">
+                {gettext("Cancel")}
+              </.button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {gettext("Name")}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {gettext("Criteria Count")}
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {gettext("Actions")}
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr :for={template <- @templates} class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{template.name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                  {length(template.criteria || [])}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <button
+                    phx-click="edit_template"
+                    phx-value-template_id={template.id}
+                    class="text-blue-600 hover:text-blue-900 mr-3"
+                  >
+                    {gettext("Edit")}
+                  </button>
+                  <button
+                    phx-click="delete_template"
+                    phx-value-template_id={template.id}
+                    class="text-red-600 hover:text-red-900"
+                  >
+                    {gettext("Delete")}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div :if={@templates == []} class="p-8 text-center text-gray-500">
+            {gettext("No scorecard templates yet. Create your first template!")}
+          </div>
+        </div>
+      </div>
+    </Layouts.app>
+    """
+  end
+
+  def handle_event("show_create_form", _, socket) do
+    {:noreply,
+     assign(socket, show_form: true, editing_template: nil, form_name: "", criteria: [])}
+  end
+
+  def handle_event("cancel_form", _, socket) do
+    {:noreply, assign(socket, show_form: false, editing_template: nil)}
+  end
+
+  def handle_event("form_changed", %{"name" => name}, socket) do
+    {:noreply, assign(socket, form_name: name)}
+  end
+
+  def handle_event("form_changed", _params, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event("edit_template", %{"template_id" => template_id}, socket) do
+    template = Scorecards.get_scorecard_template!(template_id)
+
+    {:noreply,
+     assign(socket,
+       show_form: true,
+       editing_template: template,
+       form_name: template.name,
+       criteria: template.criteria || []
+     )}
+  end
+
+  def handle_event("add_criterion", params, socket) do
+    name = Map.get(params, "new_criterion_name", "")
+    type = Map.get(params, "new_criterion_type", "number_1_5")
+
+    if name != "" do
+      new_criteria =
+        socket.assigns.criteria ++
+          [%{"name" => name, "type" => type, "position" => length(socket.assigns.criteria)}]
+
+      {:noreply, assign(socket, criteria: new_criteria)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("remove_criterion", %{"index" => index}, socket) do
+    idx = String.to_integer(index)
+
+    new_criteria =
+      socket.assigns.criteria
+      |> Enum.with_index()
+      |> Enum.reject(fn {_, i} -> i == idx end)
+      |> Enum.map(fn {c, _} -> c end)
+
+    {:noreply, assign(socket, criteria: new_criteria)}
+  end
+
+  def handle_event("save_template", params, socket) do
+    criteria_text = Map.get(params, "criteria", %{})
+
+    criteria =
+      criteria_text
+      |> Map.values()
+      |> Enum.with_index()
+      |> Enum.map(fn {c, idx} ->
+        %{
+          "name" => Map.get(c, "name", ""),
+          "type" => Map.get(c, "type", "number_1_5"),
+          "position" => idx
+        }
+      end)
+      |> Enum.filter(fn c -> c["name"] != "" end)
+
+    template_params = %{
+      "name" => Map.get(params, "name", ""),
+      "criteria" => criteria,
+      "tenant_id" => socket.assigns.current_tenant.id
+    }
+
+    result =
+      case socket.assigns.editing_template do
+        nil ->
+          Scorecards.create_scorecard_template(template_params, socket.assigns.current_user)
+
+        template ->
+          Scorecards.update_scorecard_template(
+            template,
+            template_params,
+            socket.assigns.current_user
+          )
+      end
+
+    case result do
+      {:ok, _template} ->
+        templates = Scorecards.list_scorecard_templates(socket.assigns.current_tenant.id)
+
+        {:noreply,
+         socket
+         |> assign(templates: templates, show_form: false, editing_template: nil)
+         |> put_flash(:info, "Template saved")}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can manage scorecard templates")}
+
+      {:error, changeset} ->
+        errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+        {:noreply, put_flash(socket, :error, "Validation failed: #{inspect(errors)}")}
+    end
+  end
+
+  def handle_event("delete_template", %{"template_id" => template_id}, socket) do
+    template = Scorecards.get_scorecard_template!(template_id)
+
+    case Scorecards.delete_scorecard_template(template, socket.assigns.current_user) do
+      {:ok, _} ->
+        templates = Scorecards.list_scorecard_templates(socket.assigns.current_tenant.id)
+
+        {:noreply, assign(socket, templates: templates) |> put_flash(:info, "Template deleted")}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can delete scorecard templates")}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete template")}
+    end
+  end
+end

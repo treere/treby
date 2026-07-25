@@ -179,7 +179,7 @@ defmodule TrebyWeb.SettingsLive.Team do
       "tenant_id" => socket.assigns.current_tenant.id
     }
 
-    case Invites.create_invite(attrs) do
+    case Invites.create_invite(attrs, socket.assigns.current_user) do
       {:ok, _invite} ->
         invites = Invites.list_invites(socket.assigns.current_tenant.id)
 
@@ -187,6 +187,9 @@ defmodule TrebyWeb.SettingsLive.Team do
          socket
          |> assign(invites: invites, show_invite_form: false)
          |> put_flash(:info, "Invite sent to #{email}")}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can invite team members")}
 
       {:error, _changeset} ->
         {:noreply,
@@ -197,7 +200,7 @@ defmodule TrebyWeb.SettingsLive.Team do
   def handle_event("remove_user", %{"user_id" => user_id}, socket) do
     user = Accounts.get_user!(user_id)
 
-    case Accounts.remove_user_from_tenant(user) do
+    case Accounts.remove_user_from_tenant(user, socket.assigns.current_user) do
       {:ok, _} ->
         users = Accounts.list_users(socket.assigns.current_tenant.id)
         {:noreply, assign(socket, users: users) |> put_flash(:info, "Team member removed")}
@@ -210,10 +213,13 @@ defmodule TrebyWeb.SettingsLive.Team do
   def handle_event("revoke_invite", %{"invite_id" => invite_id}, socket) do
     invite = Invites.get_invite_by_token(invite_id) || %Invites.Invite{id: invite_id}
 
-    case Invites.delete_invite(invite) do
+    case Invites.delete_invite(invite, socket.assigns.current_user) do
       {:ok, _} ->
         invites = Invites.list_invites(socket.assigns.current_tenant.id)
         {:noreply, assign(socket, invites: invites) |> put_flash(:info, "Invite revoked")}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can revoke invites")}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to revoke invite")}

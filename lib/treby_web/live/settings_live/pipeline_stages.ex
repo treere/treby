@@ -219,8 +219,8 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
 
     result =
       case socket.assigns.editing_stage do
-        nil -> Pipeline.create_pipeline_stage(attrs)
-        stage -> Pipeline.update_pipeline_stage(stage, stage_params)
+        nil -> Pipeline.create_pipeline_stage(attrs, socket.assigns.current_user)
+        stage -> Pipeline.update_pipeline_stage(stage, stage_params, socket.assigns.current_user)
       end
 
     case result do
@@ -231,6 +231,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
          socket
          |> assign(stages: stages, show_form: false, editing_stage: nil)
          |> put_flash(:info, "Stage saved")}
+
+      {:error, :unauthorized} ->
+        {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
 
       {:error, changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -252,9 +255,14 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
         {:noreply, assign(socket, deleting_stage: deleting_stage)}
 
       true ->
-        Pipeline.delete_pipeline_stage(stage)
-        stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
-        {:noreply, socket |> assign(stages: stages) |> put_flash(:info, "Stage deleted")}
+        case Pipeline.delete_pipeline_stage(stage, socket.assigns.current_user) do
+          {:ok, _} ->
+            stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
+            {:noreply, socket |> assign(stages: stages) |> put_flash(:info, "Stage deleted")}
+
+          {:error, :unauthorized} ->
+            {:noreply, put_flash(socket, :error, "Only admins can delete pipeline stages")}
+        end
     end
   end
 
@@ -280,8 +288,19 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     if idx > 0 do
       above = Enum.at(stages, idx - 1)
       current = Enum.at(stages, idx)
-      Pipeline.update_pipeline_stage(above, %{position: current.position})
-      Pipeline.update_pipeline_stage(current, %{position: above.position})
+
+      Pipeline.update_pipeline_stage(
+        above,
+        %{position: current.position},
+        socket.assigns.current_user
+      )
+
+      Pipeline.update_pipeline_stage(
+        current,
+        %{position: above.position},
+        socket.assigns.current_user
+      )
+
       stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
       {:noreply, assign(socket, stages: stages)}
     else
@@ -296,8 +315,19 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     if idx < length(stages) - 1 do
       below = Enum.at(stages, idx + 1)
       current = Enum.at(stages, idx)
-      Pipeline.update_pipeline_stage(below, %{position: current.position})
-      Pipeline.update_pipeline_stage(current, %{position: below.position})
+
+      Pipeline.update_pipeline_stage(
+        below,
+        %{position: current.position},
+        socket.assigns.current_user
+      )
+
+      Pipeline.update_pipeline_stage(
+        current,
+        %{position: below.position},
+        socket.assigns.current_user
+      )
+
       stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
       {:noreply, assign(socket, stages: stages)}
     else

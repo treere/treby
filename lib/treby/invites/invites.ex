@@ -22,23 +22,27 @@ defmodule Treby.Invites do
     |> Repo.one()
   end
 
-  def create_invite(attrs \\ %{}) do
-    token = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+  def create_invite(attrs \\ %{}, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      token = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
 
-    expires_at = DateTime.utc_now() |> DateTime.add(7, :day)
+      expires_at = DateTime.utc_now() |> DateTime.add(7, :day)
 
-    result =
-      %Invite{}
-      |> Invite.changeset(Map.merge(attrs, %{"token" => token, "expires_at" => expires_at}))
-      |> Repo.insert()
+      result =
+        %Invite{}
+        |> Invite.changeset(Map.merge(attrs, %{"token" => token, "expires_at" => expires_at}))
+        |> Repo.insert()
 
-    case result do
-      {:ok, invite} ->
-        send_invite_email(invite)
-        {:ok, invite}
+      case result do
+        {:ok, invite} ->
+          send_invite_email(invite)
+          {:ok, invite}
 
-      error ->
-        error
+        error ->
+          error
+      end
     end
   end
 
@@ -48,8 +52,12 @@ defmodule Treby.Invites do
     |> Repo.update()
   end
 
-  def delete_invite(%Invite{} = invite) do
-    Repo.delete(invite)
+  def delete_invite(%Invite{} = invite, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      Repo.delete(invite)
+    end
   end
 
   defp send_invite_email(%Invite{} = invite) do

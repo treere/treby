@@ -1,7 +1,7 @@
 defmodule TrebyWeb.PipelineLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Jobs, Pipeline, EmailTemplates}
+  alias Treby.{Accounts, Tenants, Jobs, Pipeline, EmailTemplates, BulkOperations}
 
   def mount(%{"job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -9,6 +9,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     tenant = Tenants.get_tenant!(session["tenant_id"])
     job = Jobs.get_job!(tenant.id, job_id)
     applications_by_stage = Pipeline.list_applications_by_stage(job_id)
+    stages = Pipeline.list_pipeline_stages(tenant.id)
 
     # Load upcoming interviews for this job's applications
     application_ids =
@@ -36,11 +37,15 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(job: job)
      |> assign(applications_by_stage: applications_by_stage)
+     |> assign(stages: stages)
      |> assign(upcoming_interviews: upcoming_interviews)
      |> assign(review_filter: "all")
      |> assign(show_email_dialog: false)
      |> assign(pending_stage_move: nil)
-     |> assign(email_preview: nil)}
+     |> assign(email_preview: nil)
+     |> assign(selected_ids: [])
+     |> assign(bulk_action: nil)
+     |> assign(bulk_stage_id: nil)}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
@@ -137,9 +142,21 @@ defmodule TrebyWeb.PipelineLive.Index do
                 :for={application <- applications}
                 :if={@review_filter == "all" or not application.reviewed}
                 id={"application-#{application.id}"}
-                class="bg-white rounded-lg p-4 shadow-sm cursor-move hover:shadow-md transition-shadow"
+                class={[
+                  "bg-white rounded-lg p-4 shadow-sm cursor-move hover:shadow-md transition-shadow relative",
+                  application.id in @selected_ids && "ring-2 ring-blue-500"
+                ]}
                 data-application-id={application.id}
               >
+                <div class="absolute top-2 right-2">
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_application"
+                    phx-value-id={application.id}
+                    checked={application.id in @selected_ids}
+                    class="w-4 h-4"
+                  />
+                </div>
                 <div class="flex items-center gap-2">
                   <p class="font-medium text-gray-900">{application.candidate.name}</p>
                   <span
@@ -218,6 +235,73 @@ defmodule TrebyWeb.PipelineLive.Index do
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <%!-- Bulk Action Bar --%>
+      <div :if={@selected_ids != []} class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div class="bg-gray-900 text-white rounded-lg shadow-2xl p-4 flex items-center gap-4">
+          <span class="text-sm">{length(@selected_ids)} selected</span>
+
+          <div class="flex items-center gap-2">
+            <select
+              phx-change="bulk_select_action"
+              name="bulk_action"
+              class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+            >
+              <option value="">Actions...</option>
+              <option value="move_stage">Move to Stage</option>
+              <option value="mark_reviewed">Mark as Reviewed</option>
+              <option value="mark_unreviewed">Mark as New</option>
+              <option value="delete">Delete</option>
+            </select>
+
+            <select
+              :if={@bulk_action == "move_stage"}
+              phx-change="bulk_select_stage"
+              name="bulk_stage_id"
+              class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+            >
+              <option value="">Select stage...</option>
+              <option :for={stage <- @stages} value={stage.id}>{stage.name}</option>
+            </select>
+          </div>
+
+          <button
+            :if={@bulk_action == "move_stage" && @bulk_stage_id != nil}
+            phx-click="bulk_execute_move"
+            class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+          >
+            Move
+          </button>
+          <button
+            :if={@bulk_action == "mark_reviewed"}
+            phx-click="bulk_execute_mark_reviewed"
+            class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+          >
+            Mark Reviewed
+          </button>
+          <button
+            :if={@bulk_action == "mark_unreviewed"}
+            phx-click="bulk_execute_mark_unreviewed"
+            class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+          >
+            Mark New
+          </button>
+          <button
+            :if={@bulk_action == "delete"}
+            phx-click="bulk_execute_delete"
+            class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
+          >
+            Delete
+          </button>
+
+          <button
+            phx-click="clear_selection"
+            class="text-gray-400 hover:text-white text-sm"
+          >
+            ✕
+          </button>
         </div>
       </div>
     </Layouts.app>
@@ -347,5 +431,88 @@ defmodule TrebyWeb.PipelineLive.Index do
 
   def handle_event("filter_review", %{"value" => filter}, socket) do
     {:noreply, assign(socket, review_filter: filter)}
+  end
+
+  def handle_event("toggle_application", %{"id" => id}, socket) do
+    id = String.to_integer(id)
+    selected = socket.assigns.selected_ids
+
+    selected =
+      if id in selected do
+        List.delete(selected, id)
+      else
+        [id | selected]
+      end
+
+    {:noreply, assign(socket, selected_ids: selected)}
+  end
+
+  def handle_event("bulk_select_action", %{"bulk_action" => action}, socket) do
+    {:noreply, assign(socket, bulk_action: action, bulk_stage_id: nil)}
+  end
+
+  def handle_event("bulk_select_stage", %{"bulk_stage_id" => stage_id}, socket) do
+    {:noreply, assign(socket, bulk_stage_id: stage_id)}
+  end
+
+  def handle_event("bulk_execute_move", _params, socket) do
+    %{selected_ids: ids, bulk_stage_id: stage_id, current_tenant: tenant} = socket.assigns
+
+    BulkOperations.bulk_move_stage(ids, stage_id, tenant.id)
+
+    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+    {:noreply,
+     socket
+     |> assign(
+       applications_by_stage: applications_by_stage,
+       selected_ids: [],
+       bulk_action: nil,
+       bulk_stage_id: nil
+     )
+     |> put_flash(:info, "#{length(ids)} applications moved")}
+  end
+
+  def handle_event("bulk_execute_mark_reviewed", _params, socket) do
+    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
+
+    BulkOperations.bulk_mark_reviewed(ids, tenant.id)
+
+    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+    {:noreply,
+     socket
+     |> assign(applications_by_stage: applications_by_stage, selected_ids: [], bulk_action: nil)
+     |> put_flash(:info, "#{length(ids)} applications marked as reviewed")}
+  end
+
+  def handle_event("bulk_execute_mark_unreviewed", _params, socket) do
+    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
+
+    BulkOperations.bulk_mark_unreviewed(ids, tenant.id)
+
+    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+    {:noreply,
+     socket
+     |> assign(applications_by_stage: applications_by_stage, selected_ids: [], bulk_action: nil)
+     |> put_flash(:info, "#{length(ids)} applications marked as new")}
+  end
+
+  def handle_event("bulk_execute_delete", _params, socket) do
+    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
+
+    {:ok, _} = BulkOperations.bulk_delete_candidates(ids, tenant.id)
+
+    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+    {:noreply,
+     socket
+     |> assign(applications_by_stage: applications_by_stage, selected_ids: [], bulk_action: nil)
+     |> put_flash(:info, "#{length(ids)} applications deleted")}
+  end
+
+  def handle_event("clear_selection", _params, socket) do
+    {:noreply, assign(socket, selected_ids: [], bulk_action: nil)}
   end
 end

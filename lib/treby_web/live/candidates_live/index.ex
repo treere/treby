@@ -1,7 +1,7 @@
 defmodule TrebyWeb.CandidatesLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Candidates, Pipeline, Jobs, Customization}
+  alias Treby.{Accounts, Tenants, Candidates, Pipeline, Jobs, Customization, BulkOperations}
   alias Treby.Candidates.Candidate
 
   def mount(_params, session, socket) do
@@ -30,6 +30,12 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(filter_job_id: "")
      |> assign(filter_stage_id: "")
      |> assign(show_form: false)
+     |> assign(selected_ids: [])
+     |> assign(bulk_action: nil)
+     |> assign(bulk_stage_id: nil)
+     |> assign(bulk_email_subject: "")
+     |> assign(bulk_email_body: "")
+     |> assign(bulk_summary: nil)
      |> assign(form: to_form(Candidates.change_candidate(%Candidate{})))}
   end
 
@@ -156,6 +162,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_select_all"
+                    checked={length(@selected_ids) == length(@candidates) and @candidates != []}
+                    class="w-4 h-4"
+                  />
+                </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Name
                 </th>
@@ -174,7 +188,22 @@ defmodule TrebyWeb.CandidatesLive.Index do
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={candidate <- @candidates} class="hover:bg-gray-50">
+              <tr
+                :for={candidate <- @candidates}
+                class={[
+                  "hover:bg-gray-50",
+                  candidate.id in @selected_ids && "bg-blue-50"
+                ]}
+              >
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_candidate"
+                    phx-value-id={candidate.id}
+                    checked={candidate.id in @selected_ids}
+                    class="w-4 h-4"
+                  />
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                   <.link
                     navigate={~p"/app/candidates/#{candidate.id}"}
@@ -203,6 +232,108 @@ defmodule TrebyWeb.CandidatesLive.Index do
           </table>
           <div :if={@candidates == []} class="p-8 text-center text-gray-500">
             No candidates yet. Add your first candidate!
+          </div>
+        </div>
+
+        <%!-- Bulk Action Bar --%>
+        <div :if={@selected_ids != []} class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div class="bg-gray-900 text-white rounded-lg shadow-2xl p-4 flex items-center gap-4">
+            <span class="text-sm">{length(@selected_ids)} selected</span>
+
+            <div class="flex items-center gap-2">
+              <select
+                phx-change="bulk_select_action"
+                name="bulk_action"
+                class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+              >
+                <option value="">Actions...</option>
+                <option value="move_stage">Move to Stage</option>
+                <option value="mark_reviewed">Mark as Reviewed</option>
+                <option value="mark_unreviewed">Mark as New</option>
+                <option value="send_email">Send Email</option>
+                <option value="delete">Delete</option>
+              </select>
+
+              <select
+                :if={@bulk_action == "move_stage"}
+                phx-change="bulk_select_stage"
+                name="bulk_stage_id"
+                class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+              >
+                <option value="">Select stage...</option>
+                <option :for={stage <- @pipeline_stages} value={stage.id}>{stage.name}</option>
+              </select>
+            </div>
+
+            <button
+              :if={@bulk_action == "move_stage" && @bulk_stage_id != nil}
+              phx-click="bulk_execute_move"
+              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            >
+              Move
+            </button>
+            <button
+              :if={@bulk_action == "mark_reviewed"}
+              phx-click="bulk_execute_mark_reviewed"
+              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            >
+              Mark Reviewed
+            </button>
+            <button
+              :if={@bulk_action == "mark_unreviewed"}
+              phx-click="bulk_execute_mark_unreviewed"
+              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            >
+              Mark New
+            </button>
+            <button
+              :if={@bulk_action == "delete"}
+              phx-click="bulk_execute_delete"
+              class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
+            >
+              Delete
+            </button>
+
+            <button
+              :if={@bulk_action == "send_email"}
+              phx-click="bulk_execute_send_email"
+              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            >
+              Send
+            </button>
+
+            <button
+              phx-click="clear_selection"
+              class="text-gray-400 hover:text-white text-sm"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <%!-- Bulk Email Composer --%>
+        <div
+          :if={@bulk_action == "send_email"}
+          class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50"
+        >
+          <div class="bg-white rounded-lg shadow-2xl p-6 w-96">
+            <h3 class="font-semibold mb-3">Send Email to {length(@selected_ids)} candidates</h3>
+            <input
+              type="text"
+              placeholder="Subject"
+              value={@bulk_email_subject}
+              phx-change="bulk_email_subject_change"
+              name="bulk_email_subject"
+              class="w-full border rounded-lg px-3 py-2 text-sm mb-3"
+            />
+            <textarea
+              placeholder="Use {candidate_name} for personalization"
+              value={@bulk_email_body}
+              phx-change="bulk_email_body_change"
+              name="bulk_email_body"
+              rows={4}
+              class="w-full border rounded-lg px-3 py-2 text-sm mb-3"
+            />
           </div>
         </div>
       </div>
@@ -272,6 +403,156 @@ defmodule TrebyWeb.CandidatesLive.Index do
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete candidate")}
     end
+  end
+
+  def handle_event("toggle_candidate", %{"id" => id}, socket) do
+    id = String.to_integer(id)
+    selected = socket.assigns.selected_ids
+
+    selected =
+      if id in selected do
+        List.delete(selected, id)
+      else
+        [id | selected]
+      end
+
+    {:noreply, assign(socket, selected_ids: selected)}
+  end
+
+  def handle_event("toggle_select_all", _params, socket) do
+    selected =
+      if length(socket.assigns.selected_ids) == length(socket.assigns.candidates) do
+        []
+      else
+        Enum.map(socket.assigns.candidates, & &1.id)
+      end
+
+    {:noreply, assign(socket, selected_ids: selected)}
+  end
+
+  def handle_event("bulk_select_action", %{"bulk_action" => action}, socket) do
+    {:noreply, assign(socket, bulk_action: action, bulk_stage_id: nil)}
+  end
+
+  def handle_event("bulk_select_stage", %{"bulk_stage_id" => stage_id}, socket) do
+    {:noreply, assign(socket, bulk_stage_id: stage_id)}
+  end
+
+  def handle_event("bulk_execute_move", _params, socket) do
+    %{selected_ids: ids, bulk_stage_id: stage_id, current_tenant: tenant} = socket.assigns
+
+    # Get all applications for selected candidates
+    application_ids =
+      ids
+      |> Enum.flat_map(fn candidate_id ->
+        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
+        |> Enum.map(& &1.id)
+      end)
+
+    BulkOperations.bulk_move_stage(application_ids, stage_id, tenant.id)
+
+    # Re-fetch candidates
+    candidates = filter_candidates(socket.assigns, %{})
+
+    {:noreply,
+     socket
+     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil, bulk_stage_id: nil)
+     |> put_flash(:info, "#{length(ids)} candidates moved")}
+  end
+
+  def handle_event("bulk_execute_mark_reviewed", _params, socket) do
+    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
+
+    application_ids =
+      ids
+      |> Enum.flat_map(fn candidate_id ->
+        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
+        |> Enum.map(& &1.id)
+      end)
+
+    BulkOperations.bulk_mark_reviewed(application_ids, tenant.id)
+
+    candidates = filter_candidates(socket.assigns, %{})
+
+    {:noreply,
+     socket
+     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil)
+     |> put_flash(:info, "#{length(ids)} candidates marked as reviewed")}
+  end
+
+  def handle_event("bulk_execute_mark_unreviewed", _params, socket) do
+    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
+
+    application_ids =
+      ids
+      |> Enum.flat_map(fn candidate_id ->
+        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
+        |> Enum.map(& &1.id)
+      end)
+
+    BulkOperations.bulk_mark_unreviewed(application_ids, tenant.id)
+
+    candidates = filter_candidates(socket.assigns, %{})
+
+    {:noreply,
+     socket
+     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil)
+     |> put_flash(:info, "#{length(ids)} candidates marked as new")}
+  end
+
+  def handle_event("bulk_execute_delete", _params, socket) do
+    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
+
+    application_ids =
+      ids
+      |> Enum.flat_map(fn candidate_id ->
+        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
+        |> Enum.map(& &1.id)
+      end)
+
+    {:ok, _} = BulkOperations.bulk_delete_candidates(application_ids, tenant.id)
+
+    candidates = filter_candidates(socket.assigns, %{})
+
+    {:noreply,
+     socket
+     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil)
+     |> put_flash(:info, "#{length(ids)} candidates deleted")}
+  end
+
+  def handle_event("bulk_execute_send_email", _params, socket) do
+    %{
+      selected_ids: ids,
+      bulk_email_subject: subject,
+      bulk_email_body: body,
+      current_tenant: tenant
+    } = socket.assigns
+
+    application_ids =
+      ids
+      |> Enum.flat_map(fn candidate_id ->
+        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
+        |> Enum.map(& &1.id)
+      end)
+
+    {:ok, result} = BulkOperations.bulk_send_email(application_ids, subject, body, tenant.id)
+
+    {:noreply,
+     socket
+     |> assign(selected_ids: [], bulk_action: nil, bulk_email_subject: "", bulk_email_body: "")
+     |> put_flash(:info, "#{result.sent} emails sent")}
+  end
+
+  def handle_event("clear_selection", _params, socket) do
+    {:noreply, assign(socket, selected_ids: [], bulk_action: nil)}
+  end
+
+  def handle_event("bulk_email_subject_change", %{"bulk_email_subject" => subject}, socket) do
+    {:noreply, assign(socket, bulk_email_subject: subject)}
+  end
+
+  def handle_event("bulk_email_body_change", %{"bulk_email_body" => body}, socket) do
+    {:noreply, assign(socket, bulk_email_body: body)}
   end
 
   def handle_event("search", %{"search" => search}, socket) do

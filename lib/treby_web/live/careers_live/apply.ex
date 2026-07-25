@@ -1,7 +1,7 @@
 defmodule TrebyWeb.CareersLive.Apply do
   use TrebyWeb, :live_view
 
-  alias Treby.{Tenants, Jobs, Candidates, Pipeline, Careers, Customization}
+  alias Treby.{Tenants, Jobs, Candidates, Pipeline, Careers, Customization, Sources}
 
   def mount(%{"tenant_slug" => tenant_slug, "job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -11,6 +11,7 @@ defmodule TrebyWeb.CareersLive.Apply do
     stages = Pipeline.list_pipeline_stages(tenant.id)
     first_stage = List.first(stages)
     application_fields = Customization.list_custom_fields_for(tenant.id, "application")
+    sources = Sources.list_sources(tenant.id)
 
     {:ok,
      socket
@@ -19,6 +20,7 @@ defmodule TrebyWeb.CareersLive.Apply do
      |> assign(career_page: career_page)
      |> assign(first_stage: first_stage)
      |> assign(application_fields: application_fields)
+     |> assign(sources: sources)
      |> assign(form: to_form(%{}, as: :application))
      |> assign(submitted: false)
      |> allow_upload(:resume,
@@ -59,6 +61,19 @@ defmodule TrebyWeb.CareersLive.Apply do
             <.input field={@form[:name]} type="text" label="Full Name" required />
             <.input field={@form[:email]} type="email" label="Email" required />
             <.input field={@form[:phone]} type="text" label="Phone" />
+
+            <div :if={@sources != []}>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                How did you hear about us?
+              </label>
+              <select
+                name="application[source]"
+                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              >
+                <option value="">—</option>
+                <option :for={source <- @sources} value={source.name}>{source.name}</option>
+              </select>
+            </div>
 
             <div :if={@application_fields != []} class="border-t pt-4 mt-4">
               <h3 class="text-sm font-medium text-gray-700 mb-3">Additional Information</h3>
@@ -154,7 +169,8 @@ defmodule TrebyWeb.CareersLive.Apply do
       "applied_at" => DateTime.utc_now(),
       "resume_url" => resume_url,
       "custom_fields" => custom_fields_values,
-      "reviewed" => false
+      "reviewed" => false,
+      "source" => application_params["source"]
     }
 
     case Pipeline.create_application(application_attrs) do

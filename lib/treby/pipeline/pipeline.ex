@@ -593,4 +593,21 @@ defmodule Treby.Pipeline do
       |> Enum.map(fn rate -> Map.put(rate, :pipeline, pipeline) end)
     end)
   end
+
+  def source_breakdown(nil) do
+    Application
+    |> select([a], %{source: fragment("COALESCE(?, 'Unknown')", a.source), count: count(a.id)})
+    |> group_by([a], fragment("COALESCE(?, 'Unknown')", a.source))
+    |> order_by([a], desc: count(a.id))
+    |> Repo.all()
+  end
+
+  def source_breakdown(pipeline_id) do
+    Application
+    |> where([a], a.pipeline_id == ^pipeline_id)
+    |> select([a], %{source: fragment("COALESCE(?, 'Unknown')", a.source), count: count(a.id)})
+    |> group_by([a], fragment("COALESCE(?, 'Unknown')", a.source))
+    |> order_by([a], desc: count(a.id))
+    |> Repo.all()
+  end
 end

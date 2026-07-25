@@ -281,6 +281,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <p class="text-sm text-gray-500">
                   Stage: {application.pipeline_stage.name}
                 </p>
+                <p :if={application.source} class="text-sm text-gray-500">
+                  Source: {application.source}
+                </p>
               </div>
               <div class="flex items-center gap-3">
                 <a

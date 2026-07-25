@@ -2,14 +2,14 @@
 
 - [x] 1.1 Add `:nimble_csv` dependency to `mix.exs`
 - [x] 1.2 Configure LiveView file upload constraints (max 10MB, accept .csv)
-- [ ] 1.3 Add inbound email webhook endpoint to router (for Postmark/SendGrid)
+- [x] 1.3 Add inbound email webhook endpoint to router (for Postmark/SendGrid)
 
 ## 2. Database & Schema — Source Tracking
 
 - [x] 2.1 Create migration to add `source` string field to `applications` table
 - [x] 2.2 Create migration to create `sources` table (id, name, tenant_id, is_default, position)
 - [x] 2.3 Create `Source` schema with changeset
-- [ ] 2.4 Seed default sources (LinkedIn, Referral, Indeed, Company Website, Other) for existing tenants
+- [x] 2.4 Seed default sources (LinkedIn, Referral, Indeed, Company Website, Other) for existing tenants
 - [x] 2.5 Update `Application` schema to include `source` field
 - [x] 2.6 Update `Application` changeset to cast `source`
 
@@ -81,15 +81,15 @@
 
 ## 11. LiveViews — Bulk Operations
 
-- [ ] 11.1 Add checkboxes to `CandidatesLive.Index` candidate table
-- [ ] 11.2 Add checkboxes to `PipelineLive.Index` candidate cards
-- [ ] 11.3 Create floating action bar component (appears when items selected)
-- [ ] 11.4 Add "Move to Stage" action with stage dropdown
-- [ ] 11.5 Add "Mark as Reviewed" / "Mark as New" actions
-- [ ] 11.6 Add "Delete" action with confirmation dialog
-- [ ] 11.7 Add "Send Email" action with inline composer
-- [ ] 11.8 Implement `handle_event` handlers for all bulk actions
-- [ ] 11.9 Show bulk action summary (e.g., "5 candidates moved to Interview")
+- [x] 11.1 Add checkboxes to `CandidatesLive.Index` candidate table
+- [x] 11.2 Add checkboxes to `PipelineLive.Index` candidate cards
+- [x] 11.3 Create floating action bar component (appears when items selected)
+- [x] 11.4 Add "Move to Stage" action with stage dropdown
+- [x] 11.5 Add "Mark as Reviewed" / "Mark as New" actions
+- [x] 11.6 Add "Delete" action with confirmation dialog
+- [x] 11.7 Add "Send Email" action with inline composer
+- [x] 11.8 Implement `handle_event` handlers for all bulk actions
+- [x] 11.9 Show bulk action summary (e.g., "5 candidates moved to Interview")
 
 ## 12. LiveViews — Candidate Comparison
 
@@ -114,16 +114,16 @@
 
 ## 14. LiveViews — Source on Application Forms
 
-- [ ] 14.1 Add "How did you hear about us?" dropdown to `CareersLive.Apply` (public form)
-- [ ] 14.2 Populate dropdown from tenant's configured sources
-- [ ] 14.3 Add source selection to CSV import wizard (Step 4)
-- [ ] 14.4 Show source on `CandidatesLive.Show` per application
+- [x] 14.1 Add "How did you hear about us?" dropdown to `CareersLive.Apply` (public form)
+- [x] 14.2 Populate dropdown from tenant's configured sources
+- [x] 14.3 Add source selection to CSV import wizard (Step 4)
+- [x] 14.4 Show source on `CandidatesLive.Show` per application
 
 ## 15. LiveViews — Source Analytics
 
-- [ ] 15.1 Add source breakdown chart to `AnalyticsLive.Index`
-- [ ] 15.2 Query source counts and stage progression for chart data
-- [ ] 15.3 Filter source chart by pipeline (using Phase 2 pipeline selector)
+- [x] 15.1 Add source breakdown chart to `AnalyticsLive.Index`
+- [x] 15.2 Query source counts and stage progression for chart data
+- [x] 15.3 Filter source chart by pipeline (using Phase 2 pipeline selector)
 
 ## 16. LiveViews — Email Threads
 

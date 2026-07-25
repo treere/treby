@@ -15,6 +15,11 @@ defmodule TrebyWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :webhook do
+    plug :accepts, ["json"]
+    plug TrebyWeb.Plugs.WebhookVerification
+  end
+
   pipeline :require_auth do
     plug TrebyWeb.Plugs.Auth
   end
@@ -88,7 +93,7 @@ defmodule TrebyWeb.Router do
 
   # Webhook routes (public, no auth)
   scope "/webhooks", TrebyWeb do
-    pipe_through :api
+    pipe_through :webhook
 
     post "/inbound", EmailWebhookController, :create
   end

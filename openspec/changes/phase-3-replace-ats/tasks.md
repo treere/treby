@@ -141,7 +141,7 @@
 - [x] 17.3 Match inbound email to candidate by sender address
 - [x] 17.4 Create or append to email thread
 - [x] 17.5 Return 200 OK to webhook (non-blocking)
-- [ ] 17.6 Add webhook verification (signature validation)
+- [x] 17.6 Add webhook verification (signature validation)
 
 ## 18. Router & Navigation
 

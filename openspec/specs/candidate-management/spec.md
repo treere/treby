@@ -7,7 +7,7 @@ Manage candidate profiles within a multi-tenant recruiting system.
 ## Requirements
 
 ### Requirement: Create candidate
-The system SHALL allow creating candidates with contact information.
+The system SHALL allow creating candidates with contact information. The system SHALL associate the candidate with the user's tenant.
 
 #### Scenario: Manual candidate creation
 - **WHEN** a user submits name, email, and optional phone/linkedin

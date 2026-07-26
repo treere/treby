@@ -228,7 +228,17 @@ defmodule TrebyWeb.JobsLive.Index do
   def handle_event("create_job", params, socket) do
     job_params = Map.get(params, "job", %{})
     custom_fields_values = Map.get(params, "custom_fields", %{})
-    attrs = Map.put(job_params, "tenant_id", socket.assigns.current_tenant.id)
+
+    pipeline_id =
+      case Map.get(job_params, "pipeline_id") do
+        "" -> nil
+        val -> val
+      end
+
+    attrs =
+      job_params
+      |> Map.put("pipeline_id", pipeline_id)
+      |> Map.put("tenant_id", socket.assigns.current_tenant.id)
 
     required_fields =
       Customization.list_custom_fields_for(socket.assigns.current_tenant.id, "job")

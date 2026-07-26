@@ -352,7 +352,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
   def handle_event("create_candidate", params, socket) do
     candidate_params = Map.get(params, "candidate", %{})
     custom_fields_values = Map.get(params, "custom_fields", %{})
-    attrs = Map.put(candidate_params, "tenant_id", socket.assigns.current_tenant.id)
+
+    attrs =
+      candidate_params
+      |> Map.put("tenant_id", socket.assigns.current_tenant.id)
+      |> Map.put("custom_fields", custom_fields_values)
 
     required_fields =
       Customization.list_custom_fields_for(socket.assigns.current_tenant.id, "candidate")

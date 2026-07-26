@@ -43,7 +43,7 @@ defmodule TrebyWeb.Layouts do
       <nav class="bg-white shadow">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex items-center">
               <.link navigate={~p"/app"} class="flex-shrink-0 flex items-center">
                 <span class="text-xl font-bold text-blue-600">Treby</span>
               </.link>
@@ -97,6 +97,73 @@ defmodule TrebyWeb.Layouts do
           </div>
         </div>
       </nav>
+
+      <%!-- Mobile hamburger button --%>
+      <button
+        phx-click={
+          Phoenix.LiveView.JS.toggle(to: "#mobile-nav-overlay")
+          |> Phoenix.LiveView.JS.toggle(to: "#mobile-nav-drawer")
+        }
+        class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg"
+        aria-label="Toggle navigation"
+      >
+        <.icon name="hero-bars-3" class="w-6 h-6 text-gray-700" />
+      </button>
+
+      <%!-- Mobile navigation drawer --%>
+      <div id="mobile-nav-overlay" class="sm:hidden fixed inset-0 bg-black/50 z-40 hidden" />
+      <div
+        id="mobile-nav-drawer"
+        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 transform -translate-x-full transition-transform"
+      >
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-6">
+            <span class="text-xl font-bold text-blue-600">Treby</span>
+            <button
+              phx-click={
+                Phoenix.LiveView.JS.toggle(to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle(to: "#mobile-nav-drawer")
+              }
+              class="p-1"
+            >
+              <.icon name="hero-x-mark" class="w-6 h-6 text-gray-500" />
+            </button>
+          </div>
+          <div class="space-y-1">
+            <.link
+              navigate={~p"/app/jobs"}
+              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Jobs")}
+            </.link>
+            <.link
+              navigate={~p"/app/candidates"}
+              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Candidates")}
+            </.link>
+            <.link
+              navigate={~p"/app/interviews"}
+              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Interviews")}
+            </.link>
+            <.link
+              navigate={~p"/app/analytics"}
+              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Analytics")}
+            </.link>
+            <.link
+              :if={@current_scope && @current_scope.role == "admin"}
+              navigate={~p"/app/settings"}
+              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Settings")}
+            </.link>
+          </div>
+        </div>
+      </div>
 
       <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {render_slot(@inner_block)}

@@ -73,8 +73,10 @@ defmodule Treby.Candidates do
   end
 
   def create_candidate(attrs \\ %{}) do
+    tenant_id = attrs["tenant_id"] || attrs[:tenant_id]
+
     result =
-      %Candidate{}
+      %Candidate{tenant_id: tenant_id}
       |> Candidate.changeset(attrs)
       |> Repo.insert()
 

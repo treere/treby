@@ -74,7 +74,9 @@ defmodule Treby.Jobs do
   end
 
   def create_job(attrs \\ %{}) do
-    %Job{}
+    tenant_id = attrs["tenant_id"] || attrs[:tenant_id]
+
+    %Job{tenant_id: tenant_id}
     |> Job.changeset(attrs)
     |> Repo.insert()
   end

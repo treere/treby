@@ -82,7 +82,8 @@ jobs =
   end)
 
 # Get pipeline stages
-stages = Treby.Pipeline.list_pipeline_stages(tenant.id)
+pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+stages = Treby.Pipeline.list_pipeline_stages(pipeline_id)
 first_stage = List.first(stages)
 
 # Create candidates

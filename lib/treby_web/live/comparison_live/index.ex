@@ -30,7 +30,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
           {@error}
         </div>
 
-        <div :if={not @comparison_data} class="mt-8">
+        <div :if={is_nil(@comparison_data)} class="mt-8">
           <div class="flex items-center justify-between mb-4">
             <span class="text-sm text-gray-600">
               {gettext("Selected: %{count}/3", count: length(@selected_ids))}
@@ -116,7 +116,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
                     >
                       {gettext("Profile")}
                     </a>
-                    <span :if={not item.candidate.linkedin_url}>—</span>
+                    <span :if={is_nil(item.candidate.linkedin_url)}>—</span>
                   </td>
                 </tr>
 
@@ -128,7 +128,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
                   >
                     <div :for={app <- item.applications} class="text-xs">
                       <span class="font-medium">{app.job.title}</span>
-                      <span class="text-gray-500"> →  {app.pipeline_stage.name}</span>
+                      <span class="text-gray-500"> →   {app.pipeline_stage.name}</span>
                     </div>
                     <span :if={item.applications == []}>—</span>
                   </td>
@@ -142,7 +142,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
                   >
                     <div :for={note <- Enum.take(item.notes, 3)} class="text-xs">
                       <span :if={note.rating} class="text-yellow-600">★{note.rating}</span>
-                      <span class="text-gray-600">{String.slice(note.body || "", 0, 50)}</span>
+                      <span class="text-gray-600">{String.slice(note.content || "", 0, 50)}</span>
                     </div>
                     <span :if={item.notes == []}>—</span>
                   </td>
@@ -200,7 +200,6 @@ defmodule TrebyWeb.ComparisonLive.Index do
   end
 
   def handle_event("toggle_candidate", %{"id" => id}, socket) do
-    id = String.to_integer(id)
     selected = socket.assigns.selected_ids
 
     selected =

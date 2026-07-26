@@ -88,8 +88,9 @@ defmodule Treby.Scorecards do
   def list_scorecards_for_candidate(candidate_id) do
     Scorecard
     |> join(:inner, [s], ie in Treby.Interviews.InterviewEvent, on: s.interview_event_id == ie.id)
-    |> where([s, ie], ie.candidate_id == ^candidate_id)
-    |> preload([s, ie], interviewer: [], interview_event: [])
+    |> join(:inner, [s, ie], a in Treby.Pipeline.Application, on: ie.application_id == a.id)
+    |> where([s, ie, a], a.candidate_id == ^candidate_id)
+    |> preload([s, ie, a], interviewer: [], interview_event: [])
     |> Repo.all()
   end
 

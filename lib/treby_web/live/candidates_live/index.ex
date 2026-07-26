@@ -406,7 +406,6 @@ defmodule TrebyWeb.CandidatesLive.Index do
   end
 
   def handle_event("toggle_candidate", %{"id" => id}, socket) do
-    id = String.to_integer(id)
     selected = socket.assigns.selected_ids
 
     selected =

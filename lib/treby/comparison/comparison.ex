@@ -18,8 +18,7 @@ defmodule Treby.Comparison do
       |> Repo.all()
       |> Repo.preload([
         :tenant,
-        applications: [:job, :pipeline_stage],
-        notes: [:user]
+        applications: [:job, :pipeline_stage, notes: [:author]]
       ])
 
     # Get scorecards for these candidates
@@ -63,10 +62,14 @@ defmodule Treby.Comparison do
           candidate.applications
           |> Enum.flat_map(fn app -> Map.get(scorecards_by_candidate, app.id, []) end)
 
+        all_notes =
+          candidate.applications
+          |> Enum.flat_map(fn app -> app.notes || [] end)
+
         %{
           candidate: candidate,
           applications: candidate.applications,
-          notes: candidate.notes,
+          notes: all_notes,
           scorecards: candidate_scorecards,
           custom_fields: candidate.custom_fields
         }

@@ -434,7 +434,6 @@ defmodule TrebyWeb.PipelineLive.Index do
   end
 
   def handle_event("toggle_application", %{"id" => id}, socket) do
-    id = String.to_integer(id)
     selected = socket.assigns.selected_ids
 
     selected =

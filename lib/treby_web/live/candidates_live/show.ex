@@ -50,7 +50,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
     aggregate_scores = Scorecards.compute_aggregate_scores(candidate.id)
 
     # Load activity timeline
-    activities = Activities.list_events_for_entity("candidate", candidate.id, limit: 20)
+    activities = Activities.list_events_for_entity("candidate", candidate.id, 20)
 
     # Load email threads
     email_threads = EmailThreads.list_threads_for_candidate(candidate.id)

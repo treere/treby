@@ -30,6 +30,11 @@ The system SHALL allow users to log in with email and password.
 - **WHEN** a user submits invalid email or password
 - **THEN** the system returns an error: "Invalid email or password"
 
+#### Scenario: Forgot password link
+- **WHEN** a user views the login page
+- **THEN** a "Forgot your password?" link is displayed below the password field
+- **AND** the link navigates to `/reset-password`
+
 ### Requirement: Session management
 The system SHALL manage user sessions via signed cookies.
 

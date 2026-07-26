@@ -6,6 +6,7 @@ defmodule Treby.Accounts do
   import Ecto.Query, warn: false
   alias Treby.Repo
   alias Treby.Accounts.User
+  alias Treby.Accounts.PasswordResetToken
 
   def list_users(tenant_id) do
     User
@@ -75,5 +76,99 @@ defmodule Treby.Accounts do
           {:error, :invalid_credentials}
         end
     end
+  end
+
+  @doc """
+  Generates a password reset token for the given user.
+  Returns {:ok, raw_token, %PasswordResetToken{}} on success.
+  The raw token is sent via email; only the hash is stored.
+  """
+  def generate_reset_token(%User{} = user) do
+    raw_token = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+    token_hash = :crypto.hash(:sha256, raw_token) |> Base.encode16(case: :lower)
+
+    expires_at = DateTime.utc_now() |> DateTime.truncate(:second) |> DateTime.add(3600, :second)
+
+    changeset =
+      %PasswordResetToken{}
+      |> PasswordResetToken.changeset(%{
+        token_hash: token_hash,
+        expires_at: expires_at,
+        user_id: user.id
+      })
+
+    case Repo.insert(changeset) do
+      {:ok, token} -> {:ok, raw_token, token}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
+  Looks up a user by a raw reset token.
+  Validates the token exists, is not expired, and has not been used.
+  Returns {:ok, user, token_record} or {:error, :invalid_token}.
+  """
+  def get_user_by_reset_token(raw_token) do
+    token_hash = :crypto.hash(:sha256, raw_token) |> Base.encode16(case: :lower)
+
+    now = DateTime.utc_now()
+
+    token =
+      PasswordResetToken
+      |> where([t], t.token_hash == ^token_hash)
+      |> where([t], is_nil(t.used_at))
+      |> where([t], t.expires_at > ^now)
+      |> Repo.one()
+
+    case token do
+      nil ->
+        {:error, :invalid_token}
+
+      token ->
+        user = Repo.get!(User, token.user_id)
+        {:ok, user, token}
+    end
+  end
+
+  @doc """
+  Resets a user's password using a valid reset token.
+  Updates the password and marks the token as used.
+  """
+  def reset_password(%User{} = user, %PasswordResetToken{} = token, password) do
+    Repo.transaction(fn ->
+      # Update password
+      user_changeset =
+        user
+        |> User.changeset(%{password: password})
+
+      case Repo.update(user_changeset) do
+        {:ok, updated_user} ->
+          # Mark token as used
+          token
+          |> PasswordResetToken.changeset(%{
+            used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+          })
+          |> Repo.update!()
+
+          {:ok, updated_user}
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+  end
+
+  @doc """
+  Deletes password reset tokens older than the given age (default 24 hours).
+  """
+  def delete_expired_reset_tokens(age \\ {24, :hour}) do
+    cutoff =
+      DateTime.utc_now()
+      |> DateTime.truncate(:second)
+      |> DateTime.add(-elem(age, 0), elem(age, 1))
+
+    PasswordResetToken
+    |> where([t], t.inserted_at < ^cutoff)
+    |> Repo.delete_all()
   end
 end

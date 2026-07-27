@@ -29,12 +29,15 @@ defmodule TrebyWeb.Router do
     pipe_through [:browser, :require_auth]
 
     live_session :default,
-      on_mount: [{TrebyWeb.Hooks.SetLocale, :set_locale}] do
+      on_mount: [
+        {TrebyWeb.Hooks.SetLocale, :set_locale}
+      ] do
       live "/", DashboardLive
       live "/jobs", JobsLive.Index
       live "/jobs/:id", JobsLive.Show
       live "/candidates", CandidatesLive.Index
       live "/candidates/:id", CandidatesLive.Show
+      live "/pipeline", PipelineLive
       live "/pipeline/:job_id", PipelineLive.Index
       live "/analytics", AnalyticsLive.Index
       live "/schedule/:application_id", ScheduleLive.Index

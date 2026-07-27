@@ -70,6 +70,43 @@ window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
+function highlightActiveNav() {
+  const path = window.location.pathname
+  document.querySelectorAll("[data-nav]").forEach(el => {
+    const navPath = el.getAttribute("data-nav")
+    const isActive = path === navPath || (navPath !== "/app" && path.startsWith(navPath + "/"))
+    if (el.classList.contains("nav-link")) {
+      el.classList.toggle("border-blue-600", isActive)
+      el.classList.toggle("text-blue-600", isActive)
+      el.classList.toggle("border-transparent", !isActive)
+    } else if (el.classList.contains("mobile-nav-link")) {
+      el.classList.toggle("bg-blue-50", isActive)
+      el.classList.toggle("text-blue-600", isActive)
+    }
+  })
+}
+
+highlightActiveNav()
+window.addEventListener("phx:page-loading-stop", highlightActiveNav)
+
+// Close mobile nav drawer when a link inside it is clicked
+document.getElementById("mobile-nav-drawer")?.addEventListener("click", (e) => {
+  if (e.target.closest("a")) {
+    const drawer = document.getElementById("mobile-nav-drawer")
+    const overlay = document.getElementById("mobile-nav-overlay")
+    drawer?.classList.add("-translate-x-full")
+    overlay?.classList.add("hidden")
+  }
+})
+
+// Close mobile nav drawer when overlay is clicked
+document.getElementById("mobile-nav-overlay")?.addEventListener("click", () => {
+  const drawer = document.getElementById("mobile-nav-drawer")
+  const overlay = document.getElementById("mobile-nav-overlay")
+  drawer?.classList.add("-translate-x-full")
+  overlay?.classList.add("hidden")
+})
+
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session

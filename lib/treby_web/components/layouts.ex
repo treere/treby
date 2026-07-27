@@ -50,38 +50,64 @@ defmodule TrebyWeb.Layouts do
               <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <.link
                   navigate={~p"/app/jobs"}
-                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  data-nav="/app/jobs"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Jobs")}
                 </.link>
                 <.link
                   navigate={~p"/app/candidates"}
-                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  data-nav="/app/candidates"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Candidates")}
                 </.link>
                 <.link
+                  navigate={~p"/app/pipeline"}
+                  data-nav="/app/pipeline"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  {gettext("Pipeline")}
+                </.link>
+                <.link
+                  navigate={~p"/app/import"}
+                  data-nav="/app/import"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  {gettext("Import")}
+                </.link>
+                <.link
+                  navigate={~p"/app/compare"}
+                  data-nav="/app/compare"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  {gettext("Compare")}
+                </.link>
+                <.link
                   navigate={~p"/app/interviews"}
-                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  data-nav="/app/interviews"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Interviews")}
                 </.link>
                 <.link
                   navigate={~p"/app/analytics"}
-                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  data-nav="/app/analytics"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Analytics")}
                 </.link>
                 <.link
                   :if={@current_scope && @current_scope.role == "admin"}
                   navigate={~p"/app/settings"}
-                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  data-nav="/app/settings"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Settings")}
                 </.link>
               </div>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="hidden sm:flex sm:items-center sm:space-x-4">
               <.locale_switcher locale={@locale} />
               <span :if={@current_scope} class="text-sm text-gray-600">
                 {@current_scope.name}
@@ -101,8 +127,8 @@ defmodule TrebyWeb.Layouts do
       <%!-- Mobile hamburger button --%>
       <button
         phx-click={
-          Phoenix.LiveView.JS.toggle(to: "#mobile-nav-overlay")
-          |> Phoenix.LiveView.JS.toggle(to: "#mobile-nav-drawer")
+          Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+          |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
         }
         class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg"
         aria-label="Toggle navigation"
@@ -121,8 +147,8 @@ defmodule TrebyWeb.Layouts do
             <span class="text-xl font-bold text-blue-600">Treby</span>
             <button
               phx-click={
-                Phoenix.LiveView.JS.toggle(to: "#mobile-nav-overlay")
-                |> Phoenix.LiveView.JS.toggle(to: "#mobile-nav-drawer")
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
               }
               class="p-1"
             >
@@ -132,34 +158,72 @@ defmodule TrebyWeb.Layouts do
           <div class="space-y-1">
             <.link
               navigate={~p"/app/jobs"}
-              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              data-nav="/app/jobs"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
             >
               {gettext("Jobs")}
             </.link>
             <.link
               navigate={~p"/app/candidates"}
-              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              data-nav="/app/candidates"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
             >
               {gettext("Candidates")}
             </.link>
             <.link
+              navigate={~p"/app/pipeline"}
+              data-nav="/app/pipeline"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Pipeline")}
+            </.link>
+            <.link
+              navigate={~p"/app/import"}
+              data-nav="/app/import"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Import")}
+            </.link>
+            <.link
+              navigate={~p"/app/compare"}
+              data-nav="/app/compare"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Compare")}
+            </.link>
+            <.link
               navigate={~p"/app/interviews"}
-              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              data-nav="/app/interviews"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
             >
               {gettext("Interviews")}
             </.link>
             <.link
               navigate={~p"/app/analytics"}
-              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              data-nav="/app/analytics"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
             >
               {gettext("Analytics")}
             </.link>
             <.link
               :if={@current_scope && @current_scope.role == "admin"}
               navigate={~p"/app/settings"}
-              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              data-nav="/app/settings"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
             >
               {gettext("Settings")}
+            </.link>
+          </div>
+          <div class="border-t border-gray-200 mt-4 pt-4 space-y-1">
+            <div class="px-3 py-2">
+              <.locale_switcher locale={@locale} id_suffix="-mobile" />
+            </div>
+            <.link
+              href={~p"/session"}
+              method="delete"
+              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Logout")}
             </.link>
           </div>
         </div>
@@ -178,20 +242,23 @@ defmodule TrebyWeb.Layouts do
   Locale switcher dropdown for changing language.
   """
   attr :locale, :string, required: true
+  attr :id_suffix, :string, default: ""
 
   def locale_switcher(assigns) do
+    assigns = assigns |> Map.update(:id_suffix, "", & &1)
+
     ~H"""
-    <div class="relative" id="locale-switcher">
+    <div class="relative" id={"locale-switcher#{@id_suffix}"}>
       <button
         type="button"
         class="flex items-center gap-x-1 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-        phx-click={JS.toggle(to: "#locale-dropdown")}
+        phx-click={JS.toggle(to: "#locale-dropdown#{@id_suffix}")}
       >
         <.icon name="hero-language" class="h-4 w-4" />
         {String.upcase(@locale)}
       </button>
       <div
-        id="locale-dropdown"
+        id={"locale-dropdown#{@id_suffix}"}
         class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50"
       >
         <.link

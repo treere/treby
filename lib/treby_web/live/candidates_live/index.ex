@@ -345,7 +345,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
         </div>
       </div>
     </Layouts.app>
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm={@confirm_delete.on_confirm} />
+    <.confirm_modal
+      confirm_delete={@confirm_delete}
+      on_confirm={if @confirm_delete, do: @confirm_delete.on_confirm, else: "confirm_delete"}
+    />
     """
   end
 
@@ -405,7 +408,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
         socket
       ) do
     {:noreply,
-     assign(socket, confirm_delete: %{id: id, title: title, message: message, on_confirm: on_confirm})}
+     assign(socket,
+       confirm_delete: %{id: id, title: title, message: message, on_confirm: on_confirm}
+     )}
   end
 
   def handle_event(
@@ -414,7 +419,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
         socket
       ) do
     {:noreply,
-     assign(socket, confirm_delete: %{id: id, title: title, message: message, on_confirm: "do_delete_candidate"})}
+     assign(socket,
+       confirm_delete: %{
+         id: id,
+         title: title,
+         message: message,
+         on_confirm: "do_delete_candidate"
+       }
+     )}
   end
 
   def handle_event("cancel_delete", _params, socket) do

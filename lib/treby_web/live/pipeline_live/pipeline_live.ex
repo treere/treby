@@ -39,7 +39,6 @@ defmodule TrebyWeb.PipelineLive do
               <div class="flex justify-between items-center">
                 <div>
                   <h2 class="text-lg font-semibold text-gray-900">{job.title}</h2>
-                  <p :if={job.location} class="text-sm text-gray-500">{job.location}</p>
                 </div>
                 <.icon name="hero-chevron-right" class="w-5 h-5 text-gray-400 inline" />
               </div>

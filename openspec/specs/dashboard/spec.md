@@ -34,9 +34,18 @@ The system SHALL show a summary of candidate counts per stage for each open job.
 - **THEN** each open job shows a horizontal bar with candidate counts per stage
 - **AND** the total candidate count per job is displayed
 
+#### Scenario: No open jobs
+- **WHEN** there are no open jobs in the pipeline
+- **THEN** the pipeline overview section displays a guided empty state with an icon, title ("No open jobs yet"), description, and a "Create a job" button linking to the jobs page
+
 ### Requirement: Weekly stats
 The system SHALL show summary statistics for the current week.
 
 #### Scenario: This week's activity
 - **WHEN** a user visits the dashboard
 - **THEN** the following stats are shown for the current calendar week: applications received, interviews completed, offers sent, hires made
+
+#### Scenario: New user with no activity
+- **WHEN** a user with no activity this week visits the dashboard
+- **THEN** stat cards display `0` values with clear labels indicating the time period ("This Week")
+- **AND** the stat cards are visually present but not the focal point (the onboarding checklist and welcome message take priority above them)

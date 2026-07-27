@@ -233,9 +233,16 @@ defmodule TrebyWeb.CandidatesLive.Index do
               </tr>
             </tbody>
           </table>
-          <div :if={@candidates == []} class="p-8 text-center text-gray-500">
-            No candidates yet. Add your first candidate!
-          </div>
+          <.empty_state
+            :if={@candidates == []}
+            icon="hero-user-group"
+            title="No candidates yet"
+            description="Add candidates manually, import from a CSV file, or let them apply through your career page. Candidates will appear here once added."
+            actions={[
+              %{href: ~p"/app/candidates", label: "Add a candidate"},
+              %{href: ~p"/app/import", label: "Import from CSV"}
+            ]}
+          />
         </div>
 
         <%!-- Bulk Action Bar --%>

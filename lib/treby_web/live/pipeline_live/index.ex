@@ -189,6 +189,13 @@ defmodule TrebyWeb.PipelineLive.Index do
             </div>
           </div>
         </div>
+
+        <.empty_state
+          :if={Enum.all?(@applications_by_stage, fn {_, apps} -> apps == [] end)}
+          icon="hero-kanban"
+          title="No applications yet"
+          description="When candidates apply to this job, they'll appear here in your pipeline. Drag and drop cards between stages to move candidates forward."
+        />
       </div>
 
       <%!-- Email Confirmation Dialog --%>

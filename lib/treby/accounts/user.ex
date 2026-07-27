@@ -13,6 +13,7 @@ defmodule Treby.Accounts.User do
     field :name, :string
     field :role, :string, default: "member"
     field :locale, :string, default: "en"
+    field :onboarding_checklist_dismissed, :boolean, default: false
 
     belongs_to :tenant, Treby.Tenants.Tenant
 
@@ -46,5 +47,9 @@ defmodule Treby.Accounts.User do
     user
     |> cast(attrs, [:locale])
     |> validate_inclusion(:locale, ~w(en it))
+  end
+
+  def dismiss_onboarding_changeset(user) do
+    change(user, %{onboarding_checklist_dismissed: true})
   end
 end

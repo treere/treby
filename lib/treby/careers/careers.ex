@@ -32,4 +32,10 @@ defmodule Treby.Careers do
   def change_career_page(%CareerPage{} = career_page, attrs \\ %{}) do
     CareerPage.changeset(career_page, attrs)
   end
+
+  def has_branding?(tenant_id) do
+    CareerPage
+    |> where([cp], cp.tenant_id == ^tenant_id)
+    |> Repo.exists?()
+  end
 end

@@ -616,4 +616,140 @@ defmodule TrebyWeb.CoreComponents do
       true -> Calendar.strftime(dt, "%b %d, %Y")
     end
   end
+
+  @doc """
+  Renders an empty state with icon, title, description, and optional actions.
+
+  Use `action` for a single CTA or `actions` for multiple CTAs.
+  Each action is a map with `href` and `label` keys.
+  """
+  attr :icon, :string, required: true
+  attr :title, :string, required: true
+  attr :description, :string, required: true
+  attr :action, :map, default: nil
+  attr :actions, :list, default: []
+
+  def empty_state(assigns) do
+    actions = if assigns.action, do: [assigns.action | assigns.actions], else: assigns.actions
+    assigns = assign(assigns, :computed_actions, actions)
+
+    ~H"""
+    <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+      <div class="rounded-full bg-gray-100 p-4 mb-4">
+        <.icon name={@icon} class="h-8 w-8 text-gray-400" />
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">{@title}</h3>
+      <p class="text-sm text-gray-500 max-w-sm mb-6">{@description}</p>
+      <div :if={@computed_actions != []} class="flex flex-wrap items-center justify-center gap-3">
+        <.link
+          :for={act <- @computed_actions}
+          navigate={act.href}
+          class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors"
+        >
+          {act.label}
+          <.icon name="hero-arrow-right" class="h-4 w-4" />
+        </.link>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders an onboarding checklist for new users.
+  """
+  attr :steps, :list, required: true
+  attr :current_user, :map, required: true
+  attr :show, :boolean, default: true
+
+  def onboarding_checklist(assigns) do
+    done = Enum.count(assigns.steps, & &1.done)
+    total = length(assigns.steps)
+    assigns = assign(assigns, done: done, total: total, all_done: done == total)
+
+    ~H"""
+    <div
+      :if={@show && !@all_done}
+      id="onboarding-checklist"
+      class="bg-white rounded-lg shadow border border-blue-100 p-6 mb-8"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div class="rounded-full bg-blue-100 p-2">
+            <.icon name="hero-rocket-launch" class="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <h3 class="text-base font-semibold text-gray-900">Get Started with Treby</h3>
+            <p class="text-xs text-gray-500">{@done} of {@total} steps complete</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          phx-click="dismiss-onboarding"
+          phx-value-dismiss="session"
+          class="text-gray-400 hover:text-gray-600 transition-colors"
+          aria-label="Dismiss checklist"
+        >
+          <.icon name="hero-x-mark" class="h-5 w-5" />
+        </button>
+      </div>
+
+      <div class="space-y-3 mb-4">
+        <div :for={step <- @steps}>
+          <.link
+            navigate={step.href}
+            class={[
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors group",
+              step.done && "bg-green-50",
+              !step.done && "hover:bg-gray-50"
+            ]}
+          >
+            <div class={[
+              "flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors",
+              step.done && "bg-green-500 border-green-500",
+              !step.done && "border-gray-300 group-hover:border-blue-400"
+            ]}>
+              <.icon
+                :if={step.done}
+                name="hero-check"
+                class="h-3 w-3 text-white"
+              />
+            </div>
+            <span class={[
+              "text-sm transition-colors",
+              step.done && "text-gray-500 line-through",
+              !step.done && "text-gray-700 group-hover:text-blue-600"
+            ]}>
+              {step.label}
+            </span>
+            <.icon
+              :if={!step.done}
+              name="hero-arrow-right"
+              class="h-4 w-4 text-gray-300 group-hover:text-blue-400 ml-auto transition-colors"
+            />
+          </.link>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex-1 mr-4">
+          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-blue-500 rounded-full transition-all duration-500"
+              style={"width: #{if @total > 0, do: div(@done * 100, @total), else: 0}%"}
+            >
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          phx-click="dismiss-onboarding"
+          phx-value-dismiss="permanent"
+          class="text-xs text-gray-400 hover:text-gray-600 transition-colors whitespace-nowrap"
+        >
+          Don't show again
+        </button>
+      </div>
+    </div>
+    """
+  end
 end

@@ -195,9 +195,13 @@ defmodule TrebyWeb.JobsLive.Index do
               </tr>
             </tbody>
           </table>
-          <div :if={@jobs == []} class="p-8 text-center text-gray-500">
-            No jobs yet. Create your first job posting!
-          </div>
+          <.empty_state
+            :if={@jobs == []}
+            icon="hero-briefcase"
+            title="No job postings yet"
+            description="Job postings let candidates apply through your career page and help you track applicants through each stage of your hiring pipeline."
+            action={%{href: "#", label: "Create your first job"}}
+          />
         </div>
       </div>
     </Layouts.app>

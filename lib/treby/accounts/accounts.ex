@@ -171,4 +171,16 @@ defmodule Treby.Accounts do
     |> where([t], t.inserted_at < ^cutoff)
     |> Repo.delete_all()
   end
+
+  def has_members_besides?(tenant_id, user_id) do
+    User
+    |> where([u], u.tenant_id == ^tenant_id and u.id != ^user_id)
+    |> Repo.exists?()
+  end
+
+  def dismiss_onboarding_checklist(%User{} = user) do
+    user
+    |> User.dismiss_onboarding_changeset()
+    |> Repo.update()
+  end
 end

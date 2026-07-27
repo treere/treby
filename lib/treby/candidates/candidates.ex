@@ -129,4 +129,10 @@ defmodule Treby.Candidates do
   def change_candidate(%Candidate{} = candidate, attrs \\ %{}) do
     Candidate.changeset(candidate, attrs)
   end
+
+  def tenant_has_candidates?(tenant_id) do
+    Candidate
+    |> where([c], c.tenant_id == ^tenant_id)
+    |> Repo.exists?()
+  end
 end

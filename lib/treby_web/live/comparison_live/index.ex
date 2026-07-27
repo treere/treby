@@ -128,7 +128,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
                   >
                     <div :for={app <- item.applications} class="text-xs">
                       <span class="font-medium">{app.job.title}</span>
-                      <span class="text-gray-500"> →    {app.pipeline_stage.name}</span>
+                      <span class="text-gray-500"> →     {app.pipeline_stage.name}</span>
                     </div>
                     <span :if={item.applications == []}>—</span>
                   </td>

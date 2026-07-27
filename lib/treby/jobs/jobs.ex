@@ -94,4 +94,10 @@ defmodule Treby.Jobs do
   def change_job(%Job{} = job, attrs \\ %{}) do
     Job.changeset(job, attrs)
   end
+
+  def tenant_has_jobs?(tenant_id) do
+    Job
+    |> where([j], j.tenant_id == ^tenant_id)
+    |> Repo.exists?()
+  end
 end

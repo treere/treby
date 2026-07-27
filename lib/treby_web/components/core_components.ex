@@ -426,6 +426,61 @@ defmodule TrebyWeb.CoreComponents do
   end
 
   @doc """
+  Renders a confirmation modal dialog for destructive actions.
+
+  ## Examples
+
+      <.confirm_modal confirm_delete={@confirm_delete} />
+  """
+  attr :confirm_delete, :map, default: nil
+  attr :on_confirm, :string, default: "confirm_delete"
+  attr :on_cancel, :string, default: "cancel_delete"
+
+  def confirm_modal(assigns) do
+    ~H"""
+    <div
+      :if={@confirm_delete}
+      id="confirm-modal-backdrop"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+      phx-click={@on_cancel}
+      phx-window-keydown={@on_cancel}
+      phx-key="Escape"
+    >
+      <div class="fixed inset-0 bg-black/50" />
+      <div
+        class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 z-10"
+        phx-click={%JS{}}
+      >
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">
+          {@confirm_delete.title}
+        </h3>
+        <p class="text-sm text-gray-600 mb-6">
+          {@confirm_delete.message}
+        </p>
+        <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            phx-click={@on_cancel}
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            phx-click={@on_confirm}
+            phx-value-id={@confirm_delete.id}
+            phx-mounted={JS.focus()}
+            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a [Heroicon](https://heroicons.com).
 
   Heroicons come in three styles – outline, solid, and mini.

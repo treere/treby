@@ -76,6 +76,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(editing?: false)
      |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))
      |> assign(replying_to_thread: nil)
+     |> assign(confirm_delete: nil)
      |> assign(reply_form: to_form(%{}, as: :reply))}
   end
 
@@ -342,9 +343,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   </div>
                   <%= if note.author_id == @current_user.id do %>
                     <button
-                      phx-click="delete_note"
-                      phx-value-note_id={note.id}
-                      phx-value-application_id={application.id}
+                      phx-click="confirm_delete"
+                      phx-value-id={note.id}
+                      phx-value-title="Delete note"
+                      phx-value-message="Are you sure you want to delete this note? This action cannot be undone."
                       class="text-xs text-red-500 hover:text-red-700"
                     >
                       Delete
@@ -588,6 +590,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_note" />
     """
   end
 
@@ -619,7 +622,19 @@ defmodule TrebyWeb.CandidatesLive.Show do
     end
   end
 
-  def handle_event("delete_note", %{"note_id" => note_id, "application_id" => _app_id}, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_delete_note", %{"id" => note_id}, socket) do
     note = Notes.get_note!(socket.assigns.current_tenant.id, note_id)
 
     if note.author_id == socket.assigns.current_user.id do
@@ -628,10 +643,13 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
       {:noreply,
        socket
-       |> assign(applications: applications)
+       |> assign(applications: applications, confirm_delete: nil)
        |> put_flash(:info, "Note deleted")}
     else
-      {:noreply, put_flash(socket, :error, "You can only delete your own notes")}
+      {:noreply,
+       socket
+       |> assign(confirm_delete: nil)
+       |> put_flash(:error, "You can only delete your own notes")}
     end
   end
 

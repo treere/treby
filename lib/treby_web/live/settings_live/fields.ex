@@ -19,7 +19,8 @@ defmodule TrebyWeb.SettingsLive.Fields do
      |> assign(
        form: to_form(Customization.change_custom_field(%CustomField{tenant_id: tenant.id}))
      )
-     |> assign(new_option: "")}
+     |> assign(new_option: "")
+     |> assign(confirm_delete: nil)}
   end
 
   def render(assigns) do
@@ -149,8 +150,10 @@ defmodule TrebyWeb.SettingsLive.Fields do
                     Edit
                   </button>
                   <button
-                    phx-click="delete_field"
-                    phx-value-field_id={field.id}
+                    phx-click="confirm_delete"
+                    phx-value-id={field.id}
+                    phx-value-title="Delete field"
+                    phx-value-message="Are you sure you want to delete this custom field? This action cannot be undone."
                     class="text-red-600 hover:text-red-900"
                   >
                     Delete
@@ -165,6 +168,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_field" />
     """
   end
 
@@ -226,7 +230,19 @@ defmodule TrebyWeb.SettingsLive.Fields do
     end
   end
 
-  def handle_event("delete_field", %{"field_id" => field_id}, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_delete_field", %{"id" => field_id}, socket) do
     field = Customization.get_custom_field!(socket.assigns.current_tenant.id, field_id)
 
     case Customization.delete_custom_field(field, socket.assigns.current_user) do
@@ -234,13 +250,19 @@ defmodule TrebyWeb.SettingsLive.Fields do
         custom_fields = Customization.list_custom_fields(socket.assigns.current_tenant.id)
 
         {:noreply,
-         assign(socket, custom_fields: custom_fields) |> put_flash(:info, "Field deleted")}
+         socket
+         |> assign(custom_fields: custom_fields, confirm_delete: nil)
+         |> put_flash(:info, "Field deleted")}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can delete custom fields")}
+        {:noreply,
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, "Only admins can delete custom fields")}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete field")}
+        {:noreply,
+         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete field")}
     end
   end
 end

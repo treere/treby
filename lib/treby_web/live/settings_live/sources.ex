@@ -17,7 +17,8 @@ defmodule TrebyWeb.SettingsLive.Sources do
      |> assign(sources: sources)
      |> assign(show_form: false)
      |> assign(editing_id: nil)
-     |> assign(form: to_form(Source.changeset(%Source{}, %{})))}
+     |> assign(form: to_form(Source.changeset(%Source{}, %{})))
+     |> assign(confirm_delete: nil)}
   end
 
   def render(assigns) do
@@ -93,9 +94,10 @@ defmodule TrebyWeb.SettingsLive.Sources do
               </.form>
               <button
                 :if={not source.is_default}
-                phx-click="delete_source"
+                phx-click="confirm_delete"
                 phx-value-id={source.id}
-                data-confirm={gettext("Delete this source? Applications will be re-tagged as Other.")}
+                phx-value-title="Delete source"
+                phx-value-message="Are you sure you want to delete this source? This action cannot be undone."
                 class="text-red-600 hover:text-red-800"
               >
                 {gettext("Delete")}
@@ -109,6 +111,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_source" />
     """
   end
 
@@ -187,7 +190,19 @@ defmodule TrebyWeb.SettingsLive.Sources do
     end
   end
 
-  def handle_event("delete_source", %{"id" => id}, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_delete_source", %{"id" => id}, socket) do
     source = Sources.get_source!(socket.assigns.current_tenant.id, id)
 
     case Sources.delete_source(source) do
@@ -196,11 +211,14 @@ defmodule TrebyWeb.SettingsLive.Sources do
 
         {:noreply,
          socket
-         |> assign(sources: sources)
+         |> assign(sources: sources, confirm_delete: nil)
          |> put_flash(:info, gettext("Source deleted"))}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Failed to delete source"))}
+        {:noreply,
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, gettext("Failed to delete source"))}
     end
   end
 end

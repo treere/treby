@@ -18,7 +18,8 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
      |> assign(editing_template: nil)
      |> assign(form: to_form(EmailTemplate.changeset(%EmailTemplate{}, %{}), as: :email_template))
      |> assign(preview_subject: "")
-     |> assign(preview_body: "")}
+     |> assign(preview_body: "")
+     |> assign(confirm_delete: nil)}
   end
 
   def render(assigns) do
@@ -140,8 +141,10 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                     {gettext("Edit")}
                   </button>
                   <button
-                    phx-click="delete_template"
-                    phx-value-template_id={template.id}
+                    phx-click="confirm_delete"
+                    phx-value-id={template.id}
+                    phx-value-title="Delete template"
+                    phx-value-message="Are you sure you want to delete this email template? This action cannot be undone."
                     class="text-red-600 hover:text-red-900"
                   >
                     {gettext("Delete")}
@@ -156,6 +159,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_template" />
     """
   end
 
@@ -252,20 +256,39 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
     end
   end
 
-  def handle_event("delete_template", %{"template_id" => template_id}, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_delete_template", %{"id" => template_id}, socket) do
     template = EmailTemplates.get_email_template!(template_id)
 
     case EmailTemplates.delete_email_template(template, socket.assigns.current_user) do
       {:ok, _} ->
         templates = EmailTemplates.list_email_templates(socket.assigns.current_tenant.id)
 
-        {:noreply, assign(socket, templates: templates) |> put_flash(:info, "Template deleted")}
+        {:noreply,
+         socket
+         |> assign(templates: templates, confirm_delete: nil)
+         |> put_flash(:info, "Template deleted")}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can delete email templates")}
+        {:noreply,
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, "Only admins can delete email templates")}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete template")}
+        {:noreply,
+         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete template")}
     end
   end
 end

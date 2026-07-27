@@ -36,6 +36,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(bulk_email_subject: "")
      |> assign(bulk_email_body: "")
      |> assign(bulk_summary: nil)
+     |> assign(confirm_delete: nil)
      |> assign(form: to_form(Candidates.change_candidate(%Candidate{})))}
   end
 
@@ -220,8 +221,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
                     :if={@current_user.role == "admin"}
-                    phx-click="delete_candidate"
-                    phx-value-candidate_id={candidate.id}
+                    phx-click="confirm_delete"
+                    phx-value-id={candidate.id}
+                    phx-value-title="Delete candidate"
+                    phx-value-message={"Are you sure you want to delete #{candidate.name}? This action cannot be undone."}
                     class="text-red-600 hover:text-red-900"
                   >
                     Delete
@@ -288,7 +291,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
             </button>
             <button
               :if={@bulk_action == "delete"}
-              phx-click="bulk_execute_delete"
+              phx-click="confirm_delete"
+              phx-value-id="bulk"
+              phx-value-on_confirm="do_bulk_execute_delete"
+              phx-value-title="Delete candidates"
+              phx-value-message={"Are you sure you want to delete #{length(@selected_ids)} candidates? This action cannot be undone."}
               class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
             >
               Delete
@@ -338,6 +345,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm={@confirm_delete.on_confirm} />
     """
   end
 
@@ -391,7 +399,29 @@ defmodule TrebyWeb.CandidatesLive.Index do
     end
   end
 
-  def handle_event("delete_candidate", %{"candidate_id" => candidate_id}, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message, "on_confirm" => on_confirm},
+        socket
+      ) do
+    {:noreply,
+     assign(socket, confirm_delete: %{id: id, title: title, message: message, on_confirm: on_confirm})}
+  end
+
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply,
+     assign(socket, confirm_delete: %{id: id, title: title, message: message, on_confirm: "do_delete_candidate"})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_delete_candidate", %{"id" => candidate_id}, socket) do
     candidate = Candidates.get_candidate!(socket.assigns.current_tenant.id, candidate_id)
 
     case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
@@ -399,14 +429,40 @@ defmodule TrebyWeb.CandidatesLive.Index do
         candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
 
         {:noreply,
-         assign(socket, candidates: candidates) |> put_flash(:info, "Candidate deleted")}
+         socket
+         |> assign(candidates: candidates, confirm_delete: nil)
+         |> put_flash(:info, "Candidate deleted")}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can delete candidates")}
+        {:noreply,
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, "Only admins can delete candidates")}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete candidate")}
+        {:noreply,
+         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete candidate")}
     end
+  end
+
+  def handle_event("do_bulk_execute_delete", _params, socket) do
+    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
+
+    application_ids =
+      ids
+      |> Enum.flat_map(fn candidate_id ->
+        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
+        |> Enum.map(& &1.id)
+      end)
+
+    {:ok, _} = BulkOperations.bulk_delete_candidates(application_ids, tenant.id)
+
+    candidates = filter_candidates(socket.assigns, %{})
+
+    {:noreply,
+     socket
+     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil, confirm_delete: nil)
+     |> put_flash(:info, "#{length(ids)} candidates deleted")}
   end
 
   def handle_event("toggle_candidate", %{"id" => id}, socket) do
@@ -501,26 +557,6 @@ defmodule TrebyWeb.CandidatesLive.Index do
      socket
      |> assign(candidates: candidates, selected_ids: [], bulk_action: nil)
      |> put_flash(:info, "#{length(ids)} candidates marked as new")}
-  end
-
-  def handle_event("bulk_execute_delete", _params, socket) do
-    %{selected_ids: ids, current_tenant: tenant} = socket.assigns
-
-    application_ids =
-      ids
-      |> Enum.flat_map(fn candidate_id ->
-        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
-        |> Enum.map(& &1.id)
-      end)
-
-    {:ok, _} = BulkOperations.bulk_delete_candidates(application_ids, tenant.id)
-
-    candidates = filter_candidates(socket.assigns, %{})
-
-    {:noreply,
-     socket
-     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil)
-     |> put_flash(:info, "#{length(ids)} candidates deleted")}
   end
 
   def handle_event("bulk_execute_send_email", _params, socket) do

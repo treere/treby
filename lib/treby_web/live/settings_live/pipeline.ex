@@ -15,7 +15,8 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(pipelines: pipelines)
      |> assign(show_form: false)
-     |> assign(form: to_form(Pipeline.change_pipeline(%PipelineDef{})))}
+     |> assign(form: to_form(Pipeline.change_pipeline(%PipelineDef{})))
+     |> assign(confirm_delete: nil)}
   end
 
   def render(assigns) do
@@ -112,8 +113,10 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
               </button>
               <button
                 :if={not pipeline.is_default}
-                phx-click="delete_pipeline"
-                phx-value-pipeline_id={pipeline.id}
+                phx-click="confirm_delete"
+                phx-value-id={pipeline.id}
+                phx-value-title="Delete pipeline"
+                phx-value-message="Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
                 class="text-red-600 hover:text-red-900 text-sm"
               >
                 {gettext("Delete")}
@@ -123,6 +126,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_pipeline" />
     """
   end
 
@@ -179,7 +183,19 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
      |> put_flash(:info, "Pipeline duplicated")}
   end
 
-  def handle_event("delete_pipeline", %{"pipeline_id" => pipeline_id}, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_delete_pipeline", %{"id" => pipeline_id}, socket) do
     pipeline = Pipeline.get_pipeline!(pipeline_id)
 
     case Pipeline.delete_pipeline_with_reassignment(pipeline) do
@@ -188,11 +204,14 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
 
         {:noreply,
          socket
-         |> assign(pipelines: pipelines)
+         |> assign(pipelines: pipelines, confirm_delete: nil)
          |> put_flash(:info, "Pipeline deleted")}
 
       {:error, :cannot_delete_default} ->
-        {:noreply, put_flash(socket, :error, "Cannot delete the default pipeline")}
+        {:noreply,
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, "Cannot delete the default pipeline")}
     end
   end
 end

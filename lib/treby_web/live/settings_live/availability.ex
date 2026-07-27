@@ -48,7 +48,8 @@ defmodule TrebyWeb.SettingsLive.Availability do
          )
      )
      |> assign(days_of_week: @days_of_week)
-     |> assign(timezones: @timezones)}
+     |> assign(timezones: @timezones)
+     |> assign(confirm_delete: nil)}
   end
 
   def render(assigns) do
@@ -163,9 +164,10 @@ defmodule TrebyWeb.SettingsLive.Availability do
                       Edit
                     </button>
                     <button
-                      phx-click="delete_rule"
-                      phx-value-rule_id={rule.id}
-                      data-confirm="Are you sure?"
+                      phx-click="confirm_delete"
+                      phx-value-id={rule.id}
+                      phx-value-title="Delete rule"
+                      phx-value-message="Are you sure you want to delete this availability rule? This action cannot be undone."
                       class="text-red-600 hover:text-red-900"
                     >
                       Delete
@@ -183,6 +185,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_rule" />
     """
   end
 
@@ -255,7 +258,19 @@ defmodule TrebyWeb.SettingsLive.Availability do
     end
   end
 
-  def handle_event("delete_rule", %{"rule_id" => rule_id}, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_delete_rule", %{"id" => rule_id}, socket) do
     rule = Availability.get_rule!(rule_id)
     {:ok, _} = Availability.delete_rule(rule)
 
@@ -263,7 +278,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
 
     {:noreply,
      socket
-     |> assign(rules: rules)
+     |> assign(rules: rules, confirm_delete: nil)
      |> put_flash(:info, "Availability rule deleted")}
   end
 

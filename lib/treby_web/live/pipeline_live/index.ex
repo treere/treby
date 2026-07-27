@@ -45,7 +45,8 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(email_preview: nil)
      |> assign(selected_ids: [])
      |> assign(bulk_action: nil)
-     |> assign(bulk_stage_id: nil)}
+     |> assign(bulk_stage_id: nil)
+     |> assign(confirm_delete: nil)}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
@@ -290,7 +291,10 @@ defmodule TrebyWeb.PipelineLive.Index do
           </button>
           <button
             :if={@bulk_action == "delete"}
-            phx-click="bulk_execute_delete"
+            phx-click="confirm_delete"
+            phx-value-id="bulk"
+            phx-value-title="Delete candidates"
+            phx-value-message={"Are you sure you want to delete #{length(@selected_ids)} applications? This action cannot be undone."}
             class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
           >
             Delete
@@ -305,6 +309,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_bulk_execute_delete" />
     """
   end
 
@@ -498,7 +503,19 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> put_flash(:info, "#{length(ids)} applications marked as new")}
   end
 
-  def handle_event("bulk_execute_delete", _params, socket) do
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
+  end
+
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, assign(socket, confirm_delete: nil)}
+  end
+
+  def handle_event("do_bulk_execute_delete", _params, socket) do
     %{selected_ids: ids, current_tenant: tenant} = socket.assigns
 
     {:ok, _} = BulkOperations.bulk_delete_candidates(ids, tenant.id)
@@ -507,7 +524,12 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     {:noreply,
      socket
-     |> assign(applications_by_stage: applications_by_stage, selected_ids: [], bulk_action: nil)
+     |> assign(
+       applications_by_stage: applications_by_stage,
+       selected_ids: [],
+       bulk_action: nil,
+       confirm_delete: nil
+     )
      |> put_flash(:info, "#{length(ids)} applications deleted")}
   end
 

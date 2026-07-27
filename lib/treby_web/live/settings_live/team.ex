@@ -16,7 +16,9 @@ defmodule TrebyWeb.SettingsLive.Team do
      |> assign(users: users)
      |> assign(invites: invites)
      |> assign(show_invite_form: false)
-     |> assign(invite_form: to_form(%{"email" => "", "role" => "member"}))}
+     |> assign(invite_form: to_form(%{"email" => "", "role" => "member"}))
+     |> assign(confirm_delete: nil)
+     |> assign(confirm_delete_type: nil)}
   end
 
   def render(assigns) do
@@ -99,8 +101,10 @@ defmodule TrebyWeb.SettingsLive.Team do
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <%= if user.id != @current_user.id do %>
                     <button
-                      phx-click="remove_user"
-                      phx-value-user_id={user.id}
+                      phx-click="confirm_delete"
+                      phx-value-id={user.id}
+                      phx-value-title="Remove team member"
+                      phx-value-message="Are you sure you want to remove this team member? They will lose access to the account."
                       class="text-red-600 hover:text-red-900"
                     >
                       Remove
@@ -148,8 +152,10 @@ defmodule TrebyWeb.SettingsLive.Team do
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
-                    phx-click="revoke_invite"
-                    phx-value-invite_id={invite.id}
+                    phx-click="confirm_delete"
+                    phx-value-id={invite.id}
+                    phx-value-title="Revoke invitation"
+                    phx-value-message="Are you sure you want to revoke this invitation? The invitee will no longer be able to join."
                     class="text-red-600 hover:text-red-900"
                   >
                     Revoke
@@ -161,6 +167,7 @@ defmodule TrebyWeb.SettingsLive.Team do
         </div>
       </div>
     </Layouts.app>
+    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_confirm_delete" />
     """
   end
 
@@ -197,32 +204,76 @@ defmodule TrebyWeb.SettingsLive.Team do
     end
   end
 
-  def handle_event("remove_user", %{"user_id" => user_id}, socket) do
-    user = Accounts.get_user!(user_id)
+  def handle_event(
+        "confirm_delete",
+        %{"id" => id, "title" => title, "message" => message},
+        socket
+      ) do
+    type =
+      cond do
+        String.contains?(title, "team member") -> "user"
+        String.contains?(title, "invitation") -> "invite"
+        true -> nil
+      end
 
-    case Accounts.remove_user_from_tenant(user, socket.assigns.current_user) do
-      {:ok, _} ->
-        users = Accounts.list_users(socket.assigns.current_tenant.id)
-        {:noreply, assign(socket, users: users) |> put_flash(:info, "Team member removed")}
-
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to remove team member")}
-    end
+    {:noreply,
+     socket
+     |> assign(confirm_delete: %{id: id, title: title, message: message})
+     |> assign(confirm_delete_type: type)}
   end
 
-  def handle_event("revoke_invite", %{"invite_id" => invite_id}, socket) do
-    invite = Invites.get_invite_by_token(invite_id) || %Invites.Invite{id: invite_id}
+  def handle_event("cancel_delete", _params, socket) do
+    {:noreply, socket |> assign(confirm_delete: nil) |> assign(confirm_delete_type: nil)}
+  end
 
-    case Invites.delete_invite(invite, socket.assigns.current_user) do
-      {:ok, _} ->
-        invites = Invites.list_invites(socket.assigns.current_tenant.id)
-        {:noreply, assign(socket, invites: invites) |> put_flash(:info, "Invite revoked")}
+  def handle_event("do_confirm_delete", %{"id" => id}, socket) do
+    case socket.assigns.confirm_delete_type do
+      "user" ->
+        user = Accounts.get_user!(id)
 
-      {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can revoke invites")}
+        case Accounts.remove_user_from_tenant(user, socket.assigns.current_user) do
+          {:ok, _} ->
+            users = Accounts.list_users(socket.assigns.current_tenant.id)
 
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to revoke invite")}
+            {:noreply,
+             socket
+             |> assign(users: users, confirm_delete: nil, confirm_delete_type: nil)
+             |> put_flash(:info, "Team member removed")}
+
+          {:error, _} ->
+            {:noreply,
+             socket
+             |> assign(confirm_delete: nil, confirm_delete_type: nil)
+             |> put_flash(:error, "Failed to remove team member")}
+        end
+
+      "invite" ->
+        invite = Invites.get_invite_by_token(id) || %Invites.Invite{id: id}
+
+        case Invites.delete_invite(invite, socket.assigns.current_user) do
+          {:ok, _} ->
+            invites = Invites.list_invites(socket.assigns.current_tenant.id)
+
+            {:noreply,
+             socket
+             |> assign(invites: invites, confirm_delete: nil, confirm_delete_type: nil)
+             |> put_flash(:info, "Invite revoked")}
+
+          {:error, :unauthorized} ->
+            {:noreply,
+             socket
+             |> assign(confirm_delete: nil, confirm_delete_type: nil)
+             |> put_flash(:error, "Only admins can revoke invites")}
+
+          {:error, _} ->
+            {:noreply,
+             socket
+             |> assign(confirm_delete: nil, confirm_delete_type: nil)
+             |> put_flash(:error, "Failed to revoke invite")}
+        end
+
+      _ ->
+        {:noreply, socket |> assign(confirm_delete: nil, confirm_delete_type: nil)}
     end
   end
 end

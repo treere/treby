@@ -226,7 +226,10 @@ defmodule TrebyWeb.SettingsLive.Fields do
         {:noreply, put_flash(socket, :error, "Only admins can manage custom fields")}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, form: to_form(changeset))}
+        {:noreply,
+         socket
+         |> assign(form: to_form(changeset))
+         |> put_flash(:error, "Please review the errors below")}
     end
   end
 

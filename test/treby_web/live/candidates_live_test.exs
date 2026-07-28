@@ -68,4 +68,61 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       assert html =~ "Jane Smith"
     end
   end
+
+  describe "form validation" do
+    test "shows flash error when creating candidate with empty name", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      view
+      |> element("button", "+ Add Candidate")
+      |> render_click()
+
+      html =
+        view
+        |> form("#candidate-form", %{
+          "candidate" => %{
+            "name" => "",
+            "email" => "test@example.com"
+          }
+        })
+        |> render_submit()
+
+      assert html =~ "Please review the errors below"
+    end
+  end
+
+  describe "show page - edit validation" do
+    test "shows flash error when saving edit with empty name", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Valid Name",
+          email: "valid@example.com"
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      view |> element("button", "Edit") |> render_click()
+
+      html =
+        view
+        |> form("#edit-candidate-form", %{
+          "candidate" => %{
+            "name" => "",
+            "email" => "valid@example.com"
+          }
+        })
+        |> render_submit()
+
+      assert html =~ "Please review the errors below"
+    end
+  end
 end

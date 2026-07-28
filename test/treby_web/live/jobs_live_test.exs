@@ -70,4 +70,29 @@ defmodule TrebyWeb.JobsLive.IndexTest do
       assert html =~ "Software Engineer"
     end
   end
+
+  describe "form validation" do
+    test "shows flash error when creating job with empty title", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/jobs")
+
+      view
+      |> element("button", "New Job")
+      |> render_click()
+
+      html =
+        view
+        |> form("#job-form", %{
+          "job" => %{
+            "title" => "",
+            "description" => "Build amazing things"
+          }
+        })
+        |> render_submit()
+
+      assert html =~ "Please review the errors below"
+    end
+  end
 end

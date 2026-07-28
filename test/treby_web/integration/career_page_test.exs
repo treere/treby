@@ -1,6 +1,8 @@
 defmodule TrebyWeb.CareerPageTest do
   use TrebyWeb.ConnCase, async: false
 
+  import Phoenix.LiveViewTest
+
   alias Treby.{Tenants, Repo}
   alias Treby.Careers.CareerPage
 
@@ -79,6 +81,27 @@ defmodule TrebyWeb.CareerPageTest do
       conn = get(conn, ~p"/#{tenant.slug}/careers")
 
       refute html_response(conn, 200) =~ closed_job.title
+    end
+
+    test "application submission with invalid email does not crash the page", %{
+      conn: conn
+    } do
+      {tenant, _career_page, job} = setup_tenant_with_career_page()
+
+      {:ok, view, html} = live(conn, ~p"/#{tenant.slug}/careers/#{job.id}/apply")
+
+      assert html =~ "Apply for Software Engineer"
+
+      html =
+        view
+        |> form("form", %{
+          "application[name]" => "Test Applicant",
+          "application[email]" => "invalid-email-no-at-sign",
+          "application[phone]" => "555-0100"
+        })
+        |> render_submit()
+
+      assert html =~ "Apply for Software Engineer"
     end
   end
 end

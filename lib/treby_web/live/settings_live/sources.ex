@@ -152,7 +152,10 @@ defmodule TrebyWeb.SettingsLive.Sources do
          |> put_flash(:info, gettext("Source added"))}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, form: to_form(changeset))}
+        {:noreply,
+         socket
+         |> assign(form: to_form(changeset))
+         |> put_flash(:error, "Please review the errors below")}
     end
   end
 
@@ -186,7 +189,10 @@ defmodule TrebyWeb.SettingsLive.Sources do
          |> put_flash(:info, gettext("Source updated"))}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, form: to_form(changeset))}
+        {:noreply,
+         socket
+         |> assign(form: to_form(changeset))
+         |> put_flash(:error, "Please review the errors below")}
     end
   end
 

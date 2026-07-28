@@ -618,7 +618,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> put_flash(:info, "Note added")}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, note_form: to_form(changeset, as: :note))}
+        {:noreply,
+         socket
+         |> assign(note_form: to_form(changeset, as: :note))
+         |> put_flash(:error, "Please review the errors below")}
     end
   end
 
@@ -681,7 +684,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> put_flash(:info, "Candidate updated successfully.")}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, edit_form: to_form(changeset))}
+        {:noreply,
+         socket
+         |> assign(edit_form: to_form(changeset))
+         |> put_flash(:error, "Please review the errors below")}
     end
   end
 

@@ -437,7 +437,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
 
       {:error, _} ->
-        {:noreply, socket}
+        {:noreply, put_flash(socket, :error, "Failed to update review status")}
     end
   end
 

@@ -310,8 +310,10 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
         {:noreply, put_flash(socket, :error, "Only admins can manage scorecard templates")}
 
       {:error, changeset} ->
-        errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
-        {:noreply, put_flash(socket, :error, "Validation failed: #{inspect(errors)}")}
+        {:noreply,
+         socket
+         |> assign(form: to_form(changeset))
+         |> put_flash(:error, "Please review the errors below")}
     end
   end
 

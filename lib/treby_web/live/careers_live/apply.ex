@@ -145,40 +145,44 @@ defmodule TrebyWeb.CareersLive.Apply do
       "tenant_id" => tenant.id
     }
 
-    {:ok, candidate} = Candidates.find_or_create_candidate(tenant.id, candidate_attrs)
+    case Candidates.find_or_create_candidate(tenant.id, candidate_attrs) do
+      {:ok, candidate} ->
+        resume_url =
+          case consume_uploaded_entries(socket, :resume, fn %{path: path}, _entry ->
+                 key = "#{tenant.id}/resumes/#{candidate.id}/#{Path.basename(path)}"
+                 content = File.read!(path)
 
-    resume_url =
-      case consume_uploaded_entries(socket, :resume, fn %{path: path}, _entry ->
-             key = "#{tenant.id}/resumes/#{candidate.id}/#{Path.basename(path)}"
-             content = File.read!(path)
+                 case Treby.Uploads.upload_file(key, content, "application/pdf") do
+                   {:ok, _} -> {:ok, key}
+                   _ -> {:ok, nil}
+                 end
+               end) do
+            [url] -> url
+            _ -> nil
+          end
 
-             case Treby.Uploads.upload_file(key, content, "application/pdf") do
-               {:ok, _} -> {:ok, key}
-               _ -> {:ok, nil}
-             end
-           end) do
-        [url] -> url
-        _ -> nil
-      end
+        application_attrs = %{
+          "tenant_id" => tenant.id,
+          "job_id" => job.id,
+          "candidate_id" => candidate.id,
+          "pipeline_stage_id" => socket.assigns.first_stage.id,
+          "applied_at" => DateTime.utc_now(),
+          "resume_url" => resume_url,
+          "custom_fields" => custom_fields_values,
+          "reviewed" => false,
+          "source" => application_params["source"]
+        }
 
-    application_attrs = %{
-      "tenant_id" => tenant.id,
-      "job_id" => job.id,
-      "candidate_id" => candidate.id,
-      "pipeline_stage_id" => socket.assigns.first_stage.id,
-      "applied_at" => DateTime.utc_now(),
-      "resume_url" => resume_url,
-      "custom_fields" => custom_fields_values,
-      "reviewed" => false,
-      "source" => application_params["source"]
-    }
+        case Pipeline.create_application(application_attrs) do
+          {:ok, _application} ->
+            {:noreply, assign(socket, submitted: true)}
 
-    case Pipeline.create_application(application_attrs) do
-      {:ok, _application} ->
-        {:noreply, assign(socket, submitted: true)}
+          {:error, _changeset} ->
+            {:noreply, put_flash(socket, :error, "Failed to submit application")}
+        end
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to submit application")}
+        {:noreply, put_flash(socket, :error, "Please review the errors below")}
     end
   end
 

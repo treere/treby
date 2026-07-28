@@ -404,7 +404,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
            |> put_flash(:info, "Candidate added")}
 
         {:error, changeset} ->
-          {:noreply, assign(socket, form: to_form(changeset))}
+          {:noreply,
+           socket
+           |> assign(form: to_form(changeset))
+           |> put_flash(:error, "Please review the errors below")}
       end
     end
   end

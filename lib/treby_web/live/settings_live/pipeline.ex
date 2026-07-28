@@ -157,7 +157,10 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
          |> put_flash(:info, "Pipeline created")}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, form: to_form(changeset))}
+        {:noreply,
+         socket
+         |> assign(form: to_form(changeset))
+         |> put_flash(:error, "Please review the errors below")}
     end
   end
 

@@ -282,7 +282,10 @@ defmodule TrebyWeb.JobsLive.Show do
            |> put_flash(:info, "Job updated")}
 
         {:error, changeset} ->
-          {:noreply, assign(socket, form: to_form(changeset))}
+          {:noreply,
+           socket
+           |> assign(form: to_form(changeset))
+           |> put_flash(:error, "Please review the errors below")}
       end
     end
   end

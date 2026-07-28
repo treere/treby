@@ -65,10 +65,36 @@
             name="user[password]"
             type="password"
             required
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
             placeholder="Password (min 6 characters)"
           />
         </div>
+        <div>
+          <label for="user_password_confirmation" class="sr-only">Confirm password</label>
+          <input
+            id="user_password_confirmation"
+            name="user[password_confirmation]"
+            type="password"
+            required
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+            placeholder="Confirm password"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center">
+        <input
+          id="user_tos_accepted"
+          name="user[tos_accepted]"
+          type="checkbox"
+          required
+          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label for="user_tos_accepted" class="ml-2 block text-sm text-gray-900">
+          I agree to the
+          <a href="/terms" class="text-blue-600 hover:text-blue-500">Terms of Service</a>
+          and <a href="/privacy" class="text-blue-600 hover:text-blue-500">Privacy Policy</a>
+        </label>
       </div>
 
       <div>

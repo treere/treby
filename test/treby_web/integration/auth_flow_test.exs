@@ -79,6 +79,8 @@ defmodule TrebyWeb.AuthFlowTest do
           "user" => %{
             "email" => email,
             "password" => "password123",
+            "password_confirmation" => "password123",
+            "tos_accepted" => "true",
             "name" => "Reg User",
             "company_name" => "Reg Corp",
             "company_slug" => "reg-corp-#{System.unique_integer([:positive])}"

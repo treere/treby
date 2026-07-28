@@ -97,6 +97,8 @@ defmodule TrebyWeb.Router do
     live "/:tenant_slug/schedule/:token", SchedulingLive.Booking
     get "/invite/:token", InviteController, :show
     post "/invite/:token", InviteController, :create
+    get "/terms", StaticPageController, :terms
+    get "/privacy", StaticPageController, :privacy
   end
 
   # Webhook routes (public, no auth)

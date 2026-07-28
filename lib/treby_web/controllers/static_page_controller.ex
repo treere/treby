@@ -1,0 +1,11 @@
+defmodule TrebyWeb.StaticPageController do
+  use TrebyWeb, :controller
+
+  def terms(conn, _params) do
+    render(conn, "terms.html")
+  end
+
+  def privacy(conn, _params) do
+    render(conn, "privacy.html")
+  end
+end

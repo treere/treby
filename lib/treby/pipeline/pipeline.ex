@@ -277,7 +277,7 @@ defmodule Treby.Pipeline do
     |> Repo.insert()
   end
 
-  def move_application(%Application{} = application, stage_id) do
+  def move_application(%Application{} = application, stage_id, opts \\ []) do
     old_stage_id = application.pipeline_stage_id
 
     result =
@@ -307,6 +307,17 @@ defmodule Treby.Pipeline do
             tenant_id: app.tenant_id
           }
         )
+
+        # Send stage change notification email if not skipped (non-blocking)
+        unless opts[:skip_notification] do
+          try do
+            Treby.Notifications.notify_stage_change(app, nil)
+          rescue
+            _ -> :ok
+          catch
+            _ -> :ok
+          end
+        end
 
         {:ok, app}
 

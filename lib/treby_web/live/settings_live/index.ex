@@ -82,6 +82,17 @@ defmodule TrebyWeb.SettingsLive.Index do
 
           <.link
             :if={@current_user.role == "admin"}
+            navigate={~p"/app/settings/notifications"}
+            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+          >
+            <h2 class="text-lg font-semibold text-gray-900">{gettext("Notifications")}</h2>
+            <p class="mt-2 text-sm text-gray-600">
+              {gettext("Configure automated email notifications")}
+            </p>
+          </.link>
+
+          <.link
+            :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/sources"}
             class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >

@@ -40,6 +40,8 @@ The system SHALL provide an application form for each job.
 - **THEN** a candidate is created (or found by email)
 - **AND** an application is created in the "New" stage
 - **AND** the visitor sees a thank-you confirmation page
+- **AND** a confirmation email is sent to the candidate (if enabled)
+- **AND** team alert emails are sent to admins/job owner (if enabled)
 
 #### Scenario: Submit with missing required fields
 - **WHEN** a visitor submits an application without required fields

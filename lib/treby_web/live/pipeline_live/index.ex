@@ -207,7 +207,11 @@ defmodule TrebyWeb.PipelineLive.Index do
           <div class="p-6">
             <h2 class="text-lg font-semibold mb-4">Send Email Notification?</h2>
             <p class="text-sm text-gray-600 mb-4">
-              A stage transition email template exists. Would you like to send it?
+              <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
+                A stage transition email template exists. An email will be sent automatically when you move this candidate. You can preview it below or skip sending.
+              <% else %>
+                A stage transition email template exists. Would you like to send it?
+              <% end %>
             </p>
 
             <div :if={@email_preview} class="p-4 bg-gray-50 rounded-lg mb-4">
@@ -373,7 +377,7 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     case action do
       "send" ->
-        # Send email and move
+        # Send email and move (skip automatic notification since we're sending manually)
         case EmailTemplates.send_stage_email(
                socket.assigns.email_preview.template,
                pending.application.candidate,
@@ -387,7 +391,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                }
              ) do
           :ok ->
-            case Pipeline.move_application(pending.application, pending.stage.id) do
+            case Pipeline.move_application(pending.application, pending.stage.id, skip_notification: true) do
               {:ok, _application} ->
                 applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
 

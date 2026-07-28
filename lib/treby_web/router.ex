@@ -65,6 +65,7 @@ defmodule TrebyWeb.Router do
       live "/settings/scorecards", SettingsLive.Scorecards
       live "/settings/emails", SettingsLive.EmailTemplates
       live "/settings/sources", SettingsLive.Sources
+      live "/settings/notifications", SettingsLive.Notifications
     end
   end
 

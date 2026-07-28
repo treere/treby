@@ -174,7 +174,24 @@ defmodule TrebyWeb.CareersLive.Apply do
         }
 
         case Pipeline.create_application(application_attrs) do
-          {:ok, _application} ->
+          {:ok, application} ->
+            # Send notification emails (non-blocking)
+            try do
+              Treby.Notifications.notify_new_application_candidate(application)
+            rescue
+              _ -> :ok
+            catch
+              _ -> :ok
+            end
+
+            try do
+              Treby.Notifications.notify_team_new_application(application)
+            rescue
+              _ -> :ok
+            catch
+              _ -> :ok
+            end
+
             {:noreply, assign(socket, submitted: true)}
 
           {:error, _changeset} ->

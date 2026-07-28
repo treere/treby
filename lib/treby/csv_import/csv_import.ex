@@ -1,5 +1,6 @@
 defmodule Treby.CsvImport do
   import Ecto.Query, warn: false
+  require Logger
   alias Treby.Repo
   alias Treby.CsvImport.ImportLog
   alias Treby.Candidates.Candidate
@@ -162,11 +163,23 @@ defmodule Treby.CsvImport do
                       "source" => source
                     }
 
-                    %Application{}
-                    |> Application.changeset(application_attrs)
-                    |> Repo.insert()
+                    case %Application{}
+                         |> Application.changeset(application_attrs)
+                         |> Repo.insert() do
+                      {:ok, application} ->
+                        try do
+                          Treby.Notifications.notify_team_new_application(application)
+                        rescue
+                          e ->
+                            require Logger
+                            Logger.warning("Failed to send team notification for imported application: #{Exception.message(e)}")
+                        end
 
-                    %{acc | imported: acc.imported + 1}
+                        %{acc | imported: acc.imported + 1}
+
+                      {:error, _changeset} ->
+                        %{acc | errors: acc.errors ++ [%{row: row, errors: ["Failed to create application"]}]}
+                    end
                   end
                 else
                   %{acc | imported: acc.imported + 1}

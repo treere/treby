@@ -25,6 +25,16 @@ defmodule Treby.Tenants do
     |> Repo.insert()
     |> case do
       {:ok, tenant} ->
+        # Set default notification preferences
+        settings = Map.put(tenant.settings || %{}, "notifications", %{
+          "stage_change_candidate" => true,
+          "new_application_candidate" => true,
+          "new_application_team" => true,
+          "interview_reminder" => true
+        })
+
+        {:ok, tenant} = tenant |> Tenant.changeset(%{settings: settings}) |> Repo.update()
+
         # Create default pipeline stages for the new tenant
         Treby.Pipeline.create_default_pipeline_stages(tenant)
         {:ok, tenant}

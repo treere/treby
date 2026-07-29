@@ -48,7 +48,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
             <label
               :for={candidate <- @candidates}
               class={[
-                "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors bg-white",
                 candidate.id in @selected_ids && "bg-blue-50 border-blue-300",
                 candidate.id not in @selected_ids && "hover:bg-gray-50"
               ]}
@@ -128,7 +128,9 @@ defmodule TrebyWeb.ComparisonLive.Index do
                   >
                     <div :for={app <- item.applications} class="text-xs">
                       <span class="font-medium">{app.job.title}</span>
-                      <span class="text-gray-500"> →     {app.pipeline_stage.name}</span>
+                      <span class="text-gray-500">
+                        <span aria-hidden="true">→</span>{app.pipeline_stage.name}
+                      </span>
                     </div>
                     <span :if={item.applications == []}>—</span>
                   </td>

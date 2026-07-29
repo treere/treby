@@ -94,33 +94,21 @@ defmodule TrebyWeb.CoreComponents do
       <.button>Send!</.button>
       <.button phx-click="go" variant="primary">Send!</.button>
       <.button navigate={~p"/"}>Home</.button>
+
+  ## Deprecation
+
+  This function delegates to `TrebyWeb.DesignSystem.Button.button/1`.
+  Use `<.button>` directly in new templates — it provides the same API
+  with additional variants (secondary, danger, ghost, outline), sizes,
+  loading state, and icon slot support.
   """
   attr :rest, :global, include: ~w(href navigate patch method download name value disabled)
   attr :class, :any
   attr :variant, :string, values: ~w(primary)
   slot :inner_block, required: true
 
-  def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
-
-    assigns =
-      assign_new(assigns, :class, fn ->
-        ["btn", Map.fetch!(variants, assigns[:variant])]
-      end)
-
-    if rest[:href] || rest[:navigate] || rest[:patch] do
-      ~H"""
-      <.link class={@class} {@rest}>
-        {render_slot(@inner_block)}
-      </.link>
-      """
-    else
-      ~H"""
-      <button class={@class} {@rest}>
-        {render_slot(@inner_block)}
-      </button>
-      """
-    end
+  def button(assigns) do
+    TrebyWeb.DesignSystem.Button.button(assigns)
   end
 
   @doc """
@@ -431,53 +419,41 @@ defmodule TrebyWeb.CoreComponents do
   ## Examples
 
       <.confirm_modal confirm_delete={@confirm_delete} />
+
+  ## Deprecation
+
+  This function delegates to `TrebyWeb.DesignSystem.Pattern.confirm_dialog/1`.
+  Use `<.confirm_dialog>` in new templates — it provides the same functionality
+  with a cleaner API (explicit id, show, title, message attrs).
   """
   attr :confirm_delete, :map, default: nil
   attr :on_confirm, :string, default: "confirm_delete"
   attr :on_cancel, :string, default: "cancel_delete"
 
   def confirm_modal(assigns) do
-    ~H"""
-    <div
-      :if={@confirm_delete}
-      id="confirm-modal-backdrop"
-      class="fixed inset-0 z-50 flex items-center justify-center"
-      phx-click={@on_cancel}
-      phx-window-keydown={@on_cancel}
-      phx-key="Escape"
-    >
-      <div class="fixed inset-0 bg-black/50" />
-      <div
-        class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 z-10"
-        phx-click={%JS{}}
-      >
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">
-          {@confirm_delete.title}
-        </h3>
-        <p class="text-sm text-gray-600 mb-6">
-          {@confirm_delete.message}
-        </p>
-        <div class="flex justify-end gap-3">
-          <button
-            type="button"
-            phx-click={@on_cancel}
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            phx-click={@on_confirm}
-            phx-value-id={@confirm_delete.id}
-            phx-mounted={JS.focus()}
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-    """
+    cd = assigns.confirm_delete
+
+    modal_assigns =
+      %{
+        __changed__: %{},
+        id: "confirm-modal-backdrop",
+        show: cd != nil,
+        title: cd && cd.title,
+        confirm_label: "Delete",
+        confirm_variant: "danger",
+        on_confirm: assigns.on_confirm,
+        on_cancel: assigns.on_cancel
+      }
+      |> then(fn m ->
+        if cd do
+          Map.put(m, :message, cd.message)
+          |> Map.put(:extra_attrs, %{id: cd.id})
+        else
+          Map.put(m, :message, "")
+        end
+      end)
+
+    TrebyWeb.DesignSystem.Pattern.confirm_dialog(modal_assigns)
   end
 
   @doc """
@@ -622,6 +598,12 @@ defmodule TrebyWeb.CoreComponents do
 
   Use `action` for a single CTA or `actions` for multiple CTAs.
   Each action is a map with `href` and `label` keys.
+
+  ## Deprecation
+
+  This function delegates to `TrebyWeb.DesignSystem.Pattern.empty_state/1`.
+  Use `<.empty_state>` directly in new templates — it provides the same API
+  with theme-aware styling and an optional `:cta` slot for custom action content.
   """
   attr :icon, :string, required: true
   attr :title, :string, required: true
@@ -630,28 +612,7 @@ defmodule TrebyWeb.CoreComponents do
   attr :actions, :list, default: []
 
   def empty_state(assigns) do
-    actions = if assigns.action, do: [assigns.action | assigns.actions], else: assigns.actions
-    assigns = assign(assigns, :computed_actions, actions)
-
-    ~H"""
-    <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
-      <div class="rounded-full bg-gray-100 p-4 mb-4">
-        <.icon name={@icon} class="h-8 w-8 text-gray-400" />
-      </div>
-      <h3 class="text-lg font-semibold text-gray-900 mb-2">{@title}</h3>
-      <p class="text-sm text-gray-500 max-w-sm mb-6">{@description}</p>
-      <div :if={@computed_actions != []} class="flex flex-wrap items-center justify-center gap-3">
-        <.link
-          :for={act <- @computed_actions}
-          navigate={act.href}
-          class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors"
-        >
-          {act.label}
-          <.icon name="hero-arrow-right" class="h-4 w-4" />
-        </.link>
-      </div>
-    </div>
-    """
+    TrebyWeb.DesignSystem.Pattern.empty_state(assigns)
   end
 
   @doc """

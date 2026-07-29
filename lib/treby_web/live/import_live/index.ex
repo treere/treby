@@ -41,26 +41,42 @@ defmodule TrebyWeb.ImportLive.Index do
         <h1 class="text-2xl font-bold">{gettext("Import Candidates")}</h1>
 
         <div class="mt-6 flex items-center gap-2 text-sm text-gray-600">
-          <span class={["px-3 py-1 rounded-full", @step >= 1 && "bg-blue-100 text-blue-800"]}>
+          <span class={[
+            "px-3 py-1 rounded-full",
+            @step >= 1 && "bg-blue-100 text-blue-800",
+            @step < 1 && "bg-gray-100 text-gray-500"
+          ]}>
             1. {gettext("Upload")}
           </span>
           <span class="text-gray-300">→</span>
-          <span class={["px-3 py-1 rounded-full", @step >= 2 && "bg-blue-100 text-blue-800"]}>
+          <span class={[
+            "px-3 py-1 rounded-full",
+            @step >= 2 && "bg-blue-100 text-blue-800",
+            @step < 2 && "bg-gray-100 text-gray-500"
+          ]}>
             2. {gettext("Map")}
           </span>
           <span class="text-gray-300">→</span>
-          <span class={["px-3 py-1 rounded-full", @step >= 3 && "bg-blue-100 text-blue-800"]}>
+          <span class={[
+            "px-3 py-1 rounded-full",
+            @step >= 3 && "bg-blue-100 text-blue-800",
+            @step < 3 && "bg-gray-100 text-gray-500"
+          ]}>
             3. {gettext("Preview")}
           </span>
           <span class="text-gray-300">→</span>
-          <span class={["px-3 py-1 rounded-full", @step >= 4 && "bg-blue-100 text-blue-800"]}>
+          <span class={[
+            "px-3 py-1 rounded-full",
+            @step >= 4 && "bg-blue-100 text-blue-800",
+            @step < 4 && "bg-gray-100 text-gray-500"
+          ]}>
             4. {gettext("Import")}
           </span>
         </div>
 
-        <div :if={@step == 1} class="mt-8">
+        <div :if={@step == 1} class="mt-8 bg-white rounded-lg border border-gray-200 p-8">
           <div
-            class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors"
+            class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors bg-gray-50"
             phx-drop-target={@uploads.csv.ref}
           >
             <.icon name="hero-document-arrow-up" class="w-12 h-12 text-gray-400 mx-auto" />
@@ -86,7 +102,7 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
         </div>
 
-        <div :if={@step == 2} class="mt-8">
+        <div :if={@step == 2} class="mt-8 bg-white rounded-lg border border-gray-200 p-8">
           <h2 class="text-lg font-semibold">{gettext("Map Columns")}</h2>
           <p class="mt-1 text-sm text-gray-600">{gettext("Match CSV columns to candidate fields")}</p>
 
@@ -160,7 +176,7 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
         </div>
 
-        <div :if={@step == 3} class="mt-8">
+        <div :if={@step == 3} class="mt-8 bg-white rounded-lg border border-gray-200 p-8">
           <h2 class="text-lg font-semibold">{gettext("Preview")}</h2>
           <p class="mt-1 text-sm text-gray-600">{gettext("Review first 10 rows before importing")}</p>
 

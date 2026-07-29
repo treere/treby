@@ -191,7 +191,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       assert has_element?(view, "button", "Send Email")
 
       view
-      |> element("button", "Cancel")
+      |> element("#compose-form button", "Cancel")
       |> render_click()
 
       refute has_element?(view, "button", "Send Email")

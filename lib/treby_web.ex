@@ -86,8 +86,29 @@ defmodule TrebyWeb do
 
       # HTML escaping functionality
       import Phoenix.HTML
-      # Core UI components
-      import TrebyWeb.CoreComponents
+      # Core UI components (button will be delegated to DesignSystem)
+      import TrebyWeb.CoreComponents, except: [button: 1, empty_state: 1]
+
+      # Design system components
+      import TrebyWeb.DesignSystem, only: [variant_classes: 1, badge_classes: 1, size_classes: 1]
+      import TrebyWeb.DesignSystem.Button, only: [button: 1]
+      import TrebyWeb.DesignSystem.Badge, only: [badge: 1]
+      import TrebyWeb.DesignSystem.Card, only: [card: 1]
+      import TrebyWeb.DesignSystem.Modal, only: [modal: 1]
+      import TrebyWeb.DesignSystem.Dropdown, only: [dropdown: 1]
+      import TrebyWeb.DesignSystem.Tabs, only: [tabs: 1]
+      import TrebyWeb.DesignSystem.Feedback, only: [spinner: 1, skeleton: 1, toast: 1]
+      import TrebyWeb.DesignSystem.Avatar, only: [avatar: 1]
+
+      import TrebyWeb.DesignSystem.Pattern,
+        only: [
+          confirm_dialog: 1,
+          page_header: 1,
+          empty_state: 1,
+          filter_bar: 1,
+          form_section: 1,
+          loading_overlay: 1
+        ]
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS

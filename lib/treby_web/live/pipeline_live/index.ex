@@ -361,7 +361,7 @@ defmodule TrebyWeb.PipelineLive.Index do
        )}
     else
       # No email template, move directly
-      case Pipeline.move_application(application, stage_id) do
+      case Pipeline.move_application(application, stage_id, actor: socket.assigns.current_user) do
         {:ok, _application} ->
           applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
           {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
@@ -391,7 +391,9 @@ defmodule TrebyWeb.PipelineLive.Index do
                }
              ) do
           :ok ->
-            case Pipeline.move_application(pending.application, pending.stage.id, skip_notification: true) do
+            case Pipeline.move_application(pending.application, pending.stage.id,
+                   skip_notification: true
+                 ) do
               {:ok, _application} ->
                 applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
 
@@ -411,7 +413,9 @@ defmodule TrebyWeb.PipelineLive.Index do
 
       "skip" ->
         # Skip email, just move
-        case Pipeline.move_application(pending.application, pending.stage.id) do
+        case Pipeline.move_application(pending.application, pending.stage.id,
+               actor: socket.assigns.current_user
+             ) do
           {:ok, _application} ->
             applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
 

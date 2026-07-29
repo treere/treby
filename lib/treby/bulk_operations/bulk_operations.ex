@@ -3,7 +3,7 @@ defmodule Treby.BulkOperations do
   alias Treby.Repo
   alias Treby.Pipeline.Application
 
-  def bulk_move_stage(application_ids, pipeline_stage_id, tenant_id) do
+  def bulk_move_stage(application_ids, pipeline_stage_id, tenant_id, _actor \\ nil) do
     Application
     |> where([a], a.id in ^application_ids and a.tenant_id == ^tenant_id)
     |> Repo.update_all(set: [pipeline_stage_id: pipeline_stage_id])

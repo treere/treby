@@ -67,8 +67,11 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                 type="select"
                 label={gettext("Trigger Stage")}
                 options={[
-                  {"Rejected", "rejected"},
-                  {"Hired", "hired"}
+                  {"New Application", "new"},
+                  {"Interview", "interview"},
+                  {"Offer", "offer"},
+                  {"Hired", "hired"},
+                  {"Rejected", "rejected"}
                 ]}
               />
             </div>

@@ -1,10 +1,4 @@
-# Stage-Based Email Templates
-
-## Purpose
-
-Allow admins to configure templated emails that are optionally sent when candidates move to specific pipeline stages, automating routine communications like rejections and advances.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Define email templates
 The system SHALL allow admins to configure email templates per stage type. Templates MAY be created for any of the following stage types: `new`, `interview`, `offer`, `hired`, `rejected`.
@@ -76,24 +70,6 @@ The system SHALL offer to send a templated email when a candidate is moved to a 
 - **AND** the `stage_change_candidate` notification is enabled
 - **THEN** emails are sent to all candidates with configured email addresses
 - **AND** a summary is shown: "X moved, Y emails sent"
-
-### Requirement: Email delivery
-The system SHALL send stage-based emails using the existing Swoosh infrastructure.
-
-#### Scenario: Email sent successfully
-- **WHEN** the user confirms sending a stage-based email
-- **THEN** the email is delivered via Swoosh to the candidate's email address
-- **AND** the email uses the tenant's sender configuration
-
-#### Scenario: Email delivery failure
-- **WHEN** email delivery fails
-- **THEN** the candidate is still moved to the new stage
-- **AND** an error is logged but not shown to the user (non-blocking)
-
-#### Scenario: Delivery failure logging
-- **WHEN** email delivery fails
-- **THEN** the failure is logged in the activity audit trail with error details
-- **AND** the stage move completes successfully
 
 ### Requirement: View email template preview
 The system SHALL show a preview of email templates in the settings page.

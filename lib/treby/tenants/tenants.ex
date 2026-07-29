@@ -26,12 +26,13 @@ defmodule Treby.Tenants do
     |> case do
       {:ok, tenant} ->
         # Set default notification preferences
-        settings = Map.put(tenant.settings || %{}, "notifications", %{
-          "stage_change_candidate" => true,
-          "new_application_candidate" => true,
-          "new_application_team" => true,
-          "interview_reminder" => true
-        })
+        settings =
+          Map.put(tenant.settings || %{}, "notifications", %{
+            "stage_change_candidate" => true,
+            "new_application_candidate" => true,
+            "new_application_team" => true,
+            "interview_reminder" => true
+          })
 
         {:ok, tenant} = tenant |> Tenant.changeset(%{settings: settings}) |> Repo.update()
 

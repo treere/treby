@@ -44,7 +44,7 @@ defmodule Treby.Notifications do
   Resolves the email template for the target stage type, renders it with
   variables, and sends it via Swoosh.
   """
-  def notify_stage_change(application, _actor) do
+  def notify_stage_change(application, actor \\ nil) do
     application = Repo.preload(application, [:candidate, :job, :pipeline_stage])
     candidate = application.candidate
     job = application.job
@@ -65,7 +65,7 @@ defmodule Treby.Notifications do
         job_title: job.title || "",
         company_name: tenant.name || "",
         stage_name: stage.name || "",
-        recruiter_name: ""
+        recruiter_name: (actor && actor.name) || ""
       }
 
       {subject, body} = Treby.EmailTemplates.render_email(template, assigns)

@@ -38,7 +38,9 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                     {gettext("Stage Change Notifications")}
                   </h3>
                   <p class="mt-1 text-sm text-gray-500">
-                    {gettext("Send email to candidates when their application moves to a new pipeline stage")}
+                    {gettext(
+                      "Send email to candidates when their application moves to a new pipeline stage"
+                    )}
                   </p>
                 </div>
                 <button
@@ -52,13 +54,11 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   role="switch"
                   aria-checked={to_string(@preferences["stage_change_candidate"])}
                 >
-                  <span
-                    class={[
-                      "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                      @preferences["stage_change_candidate"] && "translate-x-5",
-                      !@preferences["stage_change_candidate"] && "translate-x-0"
-                    ]}
-                  />
+                  <span class={[
+                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                    @preferences["stage_change_candidate"] && "translate-x-5",
+                    !@preferences["stage_change_candidate"] && "translate-x-0"
+                  ]} />
                 </button>
               </div>
             </div>
@@ -70,7 +70,9 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                     {gettext("Application Confirmation")}
                   </h3>
                   <p class="mt-1 text-sm text-gray-500">
-                    {gettext("Send confirmation email to candidates after they apply via the career page")}
+                    {gettext(
+                      "Send confirmation email to candidates after they apply via the career page"
+                    )}
                   </p>
                 </div>
                 <button
@@ -84,13 +86,11 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   role="switch"
                   aria-checked={to_string(@preferences["new_application_candidate"])}
                 >
-                  <span
-                    class={[
-                      "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                      @preferences["new_application_candidate"] && "translate-x-5",
-                      !@preferences["new_application_candidate"] && "translate-x-0"
-                    ]}
-                  />
+                  <span class={[
+                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                    @preferences["new_application_candidate"] && "translate-x-5",
+                    !@preferences["new_application_candidate"] && "translate-x-0"
+                  ]} />
                 </button>
               </div>
             </div>
@@ -116,13 +116,11 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   role="switch"
                   aria-checked={to_string(@preferences["new_application_team"])}
                 >
-                  <span
-                    class={[
-                      "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                      @preferences["new_application_team"] && "translate-x-5",
-                      !@preferences["new_application_team"] && "translate-x-0"
-                    ]}
-                  />
+                  <span class={[
+                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                    @preferences["new_application_team"] && "translate-x-5",
+                    !@preferences["new_application_team"] && "translate-x-0"
+                  ]} />
                 </button>
               </div>
             </div>

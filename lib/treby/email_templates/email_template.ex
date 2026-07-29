@@ -19,7 +19,7 @@ defmodule Treby.EmailTemplates.EmailTemplate do
     email_template
     |> cast(attrs, [:name, :stage_type, :subject, :body])
     |> validate_required([:name, :stage_type, :subject, :body])
-    |> validate_inclusion(:stage_type, ~w(rejected hired))
+    |> validate_inclusion(:stage_type, ~w(new interview offer hired rejected))
     |> unique_constraint([:stage_type, :tenant_id])
   end
 end

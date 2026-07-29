@@ -77,7 +77,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))
      |> assign(replying_to_thread: nil)
      |> assign(confirm_delete: nil)
-     |> assign(reply_form: to_form(%{}, as: :reply))}
+     |> assign(reply_form: to_form(%{}, as: :reply))
+     |> assign(composing_email: false)
+     |> assign(compose_form: to_form(%{}, as: :compose))}
   end
 
   def render(assigns) do
@@ -502,9 +504,51 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
         <%!-- Email Threads --%>
         <div class="mt-8 bg-white rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">Email History</h2>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Email History</h2>
+            <button
+              phx-click="compose_email"
+              class="text-sm text-blue-600 hover:text-blue-900 border border-blue-600 rounded px-3 py-1"
+            >
+              + Compose Email
+            </button>
+          </div>
 
-          <div :if={@email_threads == []} class="text-gray-500 text-sm">
+          <%!-- Compose form --%>
+          <div :if={@composing_email} class="mb-6 p-4 border rounded-lg">
+            <.form
+              for={@compose_form}
+              id="compose-form"
+              phx-submit="send_compose"
+              class="space-y-3"
+            >
+              <.input
+                field={@compose_form[:subject]}
+                type="text"
+                label="Subject"
+                placeholder="Enter email subject..."
+              />
+              <.input
+                field={@compose_form[:body]}
+                type="textarea"
+                label="Message"
+                placeholder="Type your message..."
+                rows={6}
+              />
+              <div class="flex gap-2">
+                <.button type="submit" class="text-sm">Send Email</.button>
+                <button
+                  type="button"
+                  phx-click="cancel_compose"
+                  class="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </.form>
+          </div>
+
+          <div :if={@email_threads == [] && !@composing_email} class="text-gray-500 text-sm">
             No email threads yet.
           </div>
 
@@ -726,6 +770,58 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Failed to send reply: #{inspect(reason)}")}
+    end
+  end
+
+  def handle_event("compose_email", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(composing_email: true)
+     |> assign(compose_form: to_form(%{}, as: :compose))}
+  end
+
+  def handle_event("cancel_compose", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(composing_email: false)
+     |> assign(compose_form: to_form(%{}, as: :compose))}
+  end
+
+  def handle_event("send_compose", %{"compose" => params}, socket) do
+    subject = Map.get(params, "subject", "") |> String.trim()
+    body = Map.get(params, "body", "") |> String.trim()
+
+    cond do
+      subject == "" ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Subject is required")}
+
+      body == "" ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Message body is required")}
+
+      true ->
+        case EmailThreads.create_outbound_email(%{
+               subject: subject,
+               body: body,
+               from_address: socket.assigns.user_email,
+               candidate_id: socket.assigns.candidate.id,
+               tenant_id: socket.assigns.current_tenant.id
+             }) do
+          {:ok, _message} ->
+            email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
+
+            {:noreply,
+             socket
+             |> assign(email_threads: email_threads, composing_email: false)
+             |> assign(compose_form: to_form(%{}, as: :compose))
+             |> put_flash(:info, "Email sent")}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Failed to send email: #{inspect(reason)}")}
+        end
     end
   end
 

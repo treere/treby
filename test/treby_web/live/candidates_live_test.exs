@@ -2,6 +2,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
   use TrebyWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
+  import Swoosh.TestAssertions
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
@@ -123,6 +124,171 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         |> render_submit()
 
       assert html =~ "Please review the errors below"
+    end
+  end
+
+  describe "show page - compose email" do
+    test "shows compose email button", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Email Test",
+          email: "emailtest@example.com"
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      assert has_element?(view, "button", "Compose Email")
+    end
+
+    test "shows compose form when clicking compose", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Compose Test",
+          email: "compose@example.com"
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      view
+      |> element("button", "+ Compose Email")
+      |> render_click()
+
+      assert has_element?(view, "input[name=\"compose[subject]\"]")
+      assert has_element?(view, "button", "Send Email")
+    end
+
+    test "hides compose form on cancel", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Cancel Test",
+          email: "cancel@example.com"
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      view
+      |> element("button", "+ Compose Email")
+      |> render_click()
+
+      assert has_element?(view, "button", "Send Email")
+
+      view
+      |> element("button", "Cancel")
+      |> render_click()
+
+      refute has_element?(view, "button", "Send Email")
+    end
+
+    test "shows error when sending with empty subject", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Subject Test",
+          email: "subject@example.com"
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      view
+      |> element("button", "+ Compose Email")
+      |> render_click()
+
+      view
+      |> form("#compose-form", %{
+        "compose" => %{
+          "subject" => "",
+          "body" => "Hello"
+        }
+      })
+      |> render_submit()
+
+      assert render(view) =~ "Subject is required"
+    end
+
+    test "shows error when sending with empty body", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Body Test",
+          email: "body@example.com"
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      view
+      |> element("button", "+ Compose Email")
+      |> render_click()
+
+      view
+      |> form("#compose-form", %{
+        "compose" => %{
+          "subject" => "Hello",
+          "body" => ""
+        }
+      })
+      |> render_submit()
+
+      assert render(view) =~ "Message body is required"
+    end
+
+    test "sends email successfully", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Send Test",
+          email: "send@example.com"
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      view
+      |> element("button", "+ Compose Email")
+      |> render_click()
+
+      view
+      |> form("#compose-form", %{
+        "compose" => %{
+          "subject" => "Hello from Treby",
+          "body" => "This is a test email"
+        }
+      })
+      |> render_submit()
+
+      assert render(view) =~ "Email sent"
+      assert_email_sent(subject: "Hello from Treby", to: [{"", "send@example.com"}])
     end
   end
 end

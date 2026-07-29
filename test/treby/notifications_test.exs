@@ -107,13 +107,14 @@ defmodule Treby.NotificationsTest do
     application
   end
 
-  defp setup_email_template(tenant_id, stage_type \\ "hired") do
+  defp setup_email_template(tenant_id, stage_type) do
     {:ok, template} =
       Treby.EmailTemplates.upsert_email_template(%{
         "tenant_id" => tenant_id,
         "name" => "#{stage_type} Notification",
         "subject" => "You've been #{stage_type} for {job_title}",
-        "body" => "Hi {candidate_name}, you've been #{stage_type} for {job_title} at {company_name}.",
+        "body" =>
+          "Hi {candidate_name}, you've been #{stage_type} for {job_title} at {company_name}.",
         "stage_type" => stage_type,
         "is_active" => true
       })
@@ -149,7 +150,9 @@ defmodule Treby.NotificationsTest do
   describe "notification_preferences_enabled?/2" do
     test "returns true when preference is enabled" do
       {tenant, _user} = setup_tenant_with_admin()
-      assert Notifications.notification_preferences_enabled?(tenant, "new_application_team") == true
+
+      assert Notifications.notification_preferences_enabled?(tenant, "new_application_team") ==
+               true
     end
 
     test "returns false when preference is disabled" do
@@ -157,26 +160,38 @@ defmodule Treby.NotificationsTest do
       {:ok, _} = Notifications.set_notification_preference(tenant, "new_application_team", false)
 
       tenant = Repo.get!(Tenants.Tenant, tenant.id)
-      assert Notifications.notification_preferences_enabled?(tenant, "new_application_team") == false
+
+      assert Notifications.notification_preferences_enabled?(tenant, "new_application_team") ==
+               false
     end
   end
 
   describe "set_notification_preference/3" do
     test "persists the preference change" do
       {tenant, _user} = setup_tenant_with_admin()
-      assert {:ok, _} = Notifications.set_notification_preference(tenant, "stage_change_candidate", false)
+
+      assert {:ok, _} =
+               Notifications.set_notification_preference(tenant, "stage_change_candidate", false)
 
       tenant = Repo.get!(Tenants.Tenant, tenant.id)
-      assert Notifications.notification_preferences_enabled?(tenant, "stage_change_candidate") == false
+
+      assert Notifications.notification_preferences_enabled?(tenant, "stage_change_candidate") ==
+               false
     end
 
     test "only affects the specified key" do
       {tenant, _user} = setup_tenant_with_admin()
-      {:ok, _} = Notifications.set_notification_preference(tenant, "stage_change_candidate", false)
+
+      {:ok, _} =
+        Notifications.set_notification_preference(tenant, "stage_change_candidate", false)
 
       tenant = Repo.get!(Tenants.Tenant, tenant.id)
-      assert Notifications.notification_preferences_enabled?(tenant, "new_application_candidate") == true
-      assert Notifications.notification_preferences_enabled?(tenant, "new_application_team") == true
+
+      assert Notifications.notification_preferences_enabled?(tenant, "new_application_candidate") ==
+               true
+
+      assert Notifications.notification_preferences_enabled?(tenant, "new_application_team") ==
+               true
     end
   end
 
@@ -199,7 +214,10 @@ defmodule Treby.NotificationsTest do
 
     test "does not send email when preference is disabled" do
       {tenant, _user} = setup_tenant_with_admin()
-      {:ok, _} = Notifications.set_notification_preference(tenant, "stage_change_candidate", false)
+
+      {:ok, _} =
+        Notifications.set_notification_preference(tenant, "stage_change_candidate", false)
+
       tenant = Repo.get!(Tenants.Tenant, tenant.id)
 
       {job, stage} = setup_job(tenant)
@@ -224,6 +242,45 @@ defmodule Treby.NotificationsTest do
       assert_no_email_sent()
     end
 
+    test "includes recruiter_name from actor when provided" do
+      {tenant, user} = setup_tenant_with_admin()
+      {job, stage} = setup_job(tenant)
+      candidate = setup_candidate(tenant, "recruiter@test.com")
+      application = setup_application(tenant, candidate, job, stage)
+
+      {:ok, _template} =
+        Treby.EmailTemplates.upsert_email_template(%{
+          "tenant_id" => tenant.id,
+          "name" => "Recruiter Test",
+          "subject" => "Update from {recruiter_name}",
+          "body" => "Hi {candidate_name}, this is {recruiter_name} from {company_name}.",
+          "stage_type" => "hired"
+        })
+
+      assert :ok = Notifications.notify_stage_change(application, user)
+
+      assert_email_sent(
+        subject: "Update from Admin User",
+        to: [{"", "recruiter@test.com"}]
+      )
+    end
+
+    test "uses empty string for recruiter_name when no actor" do
+      {tenant, _user} = setup_tenant_with_admin()
+      {job, stage} = setup_job(tenant)
+      candidate = setup_candidate(tenant, "no-actor@test.com")
+      application = setup_application(tenant, candidate, job, stage)
+
+      setup_email_template(tenant.id, "hired")
+
+      assert :ok = Notifications.notify_stage_change(application)
+
+      assert_email_sent(
+        subject: "You've been hired for Software Engineer",
+        to: [{"", "no-actor@test.com"}]
+      )
+    end
+
     test "returns :ok even when email delivery fails" do
       {tenant, _user} = setup_tenant_with_admin()
       {job, stage} = setup_job(tenant)
@@ -234,7 +291,11 @@ defmodule Treby.NotificationsTest do
 
       # Configure mailer to fail
       original_config = Elixir.Application.get_env(:treby, Treby.Mailer)
-      Elixir.Application.put_env(:treby, Treby.Mailer, adapter: Swoosh.Adapters.Test, api_key: "fake")
+
+      Elixir.Application.put_env(:treby, Treby.Mailer,
+        adapter: Swoosh.Adapters.Test,
+        api_key: "fake"
+      )
 
       try do
         assert :ok = Notifications.notify_stage_change(application, nil)
@@ -261,7 +322,10 @@ defmodule Treby.NotificationsTest do
 
     test "does not send when preference disabled" do
       {tenant, _user} = setup_tenant_with_admin()
-      {:ok, _} = Notifications.set_notification_preference(tenant, "new_application_candidate", false)
+
+      {:ok, _} =
+        Notifications.set_notification_preference(tenant, "new_application_candidate", false)
+
       tenant = Repo.get!(Tenants.Tenant, tenant.id)
 
       {job, stage} = setup_job(tenant)
@@ -280,7 +344,11 @@ defmodule Treby.NotificationsTest do
       application = setup_application(tenant, candidate, job, stage)
 
       original_config = Elixir.Application.get_env(:treby, Treby.Mailer)
-      Elixir.Application.put_env(:treby, Treby.Mailer, adapter: Swoosh.Adapters.Test, api_key: "fake")
+
+      Elixir.Application.put_env(:treby, Treby.Mailer,
+        adapter: Swoosh.Adapters.Test,
+        api_key: "fake"
+      )
 
       try do
         assert :ok = Notifications.notify_new_application_candidate(application)
@@ -316,9 +384,7 @@ defmodule Treby.NotificationsTest do
       assert :ok = Notifications.notify_team_new_application(application)
 
       # Should only send to the admin of the correct tenant
-      assert_email_sent(
-        to: [{"", admin.email}]
-      )
+      assert_email_sent(to: [{"", admin.email}])
     end
 
     test "does not send when preference disabled" do
@@ -342,13 +408,49 @@ defmodule Treby.NotificationsTest do
       application = setup_application(tenant, candidate, job, stage)
 
       original_config = Elixir.Application.get_env(:treby, Treby.Mailer)
-      Elixir.Application.put_env(:treby, Treby.Mailer, adapter: Swoosh.Adapters.Test, api_key: "fake")
+
+      Elixir.Application.put_env(:treby, Treby.Mailer,
+        adapter: Swoosh.Adapters.Test,
+        api_key: "fake"
+      )
 
       try do
         assert :ok = Notifications.notify_team_new_application(application)
       after
         Elixir.Application.put_env(:treby, Treby.Mailer, original_config)
       end
+    end
+  end
+
+  describe "email templates" do
+    test "creates template for new stage type" do
+      {tenant, _user} = setup_tenant_with_admin()
+      template = setup_email_template(tenant.id, "new")
+      assert template.stage_type == "new"
+    end
+
+    test "creates template for interview stage type" do
+      {tenant, _user} = setup_tenant_with_admin()
+      template = setup_email_template(tenant.id, "interview")
+      assert template.stage_type == "interview"
+    end
+
+    test "creates template for offer stage type" do
+      {tenant, _user} = setup_tenant_with_admin()
+      template = setup_email_template(tenant.id, "offer")
+      assert template.stage_type == "offer"
+    end
+
+    test "creates template for hired stage type" do
+      {tenant, _user} = setup_tenant_with_admin()
+      template = setup_email_template(tenant.id, "hired")
+      assert template.stage_type == "hired"
+    end
+
+    test "creates template for rejected stage type" do
+      {tenant, _user} = setup_tenant_with_admin()
+      template = setup_email_template(tenant.id, "rejected")
+      assert template.stage_type == "rejected"
     end
   end
 

@@ -311,7 +311,7 @@ defmodule Treby.Pipeline do
         # Send stage change notification email if not skipped (non-blocking)
         unless opts[:skip_notification] do
           try do
-            Treby.Notifications.notify_stage_change(app, nil)
+            Treby.Notifications.notify_stage_change(app, opts[:actor])
           rescue
             _ -> :ok
           catch

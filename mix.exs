@@ -73,7 +73,9 @@ defmodule Treby.MixProject do
       {:finch, "~> 0.19"},
       {:cloak_ecto, "~> 1.3.0"},
       {:tzdata, "~> 1.1"},
-      {:nimble_csv, "~> 1.2"}
+      {:nimble_csv, "~> 1.2"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -96,7 +98,13 @@ defmodule Treby.MixProject do
         "esbuild treby --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: [
+        "format --check-formatted",
+        "credo --strict",
+        "sobelow --config",
+        "compile --warnings-as-errors",
+        "test"
+      ]
     ]
   end
 end

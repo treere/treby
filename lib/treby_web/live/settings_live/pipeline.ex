@@ -145,7 +145,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
     case Pipeline.create_pipeline(attrs) do
       {:ok, pipeline} ->
         # If this is the first pipeline, make it default
-        if length(socket.assigns.pipelines) == 0 do
+        if socket.assigns.pipelines == [] do
           Pipeline.set_default_pipeline(pipeline)
         end
 

@@ -35,6 +35,11 @@ treby-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Vitepress documentation site
+/site/node_modules/
+/site/.vitepress/dist/
+/site/.vitepress/cache/
+
 # Serena
 /.serena/
 

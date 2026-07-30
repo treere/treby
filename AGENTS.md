@@ -1,5 +1,14 @@
 This is a web application written using the Phoenix web framework.
 
+## Documentation site
+
+The project has a Vitepress documentation and showcase site in `site/`, deployed to GitHub Pages at `https://treere.github.io/treby/`.
+
+- **After adding a new feature or changing an existing one**, regenerate screenshots with `node scripts/screenshots.mjs` and update the relevant feature page in `site/features/`
+- **To build the site locally**: `cd site && npm run build` (output in `site/.vitepress/dist/`)
+- **To preview locally**: `cd site && npm run dev`
+- The site is auto-deployed via `.github/workflows/deploy-pages.yml` on push to `main`
+
 ## Project guidelines
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues

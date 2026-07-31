@@ -74,6 +74,7 @@ defmodule Treby.MixProject do
       {:cloak_ecto, "~> 1.3.0"},
       {:tzdata, "~> 1.1"},
       {:nimble_csv, "~> 1.2"},
+      {:oban, "~> 2.19"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}
     ]

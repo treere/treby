@@ -46,7 +46,12 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(selected_ids: [])
      |> assign(bulk_action: nil)
      |> assign(bulk_stage_id: nil)
-     |> assign(confirm_delete: nil)}
+     |> assign(confirm_delete: nil)
+     |> assign(show_schedule_picker: false)
+     |> assign(schedule_datetime: nil)
+     |> assign(schedule_date: Calendar.strftime(DateTime.utc_now(), "%Y-%m-%d"))
+     |> assign(schedule_time: "09:00")
+     |> assign(schedule_jitter: 5)}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
@@ -223,6 +228,68 @@ defmodule TrebyWeb.PipelineLive.Index do
               </div>
             </div>
 
+            <%= if @show_schedule_picker do %>
+              <div class="space-y-3 p-4 bg-gray-50 rounded-lg mb-4">
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    phx-click="preset_schedule"
+                    phx-value-label="tomorrow_9"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    Tomorrow 9:00
+                  </button>
+                  <button
+                    type="button"
+                    phx-click="preset_schedule"
+                    phx-value-label="tomorrow_14"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    Tomorrow 14:00
+                  </button>
+                  <button
+                    type="button"
+                    phx-click="preset_schedule"
+                    phx-value-label="next_monday"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    Next Monday
+                  </button>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                    <input
+                      type="date"
+                      value={@schedule_date}
+                      phx-change="update_schedule_date"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Time</label>
+                    <input
+                      type="time"
+                      value={@schedule_time}
+                      phx-change="update_schedule_time"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={@schedule_jitter > 0}
+                    phx-click="toggle_schedule_jitter"
+                    class="rounded border-gray-300 text-blue-600"
+                  />
+                  <span class="text-sm text-gray-600">
+                    Add randomness (±{@schedule_jitter} min)
+                  </span>
+                </label>
+              </div>
+            <% end %>
+
             <div class="flex gap-2 justify-end">
               <button
                 phx-click="confirm_stage_move"
@@ -239,6 +306,21 @@ defmodule TrebyWeb.PipelineLive.Index do
                 Skip Email
               </button>
               <button
+                phx-click="toggle_schedule"
+                class="px-4 py-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
+              >
+                {if @show_schedule_picker, do: "Remove Schedule", else: "Schedule"}
+              </button>
+              <button
+                :if={@show_schedule_picker}
+                phx-click="confirm_stage_move"
+                phx-value-action="schedule"
+                class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
+                Schedule & Move
+              </button>
+              <button
+                :if={not @show_schedule_picker}
                 phx-click="confirm_stage_move"
                 phx-value-action="send"
                 class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
@@ -352,13 +434,18 @@ defmodule TrebyWeb.PipelineLive.Index do
       {preview_subject, preview_body} =
         EmailTemplates.render_email(email_template, sample_assigns)
 
+      now = DateTime.utc_now()
+
       {:noreply,
        socket
        |> assign(show_email_dialog: true)
        |> assign(pending_stage_move: %{application: application, stage: stage})
        |> assign(
          email_preview: %{subject: preview_subject, body: preview_body, template: email_template}
-       )}
+       )
+       |> assign(show_schedule_picker: false, schedule_datetime: nil)
+       |> assign(schedule_date: Calendar.strftime(now, "%Y-%m-%d"), schedule_time: "09:00")
+       |> assign(schedule_jitter: 5)}
     else
       # No email template, move directly
       case Pipeline.move_application(application, stage_id, actor: socket.assigns.current_user) do
@@ -373,67 +460,88 @@ defmodule TrebyWeb.PipelineLive.Index do
   end
 
   def handle_event("confirm_stage_move", %{"action" => action}, socket) do
-    pending = socket.assigns.pending_stage_move
-
     case action do
-      "send" ->
-        # Send email and move (skip automatic notification since we're sending manually)
-        case EmailTemplates.send_stage_email(
-               socket.assigns.email_preview.template,
-               pending.application.candidate,
-               pending.application.job,
-               %{
-                 candidate_name: pending.application.candidate.name,
-                 job_title: pending.application.job.title,
-                 company_name: socket.assigns.current_tenant.name,
-                 stage_name: pending.stage.name,
-                 recruiter_name: socket.assigns.current_user.name
-               }
-             ) do
-          :ok ->
-            case Pipeline.move_application(pending.application, pending.stage.id,
-                   skip_notification: true
-                 ) do
-              {:ok, _application} ->
-                applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
-
-                {:noreply,
-                 socket
-                 |> assign(applications_by_stage: applications_by_stage)
-                 |> assign(show_email_dialog: false, pending_stage_move: nil, email_preview: nil)
-                 |> put_flash(:info, "Candidate moved and email sent")}
-
-              {:error, _changeset} ->
-                {:noreply, put_flash(socket, :error, "Failed to move candidate")}
-            end
-
-          {:error, _reason} ->
-            {:noreply, put_flash(socket, :error, "Failed to send email")}
-        end
-
-      "skip" ->
-        # Skip email, just move
-        case Pipeline.move_application(pending.application, pending.stage.id,
-               actor: socket.assigns.current_user
-             ) do
-          {:ok, _application} ->
-            applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
-
-            {:noreply,
-             socket
-             |> assign(applications_by_stage: applications_by_stage)
-             |> assign(show_email_dialog: false, pending_stage_move: nil, email_preview: nil)
-             |> put_flash(:info, "Candidate moved without email")}
-
-          {:error, _changeset} ->
-            {:noreply, put_flash(socket, :error, "Failed to move candidate")}
-        end
-
-      "cancel" ->
-        {:noreply,
-         socket
-         |> assign(show_email_dialog: false, pending_stage_move: nil, email_preview: nil)}
+      "send" -> handle_stage_move_send(socket)
+      "skip" -> handle_stage_move_skip(socket)
+      "schedule" -> handle_stage_move_schedule(socket)
+      "cancel" -> handle_stage_move_cancel(socket)
     end
+  end
+
+  def handle_event("toggle_schedule", _params, socket) do
+    now = DateTime.utc_now()
+
+    {:noreply,
+     socket
+     |> assign(show_schedule_picker: !socket.assigns.show_schedule_picker)
+     |> assign(schedule_datetime: nil)
+     |> assign(schedule_date: Calendar.strftime(now, "%Y-%m-%d"), schedule_time: "09:00")
+     |> assign(schedule_jitter: 5)}
+  end
+
+  def handle_event("preset_schedule", %{"label" => label}, socket) do
+    dt =
+      case label do
+        "tomorrow_9" ->
+          tomorrow = Date.add(Date.utc_today(), 1)
+          {:ok, dt} = DateTime.new(tomorrow, ~T[09:00:00], "Etc/UTC")
+          dt
+
+        "tomorrow_14" ->
+          tomorrow = Date.add(Date.utc_today(), 1)
+          {:ok, dt} = DateTime.new(tomorrow, ~T[14:00:00], "Etc/UTC")
+          dt
+
+        "next_monday" ->
+          today = Date.utc_today()
+          days_until_monday = (8 - Date.day_of_week(today)) |> rem(7)
+          days_until_monday = if days_until_monday == 0, do: 7, else: days_until_monday
+          next_monday = Date.add(today, days_until_monday)
+          {:ok, dt} = DateTime.new(next_monday, ~T[09:00:00], "Etc/UTC")
+          dt
+      end
+
+    {:noreply,
+     assign(socket,
+       schedule_datetime: dt,
+       schedule_date: Calendar.strftime(dt, "%Y-%m-%d"),
+       schedule_time: Calendar.strftime(dt, "%H:%M")
+     )}
+  end
+
+  def handle_event("update_schedule_date", %{"value" => date}, socket) do
+    time = socket.assigns.schedule_time
+
+    dt =
+      with {:ok, d} <- Date.from_iso8601(date),
+           {:ok, t} <- Time.from_iso8601(time),
+           {:ok, dt} <- DateTime.new(d, t, "Etc/UTC") do
+        dt
+      else
+        _ -> socket.assigns.schedule_datetime
+      end
+
+    {:noreply, assign(socket, schedule_date: date, schedule_datetime: dt)}
+  end
+
+  def handle_event("update_schedule_time", %{"value" => time}, socket) do
+    date = socket.assigns.schedule_date
+
+    dt =
+      with {:ok, d} <- Date.from_iso8601(date),
+           {:ok, t} <- Time.from_iso8601(time),
+           {:ok, dt} <- DateTime.new(d, t, "Etc/UTC") do
+        dt
+      else
+        _ -> socket.assigns.schedule_datetime
+      end
+
+    {:noreply, assign(socket, schedule_time: time, schedule_datetime: dt)}
+  end
+
+  def handle_event("toggle_schedule_jitter", _params, socket) do
+    current = socket.assigns.schedule_jitter
+    {:noreply, assign(socket, schedule_jitter: if(current > 0, do: 0, else: 5))}
   end
 
   def handle_event("toggle_review", %{"application_id" => application_id}, socket) do
@@ -550,5 +658,103 @@ defmodule TrebyWeb.PipelineLive.Index do
 
   def handle_event("clear_selection", _params, socket) do
     {:noreply, assign(socket, selected_ids: [], bulk_action: nil)}
+  end
+
+  defp clear_stage_move_dialog(socket) do
+    assign(socket,
+      show_email_dialog: false,
+      pending_stage_move: nil,
+      email_preview: nil,
+      show_schedule_picker: false,
+      schedule_datetime: nil
+    )
+  end
+
+  defp handle_stage_move_send(socket) do
+    pending = socket.assigns.pending_stage_move
+
+    case EmailTemplates.send_stage_email(
+           socket.assigns.email_preview.template,
+           pending.application.candidate,
+           pending.application.job,
+           %{
+             candidate_name: pending.application.candidate.name,
+             job_title: pending.application.job.title,
+             company_name: socket.assigns.current_tenant.name,
+             stage_name: pending.stage.name,
+             recruiter_name: socket.assigns.current_user.name
+           }
+         ) do
+      :ok ->
+        move_and_reply(socket, pending, "Candidate moved and email sent")
+
+      {:error, _reason} ->
+        {:noreply, put_flash(socket, :error, "Failed to send email")}
+    end
+  end
+
+  defp handle_stage_move_skip(socket) do
+    pending = socket.assigns.pending_stage_move
+
+    case Pipeline.move_application(pending.application, pending.stage.id,
+           actor: socket.assigns.current_user
+         ) do
+      {:ok, _application} ->
+        move_and_reply(socket, pending, "Candidate moved without email")
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+    end
+  end
+
+  defp handle_stage_move_schedule(socket) do
+    schedule_datetime = socket.assigns.schedule_datetime
+
+    if is_nil(schedule_datetime) do
+      {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
+    else
+      pending = socket.assigns.pending_stage_move
+      email_preview = socket.assigns.email_preview
+
+      EmailTemplates.send_stage_email_scheduled(
+        email_preview.template,
+        pending.application.candidate,
+        pending.application.job,
+        %{
+          candidate_name: pending.application.candidate.name,
+          job_title: pending.application.job.title,
+          company_name: socket.assigns.current_tenant.name,
+          stage_name: pending.stage.name,
+          recruiter_name: socket.assigns.current_user.name,
+          tenant_id: socket.assigns.current_tenant.id
+        },
+        %{
+          scheduled_at: schedule_datetime,
+          jitter_minutes: socket.assigns.schedule_jitter
+        }
+      )
+
+      move_and_reply(socket, pending, "Candidate moved and email scheduled")
+    end
+  end
+
+  defp handle_stage_move_cancel(socket) do
+    {:noreply, clear_stage_move_dialog(socket)}
+  end
+
+  defp move_and_reply(socket, pending, success_message) do
+    case Pipeline.move_application(pending.application, pending.stage.id, skip_notification: true) do
+      {:ok, _application} ->
+        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+        {:noreply,
+         socket
+         |> assign(applications_by_stage: applications_by_stage)
+         |> clear_stage_move_dialog()
+         |> put_flash(:info, success_message)}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+    end
   end
 end

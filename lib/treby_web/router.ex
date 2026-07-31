@@ -44,6 +44,7 @@ defmodule TrebyWeb.Router do
       live "/interviews", InterviewsLive.Index
       live "/import", ImportLive.Index
       live "/compare", ComparisonLive.Index
+      live "/email-queue", EmailQueueLive.Index
 
       get "/applications/:id/resume", ResumeController, :show
     end

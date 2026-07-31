@@ -98,6 +98,13 @@ defmodule TrebyWeb.Layouts do
                   {gettext("Analytics")}
                 </.link>
                 <.link
+                  navigate={~p"/app/email-queue"}
+                  data-nav="/app/email-queue"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                >
+                  {gettext("Email Queue")}
+                </.link>
+                <.link
                   :if={@current_scope && @current_scope.role == "admin"}
                   navigate={~p"/app/settings"}
                   data-nav="/app/settings"
@@ -204,6 +211,13 @@ defmodule TrebyWeb.Layouts do
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
             >
               {gettext("Analytics")}
+            </.link>
+            <.link
+              navigate={~p"/app/email-queue"}
+              data-nav="/app/email-queue"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+            >
+              {gettext("Email Queue")}
             </.link>
             <.link
               :if={@current_scope && @current_scope.role == "admin"}

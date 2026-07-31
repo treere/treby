@@ -105,6 +105,13 @@ if config_env() == :prod do
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.
 
+  # Configure Oban for production
+  config :treby, Oban,
+    engine: Oban.Engines.Basic,
+    queues: [email: 10],
+    repo: Treby.Repo,
+    prefix: System.get_env("OBAN_PREFIX")
+
   # ## Configuring the mailer
   #
   # In production you need to configure the mailer to use a different adapter.

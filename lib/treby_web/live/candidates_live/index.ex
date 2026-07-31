@@ -35,6 +35,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(bulk_stage_id: nil)
      |> assign(bulk_email_subject: "")
      |> assign(bulk_email_body: "")
+     |> assign(bulk_email_mode: "now")
+     |> assign(bulk_email_scheduled_at: nil)
+     |> assign(bulk_email_date: Calendar.strftime(DateTime.utc_now(), "%Y-%m-%d"))
+     |> assign(bulk_email_time: "09:00")
+     |> assign(bulk_email_jitter: 5)
      |> assign(bulk_summary: nil)
      |> assign(confirm_delete: nil)
      |> assign(form: to_form(Candidates.change_candidate(%Candidate{})))}
@@ -348,6 +353,93 @@ defmodule TrebyWeb.CandidatesLive.Index do
               rows={4}
               class="w-full border rounded-lg px-3 py-2 text-sm mb-3"
             />
+
+            <div class="flex gap-4 mb-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="bulk_email_mode"
+                  value="now"
+                  checked={@bulk_email_mode == "now"}
+                  phx-click="bulk_email_set_mode"
+                  phx-value-mode="now"
+                  class="text-blue-600"
+                />
+                <span class="text-sm font-medium text-gray-700">Send now</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="bulk_email_mode"
+                  value="schedule"
+                  checked={@bulk_email_mode == "schedule"}
+                  phx-click="bulk_email_set_mode"
+                  phx-value-mode="schedule"
+                  class="text-blue-600"
+                />
+                <span class="text-sm font-medium text-gray-700">Schedule for later</span>
+              </label>
+            </div>
+
+            <div :if={@bulk_email_mode == "schedule"} class="space-y-3 p-3 bg-gray-50 rounded-lg mb-3">
+              <div class="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  phx-click="bulk_email_preset"
+                  phx-value-label="tomorrow_9"
+                  class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                >
+                  Tomorrow 9:00
+                </button>
+                <button
+                  type="button"
+                  phx-click="bulk_email_preset"
+                  phx-value-label="tomorrow_14"
+                  class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                >
+                  Tomorrow 14:00
+                </button>
+                <button
+                  type="button"
+                  phx-click="bulk_email_preset"
+                  phx-value-label="next_monday"
+                  class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                >
+                  Next Monday
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={@bulk_email_date}
+                    phx-change="bulk_email_schedule_date_change"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Time</label>
+                  <input
+                    type="time"
+                    value={@bulk_email_time}
+                    phx-change="bulk_email_schedule_time_change"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={@bulk_email_jitter > 0}
+                  phx-click="bulk_email_toggle_jitter"
+                  class="rounded border-gray-300 text-blue-600"
+                />
+                <span class="text-sm text-gray-600">
+                  Add randomness (±{@bulk_email_jitter} min)
+                </span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -586,22 +678,53 @@ defmodule TrebyWeb.CandidatesLive.Index do
       selected_ids: ids,
       bulk_email_subject: subject,
       bulk_email_body: body,
+      bulk_email_mode: mode,
+      bulk_email_scheduled_at: scheduled_at,
+      bulk_email_jitter: jitter,
       current_tenant: tenant
     } = socket.assigns
 
-    application_ids =
-      ids
-      |> Enum.flat_map(fn candidate_id ->
-        Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
-        |> Enum.map(& &1.id)
-      end)
+    schedule =
+      if mode == "schedule" && !is_nil(scheduled_at) do
+        %{scheduled_at: scheduled_at, jitter_minutes: jitter}
+      end
 
-    {:ok, result} = BulkOperations.bulk_send_email(application_ids, subject, body, tenant.id)
+    if mode == "schedule" && is_nil(schedule) do
+      {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
+    else
+      application_ids =
+        ids
+        |> Enum.flat_map(fn candidate_id ->
+          Pipeline.list_applications_for_candidate(tenant.id, candidate_id)
+          |> Enum.map(& &1.id)
+        end)
 
-    {:noreply,
-     socket
-     |> assign(selected_ids: [], bulk_action: nil, bulk_email_subject: "", bulk_email_body: "")
-     |> put_flash(:info, "#{result.sent} emails sent")}
+      {:ok, result} =
+        BulkOperations.bulk_send_email(application_ids, subject, body, tenant.id,
+          schedule: schedule
+        )
+
+      message =
+        if schedule do
+          "scheduled"
+        else
+          "sent"
+        end
+
+      flash_message =
+        if result.skipped > 0 do
+          "#{result.sent} emails #{message}, #{result.skipped} skipped (no email)"
+        else
+          "#{result.sent} emails #{message}"
+        end
+
+      {:noreply,
+       socket
+       |> assign(selected_ids: [], bulk_action: nil)
+       |> assign(bulk_email_subject: "", bulk_email_body: "")
+       |> assign(bulk_email_mode: "now", bulk_email_scheduled_at: nil)
+       |> put_flash(:info, flash_message)}
+    end
   end
 
   def handle_event("clear_selection", _params, socket) do
@@ -614,6 +737,56 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("bulk_email_body_change", %{"bulk_email_body" => body}, socket) do
     {:noreply, assign(socket, bulk_email_body: body)}
+  end
+
+  def handle_event("bulk_email_set_mode", %{"mode" => mode}, socket) do
+    socket =
+      if mode == "schedule" && is_nil(socket.assigns.bulk_email_scheduled_at) do
+        dt = compute_tomorrow_9()
+
+        assign(socket,
+          bulk_email_mode: "schedule",
+          bulk_email_scheduled_at: dt,
+          bulk_email_date: Calendar.strftime(dt, "%Y-%m-%d"),
+          bulk_email_time: "09:00"
+        )
+      else
+        assign(socket, bulk_email_mode: mode)
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("bulk_email_preset", %{"label" => label}, socket) do
+    dt =
+      case label do
+        "tomorrow_9" -> compute_tomorrow_9()
+        "tomorrow_14" -> compute_tomorrow_14()
+        "next_monday" -> compute_next_monday_9()
+      end
+
+    {:noreply,
+     assign(socket,
+       bulk_email_mode: "schedule",
+       bulk_email_scheduled_at: dt,
+       bulk_email_date: Calendar.strftime(dt, "%Y-%m-%d"),
+       bulk_email_time: Calendar.strftime(dt, "%H:%M")
+     )}
+  end
+
+  def handle_event("bulk_email_schedule_date_change", %{"value" => date}, socket) do
+    dt = build_schedule_datetime(date, socket.assigns.bulk_email_time)
+    {:noreply, assign(socket, bulk_email_date: date, bulk_email_scheduled_at: dt)}
+  end
+
+  def handle_event("bulk_email_schedule_time_change", %{"value" => time}, socket) do
+    dt = build_schedule_datetime(socket.assigns.bulk_email_date, time)
+    {:noreply, assign(socket, bulk_email_time: time, bulk_email_scheduled_at: dt)}
+  end
+
+  def handle_event("bulk_email_toggle_jitter", _params, socket) do
+    current = socket.assigns.bulk_email_jitter
+    {:noreply, assign(socket, bulk_email_jitter: if(current > 0, do: 0, else: 5))}
   end
 
   def handle_event("search", %{"search" => search}, socket) do
@@ -668,5 +841,36 @@ defmodule TrebyWeb.CandidatesLive.Index do
       Pipeline.list_pipeline_stages(pipeline.id)
     end)
     |> Enum.sort_by(& &1.position)
+  end
+
+  defp compute_tomorrow_9 do
+    tomorrow = Date.add(Date.utc_today(), 1)
+    {:ok, dt} = DateTime.new(tomorrow, ~T[09:00:00], "Etc/UTC")
+    dt
+  end
+
+  defp compute_tomorrow_14 do
+    tomorrow = Date.add(Date.utc_today(), 1)
+    {:ok, dt} = DateTime.new(tomorrow, ~T[14:00:00], "Etc/UTC")
+    dt
+  end
+
+  defp compute_next_monday_9 do
+    today = Date.utc_today()
+    days_until_monday = (8 - Date.day_of_week(today)) |> rem(7)
+    days_until_monday = if days_until_monday == 0, do: 7, else: days_until_monday
+    next_monday = Date.add(today, days_until_monday)
+    {:ok, dt} = DateTime.new(next_monday, ~T[09:00:00], "Etc/UTC")
+    dt
+  end
+
+  defp build_schedule_datetime(date_str, time_str) do
+    with {:ok, date} <- Date.from_iso8601(date_str),
+         {:ok, time} <- Time.from_iso8601(time_str),
+         {:ok, dt} <- DateTime.new(date, time, "Etc/UTC") do
+      dt
+    else
+      _ -> nil
+    end
   end
 end

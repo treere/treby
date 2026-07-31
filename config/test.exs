@@ -20,6 +20,9 @@ config :treby, TrebyWeb.Endpoint,
   secret_key_base: "zXnFZzOU/hQxnbrHMP1HrXQtCoo9KArfCswH+fte1ln884iI4niMsdNvYhz18e2x",
   server: false
 
+# Oban test mode (jobs execute inline with perform_job)
+config :treby, Oban, testing: :inline, queues: false
+
 # In test we don't send emails
 config :treby, Treby.Mailer, adapter: Swoosh.Adapters.Test
 

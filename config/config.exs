@@ -22,6 +22,12 @@ config :treby, TrebyWeb.Endpoint,
   pubsub_server: Treby.PubSub,
   live_view: [signing_salt: "OW3dVqeX"]
 
+# Configure Oban
+config :treby, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [email: 10],
+  repo: Treby.Repo
+
 # Configure the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

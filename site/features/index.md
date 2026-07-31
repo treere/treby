@@ -22,3 +22,6 @@ Hiring metrics, conversion rates, and pipeline overview.
 
 ## [Email Notifications](/features/email-notifications)
 Automated emails for pipeline events with stage-based templates.
+
+## [Email Scheduler](/features/email-scheduler)
+Schedule emails for later with jitter, retries, and a full queue manager.

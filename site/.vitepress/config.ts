@@ -48,6 +48,7 @@ export default defineConfig({
           { text: "Interview Scheduling", link: "/features/interview-scheduling" },
           { text: "Analytics", link: "/features/analytics" },
           { text: "Email Notifications", link: "/features/email-notifications" },
+          { text: "Email Scheduler", link: "/features/email-scheduler" },
         ],
       },
     ],

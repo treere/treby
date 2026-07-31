@@ -13,6 +13,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
     EmailThreads
   }
 
+  alias TrebyWeb.EmailQueueLive.SchedulePicker
+
   def mount(%{"id" => id}, session, socket) do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
@@ -535,6 +537,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 placeholder="Type your message..."
                 rows={6}
               />
+              <div class="p-3 bg-gray-50 rounded-lg">
+                <.live_component module={SchedulePicker} id="compose-schedule" prefix="compose" />
+              </div>
               <div class="flex gap-2">
                 <.button type="submit" class="text-sm">Send Email</.button>
                 <button
@@ -573,23 +578,53 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 class={[
                   "p-3 rounded-lg text-sm",
                   message.direction == "inbound" && "bg-blue-50 border-l-4 border-blue-400",
-                  message.direction == "outbound" && "bg-green-50 border-l-4 border-green-400 ml-8"
+                  message.direction == "outbound" && "bg-green-50 border-l-4 border-green-400 ml-8",
+                  message.status == "scheduled" && "border-dashed opacity-90",
+                  message.status == "cancelled" && "opacity-60"
                 ]}
               >
                 <div class="flex justify-between items-center mb-1">
-                  <span class="font-medium text-gray-700">
+                  <span class="font-medium text-gray-700 flex items-center gap-1.5">
+                    <.icon
+                      :if={message.status == "scheduled"}
+                      name="hero-clock"
+                      class="w-3.5 h-3.5 text-amber-500"
+                    />
+                    <.icon
+                      :if={message.status == "cancelled"}
+                      name="hero-x-mark"
+                      class="w-3.5 h-3.5 text-red-400"
+                    />
                     {message.direction == "inbound" && "From: #{message.from_address}"}
                     {message.direction == "outbound" && "From: #{message.from_address}"}
+                    <span
+                      :if={message.status == "scheduled"}
+                      class="text-xs text-amber-600 font-medium"
+                    >
+                      Scheduled
+                    </span>
+                    <span
+                      :if={message.status == "cancelled"}
+                      class="text-xs text-red-500 font-medium"
+                    >
+                      Cancelled
+                    </span>
                   </span>
                   <span class="text-xs text-gray-400">
                     {Calendar.strftime(
-                      message.sent_at || message.received_at,
+                      message.scheduled_at || message.sent_at || message.received_at,
                       "%b %d, %Y at %H:%M"
                     )}
                   </span>
                 </div>
-                <div class="text-gray-600 whitespace-pre-wrap">
+                <div :if={message.status != "cancelled"} class="text-gray-600 whitespace-pre-wrap">
                   {message.body}
+                </div>
+                <div
+                  :if={message.status == "cancelled"}
+                  class="text-gray-400 italic text-xs"
+                >
+                  Email cancelled — content not available
                 </div>
               </div>
             </div>
@@ -618,6 +653,13 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   placeholder="Type your reply..."
                   rows={4}
                 />
+                <div class="p-3 bg-gray-50 rounded-lg">
+                  <.live_component
+                    module={SchedulePicker}
+                    id={"reply-schedule-#{thread.id}"}
+                    prefix="reply"
+                  />
+                </div>
                 <div class="flex gap-2">
                   <.button type="submit" class="text-sm">Send Reply</.button>
                   <button
@@ -751,25 +793,31 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
   def handle_event("send_reply", %{"thread_id" => thread_id, "reply" => params}, socket) do
     body = Map.get(params, "body", "")
+    schedule = build_schedule(params)
 
-    case EmailThreads.send_reply(
-           thread_id,
-           socket.assigns.user_email,
-           body,
-           socket.assigns.current_tenant.id
-         ) do
-      {:ok, _message} ->
-        # Refresh threads
-        email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
+    if params["mode"] == "schedule" && is_nil(schedule) do
+      {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
+    else
+      case EmailThreads.send_reply(
+             thread_id,
+             socket.assigns.user_email,
+             body,
+             socket.assigns.current_tenant.id,
+             schedule: schedule
+           ) do
+        {:ok, _message} ->
+          # Refresh threads
+          email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
 
-        {:noreply,
-         socket
-         |> assign(email_threads: email_threads, replying_to_thread: nil)
-         |> assign(reply_form: to_form(%{}, as: :reply))
-         |> put_flash(:info, "Reply sent")}
+          {:noreply,
+           socket
+           |> assign(email_threads: email_threads, replying_to_thread: nil)
+           |> assign(reply_form: to_form(%{}, as: :reply))
+           |> put_flash(:info, if(schedule, do: "Reply scheduled", else: "Reply sent"))}
 
-      {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to send reply: #{inspect(reason)}")}
+        {:error, reason} ->
+          {:noreply, put_flash(socket, :error, "Failed to send reply: #{inspect(reason)}")}
+      end
     end
   end
 
@@ -803,25 +851,48 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> put_flash(:error, "Message body is required")}
 
       true ->
-        case EmailThreads.create_outbound_email(%{
-               subject: subject,
-               body: body,
-               from_address: socket.assigns.user_email,
-               candidate_id: socket.assigns.candidate.id,
-               tenant_id: socket.assigns.current_tenant.id
-             }) do
-          {:ok, _message} ->
-            email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
+        schedule = build_schedule(params)
 
-            {:noreply,
-             socket
-             |> assign(email_threads: email_threads, composing_email: false)
-             |> assign(compose_form: to_form(%{}, as: :compose))
-             |> put_flash(:info, "Email sent")}
+        if params["mode"] == "schedule" && is_nil(schedule) do
+          {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
+        else
+          case EmailThreads.create_outbound_email(%{
+                 subject: subject,
+                 body: body,
+                 from_address: socket.assigns.user_email,
+                 candidate_id: socket.assigns.candidate.id,
+                 tenant_id: socket.assigns.current_tenant.id,
+                 created_by_id: socket.assigns.current_user.id,
+                 schedule: schedule
+               }) do
+            {:ok, _message} ->
+              email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
 
-          {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Failed to send email: #{inspect(reason)}")}
+              {:noreply,
+               socket
+               |> assign(email_threads: email_threads, composing_email: false)
+               |> assign(compose_form: to_form(%{}, as: :compose))
+               |> put_flash(:info, if(schedule, do: "Email scheduled", else: "Email sent"))}
+
+            {:error, reason} ->
+              {:noreply, put_flash(socket, :error, "Failed to send email: #{inspect(reason)}")}
+          end
         end
+    end
+  end
+
+  defp build_schedule(params) do
+    if params["mode"] == "schedule" do
+      case DateTime.from_iso8601(params["scheduled_at"] || "") do
+        {:ok, dt, _offset} ->
+          %{
+            scheduled_at: dt,
+            jitter_minutes: String.to_integer(params["jitter_minutes"] || "0")
+          }
+
+        _ ->
+          nil
+      end
     end
   end
 

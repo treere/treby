@@ -87,4 +87,28 @@ defmodule Treby.EmailTemplates do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def send_stage_email_scheduled(template, candidate, _job, assigns, schedule) do
+    rendered = render_email(template, assigns)
+    {subject, body} = rendered
+    tenant_id = assigns[:tenant_id]
+    scheduled_at = schedule.scheduled_at
+    jitter_minutes = schedule[:jitter_minutes] || 0
+
+    alias Treby.EmailQueue
+
+    {:ok, _scheduled_email} =
+      EmailQueue.create_scheduled_email(%{
+        tenant_id: tenant_id,
+        scheduled_at: scheduled_at,
+        jitter_minutes: jitter_minutes,
+        to_address: candidate.email,
+        from_address: assigns[:company_name] || "noreply@treby.app",
+        subject: subject,
+        html_body: body,
+        email_type: "stage_change",
+        reference_type: "candidate",
+        reference_id: candidate.id
+      })
+  end
 end

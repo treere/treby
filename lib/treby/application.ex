@@ -13,6 +13,7 @@ defmodule Treby.Application do
       Treby.Repo,
       {DNSCluster, query: Application.get_env(:treby, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Treby.PubSub},
+      {Oban, Application.get_env(:treby, Oban)},
       # Start a worker by calling: Treby.Worker.start_link(arg)
       # {Treby.Worker, arg},
       # Start to serve requests, typically the last entry

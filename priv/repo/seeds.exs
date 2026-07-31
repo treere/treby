@@ -135,6 +135,56 @@ end)
 
 IO.puts("Created career page for #{tenant.name}")
 
+# Create sample scheduled emails for the email queue
+later_1 = DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:second)
+later_2 = DateTime.utc_now() |> DateTime.add(7200, :second) |> DateTime.truncate(:second)
+later_3 = DateTime.utc_now() |> DateTime.add(10800, :second) |> DateTime.truncate(:second)
+
+Enum.each(
+  [
+    %{
+      to_address: "alice@example.com",
+      subject: "Interview invitation",
+      body: "Hi Alice, we'd love to invite you to an interview.",
+      email_type: "compose",
+      scheduled_at: later_1,
+      jitter_minutes: 5
+    },
+    %{
+      to_address: "bob@example.com",
+      subject: "Follow-up on your application",
+      body: "Hi Bob, just following up on your application status.",
+      email_type: "reply",
+      scheduled_at: later_2,
+      jitter_minutes: 10
+    },
+    %{
+      to_address: "carol@example.com",
+      subject: "Upcoming stage: Phone Screen",
+      body: "Hi Carol, your application is moving forward.",
+      email_type: "bulk",
+      scheduled_at: later_3,
+      jitter_minutes: 15
+    }
+  ],
+  fn email_attrs ->
+    {:ok, scheduled_email} =
+      Treby.EmailQueue.create_scheduled_email(%{
+        tenant_id: tenant.id,
+        created_by_id: admin.id,
+        from_address: "noreply@acme.com",
+        to_address: email_attrs.to_address,
+        subject: email_attrs.subject,
+        body: email_attrs.body,
+        email_type: email_attrs.email_type,
+        scheduled_at: email_attrs.scheduled_at,
+        jitter_minutes: email_attrs.jitter_minutes
+      })
+
+    IO.puts("Scheduled email: #{scheduled_email.subject}")
+  end
+)
+
 IO.puts("\nSeed data created successfully!")
 IO.puts("Login with: admin@acme.com / password123")
 IO.puts("Career page: /acme/careers")

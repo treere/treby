@@ -13,6 +13,12 @@ The pipeline is the heart of Treby. It's a drag-and-drop Kanban board where you 
 - **Real-time sync**: all connected users see moves instantly via Phoenix PubSub
 - **Counts** per stage header show how many candidates are in each
 
+## Card Indicators
+
+- **"Also in N other positions"** — shown when a candidate has applications in other pipelines, so you can spot candidates interviewing for multiple roles
+- **DUPLICATE APP** badge — shown when the same candidate has a second application to this job
+- **NEW** badge — shown until an application has been reviewed
+
 ## Pipeline Stages
 
 The default pipeline has 6 stages:

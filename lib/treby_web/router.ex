@@ -36,6 +36,7 @@ defmodule TrebyWeb.Router do
       live "/jobs", JobsLive.Index
       live "/jobs/:id", JobsLive.Show
       live "/candidates", CandidatesLive.Index
+      live "/candidates/merge", CandidatesLive.Merge
       live "/candidates/:id", CandidatesLive.Show
       live "/pipeline", PipelineLive
       live "/pipeline/:job_id", PipelineLive.Index

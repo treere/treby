@@ -545,7 +545,7 @@ defmodule TrebyWeb.CoreComponents do
       <div :for={event <- @events} class="flex items-start gap-3">
         <div class={[
           "w-2 h-2 rounded-full mt-2 flex-shrink-0",
-          event.event_type |> event_color()
+          event.action |> event_color()
         ]}>
         </div>
         <div class="flex-1 min-w-0">
@@ -568,18 +568,24 @@ defmodule TrebyWeb.CoreComponents do
   defp event_color("candidate_updated"), do: "bg-gray-500"
   defp event_color(_), do: "bg-gray-400"
 
-  defp format_event(%{event_type: "application_stage_changed", metadata: meta}) do
+  defp format_event(%{action: "application_stage_changed", metadata: meta}) do
     "Moved from #{meta["old_stage"] || "—"} to #{meta["new_stage"] || "—"}"
   end
 
-  defp format_event(%{event_type: "note_created"}), do: "Added a note"
-  defp format_event(%{event_type: "interview_scheduled"}), do: "Interview scheduled"
-  defp format_event(%{event_type: "interview_cancelled"}), do: "Interview cancelled"
-  defp format_event(%{event_type: "candidate_created"}), do: "Candidate created"
-  defp format_event(%{event_type: "candidate_updated"}), do: "Candidate updated"
+  defp format_event(%{action: "note_created"}), do: "Added a note"
+  defp format_event(%{action: "interview_scheduled"}), do: "Interview scheduled"
+  defp format_event(%{action: "interview_cancelled"}), do: "Interview cancelled"
+  defp format_event(%{action: "candidate_created"}), do: "Candidate created"
+  defp format_event(%{action: "candidate_updated"}), do: "Candidate updated"
 
-  defp format_event(%{event_type: type}),
-    do: String.replace(type, "_", " ") |> String.capitalize()
+  defp format_event(%{action: "candidates_merged"}),
+    do: "Merged a duplicate profile into this candidate"
+
+  defp format_event(%{action: "candidates_merge_undone"}),
+    do: "Undid a profile merge"
+
+  defp format_event(%{action: action}),
+    do: String.replace(action, "_", " ") |> String.capitalize()
 
   defp relative_time(dt) do
     diff = DateTime.diff(DateTime.utc_now(), dt, :second)

@@ -188,4 +188,102 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       assert render(view) =~ "Please select a schedule date and time"
     end
   end
+
+  describe "concurrent applications and duplicate flags" do
+    defp setup_concurrent_data(tenant) do
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> Treby.Pipeline.PipelineStage.changeset(%{
+          name: "Applied",
+          position: 0,
+          stage_type: "applied"
+        })
+        |> Repo.insert()
+
+      {:ok, job1} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Treby.Jobs.Job.changeset(%{
+          title: "Job One",
+          description: "First",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      {:ok, job2} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Treby.Jobs.Job.changeset(%{
+          title: "Job Two",
+          description: "Second",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Concurrent Person",
+          email: "concurrent@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, _app1} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job1.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      {:ok, _app2} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job2.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      %{job1: job1, stage: stage, candidate: candidate}
+    end
+
+    test "shows 'Also in N other positions' when a candidate applied to another job", %{
+      conn: conn
+    } do
+      {tenant, user} = setup_tenant()
+      data = setup_concurrent_data(tenant)
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job1.id}")
+
+      assert render(view) =~ "Also in 1 other position"
+    end
+
+    test "shows the duplicate application badge when a candidate re-applies to the same job", %{
+      conn: conn
+    } do
+      {tenant, user} = setup_tenant()
+      data = setup_concurrent_data(tenant)
+
+      Treby.Pipeline.create_application(%{
+        tenant_id: tenant.id,
+        job_id: data.job1.id,
+        candidate_id: data.candidate.id,
+        pipeline_stage_id: data.stage.id,
+        applied_at: DateTime.utc_now()
+      })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job1.id}")
+
+      assert render(view) =~ "DUPLICATE APP"
+    end
+  end
 end

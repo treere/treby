@@ -171,7 +171,12 @@ defmodule TrebyWeb.CareersLive.Apply do
           "resume_url" => resume_url,
           "custom_fields" => custom_fields_values,
           "reviewed" => false,
-          "source" => application_params["source"]
+          "source" => application_params["source"],
+          "anagrafica" => %{
+            "name" => application_params["name"],
+            "email" => application_params["email"],
+            "phone" => application_params["phone"]
+          }
         }
 
         case Pipeline.create_application(application_attrs) do

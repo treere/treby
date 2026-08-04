@@ -16,7 +16,7 @@ defmodule Treby.Repo.Migrations.CreateApplications do
       add :pipeline_stage_id,
           references(:pipeline_stages, type: :binary_id, on_delete: :nilify_all), null: false
 
-      timestamps(type: :utc_datetime)
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:applications, [:tenant_id])

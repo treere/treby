@@ -1,10 +1,8 @@
 # Applications
 
-## Purpose
+## Delta for merge-and-split-candidates
 
-Manage job applications linking candidates to jobs through pipeline stages.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Create application
 The system SHALL create applications linking candidates to jobs. The system SHALL store an anagrafica snapshot on each application containing the contact data submitted at creation time.
@@ -24,13 +22,6 @@ The system SHALL create applications linking candidates to jobs. The system SHAL
 - **WHEN** an application is created from a CSV import
 - **THEN** the application stores the imported contact data as its anagrafica snapshot
 
-### Requirement: Application stage tracking
-The system SHALL track which pipeline stage each application is in.
-
-#### Scenario: Application in stage
-- **WHEN** an application exists
-- **THEN** it has a pipeline_stage_id pointing to its current stage
-
 ### Requirement: Multiple applications per candidate
 The system SHALL allow a candidate to apply to multiple jobs. The system SHALL allow a candidate to apply again to the same job, creating a separate application flagged as a duplicate.
 
@@ -48,18 +39,3 @@ The system SHALL allow a candidate to apply to multiple jobs. The system SHALL a
 - **WHEN** a merge causes one candidate to hold multiple applications to the same job
 - **THEN** those applications are flagged as duplicates
 - **AND** none are deleted
-
-### Requirement: Resume on application
-The system SHALL store resume URL on the application record.
-
-#### Scenario: Application with resume
-- **WHEN** a candidate uploads a resume during application
-- **THEN** the resume is stored in S3
-- **AND** the application.resume_url points to the S3 key
-
-### Requirement: List applications for a job
-The system SHALL display all applications for a specific job.
-
-#### Scenario: Job applications view
-- **WHEN** a user views a job's pipeline
-- **THEN** all applications for that job are shown with candidate name and current stage

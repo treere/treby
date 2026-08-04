@@ -259,7 +259,7 @@ defmodule TrebyWeb.DashboardLiveTest do
           candidate_id: candidate.id,
           pipeline_stage_id: stage.id,
           applied_at: DateTime.utc_now() |> DateTime.truncate(:second),
-          inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+          inserted_at: DateTime.utc_now()
         })
         |> Repo.insert()
 

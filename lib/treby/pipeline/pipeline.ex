@@ -261,6 +261,19 @@ defmodule Treby.Pipeline do
     end)
   end
 
+  def candidate_application_counts(tenant_id, candidate_ids) do
+    if candidate_ids == [] do
+      %{}
+    else
+      Application
+      |> where([a], a.tenant_id == ^tenant_id and a.candidate_id in ^candidate_ids)
+      |> group_by([a], a.candidate_id)
+      |> select([a], %{candidate_id: a.candidate_id, count: count(a.id)})
+      |> Repo.all()
+      |> Map.new(fn %{candidate_id: cid, count: n} -> {cid, n} end)
+    end
+  end
+
   def get_application!(id),
     do: Repo.get!(Application, id) |> Repo.preload([:candidate, :pipeline_stage, :job])
 
@@ -272,9 +285,87 @@ defmodule Treby.Pipeline do
   end
 
   def create_application(attrs \\ %{}) do
-    %Application{}
-    |> Application.changeset(attrs)
-    |> Repo.insert()
+    attrs
+    |> stringify_keys()
+    |> ensure_anagrafica()
+    |> set_duplicate_flag()
+    |> then(fn attrs ->
+      %Application{}
+      |> Application.changeset(attrs)
+      |> Repo.insert()
+    end)
+  end
+
+  defp stringify_keys(attrs) do
+    Map.new(attrs, fn {key, value} -> {to_string(key), value} end)
+  end
+
+  def build_anagrafica(%Treby.Candidates.Candidate{} = candidate) do
+    %{
+      "name" => candidate.name,
+      "email" => candidate.email,
+      "phone" => candidate.phone,
+      "linkedin_url" => candidate.linkedin_url
+    }
+    |> Enum.reject(fn {_k, v} -> is_nil(v) || v == "" end)
+    |> Map.new()
+  end
+
+  defp ensure_anagrafica(attrs) do
+    if Map.get(attrs, "anagrafica") || Map.get(attrs, :anagrafica) do
+      attrs
+    else
+      case Map.get(attrs, "candidate_id") || Map.get(attrs, :candidate_id) do
+        nil ->
+          attrs
+
+        candidate_id ->
+          case Repo.get(Treby.Candidates.Candidate, candidate_id) do
+            nil -> attrs
+            candidate -> Map.put(attrs, "anagrafica", build_anagrafica(candidate))
+          end
+      end
+    end
+  end
+
+  defp set_duplicate_flag(attrs) do
+    candidate_id = Map.get(attrs, "candidate_id") || Map.get(attrs, :candidate_id)
+    job_id = Map.get(attrs, "job_id") || Map.get(attrs, :job_id)
+
+    if candidate_id && job_id do
+      is_duplicate? =
+        Application
+        |> where([a], a.candidate_id == ^candidate_id and a.job_id == ^job_id)
+        |> Repo.exists?()
+
+      attrs |> Map.put("is_duplicate", is_duplicate?)
+    else
+      attrs
+    end
+  end
+
+  def recompute_duplicate_flags(candidate_id) do
+    applications =
+      Application
+      |> where([a], a.candidate_id == ^candidate_id)
+      |> order_by([a], asc: a.inserted_at, asc: a.id)
+      |> Repo.all()
+
+    duplicate_ids =
+      applications
+      |> Enum.group_by(& &1.job_id)
+      |> Enum.flat_map(fn {_job_id, job_apps} -> Enum.drop(job_apps, 1) end)
+      |> Enum.map(& &1.id)
+
+    from(a in Application, where: a.candidate_id == ^candidate_id)
+    |> Repo.update_all(set: [is_duplicate: false])
+
+    if duplicate_ids != [] do
+      from(a in Application, where: a.id in ^duplicate_ids)
+      |> Repo.update_all(set: [is_duplicate: true])
+    end
+
+    :ok
   end
 
   def move_application(%Application{} = application, stage_id, opts \\ []) do

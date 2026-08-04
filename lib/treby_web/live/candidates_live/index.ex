@@ -8,10 +8,12 @@ defmodule TrebyWeb.CandidatesLive.Index do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
+    Candidates.auto_merge_exact_email(tenant.id, user)
     candidates = Candidates.list_candidates(tenant.id)
     candidate_fields = Customization.list_custom_fields_for(tenant.id, "candidate")
     jobs = Jobs.list_jobs(tenant.id)
     pipeline_stages = list_all_stages(tenant.id)
+    duplicate_count = length(Candidates.list_duplicate_groups(tenant.id))
 
     candidates_with_counts =
       Enum.map(candidates, fn candidate ->
@@ -26,6 +28,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(candidate_fields: candidate_fields)
      |> assign(jobs: jobs)
      |> assign(pipeline_stages: pipeline_stages)
+     |> assign(duplicate_count: duplicate_count)
      |> assign(search: "")
      |> assign(filter_job_id: "")
      |> assign(filter_stage_id: "")
@@ -33,6 +36,8 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(selected_ids: [])
      |> assign(bulk_action: nil)
      |> assign(bulk_stage_id: nil)
+     |> assign(merge_modal_open: false)
+     |> assign(merge_primary_id: nil)
      |> assign(bulk_email_subject: "")
      |> assign(bulk_email_body: "")
      |> assign(bulk_email_mode: "now")
@@ -51,12 +56,24 @@ defmodule TrebyWeb.CandidatesLive.Index do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <h1 class="text-2xl font-bold">Candidates</h1>
-          <button
-            phx-click="show_create_form"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            + Add Candidate
-          </button>
+          <div class="flex items-center gap-3">
+            <.link
+              :if={@duplicate_count > 0}
+              navigate={~p"/app/candidates/merge"}
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 text-sm font-medium"
+            >
+              <.icon name="hero-user-group" class="w-4 h-4" /> Duplicates
+              <span class="bg-amber-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5">
+                {@duplicate_count}
+              </span>
+            </.link>
+            <button
+              phx-click="show_create_form"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              + Add Candidate
+            </button>
+          </div>
         </div>
 
         <div class="mb-6 flex flex-wrap gap-4 items-center">
@@ -221,7 +238,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 <td class="px-6 py-4 whitespace-nowrap text-gray-600">{candidate.email}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-600">{candidate.phone || "-"}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-gray-600">
-                  {candidate.application_count}
+                  {Map.get(candidate, :application_count, 0)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
@@ -266,6 +283,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 <option value="mark_reviewed">Mark as Reviewed</option>
                 <option value="mark_unreviewed">Mark as New</option>
                 <option value="send_email">Send Email</option>
+                <option value="merge">Merge into one</option>
                 <option value="delete">Delete</option>
               </select>
 
@@ -300,6 +318,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
               Mark New
+            </button>
+            <button
+              :if={@bulk_action == "merge"}
+              phx-click="bulk_execute_merge"
+              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            >
+              Merge...
             </button>
             <button
               :if={@bulk_action == "delete"}
@@ -442,6 +467,60 @@ defmodule TrebyWeb.CandidatesLive.Index do
             </div>
           </div>
         </div>
+
+        <%!-- Merge Primary Picker Modal --%>
+        <div
+          :if={@merge_modal_open}
+          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        >
+          <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+            <div class="p-6">
+              <h3 class="text-lg font-semibold mb-1">Merge candidates</h3>
+              <p class="text-sm text-gray-500 mb-4">
+                Choose the primary profile. Its data and history are kept; the other {length(
+                  @selected_ids
+                ) - 1} profiles are archived into it.
+              </p>
+              <div class="space-y-2 max-h-80 overflow-y-auto">
+                <label
+                  :for={candidate <- Enum.filter(@candidates, &(&1.id in @selected_ids))}
+                  class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50"
+                >
+                  <input
+                    type="radio"
+                    name="merge_primary"
+                    value={candidate.id}
+                    phx-click="select_merge_primary"
+                    phx-value-candidate_id={candidate.id}
+                    checked={@merge_primary_id == candidate.id}
+                    class="w-4 h-4 text-blue-600"
+                  />
+                  <div class="flex-1">
+                    <p class="font-medium text-gray-900">{candidate.name}</p>
+                    <p class="text-sm text-gray-500">{candidate.email}</p>
+                  </div>
+                  <span class="text-xs text-gray-400">
+                    {Map.get(candidate, :application_count, 0)} applications
+                  </span>
+                </label>
+              </div>
+              <div class="flex justify-end gap-3 mt-6">
+                <button
+                  phx-click="cancel_merge_modal"
+                  class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  phx-click="do_bulk_execute_merge"
+                  class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
+                >
+                  Merge
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     <.confirm_modal
@@ -485,7 +564,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
     else
       attrs = Map.put(attrs, "custom_fields", custom_fields_values)
 
-      case Candidates.create_candidate(attrs) do
+      result =
+        if attrs["email"] in [nil, ""] do
+          Candidates.create_candidate(attrs)
+        else
+          Candidates.find_or_create_candidate(socket.assigns.current_tenant.id, attrs)
+        end
+
+      case result do
         {:ok, _candidate} ->
           candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
 
@@ -604,11 +690,58 @@ defmodule TrebyWeb.CandidatesLive.Index do
   end
 
   def handle_event("bulk_select_action", %{"bulk_action" => action}, socket) do
-    {:noreply, assign(socket, bulk_action: action, bulk_stage_id: nil)}
+    {:noreply, assign(socket, bulk_action: action, bulk_stage_id: nil, merge_modal_open: false)}
   end
 
   def handle_event("bulk_select_stage", %{"bulk_stage_id" => stage_id}, socket) do
     {:noreply, assign(socket, bulk_stage_id: stage_id)}
+  end
+
+  def handle_event("bulk_execute_merge", _params, socket) do
+    primary_id = List.first(socket.assigns.selected_ids)
+
+    {:noreply,
+     socket
+     |> assign(merge_modal_open: true)
+     |> assign(merge_primary_id: primary_id)}
+  end
+
+  def handle_event("select_merge_primary", %{"candidate_id" => candidate_id}, socket) do
+    {:noreply, assign(socket, merge_primary_id: candidate_id)}
+  end
+
+  def handle_event("cancel_merge_modal", _params, socket) do
+    {:noreply, assign(socket, merge_modal_open: false)}
+  end
+
+  def handle_event("do_bulk_execute_merge", _params, socket) do
+    %{selected_ids: ids, merge_primary_id: primary_id, current_tenant: tenant} = socket.assigns
+    actor = socket.assigns.current_user
+
+    candidates = Candidates.list_candidates(tenant.id)
+    primary = Enum.find(candidates, &(&1.id == primary_id))
+    absorbed = Enum.filter(candidates, &(&1.id in ids and &1.id != primary_id))
+
+    case primary && Candidates.merge_candidates(primary, absorbed, actor) do
+      {:ok, %{primary: merged_primary}} ->
+        candidates = Candidates.list_candidates(tenant.id)
+
+        {:noreply,
+         socket
+         |> assign(
+           candidates: candidates,
+           selected_ids: [],
+           bulk_action: nil,
+           merge_modal_open: false
+         )
+         |> put_flash(:info, "Merged candidates into #{merged_primary.name}")}
+
+      _ ->
+        {:noreply,
+         socket
+         |> assign(merge_modal_open: false)
+         |> put_flash(:error, "Merge failed. Make sure at least two candidates are selected.")}
+    end
   end
 
   def handle_event("bulk_execute_move", _params, socket) do

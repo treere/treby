@@ -11,6 +11,14 @@ defmodule TrebyWeb.PipelineLive.Index do
     applications_by_stage = Pipeline.list_applications_by_stage(job_id)
     stages = Pipeline.list_pipeline_stages(tenant.id)
 
+    candidate_ids =
+      applications_by_stage
+      |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.candidate_id) end)
+      |> Enum.uniq()
+
+    application_counts =
+      Pipeline.candidate_application_counts(tenant.id, candidate_ids)
+
     # Load upcoming interviews for this job's applications
     application_ids =
       applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
@@ -38,6 +46,7 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(job: job)
      |> assign(applications_by_stage: applications_by_stage)
      |> assign(stages: stages)
+     |> assign(application_counts: application_counts)
      |> assign(upcoming_interviews: upcoming_interviews)
      |> assign(review_filter: "all")
      |> assign(show_email_dialog: false)
@@ -56,6 +65,14 @@ defmodule TrebyWeb.PipelineLive.Index do
 
   def handle_info({:pipeline_updated, job_id}, socket) do
     applications_by_stage = Pipeline.list_applications_by_stage(job_id)
+
+    candidate_ids =
+      applications_by_stage
+      |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.candidate_id) end)
+      |> Enum.uniq()
+
+    application_counts =
+      Pipeline.candidate_application_counts(socket.assigns.current_tenant.id, candidate_ids)
 
     application_ids =
       applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
@@ -80,6 +97,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     {:noreply,
      socket
      |> assign(applications_by_stage: applications_by_stage)
+     |> assign(application_counts: application_counts)
      |> assign(upcoming_interviews: upcoming_interviews)}
   end
 
@@ -171,8 +189,20 @@ defmodule TrebyWeb.PipelineLive.Index do
                   >
                     NEW
                   </span>
+                  <span
+                    :if={application.is_duplicate}
+                    class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium"
+                  >
+                    DUPLICATE APP
+                  </span>
                 </div>
                 <p class="text-sm text-gray-500">{application.candidate.email}</p>
+                <p
+                  :if={other_positions_text(@application_counts, application.candidate_id)}
+                  class="mt-1 text-xs text-blue-700"
+                >
+                  {other_positions_text(@application_counts, application.candidate_id)}
+                </p>
                 <%= case Map.get(@upcoming_interviews, application.id) do %>
                   <% [next_interview | _] -> %>
                     <div class="mt-2 flex items-center gap-1 text-xs text-green-700 bg-green-50 rounded px-2 py-1">
@@ -755,6 +785,16 @@ defmodule TrebyWeb.PipelineLive.Index do
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+    end
+  end
+
+  def other_positions_text(counts, candidate_id) do
+    total = Map.get(counts, candidate_id, 1) || 1
+    other = total - 1
+
+    if other > 0 do
+      label = if other == 1, do: "position", else: "positions"
+      "Also in #{other} other #{label}"
     end
   end
 end

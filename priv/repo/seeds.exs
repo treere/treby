@@ -106,8 +106,14 @@ candidates =
   end)
 
 # Create applications
-Enum.each(candidates, fn candidate ->
-  job = Enum.random(jobs)
+Enum.with_index(candidates, 1)
+|> Enum.each(fn {candidate, index} ->
+  job =
+    if index == 1 do
+      Enum.at(jobs, 0)
+    else
+      Enum.random(jobs)
+    end
 
   application =
     Ecto.build_assoc(tenant, :applications)
@@ -120,6 +126,55 @@ Enum.each(candidates, fn candidate ->
     |> Repo.insert!()
 
   IO.puts("Created application: #{candidate.name} for #{job.title}")
+end)
+
+# Give Alice a concurrent application in a second position so pipeline
+# cards show the "Also in N other positions" indicator.
+alice = Enum.at(candidates, 0)
+second_job = Enum.at(jobs, 1)
+
+Ecto.build_assoc(tenant, :applications)
+|> Ecto.Changeset.change(%{
+  job_id: second_job.id,
+  candidate_id: alice.id,
+  pipeline_stage_id: first_stage.id,
+  applied_at: DateTime.utc_now() |> DateTime.truncate(:second)
+})
+|> Repo.insert!()
+
+IO.puts("Created second application: #{alice.name} for #{second_job.title}")
+
+# Duplicate candidates to exercise the merge center
+duplicates =
+  [
+    %{name: "Frank Miller", email: "frank@example.com", phone: "555-0120"},
+    %{name: "Frank M.", email: "frank@example.com", phone: "555-0121"},
+    %{name: "Grace Hopper", email: "grace.hopper@company.com", phone: "555-0122"},
+    %{name: "Grace Hopper", email: "grace.hopper@gmail.com", phone: "+39 555-0122"},
+    %{name: "Heidi Lee", email: "heidi.lee@acme.com", phone: "555-0123"},
+    %{name: "Heidi Lee", email: "heidi.lee@outlook.com", phone: "555-0124"}
+  ]
+  |> Enum.map(fn candidate_attrs ->
+    candidate =
+      Ecto.build_assoc(tenant, :candidates)
+      |> Treby.Candidates.Candidate.changeset(candidate_attrs)
+      |> Repo.insert!()
+
+    IO.puts("Created duplicate candidate: #{candidate.name}")
+    candidate
+  end)
+
+Enum.each(duplicates, fn candidate ->
+  job = Enum.random(jobs)
+
+  Ecto.build_assoc(tenant, :applications)
+  |> Ecto.Changeset.change(%{
+    job_id: job.id,
+    candidate_id: candidate.id,
+    pipeline_stage_id: first_stage.id,
+    applied_at: DateTime.utc_now() |> DateTime.truncate(:second)
+  })
+  |> Repo.insert!()
 end)
 
 # Create career page

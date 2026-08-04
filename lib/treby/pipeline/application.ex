@@ -9,8 +9,10 @@ defmodule Treby.Pipeline.Application do
     field :resume_url, :string
     field :applied_at, :utc_datetime
     field :custom_fields, :map, default: %{}
+    field :anagrafica, :map
     field :reviewed, :boolean, default: false
     field :source, :string
+    field :is_duplicate, :boolean, default: false
 
     belongs_to :tenant, Treby.Tenants.Tenant
     belongs_to :job, Treby.Jobs.Job
@@ -19,7 +21,7 @@ defmodule Treby.Pipeline.Application do
 
     has_many :notes, Treby.Notes.Note
 
-    timestamps(type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false
@@ -29,6 +31,8 @@ defmodule Treby.Pipeline.Application do
       :resume_url,
       :applied_at,
       :custom_fields,
+      :anagrafica,
+      :is_duplicate,
       :tenant_id,
       :job_id,
       :candidate_id,

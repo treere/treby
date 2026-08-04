@@ -11,9 +11,12 @@ defmodule Treby.Candidates.Candidate do
     field :phone, :string
     field :linkedin_url, :string
     field :custom_fields, :map, default: %{}
+    field :merged_at, :utc_datetime
 
     belongs_to :tenant, Treby.Tenants.Tenant
     has_many :applications, Treby.Pipeline.Application
+
+    belongs_to :merged_into, Treby.Candidates.Candidate, foreign_key: :merged_into_id
 
     timestamps(type: :utc_datetime)
   end

@@ -3,24 +3,32 @@ defmodule Treby.CsvImport do
   require Logger
   alias Treby.Repo
   alias Treby.CsvImport.ImportLog
+  alias Treby.Candidates
   alias Treby.Candidates.Candidate
   alias Treby.Pipeline.Application
 
   NimbleCSV.define(CsvParser, separator: ",", escape: "\"")
 
   def parse_csv(csv_binary) do
-    rows =
+    lines =
       csv_binary
-      |> CsvParser.parse_string(headers: true)
-      |> Enum.to_list()
+      |> CsvParser.parse_string(skip_headers: false)
+      |> Enum.map(fn row -> Enum.map(row, &String.trim/1) end)
 
-    headers =
-      csv_binary
-      |> CsvParser.parse_string(headers: false)
-      |> List.first()
-      |> Enum.map(&String.trim/1)
+    case lines do
+      [headers | rows] ->
+        rows =
+          Enum.map(rows, fn row ->
+            headers
+            |> Enum.zip(row)
+            |> Map.new()
+          end)
 
-    {:ok, %{rows: rows, headers: headers}}
+        {:ok, %{rows: rows, headers: headers}}
+
+      [] ->
+        {:ok, %{rows: [], headers: []}}
+    end
   rescue
     e -> {:error, "CSV parsing failed: #{Exception.message(e)}"}
   end
@@ -108,7 +116,14 @@ defmodule Treby.CsvImport do
 
         existing_candidate =
           if email != "" do
-            Repo.get_by(Candidate, tenant_id: tenant_id, email: email)
+            normalized = String.downcase(String.trim(email))
+
+            Candidate
+            |> where(
+              [c],
+              c.tenant_id == ^tenant_id and c.email == ^normalized and is_nil(c.merged_into_id)
+            )
+            |> Repo.one()
           end
 
         validation = validate_row(row, mapping)
@@ -141,7 +156,7 @@ defmodule Treby.CsvImport do
             %{acc | errors: acc.errors ++ [%{row: row, errors: errors}]}
 
           :ok ->
-            case find_or_create_candidate(tenant_id, candidate_attrs) do
+            case Candidates.find_or_create_candidate(tenant_id, candidate_attrs) do
               {:ok, candidate} ->
                 if job_id && pipeline_stage_id do
                   # Check for duplicate application
@@ -160,12 +175,17 @@ defmodule Treby.CsvImport do
                       "pipeline_stage_id" => pipeline_stage_id,
                       "applied_at" => DateTime.utc_now(),
                       "tenant_id" => tenant_id,
-                      "source" => source
+                      "source" => source,
+                      "anagrafica" =>
+                        Map.take(candidate_attrs, [
+                          "name",
+                          "email",
+                          "phone",
+                          "linkedin_url"
+                        ])
                     }
 
-                    case %Application{}
-                         |> Application.changeset(application_attrs)
-                         |> Repo.insert() do
+                    case Treby.Pipeline.create_application(application_attrs) do
                       {:ok, application} ->
                         try do
                           Treby.Notifications.notify_team_new_application(application)
@@ -215,20 +235,6 @@ defmodule Treby.CsvImport do
       tenant_id: tenant_id
     })
     |> Repo.insert()
-  end
-
-  defp find_or_create_candidate(tenant_id, attrs) do
-    email = Map.get(attrs, "email", "")
-
-    case Repo.get_by(Candidate, tenant_id: tenant_id, email: email) do
-      nil ->
-        %Candidate{}
-        |> Candidate.changeset(Map.put(attrs, "tenant_id", tenant_id))
-        |> Repo.insert()
-
-      candidate ->
-        {:ok, candidate}
-    end
   end
 
   defp build_candidate_attrs(row, mapping) do

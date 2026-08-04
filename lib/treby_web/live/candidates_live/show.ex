@@ -19,7 +19,26 @@ defmodule TrebyWeb.CandidatesLive.Show do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
-    candidate = Candidates.get_candidate!(tenant.id, id)
+    candidate = Candidates.get_candidate(tenant.id, id)
+
+    if is_nil(candidate) do
+      raise Ecto.NoResultsError, queryable: Candidates.Candidate
+    end
+
+    if candidate.merged_into_id do
+      primary_id = candidate.merged_into_id
+
+      {:ok,
+       socket
+       |> assign(current_user: user, current_tenant: tenant)
+       |> put_flash(:info, "This candidate was merged into another profile.")
+       |> push_navigate(to: ~p"/app/candidates/#{primary_id}")}
+    else
+      mount_active(socket, candidate, tenant, user)
+    end
+  end
+
+  defp mount_active(socket, candidate, tenant, user) do
     applications = Pipeline.list_applications_for_candidate(tenant.id, candidate.id)
 
     applications_with_notes =
@@ -54,6 +73,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
     # Load activity timeline
     activities = Activities.list_events_for_entity("candidate", candidate.id, 20)
 
+    # Load merge history where this candidate was the surviving primary
+    merge_logs = Candidates.list_merge_logs_for_primary(candidate.id)
+
     # Load email threads
     email_threads = EmailThreads.list_threads_for_candidate(candidate.id)
 
@@ -71,6 +93,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(scorecards: scorecards)
      |> assign(aggregate_scores: aggregate_scores)
      |> assign(activities: activities)
+     |> assign(merge_logs: merge_logs)
      |> assign(email_threads: email_threads)
      |> assign(user_email: user_email)
      |> assign(show_note_form: nil)
@@ -188,6 +211,31 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </button>
             </div>
 
+            <div :if={@merge_logs != []} class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <.icon name="hero-user-group" class="w-4 h-4 text-blue-700" />
+                <h3 class="text-sm font-semibold text-blue-900">
+                  This profile absorbed {length(@merge_logs)} duplicate {if(length(@merge_logs) == 1,
+                    do: "profile",
+                    else: "profiles"
+                  )}
+                </h3>
+              </div>
+              <div :for={log <- @merge_logs} class="flex items-center justify-between gap-3 mt-2">
+                <p class="text-xs text-blue-800">
+                  Merged <span class="font-medium">{log.absorbed_candidate.name}</span>
+                  on {Calendar.strftime(log.merged_at, "%b %d, %Y")}
+                </p>
+                <button
+                  phx-click="undo_merge"
+                  phx-value-merge_id={log.id}
+                  class="text-xs font-medium text-blue-700 hover:text-blue-900 underline"
+                >
+                  Undo merge
+                </button>
+              </div>
+            </div>
+
             <div :if={@candidate_fields != []} class="mt-6 border-t pt-4">
               <h3 class="text-sm font-medium text-gray-700 mb-2">Custom Fields</h3>
               <dl class="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -277,18 +325,40 @@ defmodule TrebyWeb.CandidatesLive.Show do
           <div :for={application <- @applications} class="bg-white rounded-lg shadow p-4 mb-4">
             <div class="flex justify-between items-center">
               <div>
-                <.link
-                  navigate={~p"/app/pipeline/#{application.job_id}"}
-                  class="font-medium text-blue-600 hover:text-blue-900"
-                >
-                  {application.job.title}
-                </.link>
+                <div class="flex items-center gap-2">
+                  <.link
+                    navigate={~p"/app/pipeline/#{application.job_id}"}
+                    class="font-medium text-blue-600 hover:text-blue-900"
+                  >
+                    {application.job.title}
+                  </.link>
+                  <span
+                    :if={application.is_duplicate}
+                    class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium"
+                  >
+                    DUPLICATE APP
+                  </span>
+                </div>
                 <p class="text-sm text-gray-500">
                   Stage: {application.pipeline_stage.name}
                 </p>
                 <p :if={application.source} class="text-sm text-gray-500">
                   Source: {application.source}
                 </p>
+                <div
+                  :if={
+                    application.anagrafica && anagrafica_differs?(application.anagrafica, @candidate)
+                  }
+                  class="mt-2 text-xs bg-yellow-50 border border-yellow-200 rounded p-2"
+                >
+                  <p class="font-medium text-yellow-900 mb-1">As submitted</p>
+                  <dl class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-yellow-900">
+                    <%= for {key, value} <- application.anagrafica do %>
+                      <dt class="font-medium">{humanize_anagrafica_key(key)}</dt>
+                      <dd>{value}</dd>
+                    <% end %>
+                  </dl>
+                </div>
               </div>
               <div class="flex items-center gap-3">
                 <a
@@ -777,6 +847,28 @@ defmodule TrebyWeb.CandidatesLive.Show do
     end
   end
 
+  def handle_event("undo_merge", %{"merge_id" => merge_id}, socket) do
+    merge_log = Candidates.get_merge_log!(merge_id)
+    actor = socket.assigns.current_user
+
+    case Candidates.undo_merge(merge_log, actor) do
+      {:ok, %{primary: primary}} ->
+        candidate = Candidates.get_candidate(primary.tenant_id, primary.id)
+        merge_logs = Candidates.list_merge_logs_for_primary(primary.id)
+
+        {:noreply,
+         socket
+         |> assign(candidate: candidate)
+         |> assign(merge_logs: merge_logs)
+         |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))
+         |> put_flash(:info, "Merge undone. The absorbed profile has been restored.")}
+
+      {:error, reason} ->
+        {:noreply,
+         put_flash(socket, :error, "Cannot undo this merge: #{format_undo_error(reason)}")}
+    end
+  end
+
   def handle_event("show_reply_form", %{"thread_id" => thread_id}, socket) do
     {:noreply,
      socket
@@ -896,11 +988,37 @@ defmodule TrebyWeb.CandidatesLive.Show do
     end
   end
 
+  defp format_undo_error(reason) do
+    case reason do
+      :primary_no_longer_mergeable ->
+        "this profile has since been merged into another one"
+
+      :absorbed_not_in_expected_state ->
+        "the absorbed profile has already been restored or modified"
+
+      _ ->
+        "an unexpected error occurred"
+    end
+  end
+
   defp reload_applications_with_notes(assigns) do
     Pipeline.list_applications_for_candidate(assigns.current_tenant.id, assigns.candidate.id)
     |> Enum.map(fn app ->
       notes = Notes.list_notes_for_application(app.id)
       Map.put(app, :notes, notes)
     end)
+  end
+
+  defp anagrafica_differs?(anagrafica, candidate) do
+    String.trim(to_string(anagrafica["name"] || "")) !=
+      String.trim(to_string(candidate.name || "")) or
+      String.trim(to_string(anagrafica["email"] || "")) !=
+        String.trim(to_string(candidate.email || "")) or
+      String.trim(to_string(anagrafica["phone"] || "")) !=
+        String.trim(to_string(candidate.phone || ""))
+  end
+
+  defp humanize_anagrafica_key(key) do
+    key |> to_string() |> String.replace("_", " ") |> String.capitalize()
   end
 end

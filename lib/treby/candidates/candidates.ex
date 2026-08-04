@@ -6,10 +6,17 @@ defmodule Treby.Candidates do
   import Ecto.Query, warn: false
   alias Treby.Repo
   alias Treby.Candidates.Candidate
+  alias Treby.Candidates.MergeLog
+  alias Treby.Candidates.Duplicates
+  alias Treby.EmailThreads.EmailThread
+  alias Treby.Activities.ActivityLog
+  alias Treby.Pipeline.Application
+
+  @auto_merge_max_candidates 5_000
 
   def list_candidates(tenant_id, filters \\ %{}) do
     Candidate
-    |> where([c], c.tenant_id == ^tenant_id)
+    |> where([c], c.tenant_id == ^tenant_id and is_nil(c.merged_into_id))
     |> apply_search(filters[:search])
     |> apply_job_filter(filters[:job_id])
     |> apply_stage_filter(filters[:stage_id])
@@ -59,14 +66,35 @@ defmodule Treby.Candidates do
 
   def get_candidate!(tenant_id, id) do
     Candidate
-    |> where([c], c.tenant_id == ^tenant_id and c.id == ^id)
+    |> where([c], c.tenant_id == ^tenant_id and c.id == ^id and is_nil(c.merged_into_id))
     |> Repo.one!()
   end
 
-  def find_or_create_candidate(tenant_id, attrs) do
-    email = String.downcase(attrs["email"] || attrs[:email])
+  @doc """
+  Returns a candidate regardless of merge state (including absorbed/tombstoned
+  candidates), or `nil`. Used to detect and redirect away from absorbed profiles.
+  """
+  def get_candidate(tenant_id, id) do
+    Candidate
+    |> where([c], c.tenant_id == ^tenant_id and c.id == ^id)
+    |> Repo.one()
+  end
 
-    case Repo.get_by(Candidate, tenant_id: tenant_id, email: email) do
+  def find_or_create_candidate(tenant_id, attrs) do
+    attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
+    email = attrs["email"] || ""
+    email = email |> String.trim() |> String.downcase()
+
+    candidate =
+      Candidate
+      |> where(
+        [c],
+        c.tenant_id == ^tenant_id and is_nil(c.merged_into_id) and
+          fragment("lower(trim(?)) = ?", c.email, ^email)
+      )
+      |> Repo.one()
+
+    case candidate do
       nil -> create_candidate(Map.put(attrs, "tenant_id", tenant_id))
       candidate -> {:ok, candidate}
     end
@@ -134,5 +162,270 @@ defmodule Treby.Candidates do
     Candidate
     |> where([c], c.tenant_id == ^tenant_id)
     |> Repo.exists?()
+  end
+
+  # Merge & split
+
+  @doc """
+  Merge a list of `absorbed_list` candidates into `primary`. All applications,
+  email threads, and candidate-level activity log rows are reassigned to the
+  primary; absorbed candidates are tombstoned; merge log rows are created to
+  allow undo. Returns `{:ok, %{primary: %Candidate{}, merge_logs: [MergeLog]}}`.
+
+  Guardrails:
+    * `primary` must not be tombstoned
+    * every absorbed candidate must not be tombstoned and must belong to the
+      same tenant as the primary
+    * a candidate cannot be merged with itself
+  """
+  def merge_candidates(%Candidate{} = primary, absorbed_list, actor \\ nil) do
+    absorbed_list = List.wrap(absorbed_list)
+
+    case validate_merge_targets(primary, absorbed_list) do
+      :ok ->
+        Repo.transaction(fn ->
+          merge_logs =
+            Enum.map(absorbed_list, fn absorbed ->
+              do_merge(primary, absorbed, actor)
+            end)
+
+          Treby.Pipeline.recompute_duplicate_flags(primary.id)
+
+          %{primary: primary, merge_logs: merge_logs}
+        end)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp validate_merge_targets(%Candidate{} = primary, absorbed_list) do
+    cond do
+      absorbed_list == [] ->
+        {:error, :no_candidates_to_merge}
+
+      primary.merged_into_id != nil ->
+        {:error, :primary_is_tombstoned}
+
+      Enum.any?(absorbed_list, fn a -> a.id == primary.id end) ->
+        {:error, :cannot_merge_with_itself}
+
+      Enum.any?(absorbed_list, fn a -> a.merged_into_id != nil end) ->
+        {:error, :cannot_merge_tombstoned_candidate}
+
+      Enum.any?(absorbed_list, fn a -> a.tenant_id != primary.tenant_id end) ->
+        {:error, :cross_tenant_merge}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp do_merge(%Candidate{} = primary, %Candidate{} = absorbed, actor) do
+    now = DateTime.utc_now()
+
+    application_mapping = reassign_to_primary(Application, :candidate_id, absorbed.id, primary.id)
+    thread_mapping = reassign_to_primary(EmailThread, :candidate_id, absorbed.id, primary.id)
+    activity_mapping = reassign_candidate_activities(absorbed.id, primary.id)
+
+    from(c in Candidate, where: c.id == ^absorbed.id)
+    |> Repo.update_all(set: [merged_into_id: primary.id, merged_at: now])
+
+    {:ok, merge_log} =
+      %MergeLog{}
+      |> MergeLog.changeset(%{
+        primary_candidate_id: primary.id,
+        absorbed_candidate_id: absorbed.id,
+        tenant_id: primary.tenant_id,
+        actor_id: actor && actor.id,
+        merged_at: now,
+        application_mapping: stringify_keys(application_mapping),
+        thread_mapping: stringify_keys(thread_mapping),
+        activity_mapping: stringify_keys(activity_mapping)
+      })
+      |> Repo.insert()
+
+    Treby.Activities.log_event(
+      "candidates_merged",
+      "candidate",
+      primary.id,
+      %{
+        actor_id: actor && actor.id,
+        tenant_id: primary.tenant_id,
+        absorbed_candidate_id: absorbed.id
+      }
+    )
+
+    merge_log
+  end
+
+  defp reassign_to_primary(schema, field_name, from_id, to_id) do
+    ids =
+      schema
+      |> where([e], field(e, ^field_name) == ^from_id)
+      |> select([e], e.id)
+      |> Repo.all()
+
+    from(e in schema, where: field(e, ^field_name) == ^from_id)
+    |> Repo.update_all(set: [{field_name, to_id}])
+
+    Map.new(ids, &{&1, from_id})
+  end
+
+  defp reassign_candidate_activities(from_id, to_id) do
+    ids =
+      ActivityLog
+      |> where([a], a.entity_type == "candidate" and a.entity_id == ^from_id)
+      |> select([a], a.id)
+      |> Repo.all()
+
+    from(a in ActivityLog,
+      where: a.entity_type == "candidate" and a.entity_id == ^from_id
+    )
+    |> Repo.update_all(set: [entity_id: to_id])
+
+    Map.new(ids, &{&1, from_id})
+  end
+
+  @doc """
+  Undo a previously executed merge, restoring entity assignments to the
+  absorbed candidate and reactivating it. Only the outermost merge in a chain
+  can be undone — if the primary has itself been absorbed after this merge,
+  the undo is refused.
+  """
+  def undo_merge(%MergeLog{} = merge_log, actor \\ nil) do
+    primary = Repo.get(Candidate, merge_log.primary_candidate_id)
+    absorbed = Repo.get(Candidate, merge_log.absorbed_candidate_id)
+
+    cond do
+      is_nil(primary) or primary.merged_into_id != nil ->
+        {:error, :primary_no_longer_mergeable}
+
+      is_nil(absorbed) or absorbed.merged_into_id != primary.id ->
+        {:error, :absorbed_not_in_expected_state}
+
+      true ->
+        Repo.transaction(fn ->
+          restore_owner(Application, :candidate_id, merge_log.application_mapping, absorbed.id)
+          restore_owner(EmailThread, :candidate_id, merge_log.thread_mapping, absorbed.id)
+          restore_owner(ActivityLog, :entity_id, merge_log.activity_mapping, absorbed.id)
+
+          from(c in Candidate, where: c.id == ^absorbed.id)
+          |> Repo.update_all(set: [merged_into_id: nil, merged_at: nil])
+
+          Repo.delete!(merge_log)
+
+          Treby.Activities.log_event(
+            "candidates_merge_undone",
+            "candidate",
+            primary.id,
+            %{
+              actor_id: actor && actor.id,
+              tenant_id: primary.tenant_id,
+              absorbed_candidate_id: absorbed.id
+            }
+          )
+
+          Treby.Pipeline.recompute_duplicate_flags(primary.id)
+
+          %{primary: primary, absorbed: absorbed}
+        end)
+    end
+  end
+
+  defp restore_owner(schema, field_name, mapping, target_id) do
+    ids = parse_mapping_ids(mapping)
+
+    if ids != [] do
+      from(e in schema, where: e.id in ^ids)
+      |> Repo.update_all(set: [{field_name, target_id}])
+    end
+
+    :ok
+  end
+
+  defp parse_mapping_ids(mapping) do
+    mapping
+    |> Map.keys()
+    |> Enum.map(&Ecto.UUID.cast(to_string(&1)))
+    |> Enum.flat_map(fn
+      {:ok, id} -> [id]
+      :error -> []
+    end)
+  end
+
+  defp stringify_keys(mapping) do
+    Map.new(mapping, fn {k, v} -> {to_string(k), to_string(v)} end)
+  end
+
+  @doc """
+  List suggested duplicate groups for a tenant. See
+  `Treby.Candidates.Duplicates.list_duplicate_groups/1`.
+  """
+  defdelegate list_duplicate_groups(tenant_id), to: Duplicates
+
+  @doc """
+  Automatically merge duplicate groups that share an exact normalized email
+  (the only signal considered safe to merge without review). The oldest
+  candidate in each group is used as the primary. Runs on demand, guarded by a
+  tenant candidate-count cap so it stays cheap on large workspaces. Returns
+  `%{merged: n, skipped: n}`.
+  """
+  def auto_merge_exact_email(tenant_id, actor \\ nil) do
+    if candidate_count(tenant_id) > @auto_merge_max_candidates do
+      %{merged: 0, skipped: 0}
+    else
+      groups =
+        tenant_id
+        |> list_duplicate_groups()
+        |> Enum.filter(& &1.auto_merge)
+
+      Enum.reduce(groups, %{merged: 0, skipped: 0}, fn group, acc ->
+        primary = Enum.find(group.candidates, &(&1.id == group.default_primary_id))
+        absorbed = Enum.reject(group.candidates, &(&1.id == group.default_primary_id))
+
+        case merge_candidates(primary, absorbed, actor) do
+          {:ok, _} -> %{acc | merged: acc.merged + 1}
+          {:error, _} -> %{acc | skipped: acc.skipped + 1}
+        end
+      end)
+    end
+  end
+
+  defp candidate_count(tenant_id) do
+    Candidate
+    |> where([c], c.tenant_id == ^tenant_id and is_nil(c.merged_into_id))
+    |> Repo.aggregate(:count, :id)
+  end
+
+  @doc """
+  Fetch a merge log row by id, raising if not found.
+  """
+  def get_merge_log!(id) do
+    Repo.get!(MergeLog, id)
+  end
+
+  @doc """
+  List merge log rows where the given candidate is the surviving primary,
+  oldest first.
+  """
+  def list_merge_logs_for_primary(primary_id) do
+    MergeLog
+    |> where([m], m.primary_candidate_id == ^primary_id)
+    |> order_by([m], asc: m.inserted_at)
+    |> preload([:absorbed_candidate])
+    |> Repo.all()
+  end
+
+  @doc """
+  Whether the given merge log row can still be undone (the primary is active
+  and the absorbed candidate is still tombstoned into it).
+  """
+  def merge_undoable?(%MergeLog{} = merge_log) do
+    primary = Repo.get(Candidate, merge_log.primary_candidate_id)
+    absorbed = Repo.get(Candidate, merge_log.absorbed_candidate_id)
+
+    not is_nil(primary) and is_nil(primary.merged_into_id) and not is_nil(absorbed) and
+      absorbed.merged_into_id == primary.id
   end
 end

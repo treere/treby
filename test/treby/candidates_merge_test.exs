@@ -433,13 +433,13 @@ defmodule Treby.CandidatesMergeTest do
     end
   end
 
-  describe "find_or_create_candidate/2" do
+  describe "create_or_find/2" do
     test "is case-insensitive against stored emails" do
       {tenant, _user, _job, _stage} = setup_tenant()
       existing = create_candidate(tenant, %{name: "Alice", email: "Alice@Example.com"})
 
       assert {:ok, found} =
-               Candidates.find_or_create_candidate(tenant.id, %{
+               Candidates.create_or_find(tenant.id, %{
                  name: "Alice",
                  email: "  alice@example.com  "
                })
@@ -457,13 +457,26 @@ defmodule Treby.CandidatesMergeTest do
       {:ok, _} = Candidates.merge_candidates(primary, [absorbed], user)
 
       assert {:ok, created} =
-               Candidates.find_or_create_candidate(tenant.id, %{
+               Candidates.create_or_find(tenant.id, %{
                  name: "Fresh Person",
                  email: "absorbed@example.com"
                })
 
       assert created.id != absorbed.id
       assert is_nil(created.merged_into_id)
+    end
+
+    test "with no email it does not match an existing candidate and returns a validation error" do
+      {tenant, _user, _job, _stage} = setup_tenant()
+
+      _existing =
+        create_candidate(tenant, %{name: "Existing Person", email: "existing@example.com"})
+
+      assert {:error, changeset} =
+               Candidates.create_or_find(tenant.id, %{name: "No Email Person"})
+
+      refute changeset.valid?
+      assert {"can't be blank", _} = changeset.errors[:email]
     end
   end
 

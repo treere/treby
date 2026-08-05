@@ -81,19 +81,30 @@ defmodule Treby.Candidates do
     |> Repo.one()
   end
 
-  def find_or_create_candidate(tenant_id, attrs) do
+  @doc """
+  Create a candidate or find the existing active candidate with the same
+  normalized email. When no email is present the candidate is always created.
+  Absorbed (tombstoned) candidates are never matched. This is the single entry
+  point for candidate creation that must not produce duplicates (career page
+  applications, CSV import, manual add).
+  """
+  def create_or_find(tenant_id, attrs) do
     attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
     email = attrs["email"] || ""
     email = email |> String.trim() |> String.downcase()
 
     candidate =
-      Candidate
-      |> where(
-        [c],
-        c.tenant_id == ^tenant_id and is_nil(c.merged_into_id) and
-          fragment("lower(trim(?)) = ?", c.email, ^email)
-      )
-      |> Repo.one()
+      if email == "" do
+        nil
+      else
+        Candidate
+        |> where(
+          [c],
+          c.tenant_id == ^tenant_id and is_nil(c.merged_into_id) and
+            fragment("lower(trim(?)) = ?", c.email, ^email)
+        )
+        |> Repo.one()
+      end
 
     case candidate do
       nil -> create_candidate(Map.put(attrs, "tenant_id", tenant_id))

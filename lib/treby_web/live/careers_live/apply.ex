@@ -146,7 +146,7 @@ defmodule TrebyWeb.CareersLive.Apply do
       "tenant_id" => tenant.id
     }
 
-    case Candidates.find_or_create_candidate(tenant.id, candidate_attrs) do
+    case Candidates.create_or_find(tenant.id, candidate_attrs) do
       {:ok, candidate} ->
         resume_url =
           case consume_uploaded_entries(socket, :resume, fn %{path: path}, _entry ->

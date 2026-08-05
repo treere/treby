@@ -564,12 +564,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
     else
       attrs = Map.put(attrs, "custom_fields", custom_fields_values)
 
-      result =
-        if attrs["email"] in [nil, ""] do
-          Candidates.create_candidate(attrs)
-        else
-          Candidates.find_or_create_candidate(socket.assigns.current_tenant.id, attrs)
-        end
+      result = Candidates.create_or_find(socket.assigns.current_tenant.id, attrs)
 
       case result do
         {:ok, _candidate} ->

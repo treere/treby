@@ -156,7 +156,7 @@ defmodule Treby.CsvImport do
             %{acc | errors: acc.errors ++ [%{row: row, errors: errors}]}
 
           :ok ->
-            case Candidates.find_or_create_candidate(tenant_id, candidate_attrs) do
+            case Candidates.create_or_find(tenant_id, candidate_attrs) do
               {:ok, candidate} ->
                 if job_id && pipeline_stage_id do
                   # Check for duplicate application

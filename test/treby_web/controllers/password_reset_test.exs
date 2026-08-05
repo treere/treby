@@ -3,6 +3,7 @@ defmodule TrebyWeb.PasswordResetTest do
 
   alias Treby.{Tenants, Repo, Accounts}
   alias Treby.Accounts.User
+  alias Phoenix.Flash
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -40,7 +41,7 @@ defmodule TrebyWeb.PasswordResetTest do
         })
 
       assert redirected_to(conn) == "/reset-password"
-      assert get_flash(conn, :info) =~ "reset link"
+      assert Flash.get(conn.assigns.flash, :info) =~ "reset link"
     end
 
     test "shows same message for non-existent email (user enumeration prevention)", %{conn: conn} do
@@ -50,7 +51,7 @@ defmodule TrebyWeb.PasswordResetTest do
         })
 
       assert redirected_to(conn) == "/reset-password"
-      assert get_flash(conn, :info) =~ "reset link"
+      assert Flash.get(conn.assigns.flash, :info) =~ "reset link"
     end
 
     test "token is stored as hash, not raw token" do
@@ -82,7 +83,7 @@ defmodule TrebyWeb.PasswordResetTest do
     test "invalid token redirects with error", %{conn: conn} do
       conn = get(conn, ~p"/reset-password/invalid-token-123")
       assert redirected_to(conn) == "/reset-password"
-      assert get_flash(conn, :error) =~ "Invalid or expired"
+      assert Flash.get(conn.assigns.flash, :error) =~ "Invalid or expired"
     end
 
     test "expired token redirects with error", %{conn: conn} do
@@ -99,7 +100,7 @@ defmodule TrebyWeb.PasswordResetTest do
 
       conn = get(conn, ~p"/reset-password/#{raw_token}")
       assert redirected_to(conn) == "/reset-password"
-      assert get_flash(conn, :error) =~ "Invalid or expired"
+      assert Flash.get(conn.assigns.flash, :error) =~ "Invalid or expired"
     end
 
     test "used token redirects with error", %{conn: conn} do
@@ -113,7 +114,7 @@ defmodule TrebyWeb.PasswordResetTest do
 
       conn = get(conn, ~p"/reset-password/#{raw_token}")
       assert redirected_to(conn) == "/reset-password"
-      assert get_flash(conn, :error) =~ "Invalid or expired"
+      assert Flash.get(conn.assigns.flash, :error) =~ "Invalid or expired"
     end
   end
 
@@ -128,7 +129,7 @@ defmodule TrebyWeb.PasswordResetTest do
         })
 
       assert redirected_to(conn) == "/login"
-      assert get_flash(conn, :info) =~ "Password has been reset"
+      assert Flash.get(conn.assigns.flash, :info) =~ "Password has been reset"
 
       # Verify the password was actually changed
       updated_user = Repo.get!(User, user.id)
@@ -159,7 +160,7 @@ defmodule TrebyWeb.PasswordResetTest do
         })
 
       assert redirected_to(conn) == "/reset-password/#{raw_token}"
-      assert get_flash(conn, :error) =~ "at least 6 characters"
+      assert Flash.get(conn.assigns.flash, :error) =~ "at least 6 characters"
 
       # Token should still be valid (not used)
       refute_token = Repo.get!(Accounts.PasswordResetToken, token_record.id)
@@ -173,7 +174,7 @@ defmodule TrebyWeb.PasswordResetTest do
         })
 
       assert redirected_to(conn) == "/reset-password"
-      assert get_flash(conn, :error) =~ "Invalid or expired"
+      assert Flash.get(conn.assigns.flash, :error) =~ "Invalid or expired"
     end
   end
 
@@ -211,7 +212,7 @@ defmodule TrebyWeb.PasswordResetTest do
         })
 
       assert redirected_to(conn) == "/login"
-      assert get_flash(conn, :info) =~ "Password has been reset"
+      assert Flash.get(conn.assigns.flash, :info) =~ "Password has been reset"
 
       # Step 5: Verify can login with new password
       conn =

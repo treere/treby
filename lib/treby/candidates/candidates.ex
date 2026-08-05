@@ -8,6 +8,7 @@ defmodule Treby.Candidates do
   alias Treby.Candidates.Candidate
   alias Treby.Candidates.MergeLog
   alias Treby.Candidates.Duplicates
+  alias Treby.Candidates.DismissedMergeGroup
   alias Treby.EmailThreads.EmailThread
   alias Treby.Activities.ActivityLog
   alias Treby.Pipeline.Application
@@ -363,6 +364,49 @@ defmodule Treby.Candidates do
   `Treby.Candidates.Duplicates.list_duplicate_groups/1`.
   """
   defdelegate list_duplicate_groups(tenant_id), to: Duplicates
+
+  @doc """
+  List the group keys (`group.id` values) of duplicate suggestions a tenant has
+  dismissed, as a `MapSet`. Dismissed groups stay hidden across page loads.
+  """
+  def list_dismissed_group_keys(tenant_id) do
+    DismissedMergeGroup
+    |> where([d], d.tenant_id == ^tenant_id)
+    |> select([d], d.group_key)
+    |> Repo.all()
+    |> MapSet.new()
+  end
+
+  @doc """
+  List duplicate suggestion groups for a tenant with dismissed groups removed.
+  See `Treby.Candidates.Duplicates.list_duplicate_groups/1`.
+  """
+  def list_suggestion_groups(tenant_id) do
+    dismissed = list_dismissed_group_keys(tenant_id)
+
+    tenant_id
+    |> list_duplicate_groups()
+    |> Enum.reject(&MapSet.member?(dismissed, &1.id))
+  end
+
+  @doc """
+  Persist a dismissal for a duplicate suggestion group. Idempotent — dismissing
+  a group that was already dismissed is a no-op returning `{:ok, existing}`.
+  Returns `{:error, changeset}` on validation failure.
+  """
+  def dismiss_merge_group(tenant_id, group_key, actor \\ nil) do
+    %DismissedMergeGroup{}
+    |> DismissedMergeGroup.changeset(%{
+      tenant_id: tenant_id,
+      group_key: group_key,
+      dismissed_by: actor && actor.id,
+      dismissed_at: DateTime.utc_now()
+    })
+    |> Repo.insert(
+      on_conflict: :nothing,
+      conflict_target: [:tenant_id, :group_key]
+    )
+  end
 
   @doc """
   Automatically merge duplicate groups that share an exact normalized email

@@ -8,7 +8,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
     auto_merged = Candidates.auto_merge_exact_email(tenant.id, user)
-    groups = prepare_groups(tenant.id, MapSet.new())
+    groups = prepare_groups(tenant.id)
 
     socket =
       if auto_merged.merged > 0 do
@@ -25,8 +25,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(groups: groups)
-     |> assign(selected_primary: initial_selections(groups))
-     |> assign(dismissed: MapSet.new())}
+     |> assign(selected_primary: initial_selections(groups))}
   end
 
   def render(assigns) do
@@ -190,7 +189,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
 
         case Candidates.merge_candidates(primary, absorbed, actor) do
           {:ok, %{primary: merged_primary}} ->
-            groups = prepare_groups(tenant_id, socket.assigns.dismissed)
+            groups = prepare_groups(tenant_id)
 
             {:noreply,
              socket
@@ -208,24 +207,30 @@ defmodule TrebyWeb.CandidatesLive.Merge do
   end
 
   def handle_event("dismiss_group", %{"group_id" => group_id}, socket) do
-    dismissed = MapSet.put(socket.assigns.dismissed, group_id)
-    groups = prepare_groups(socket.assigns.current_tenant.id, dismissed)
+    tenant_id = socket.assigns.current_tenant.id
+    actor = socket.assigns.current_user
 
-    {:noreply,
-     socket
-     |> assign(groups: groups)
-     |> assign(dismissed: dismissed)
-     |> assign(selected_primary: initial_selections(groups))
-     |> put_flash(:info, "Suggestion dismissed")}
+    case Candidates.dismiss_merge_group(tenant_id, group_id, actor) do
+      {:ok, _} ->
+        groups = prepare_groups(tenant_id)
+
+        {:noreply,
+         socket
+         |> assign(groups: groups)
+         |> assign(selected_primary: initial_selections(groups))
+         |> put_flash(:info, "Suggestion dismissed")}
+
+      {:error, changeset} ->
+        {:noreply, put_flash(socket, :error, "Could not dismiss: #{inspect(changeset.errors)}")}
+    end
   end
 
   defp find_group(groups, group_id) do
     Enum.find(groups, &(&1.id == group_id))
   end
 
-  defp prepare_groups(tenant_id, dismissed) do
-    Candidates.list_duplicate_groups(tenant_id)
-    |> Enum.reject(fn group -> MapSet.member?(dismissed, group.id) end)
+  defp prepare_groups(tenant_id) do
+    Candidates.list_suggestion_groups(tenant_id)
     |> Enum.map(fn group ->
       candidate_ids = Enum.map(group.candidates, & &1.id)
       counts = Pipeline.candidate_application_counts(tenant_id, candidate_ids)

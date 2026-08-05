@@ -54,6 +54,8 @@ The **Merge Duplicates** center (`/app/candidates/merge`) lists these groups wit
 
 Merging reassigns all applications, email threads, and activity to the primary profile; the absorbed profiles are archived and shown as a merged badge. Merges are recorded and can be undone.
 
+Dismissed suggestions stay hidden across reloads for the whole workspace — the duplicates badge on the candidates list only counts undismissed groups.
+
 ## Undo Merge
 
 When a candidate profile has been absorbed into another, its page redirects to the primary profile with a notice. The primary profile shows a **Undo merge** action that restores all applications, threads, and activity to the absorbed candidate.

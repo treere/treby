@@ -547,4 +547,60 @@ defmodule Treby.CandidatesMergeTest do
       assert created.id != primary.id
     end
   end
+
+  describe "dismiss_merge_group/3" do
+    test "persists a dismissal and lists it back as a group key" do
+      {tenant, _user, _job, _stage} = setup_tenant()
+      group_id = "a-deterministic-group-id"
+
+      assert {:ok, _} = Candidates.dismiss_merge_group(tenant.id, group_id)
+
+      assert Candidates.list_dismissed_group_keys(tenant.id) == MapSet.new([group_id])
+    end
+
+    test "is idempotent for the same tenant and group" do
+      {tenant, _user, _job, _stage} = setup_tenant()
+      group_id = "same-group"
+
+      assert {:ok, _} = Candidates.dismiss_merge_group(tenant.id, group_id)
+      assert {:ok, _} = Candidates.dismiss_merge_group(tenant.id, group_id)
+
+      assert MapSet.size(Candidates.list_dismissed_group_keys(tenant.id)) == 1
+    end
+
+    test "dismissals are scoped per tenant" do
+      {tenant_a, _user, _job, _stage} = setup_tenant()
+      {tenant_b, _user, _job, _stage} = setup_tenant()
+
+      assert {:ok, _} = Candidates.dismiss_merge_group(tenant_a.id, "group-1")
+
+      refute MapSet.member?(Candidates.list_dismissed_group_keys(tenant_b.id), "group-1")
+    end
+
+    test "dismissing a group hides it from duplicate suggestions" do
+      {tenant, _user, _job, _stage} = setup_tenant()
+
+      _c1 =
+        create_candidate(tenant, %{
+          name: "First Person",
+          email: "first@example.com",
+          phone: "555-0101"
+        })
+
+      _c2 =
+        create_candidate(tenant, %{
+          name: "First Person",
+          email: "second@example.com",
+          phone: "555-0101"
+        })
+
+      [group] = Candidates.list_suggestion_groups(tenant.id)
+
+      assert {:ok, _} = Candidates.dismiss_merge_group(tenant.id, group.id)
+
+      assert Candidates.list_suggestion_groups(tenant.id)
+             |> Enum.any?(&(&1.id == group.id))
+             |> Kernel.not()
+    end
+  end
 end

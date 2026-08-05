@@ -118,6 +118,24 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       assert render(view) =~ "Suggestion dismissed"
     end
 
+    test "dismissal persists across page reloads", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      _c1 = create_candidate(tenant, "First Person", "first@example.com", "555-0101")
+      _c2 = create_candidate(tenant, "First Person", "second@example.com", "555-0101")
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/merge")
+
+      view |> element("button", "Dismiss") |> render_click()
+      assert render(view) =~ "No duplicate candidates"
+
+      assert Repo.aggregate(Treby.Candidates.DismissedMergeGroup, :count) == 1
+
+      conn2 = login_user(conn, user)
+      {:ok, _view2, html2} = live(conn2, ~p"/app/candidates/merge")
+      assert html2 =~ "No duplicate candidates"
+    end
+
     test "merges a group into the selected primary", %{conn: conn} do
       {tenant, user} = setup_tenant()
       primary = create_candidate(tenant, "Keep Me", "keep@example.com", "555-0101")
@@ -153,6 +171,22 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
 
       assert has_element?(view, ~s{a[href="/app/candidates/merge"]}, "Duplicates")
       assert render(view) =~ ~r/rounded-full px-1\.5 py-0\.5">\s*1\s*<\/span>/
+    end
+
+    test "dismissed groups are excluded from the duplicates badge", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      _c1 = create_candidate(tenant, "First Person", "first@example.com", "555-0101")
+      _c2 = create_candidate(tenant, "First Person", "second@example.com", "555-0101")
+
+      conn = login_user(conn, user)
+      {:ok, merge_view, _html} = live(conn, ~p"/app/candidates/merge")
+      merge_view |> element("button", "Dismiss") |> render_click()
+
+      conn = login_user(conn, user)
+      {:ok, index_view, html} = live(conn, ~p"/app/candidates")
+
+      refute has_element?(index_view, ~s{a[href="/app/candidates/merge"]}, "Duplicates")
+      refute html =~ ~r/rounded-full px-1\.5 py-0\.5">\s*1\s*<\/span>/
     end
 
     test "add candidate upserts an existing active candidate by email", %{conn: conn} do

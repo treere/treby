@@ -13,7 +13,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
     candidate_fields = Customization.list_custom_fields_for(tenant.id, "candidate")
     jobs = Jobs.list_jobs(tenant.id)
     pipeline_stages = list_all_stages(tenant.id)
-    duplicate_count = length(Candidates.list_duplicate_groups(tenant.id))
+    duplicate_count = length(Candidates.list_suggestion_groups(tenant.id))
 
     candidates_with_counts =
       Enum.map(candidates, fn candidate ->

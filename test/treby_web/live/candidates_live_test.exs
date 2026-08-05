@@ -443,4 +443,67 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       assert queued.subject == "Bulk scheduled"
     end
   end
+
+  describe "bulk compare" do
+    test "shows Compare button after selecting the action", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      {job, stage} = create_job_pipeline(tenant)
+
+      alice =
+        create_candidate_with_application(
+          tenant,
+          job,
+          stage,
+          "Alice Compare",
+          "alicec@example.com"
+        )
+
+      bob =
+        create_candidate_with_application(tenant, job, stage, "Bob Compare", "bobc@example.com")
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      view |> element(~s{input[phx-value-id="#{alice.id}"]}) |> render_click()
+      view |> element(~s{input[phx-value-id="#{bob.id}"]}) |> render_click()
+
+      view
+      |> element("select[name=bulk_action]")
+      |> render_change(%{"bulk_action" => "compare"})
+
+      assert has_element?(view, "button", "Compare")
+    end
+
+    test "navigates to compare page with selected candidate ids", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      {job, stage} = create_job_pipeline(tenant)
+
+      alice =
+        create_candidate_with_application(
+          tenant,
+          job,
+          stage,
+          "Alice Compare",
+          "alicec2@example.com"
+        )
+
+      bob =
+        create_candidate_with_application(tenant, job, stage, "Bob Compare", "bobc2@example.com")
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      view |> element(~s{input[phx-value-id="#{alice.id}"]}) |> render_click()
+      view |> element(~s{input[phx-value-id="#{bob.id}"]}) |> render_click()
+
+      view
+      |> element("select[name=bulk_action]")
+      |> render_change(%{"bulk_action" => "compare"})
+
+      view |> element("button", "Compare") |> render_click()
+
+      expected = ~p"/app/candidates/compare?ids=#{Enum.join([bob.id, alice.id], ",")}"
+      assert_redirect(view, expected)
+    end
+  end
 end

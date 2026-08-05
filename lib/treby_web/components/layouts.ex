@@ -77,13 +77,6 @@ defmodule TrebyWeb.Layouts do
                   {gettext("Import")}
                 </.link>
                 <.link
-                  navigate={~p"/app/compare"}
-                  data-nav="/app/compare"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
-                >
-                  {gettext("Compare")}
-                </.link>
-                <.link
                   navigate={~p"/app/interviews"}
                   data-nav="/app/interviews"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
@@ -190,13 +183,6 @@ defmodule TrebyWeb.Layouts do
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
             >
               {gettext("Import")}
-            </.link>
-            <.link
-              navigate={~p"/app/compare"}
-              data-nav="/app/compare"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
-            >
-              {gettext("Compare")}
             </.link>
             <.link
               navigate={~p"/app/interviews"}

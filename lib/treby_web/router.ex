@@ -37,6 +37,7 @@ defmodule TrebyWeb.Router do
       live "/jobs/:id", JobsLive.Show
       live "/candidates", CandidatesLive.Index
       live "/candidates/merge", CandidatesLive.Merge
+      live "/candidates/compare", ComparisonLive.Index
       live "/candidates/:id", CandidatesLive.Show
       live "/pipeline", PipelineLive
       live "/pipeline/:job_id", PipelineLive.Index
@@ -44,7 +45,6 @@ defmodule TrebyWeb.Router do
       live "/schedule/:application_id", ScheduleLive.Index
       live "/interviews", InterviewsLive.Index
       live "/import", ImportLive.Index
-      live "/compare", ComparisonLive.Index
       live "/email-queue", EmailQueueLive.Index
 
       get "/applications/:id/resume", ResumeController, :show

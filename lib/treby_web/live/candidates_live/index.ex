@@ -273,29 +273,34 @@ defmodule TrebyWeb.CandidatesLive.Index do
             <span class="text-sm">{length(@selected_ids)} selected</span>
 
             <div class="flex items-center gap-2">
-              <select
-                phx-change="bulk_select_action"
-                name="bulk_action"
-                class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
-              >
-                <option value="">Actions...</option>
-                <option value="move_stage">Move to Stage</option>
-                <option value="mark_reviewed">Mark as Reviewed</option>
-                <option value="mark_unreviewed">Mark as New</option>
-                <option value="send_email">Send Email</option>
-                <option value="merge">Merge into one</option>
-                <option value="delete">Delete</option>
-              </select>
+              <form>
+                <select
+                  phx-change="bulk_select_action"
+                  name="bulk_action"
+                  class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+                >
+                  <option value="">Actions...</option>
+                  <option value="move_stage">Move to Stage</option>
+                  <option value="mark_reviewed">Mark as Reviewed</option>
+                  <option value="mark_unreviewed">Mark as New</option>
+                  <option value="send_email">Send Email</option>
+                  <option value="merge">Merge into one</option>
+                  <option value="compare">Compare</option>
+                  <option value="delete">Delete</option>
+                </select>
+              </form>
 
-              <select
-                :if={@bulk_action == "move_stage"}
-                phx-change="bulk_select_stage"
-                name="bulk_stage_id"
-                class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
-              >
-                <option value="">Select stage...</option>
-                <option :for={stage <- @pipeline_stages} value={stage.id}>{stage.name}</option>
-              </select>
+              <form>
+                <select
+                  :if={@bulk_action == "move_stage"}
+                  phx-change="bulk_select_stage"
+                  name="bulk_stage_id"
+                  class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+                >
+                  <option value="">Select stage...</option>
+                  <option :for={stage <- @pipeline_stages} value={stage.id}>{stage.name}</option>
+                </select>
+              </form>
             </div>
 
             <button
@@ -325,6 +330,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
               Merge...
+            </button>
+            <button
+              :if={@bulk_action == "compare"}
+              phx-click="bulk_execute_compare"
+              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            >
+              Compare
             </button>
             <button
               :if={@bulk_action == "delete"}
@@ -690,6 +702,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("bulk_select_stage", %{"bulk_stage_id" => stage_id}, socket) do
     {:noreply, assign(socket, bulk_stage_id: stage_id)}
+  end
+
+  def handle_event("bulk_execute_compare", _params, socket) do
+    ids = Enum.join(socket.assigns.selected_ids, ",")
+    {:noreply, push_navigate(socket, to: ~p"/app/candidates/compare?ids=#{ids}")}
   end
 
   def handle_event("bulk_execute_merge", _params, socket) do

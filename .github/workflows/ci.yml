@@ -38,8 +38,8 @@ jobs:
 
       - uses: erlef/setup-beam@v1
         with:
-          elixir-version: "1.19.4"
-          otp-version: "maint-28"
+          elixir-version: "1.19.5"
+          otp-version: "maint-29"
 
       - name: Cache Mix dependencies
         uses: actions/cache@v4

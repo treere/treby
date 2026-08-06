@@ -83,7 +83,10 @@ defmodule Treby.Candidates.Duplicates do
     candidates =
       Candidate
       |> where([c], c.tenant_id == ^tenant_id and is_nil(c.merged_into_id))
-      |> order_by([c], asc: c.inserted_at)
+      # `id` is a deterministic tiebreaker so two candidates with the same
+      # `inserted_at` (possible when inserts happen within the same microsecond)
+      # produce a stable, reproducible ordering for auto-merge.
+      |> order_by([c], asc: c.inserted_at, asc: c.id)
       |> Repo.all()
 
     cid_map = Map.new(candidates, &{&1.id, &1})

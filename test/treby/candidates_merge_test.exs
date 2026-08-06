@@ -57,6 +57,18 @@ defmodule Treby.CandidatesMergeTest do
     candidate
   end
 
+  defp create_candidate(tenant, attrs, %DateTime{} = inserted_at) do
+    {:ok, candidate} =
+      tenant
+      |> Ecto.build_assoc(:candidates)
+      |> Candidate.changeset(attrs)
+      |> Ecto.Changeset.force_change(:inserted_at, inserted_at)
+      |> Ecto.Changeset.force_change(:updated_at, inserted_at)
+      |> Repo.insert()
+
+    candidate
+  end
+
   defp create_application(tenant, job, stage, candidate) do
     {:ok, application} =
       Pipeline.create_application(%{
@@ -483,8 +495,19 @@ defmodule Treby.CandidatesMergeTest do
   describe "auto_merge_exact_email/2" do
     test "merges exact-email duplicates into the oldest candidate and logs the merge" do
       {tenant, user, _job, _stage} = setup_tenant()
-      older = create_candidate(tenant, %{name: "Older Person", email: "Same@Example.com"})
-      newer = create_candidate(tenant, %{name: "Newer Person", email: "same@example.com"})
+
+      # Explicit, ordered `inserted_at` values: two fast sequential inserts can
+      # land in the same microsecond and produce identical timestamps, which
+      # would make the "oldest wins" assertion depend on arbitrary ordering.
+      base = DateTime.truncate(DateTime.utc_now(), :second)
+      older = create_candidate(tenant, %{name: "Older Person", email: "Same@Example.com"}, base)
+
+      newer =
+        create_candidate(
+          tenant,
+          %{name: "Newer Person", email: "same@example.com"},
+          DateTime.add(base, 1, :second)
+        )
 
       unrelated =
         create_candidate(tenant, %{

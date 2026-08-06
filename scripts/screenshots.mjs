@@ -162,7 +162,7 @@ async function run() {
     await page.fill('input[name="user[email]"]', "admin@acme.com")
     await page.fill('input[name="user[password]"]', "password123")
     await page.click('button[type="submit"]')
-    await page.waitForURL("**/app/**", { timeout: 10000 })
+    await page.waitForURL("**/app*", { timeout: 10000 })
     console.log("Logged in successfully")
 
     // Capture authenticated pages

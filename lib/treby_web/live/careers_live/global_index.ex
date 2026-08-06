@@ -27,7 +27,7 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
               name="query"
               value={@search_query}
               placeholder="Search across all companies..."
-              class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              class="input flex-1"
             />
             <.button type="submit" class="px-6">Search</.button>
           </.form>

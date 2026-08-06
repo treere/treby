@@ -18,6 +18,21 @@ defmodule TrebyWeb.DesignSystem.PatternTest do
       assert html =~ "Delete?"
       assert html =~ "Confirm"
     end
+
+    test "spreads extra_attrs as phx-value attributes for the confirm event" do
+      html =
+        render_component(&confirm_dialog/1, %{
+          id: "test-dialog",
+          show: true,
+          title: "Delete?",
+          message: "Are you sure?",
+          on_confirm: "do_delete",
+          extra_attrs: %{id: "123"}
+        })
+
+      assert html =~ ~s{phx-value-id="123"}
+      refute html =~ ~s{phx-value-extra}
+    end
   end
 
   describe "page_header" do

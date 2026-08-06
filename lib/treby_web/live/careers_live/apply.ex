@@ -69,7 +69,7 @@ defmodule TrebyWeb.CareersLive.Apply do
               </label>
               <select
                 name="application[source]"
-                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                class="select w-full"
               >
                 <option value="">—</option>
                 <option :for={source <- @sources} value={source.name}>{source.name}</option>
@@ -81,14 +81,13 @@ defmodule TrebyWeb.CareersLive.Apply do
               <div :for={field <- @application_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{field.name}</label>
-                    <select
+                    <.input
                       name={"custom_fields[#{field.id}]"}
-                      class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                    >
-                      <option value="">—</option>
-                      <option :for={opt <- field.options} value={opt}>{opt}</option>
-                    </select>
+                      type="select"
+                      label={field.name}
+                      options={field.options}
+                      prompt="—"
+                    />
                   <% field.field_type == "date" -> %>
                     <.input name={"custom_fields[#{field.id}]"} type="date" label={field.name} />
                   <% field.field_type == "number" -> %>

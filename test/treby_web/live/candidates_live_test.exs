@@ -95,6 +95,93 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
     end
   end
 
+  describe "search" do
+    defp create_candidate(tenant, name, email) do
+      tenant
+      |> Ecto.build_assoc(:candidates)
+      |> Treby.Candidates.Candidate.changeset(%{name: name, email: email})
+      |> Repo.insert!()
+    end
+
+    test "search submit filters candidates in place", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      create_candidate(tenant, "Carol Williams", "carol@example.com")
+      create_candidate(tenant, "Bob Jones", "bob@example.com")
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      html =
+        view
+        |> form("form[phx-submit='search_submit']", %{"search" => "carol"})
+        |> render_submit()
+
+      assert html =~ "Carol Williams"
+      refute html =~ "Bob Jones"
+    end
+
+    test "search param in URL filters on load and pre-fills the input", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      create_candidate(tenant, "Carol Williams", "carol@example.com")
+      create_candidate(tenant, "Bob Jones", "bob@example.com")
+      conn = login_user(conn, user)
+
+      {:ok, _view, html} = live(conn, ~p"/app/candidates?search=carol")
+
+      assert html =~ "Carol Williams"
+      refute html =~ "Bob Jones"
+      assert html =~ ~s{value="carol"}
+    end
+
+    test "clearing the search input shows all candidates again", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      create_candidate(tenant, "Carol Williams", "carol@example.com")
+      create_candidate(tenant, "Bob Jones", "bob@example.com")
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/candidates?search=carol")
+      assert render(view) =~ "Carol Williams"
+      refute render(view) =~ "Bob Jones"
+
+      html =
+        view
+        |> form("form[phx-submit='search_submit']", %{"search" => ""})
+        |> render_submit()
+
+      assert html =~ "Carol Williams"
+      assert html =~ "Bob Jones"
+    end
+  end
+
+  describe "bulk email composer" do
+    test "composer form wraps inputs so Enter does not reload the page", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      create_candidate(tenant, "Bulk One", "bulk1@example.com")
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      view |> element(~s{input[phx-click="toggle_candidate"]}) |> render_click()
+
+      view
+      |> element("select[name=bulk_action]")
+      |> render_change(%{"bulk_action" => "send_email"})
+
+      assert has_element?(view, "#bulk-email-composer")
+
+      html =
+        view
+        |> form("#bulk-email-composer", %{
+          "bulk_email_subject" => "Hello",
+          "bulk_email_mode" => "now"
+        })
+        |> render_submit()
+
+      refute html =~ "form events require a phx-submit"
+    end
+  end
+
   describe "show page - edit validation" do
     test "shows flash error when saving edit with empty name", %{conn: conn} do
       {tenant, user} = setup_tenant()

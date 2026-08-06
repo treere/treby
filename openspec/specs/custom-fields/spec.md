@@ -21,6 +21,10 @@ The system SHALL allow admins to define custom fields for candidates, jobs, and 
 - **WHEN** an admin creates a "select" type field
 - **THEN** they can define the available options
 
+#### Scenario: Saving a select field
+- **WHEN** an admin saves a "select" custom field with options
+- **THEN** each option line is stored as a selectable option on the field
+
 ### Requirement: Custom field rendering
 The system SHALL render custom fields in relevant forms and profiles.
 

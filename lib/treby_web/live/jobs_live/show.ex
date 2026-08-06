@@ -41,7 +41,7 @@ defmodule TrebyWeb.JobsLive.Show do
             <button
               id="copy-public-link"
               phx-hook=".CopyToClipboard"
-              data-url={~p"/#{@current_tenant.slug}/careers/#{@job.id}"}
+              data-url={TrebyWeb.Endpoint.url() <> ~p"/#{@current_tenant.slug}/careers/#{@job.id}"}
               class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 inline-flex items-center gap-1"
             >
               <.icon name="hero-link" class="w-4 h-4" /> Copy Public Link
@@ -82,20 +82,14 @@ defmodule TrebyWeb.JobsLive.Show do
               <div :for={field <- @job_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{field.name}</label>
-                    <select
+                    <.input
                       name={"custom_fields[#{field.id}]"}
-                      class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                    >
-                      <option value="">—</option>
-                      <option
-                        :for={opt <- field.options}
-                        value={opt}
-                        selected={opt == Map.get(@job.custom_fields || %{}, field.id)}
-                      >
-                        {opt}
-                      </option>
-                    </select>
+                      type="select"
+                      label={field.name}
+                      value={Map.get(@job.custom_fields || %{}, field.id)}
+                      options={field.options}
+                      prompt="—"
+                    />
                   <% field.field_type == "date" -> %>
                     <.input
                       name={"custom_fields[#{field.id}]"}

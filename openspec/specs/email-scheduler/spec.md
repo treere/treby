@@ -50,6 +50,17 @@ The system SHALL allow users to edit scheduled emails before they are sent.
 - **THEN** the Oban job is rescheduled for the updated time
 - **AND** the thread message preview updates to reflect new content
 
+#### Scenario: Save with minute-only time input
+- **WHEN** a user saves an edited scheduled email with a time entered as `HH:MM` (no seconds)
+- **THEN** the email is saved without error
+- **AND** the scheduled time is interpreted as `HH:MM:00`
+- **AND** the Oban job is rescheduled for that time
+
+#### Scenario: Invalid time does not crash
+- **WHEN** a user saves an edited scheduled email with a malformed time value
+- **THEN** a validation error is shown
+- **AND** the page does not crash or disconnect
+
 ### Requirement: Cancel scheduled email
 The system SHALL allow users to cancel a scheduled email before it is sent.
 

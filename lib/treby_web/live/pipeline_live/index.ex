@@ -178,7 +178,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     phx-click="toggle_application"
                     phx-value-id={application.id}
                     checked={application.id in @selected_ids}
-                    class="w-4 h-4"
+                    class="checkbox checkbox-sm"
                   />
                 </div>
                 <div class="flex items-center gap-2">
@@ -293,7 +293,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       type="date"
                       value={@schedule_date}
                       phx-change="update_schedule_date"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      class="input w-full"
                     />
                   </div>
                   <div>
@@ -302,7 +302,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       type="time"
                       value={@schedule_time}
                       phx-change="update_schedule_time"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      class="input w-full"
                     />
                   </div>
                 </div>
@@ -311,7 +311,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     type="checkbox"
                     checked={@schedule_jitter > 0}
                     phx-click="toggle_schedule_jitter"
-                    class="rounded border-gray-300 text-blue-600"
+                    class="checkbox checkbox-sm"
                   />
                   <span class="text-sm text-gray-600">
                     Add randomness (±{@schedule_jitter} min)

@@ -95,4 +95,30 @@ defmodule TrebyWeb.JobsLive.IndexTest do
       assert html =~ "Please review the errors below"
     end
   end
+
+  describe "copy public link" do
+    test "renders an absolute career page URL on the copy button", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Treby.Jobs.Job.changeset(%{
+          title: "Copy Link Job",
+          description: "Share me",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, _view, html} = live(conn, ~p"/app/jobs/#{job.id}")
+
+      expected = TrebyWeb.Endpoint.url() <> "/#{tenant.slug}/careers/#{job.id}"
+
+      assert html =~ ~s{data-url="#{expected}"}
+      assert html =~ ~s{id="copy-public-link"}
+    end
+  end
 end

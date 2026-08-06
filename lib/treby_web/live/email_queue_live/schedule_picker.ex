@@ -29,7 +29,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-click="set_mode"
             phx-value-mode="now"
             phx-target={@myself}
-            class="text-blue-600"
+            class="radio radio-sm"
           />
           <span class="text-sm font-medium text-gray-700">Send now</span>
         </label>
@@ -42,7 +42,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-click="set_mode"
             phx-value-mode="schedule"
             phx-target={@myself}
-            class="text-blue-600"
+            class="radio radio-sm"
           />
           <span class="text-sm font-medium text-gray-700">Schedule for later</span>
         </label>
@@ -88,7 +88,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
               value={@date}
               phx-change="update_date"
               phx-target={@myself}
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              class="input w-full"
             />
           </div>
           <div>
@@ -99,7 +99,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
               value={@time}
               phx-change="update_time"
               phx-target={@myself}
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              class="input w-full"
             />
           </div>
         </div>
@@ -112,7 +112,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             checked={@jitter_minutes > 0}
             phx-click="toggle_jitter"
             phx-target={@myself}
-            class="rounded border-gray-300 text-blue-600"
+            class="checkbox checkbox-sm"
           />
           <span class="text-sm text-gray-600">
             Add randomness (<span class="font-medium">±<%= @jitter_minutes %> min</span>) so emails don't all arrive at the exact same time

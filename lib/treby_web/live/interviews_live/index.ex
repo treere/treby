@@ -175,7 +175,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
               <select
                 phx-change="filter_interviewer"
                 name="interviewer_id"
-                class="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700"
+                class="select"
               >
                 <option value="">All Interviewers</option>
                 <%= for user <- @users do %>
@@ -304,7 +304,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                     <% criterion["type"] == "yes_no_maybe" -> %>
                       <select
                         name={criterion["name"]}
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        class="select w-full"
                       >
                         <option value="" selected={@scorecard_form[criterion["name"]].value == ""}>
                           Select...
@@ -329,7 +329,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                       <textarea
                         name={criterion["name"]}
                         rows="2"
-                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        class="textarea w-full"
                       >{@scorecard_form[criterion["name"]].value}</textarea>
                   <% end %>
                 </div>
@@ -338,7 +338,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   <label class="block text-sm font-medium text-gray-700">Recommendation</label>
                   <select
                     name="recommendation"
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    class="select w-full"
                   >
                     <option value="" selected={@scorecard_form[:recommendation].value == ""}>
                       Select...
@@ -378,7 +378,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   <textarea
                     name="notes"
                     rows="3"
-                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    class="textarea w-full"
                   >{@scorecard_form[:notes].value}</textarea>
                 </div>
 

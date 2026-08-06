@@ -113,7 +113,7 @@ defmodule TrebyWeb.ImportLive.Index do
               <select
                 phx-change="update_mapping"
                 phx-value-header={csv_header}
-                class="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+                class="select flex-1"
               >
                 <option value="">{gettext("Skip this column")}</option>
                 <option
@@ -233,7 +233,7 @@ defmodule TrebyWeb.ImportLive.Index do
                 <label class="block text-sm text-gray-600">{gettext("Job")}</label>
                 <select
                   phx-change="select_job"
-                  class="w-full border rounded-lg px-3 py-2 mt-1"
+                  class="select w-full mt-1"
                 >
                   <option value="">{gettext("None")}</option>
                   <option :for={job <- @jobs} value={job.id}>{job.title}</option>
@@ -244,7 +244,7 @@ defmodule TrebyWeb.ImportLive.Index do
                 <label class="block text-sm text-gray-600">{gettext("Stage")}</label>
                 <select
                   phx-change="select_stage"
-                  class="w-full border rounded-lg px-3 py-2 mt-1"
+                  class="select w-full mt-1"
                 >
                   <option value="">{gettext("First stage")}</option>
                   <option
@@ -261,7 +261,7 @@ defmodule TrebyWeb.ImportLive.Index do
               <label class="block text-sm text-gray-600">{gettext("Source")}</label>
               <select
                 phx-change="select_source"
-                class="w-full border rounded-lg px-3 py-2 mt-1"
+                class="select w-full mt-1"
               >
                 <option value="">{gettext("None")}</option>
                 <option :for={source <- @sources} value={source.name}>{source.name}</option>

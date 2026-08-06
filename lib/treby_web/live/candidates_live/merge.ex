@@ -109,7 +109,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
                       phx-value-group_id={group.id}
                       phx-value-candidate_id={candidate.id}
                       checked={@selected_primary[group.id] == candidate.id}
-                      class="w-4 h-4"
+                      class="radio radio-sm"
                     />
                   </td>
                   <td class="py-2 pr-3 font-medium text-gray-900">

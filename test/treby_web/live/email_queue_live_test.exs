@@ -116,6 +116,92 @@ defmodule TrebyWeb.EmailQueueLive.IndexTest do
       assert render(view) =~ "Edit Scheduled Email"
     end
 
+    test "save_edit updates the scheduled time from HH:MM input" do
+      {tenant, user} = setup_tenant()
+      scheduled = create_scheduled_email(tenant)
+      conn = login_user(build_conn(), user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/email-queue")
+
+      view |> element(~s{button[phx-click="open_edit"]}) |> render_click()
+
+      date =
+        Date.to_iso8601(DateTime.add(DateTime.utc_now(), 3600, :second) |> DateTime.to_date())
+
+      html =
+        view
+        |> form("#edit-scheduled-email", %{
+          "scheduled_email" => %{
+            "subject" => scheduled.subject,
+            "body" => scheduled.html_body,
+            "scheduled_at_date" => date,
+            "scheduled_at_time" => "23:49",
+            "jitter_minutes" => "0"
+          }
+        })
+        |> render_submit()
+
+      assert html =~ "Email updated"
+
+      updated = Treby.EmailQueue.get_scheduled_email!(scheduled.id)
+      assert updated.scheduled_at |> DateTime.to_time() |> Time.to_string() == "23:49:00"
+    end
+
+    test "save_edit reschedules the delivery in Oban (inline)" do
+      {tenant, user} = setup_tenant()
+      scheduled = create_scheduled_email(tenant)
+      conn = login_user(build_conn(), user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/email-queue")
+
+      view |> element(~s{button[phx-click="open_edit"]}) |> render_click()
+
+      date =
+        Date.to_iso8601(DateTime.add(DateTime.utc_now(), 7200, :second) |> DateTime.to_date())
+
+      html =
+        view
+        |> form("#edit-scheduled-email", %{
+          "scheduled_email" => %{
+            "subject" => "Updated subject",
+            "body" => scheduled.html_body,
+            "scheduled_at_date" => date,
+            "scheduled_at_time" => "10:30",
+            "jitter_minutes" => "0"
+          }
+        })
+        |> render_submit()
+
+      assert html =~ "Email updated"
+
+      updated = EmailQueue.get_scheduled_email!(scheduled.id)
+      assert updated.subject == "Updated subject"
+      assert updated.status == "sent"
+    end
+
+    test "save_edit shows flash error on malformed time instead of crashing" do
+      {tenant, user} = setup_tenant()
+      create_scheduled_email(tenant)
+      conn = login_user(build_conn(), user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/email-queue")
+
+      view |> element(~s{button[phx-click="open_edit"]}) |> render_click()
+
+      html =
+        view
+        |> form("#edit-scheduled-email", %{
+          "scheduled_email" => %{
+            "scheduled_at_date" => "2026-01-01",
+            "scheduled_at_time" => "99:99",
+            "jitter_minutes" => "0"
+          }
+        })
+        |> render_submit()
+
+      assert html =~ "Invalid time format"
+    end
+
     test "bulk cancel cancels selected emails" do
       {tenant, user} = setup_tenant()
       create_scheduled_email(tenant, subject: "Bulk one")

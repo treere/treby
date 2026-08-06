@@ -46,7 +46,7 @@ defmodule TrebyWeb.DesignSystem.Button do
     else
       ~H"""
       <button
-        type="button"
+        type={@rest[:type] || "button"}
         class={@classes}
         disabled={@loading or @disabled}
         {@rest}

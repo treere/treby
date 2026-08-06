@@ -134,20 +134,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <div :for={field <- @candidate_fields} class="mb-3">
                   <%= cond do %>
                     <% field.field_type == "select" -> %>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">{field.name}</label>
-                      <select
+                      <.input
                         name={"custom_fields[#{field.id}]"}
-                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                      >
-                        <option value="">—</option>
-                        <option
-                          :for={opt <- field.options}
-                          value={opt}
-                          selected={opt == Map.get(@candidate.custom_fields || %{}, field.id)}
-                        >
-                          {opt}
-                        </option>
-                      </select>
+                        type="select"
+                        label={field.name}
+                        value={Map.get(@candidate.custom_fields || %{}, field.id)}
+                        options={field.options}
+                        prompt="—"
+                      />
                     <% field.field_type == "date" -> %>
                       <.input
                         name={"custom_fields[#{field.id}]"}

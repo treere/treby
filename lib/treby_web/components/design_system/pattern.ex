@@ -39,6 +39,9 @@ defmodule TrebyWeb.DesignSystem.Pattern do
   Variants: `primary`, `danger` (default)
   '''
   def confirm_dialog(assigns) do
+    assigns =
+      assign(assigns, :extra_phx_value_attrs, phx_value_attrs(assigns.extra_attrs))
+
     ~H"""
     <.modal id={@id} show={@show} title={@title} close_event={@on_cancel} class={@class} {@rest}>
       <p class="text-sm text-base-content/70 mb-6">{@message}</p>
@@ -53,7 +56,7 @@ defmodule TrebyWeb.DesignSystem.Pattern do
         <button
           type="button"
           phx-click={@on_confirm}
-          phx-value-extra={Jason.encode!(@extra_attrs)}
+          {@extra_phx_value_attrs}
           class={[
             "btn",
             @confirm_variant == "danger" && "btn-error",
@@ -66,6 +69,12 @@ defmodule TrebyWeb.DesignSystem.Pattern do
       </:footer>
     </.modal>
     """
+  end
+
+  defp phx_value_attrs(extra_attrs) do
+    Enum.map(extra_attrs, fn {key, value} ->
+      {:"phx-value-#{key}", value}
+    end)
   end
 
   ## ── PageHeader ─────────────────────────────────────────────

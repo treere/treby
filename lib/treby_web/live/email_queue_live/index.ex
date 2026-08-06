@@ -98,33 +98,15 @@ defmodule TrebyWeb.EmailQueueLive.Index do
     date = params["scheduled_at_date"]
     time = params["scheduled_at_time"]
 
-    scheduled_at =
-      case DateTime.new(Date.from_iso8601!(date), Time.from_iso8601!(time), "Etc/UTC") do
-        {:ok, dt} -> dt
-        _ -> email.scheduled_at
-      end
+    case parse_time(time) do
+      {:ok, parsed_time} ->
+        do_save_edit(socket, email, date, parsed_time, params)
 
-    attrs = %{
-      subject: params["subject"],
-      body: params["body"],
-      scheduled_at: scheduled_at,
-      jitter_minutes: String.to_integer(params["jitter_minutes"] || "0")
-    }
-
-    case EmailQueue.edit_scheduled_email(email, attrs) do
-      {:ok, _updated} ->
-        current_user = socket.assigns.current_user
-
-        socket =
-          socket
-          |> put_flash(:info, "Email updated")
-          |> assign(edit_email: nil, edit_form: nil)
-          |> load_emails(current_user.tenant_id, socket.assigns.tab)
-
-        {:noreply, socket}
-
-      {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to update email")}
+      :error ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Invalid time format. Use HH:MM, e.g. 23:49.")
+         |> assign(edit_form: to_form(params))}
     end
   end
 
@@ -246,6 +228,48 @@ defmodule TrebyWeb.EmailQueueLive.Index do
 
   defp format_time(%DateTime{} = dt), do: Calendar.strftime(dt, "%H:%M")
   defp format_time(_), do: ""
+
+  defp parse_time(time) when is_binary(time) do
+    normalized = if String.length(time) == 5, do: time <> ":00", else: time
+
+    case Time.from_iso8601(normalized) do
+      {:ok, parsed} -> {:ok, parsed}
+      _ -> :error
+    end
+  end
+
+  defp parse_time(_), do: :error
+
+  defp do_save_edit(socket, email, date, time, params) do
+    scheduled_at =
+      case DateTime.new(Date.from_iso8601!(date), time, "Etc/UTC") do
+        {:ok, dt} -> dt
+        _ -> email.scheduled_at
+      end
+
+    attrs = %{
+      subject: params["subject"],
+      body: params["body"],
+      scheduled_at: scheduled_at,
+      jitter_minutes: String.to_integer(params["jitter_minutes"] || "0")
+    }
+
+    case EmailQueue.edit_scheduled_email(email, attrs) do
+      {:ok, _updated} ->
+        current_user = socket.assigns.current_user
+
+        socket =
+          socket
+          |> put_flash(:info, "Email updated")
+          |> assign(edit_email: nil, edit_form: nil)
+          |> load_emails(current_user.tenant_id, socket.assigns.tab)
+
+        {:noreply, socket}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Failed to update email")}
+    end
+  end
 
   defp format_datetime(%DateTime{} = dt), do: Calendar.strftime(dt, "%b %d, %Y %H:%M")
   defp format_datetime(_), do: ""

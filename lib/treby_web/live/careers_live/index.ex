@@ -42,7 +42,7 @@ defmodule TrebyWeb.CareersLive.Index do
               name="query"
               value={@search_query}
               placeholder="Search positions..."
-              class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              class="input flex-1"
             />
             <.button type="submit" class="px-6">Search</.button>
           </.form>

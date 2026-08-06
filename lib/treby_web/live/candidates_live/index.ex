@@ -4,12 +4,23 @@ defmodule TrebyWeb.CandidatesLive.Index do
   alias Treby.{Accounts, Tenants, Candidates, Pipeline, Jobs, Customization, BulkOperations}
   alias Treby.Candidates.Candidate
 
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
     Candidates.auto_merge_exact_email(tenant.id, user)
-    candidates = Candidates.list_candidates(tenant.id)
+
+    search = params["search"] || ""
+    filter_job_id = params["job_id"] || ""
+    filter_stage_id = params["stage_id"] || ""
+
+    candidates =
+      Candidates.list_candidates(tenant.id, %{
+        search: search,
+        job_id: filter_job_id,
+        stage_id: filter_stage_id
+      })
+
     candidate_fields = Customization.list_custom_fields_for(tenant.id, "candidate")
     jobs = Jobs.list_jobs(tenant.id)
     pipeline_stages = list_all_stages(tenant.id)
@@ -29,9 +40,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(jobs: jobs)
      |> assign(pipeline_stages: pipeline_stages)
      |> assign(duplicate_count: duplicate_count)
-     |> assign(search: "")
-     |> assign(filter_job_id: "")
-     |> assign(filter_stage_id: "")
+     |> assign(search: search)
+     |> assign(filter_job_id: filter_job_id)
+     |> assign(filter_stage_id: filter_stage_id)
      |> assign(show_form: false)
      |> assign(selected_ids: [])
      |> assign(bulk_action: nil)
@@ -77,19 +88,19 @@ defmodule TrebyWeb.CandidatesLive.Index do
         </div>
 
         <div class="mb-6 flex flex-wrap gap-4 items-center">
-          <form phx-change="search" class="flex-1 min-w-[200px]">
+          <form phx-change="search" phx-submit="search_submit" class="flex-1 min-w-[200px]">
             <input
               type="text"
               name="search"
               value={@search}
               placeholder="Search by name or email..."
-              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              class="input w-full"
             />
           </form>
           <form phx-change="filter_job" class="min-w-[180px]">
             <select
               name="job_id"
-              class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              class="select w-full"
             >
               <option value="">All Jobs</option>
               <option :for={job <- @jobs} value={job.id} selected={job.id == @filter_job_id}>
@@ -100,7 +111,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <form phx-change="filter_stage" class="min-w-[180px]">
             <select
               name="stage_id"
-              class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              class="select w-full"
             >
               <option value="">All Stages</option>
               <option
@@ -127,20 +138,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
               <div :for={field <- @candidate_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">{field.name}</label>
-                    <select
+                    <.input
                       name={"custom_fields[#{field.id}]"}
-                      class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                    >
-                      <option value="">—</option>
-                      <option
-                        :for={opt <- field.options}
-                        value={opt}
-                        selected={opt == Map.get(@candidate.custom_fields || %{}, field.id)}
-                      >
-                        {opt}
-                      </option>
-                    </select>
+                      type="select"
+                      label={field.name}
+                      value={Map.get(@candidate.custom_fields || %{}, field.id)}
+                      options={field.options}
+                      prompt="—"
+                    />
                   <% field.field_type == "date" -> %>
                     <.input
                       name={"custom_fields[#{field.id}]"}
@@ -190,7 +195,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     type="checkbox"
                     phx-click="toggle_select_all"
                     checked={length(@selected_ids) == length(@candidates) and @candidates != []}
-                    class="w-4 h-4"
+                    class="checkbox checkbox-sm"
                   />
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -224,7 +229,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-click="toggle_candidate"
                     phx-value-id={candidate.id}
                     checked={candidate.id in @selected_ids}
-                    class="w-4 h-4"
+                    class="checkbox checkbox-sm"
                   />
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
@@ -373,110 +378,119 @@ defmodule TrebyWeb.CandidatesLive.Index do
           class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50"
         >
           <div class="bg-white rounded-lg shadow-2xl p-6 w-96">
-            <h3 class="font-semibold mb-3">Send Email to {length(@selected_ids)} candidates</h3>
-            <input
-              type="text"
-              placeholder="Subject"
-              value={@bulk_email_subject}
-              phx-change="bulk_email_subject_change"
-              name="bulk_email_subject"
-              class="w-full border rounded-lg px-3 py-2 text-sm mb-3"
-            />
-            <textarea
-              placeholder="Use {candidate_name} for personalization"
-              value={@bulk_email_body}
-              phx-change="bulk_email_body_change"
-              name="bulk_email_body"
-              rows={4}
-              class="w-full border rounded-lg px-3 py-2 text-sm mb-3"
-            />
+            <form
+              id="bulk-email-composer"
+              phx-submit="bulk_email_composer_submit"
+              class="contents"
+            >
+              <h3 class="font-semibold mb-3">Send Email to {length(@selected_ids)} candidates</h3>
+              <input
+                type="text"
+                placeholder="Subject"
+                value={@bulk_email_subject}
+                phx-change="bulk_email_subject_change"
+                name="bulk_email_subject"
+                class="input w-full mb-3"
+              />
+              <textarea
+                placeholder="Use {candidate_name} for personalization"
+                value={@bulk_email_body}
+                phx-change="bulk_email_body_change"
+                name="bulk_email_body"
+                rows={4}
+                class="textarea w-full mb-3"
+              />
 
-            <div class="flex gap-4 mb-3">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="bulk_email_mode"
-                  value="now"
-                  checked={@bulk_email_mode == "now"}
-                  phx-click="bulk_email_set_mode"
-                  phx-value-mode="now"
-                  class="text-blue-600"
-                />
-                <span class="text-sm font-medium text-gray-700">Send now</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="bulk_email_mode"
-                  value="schedule"
-                  checked={@bulk_email_mode == "schedule"}
-                  phx-click="bulk_email_set_mode"
-                  phx-value-mode="schedule"
-                  class="text-blue-600"
-                />
-                <span class="text-sm font-medium text-gray-700">Schedule for later</span>
-              </label>
-            </div>
+              <div class="flex gap-4 mb-3">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="bulk_email_mode"
+                    value="now"
+                    checked={@bulk_email_mode == "now"}
+                    phx-click="bulk_email_set_mode"
+                    phx-value-mode="now"
+                    class="radio radio-sm"
+                  />
+                  <span class="text-sm font-medium text-gray-700">Send now</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="bulk_email_mode"
+                    value="schedule"
+                    checked={@bulk_email_mode == "schedule"}
+                    phx-click="bulk_email_set_mode"
+                    phx-value-mode="schedule"
+                    class="radio radio-sm"
+                  />
+                  <span class="text-sm font-medium text-gray-700">Schedule for later</span>
+                </label>
+              </div>
 
-            <div :if={@bulk_email_mode == "schedule"} class="space-y-3 p-3 bg-gray-50 rounded-lg mb-3">
-              <div class="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  phx-click="bulk_email_preset"
-                  phx-value-label="tomorrow_9"
-                  class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                >
-                  Tomorrow 9:00
-                </button>
-                <button
-                  type="button"
-                  phx-click="bulk_email_preset"
-                  phx-value-label="tomorrow_14"
-                  class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                >
-                  Tomorrow 14:00
-                </button>
-                <button
-                  type="button"
-                  phx-click="bulk_email_preset"
-                  phx-value-label="next_monday"
-                  class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                >
-                  Next Monday
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
-                  <input
-                    type="date"
-                    value={@bulk_email_date}
-                    phx-change="bulk_email_schedule_date_change"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                  />
+              <div
+                :if={@bulk_email_mode == "schedule"}
+                class="space-y-3 p-3 bg-gray-50 rounded-lg mb-3"
+              >
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    phx-click="bulk_email_preset"
+                    phx-value-label="tomorrow_9"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    Tomorrow 9:00
+                  </button>
+                  <button
+                    type="button"
+                    phx-click="bulk_email_preset"
+                    phx-value-label="tomorrow_14"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    Tomorrow 14:00
+                  </button>
+                  <button
+                    type="button"
+                    phx-click="bulk_email_preset"
+                    phx-value-label="next_monday"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    Next Monday
+                  </button>
                 </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">Time</label>
-                  <input
-                    type="time"
-                    value={@bulk_email_time}
-                    phx-change="bulk_email_schedule_time_change"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                  />
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                    <input
+                      type="date"
+                      value={@bulk_email_date}
+                      phx-change="bulk_email_schedule_date_change"
+                      class="input w-full"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Time</label>
+                    <input
+                      type="time"
+                      value={@bulk_email_time}
+                      phx-change="bulk_email_schedule_time_change"
+                      class="input w-full"
+                    />
+                  </div>
                 </div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={@bulk_email_jitter > 0}
+                    phx-click="bulk_email_toggle_jitter"
+                    class="checkbox checkbox-sm"
+                  />
+                  <span class="text-sm text-gray-600">
+                    Add randomness (±{@bulk_email_jitter} min)
+                  </span>
+                </label>
               </div>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={@bulk_email_jitter > 0}
-                  phx-click="bulk_email_toggle_jitter"
-                  class="rounded border-gray-300 text-blue-600"
-                />
-                <span class="text-sm text-gray-600">
-                  Add randomness (±{@bulk_email_jitter} min)
-                </span>
-              </label>
-            </div>
+            </form>
           </div>
         </div>
 
@@ -505,7 +519,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-click="select_merge_primary"
                     phx-value-candidate_id={candidate.id}
                     checked={@merge_primary_id == candidate.id}
-                    class="w-4 h-4 text-blue-600"
+                    class="radio radio-sm"
                   />
                   <div class="flex-1">
                     <p class="font-medium text-gray-900">{candidate.name}</p>
@@ -880,6 +894,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
     {:noreply, assign(socket, bulk_email_subject: subject)}
   end
 
+  def handle_event("bulk_email_composer_submit", _params, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("bulk_email_body_change", %{"bulk_email_body" => body}, socket) do
     {:noreply, assign(socket, bulk_email_body: body)}
   end
@@ -935,12 +953,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
   end
 
   def handle_event("search", %{"search" => search}, socket) do
-    candidates = filter_candidates(socket.assigns, search: search)
+    {:noreply, apply_search(socket, search)}
+  end
 
-    {:noreply,
-     socket
-     |> assign(search: search)
-     |> assign(candidates: candidates)}
+  def handle_event("search_submit", %{"search" => search}, socket) do
+    {:noreply, apply_search(socket, search)}
   end
 
   def handle_event("filter_job", %{"job_id" => job_id}, socket) do
@@ -959,6 +976,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
      socket
      |> assign(filter_stage_id: stage_id)
      |> assign(candidates: candidates)}
+  end
+
+  defp apply_search(socket, search) do
+    candidates = filter_candidates(socket.assigns, search: search)
+
+    socket
+    |> assign(search: search)
+    |> assign(candidates: candidates)
   end
 
   defp filter_candidates(assigns, overrides) do

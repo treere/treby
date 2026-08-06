@@ -37,7 +37,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
           <.form for={%{}} phx-change="select_pipeline" id="pipeline-selector-form">
             <select
               name="pipeline_id"
-              class="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700"
+              class="select"
             >
               <option value="" selected={@selected_pipeline_id == nil}>All pipelines</option>
               <%= for pipeline <- @pipelines do %>

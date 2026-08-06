@@ -19,6 +19,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
      |> assign(
        form: to_form(Customization.change_custom_field(%CustomField{tenant_id: tenant.id}))
      )
+     |> assign(options_text: "")
      |> assign(new_option: "")
      |> assign(confirm_delete: nil)}
   end
@@ -52,6 +53,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
           <.form
             for={@form}
             id="field-form"
+            phx-change="validate"
             phx-submit="save_field"
             class="space-y-4"
           >
@@ -93,8 +95,8 @@ defmodule TrebyWeb.SettingsLive.Fields do
                 id="options-textarea"
                 name="options_text"
                 rows="3"
-                class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-              ><%= Enum.join(@form[:options].value || [], "\n") %></textarea>
+                class="textarea w-full"
+              >{@options_text}</textarea>
             </div>
 
             <div class="flex items-center gap-2">
@@ -180,7 +182,20 @@ defmodule TrebyWeb.SettingsLive.Fields do
         })
       )
 
-    {:noreply, assign(socket, show_form: true, editing_field: nil, form: form)}
+    {:noreply, assign(socket, show_form: true, editing_field: nil, form: form, options_text: "")}
+  end
+
+  def handle_event("validate", params, socket) do
+    form =
+      %CustomField{tenant_id: socket.assigns.current_tenant.id}
+      |> Customization.change_custom_field(Map.get(params, "custom_field", %{}))
+      |> to_form()
+
+    {:noreply,
+     assign(socket,
+       form: form,
+       options_text: Map.get(params, "options_text", socket.assigns[:options_text] || "")
+     )}
   end
 
   def handle_event("cancel_form", _, socket) do
@@ -190,7 +205,14 @@ defmodule TrebyWeb.SettingsLive.Fields do
   def handle_event("edit_field", %{"field_id" => field_id}, socket) do
     field = Customization.get_custom_field!(socket.assigns.current_tenant.id, field_id)
     form = to_form(Customization.change_custom_field(field))
-    {:noreply, assign(socket, show_form: true, editing_field: field, form: form)}
+
+    {:noreply,
+     assign(socket,
+       show_form: true,
+       editing_field: field,
+       form: form,
+       options_text: Enum.join(field.options || [], "\n")
+     )}
   end
 
   def handle_event("save_field", params, socket) do
@@ -219,7 +241,12 @@ defmodule TrebyWeb.SettingsLive.Fields do
 
         {:noreply,
          socket
-         |> assign(custom_fields: custom_fields, show_form: false, editing_field: nil)
+         |> assign(
+           custom_fields: custom_fields,
+           show_form: false,
+           editing_field: nil,
+           options_text: ""
+         )
          |> put_flash(:info, "Field saved")}
 
       {:error, :unauthorized} ->

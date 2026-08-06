@@ -61,7 +61,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                 name="name"
                 value={@form_name}
                 placeholder={gettext("e.g. Engineering Interview")}
-                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                class="input w-full"
               />
             </div>
 
@@ -76,12 +76,12 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                   type="text"
                   name={"criteria[#{idx}][name]"}
                   value={criterion["name"]}
-                  class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                  class="input flex-1"
                   placeholder={gettext("Criterion name")}
                 />
                 <select
                   name={"criteria[#{idx}][type]"}
-                  class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                  class="select"
                 >
                   <option value="number_1_5" selected={criterion["type"] == "number_1_5"}>
                     {gettext("Number (1-5)")}
@@ -112,11 +112,11 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                   type="text"
                   id="new_criterion_name"
                   placeholder={gettext("New criterion name")}
-                  class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                  class="input flex-1"
                 />
                 <select
                   id="new_criterion_type"
-                  class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                  class="select"
                 >
                   <option value="number_1_5">{gettext("Number (1-5)")}</option>
                   <option value="yes_no_maybe">{gettext("Yes/No/Maybe")}</option>

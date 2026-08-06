@@ -29,5 +29,16 @@ defmodule TrebyWeb.DesignSystem.ButtonTest do
       html = render_component(&button/1, %{loading: true})
       assert html =~ "animate-spin"
     end
+
+    test "renders type=submit when passed" do
+      html = render_component(&button/1, %{type: "submit"})
+      assert html =~ ~s{type="submit"}
+    end
+
+    test "defaults to type=button when not passed" do
+      html = render_component(&button/1, %{})
+      assert html =~ ~s{type="button"}
+      refute html =~ ~s{type="submit"}
+    end
   end
 end

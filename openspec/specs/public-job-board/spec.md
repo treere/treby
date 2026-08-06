@@ -49,7 +49,7 @@ The system SHALL provide a way to copy the public job URL from the internal job 
 
 #### Scenario: Copy link action
 - **WHEN** a user clicks "Copy Public Link"
-- **THEN** the public URL (`/:tenant_slug/careers/:job_id`) is copied to the clipboard
+- **THEN** the full absolute public URL (`https://<host>/:tenant_slug/careers/:job_id`) is copied to the clipboard, including the hostname
 - **AND** a confirmation message is shown
 
 ### Requirement: Visibility toggle in job listing

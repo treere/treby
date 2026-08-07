@@ -25,13 +25,13 @@ defmodule TrebyWeb.CareersLive.Show do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-base-200">
       <div class="max-w-3xl mx-auto py-12 px-4">
         <.link navigate={~p"/#{@tenant.slug}/careers"} class="text-blue-600 hover:text-blue-900">
           &larr; Back to all positions
         </.link>
 
-        <div :if={@job && @job.status == "open"} class="mt-8 bg-white rounded-lg shadow p-8">
+        <div :if={@job && @job.status == "open"} class="mt-8 bg-base-100 rounded-lg shadow p-8">
           <div :if={@career_page} class="flex items-center gap-4 mb-6">
             <img
               :if={@career_page.logo_url}
@@ -40,19 +40,19 @@ defmodule TrebyWeb.CareersLive.Show do
               alt={@tenant.name}
             />
             <div>
-              <h2 class="text-lg font-semibold text-gray-900">{@tenant.name}</h2>
-              <p :if={@career_page.description} class="text-sm text-gray-500">
+              <h2 class="text-lg font-semibold text-base-content">{@tenant.name}</h2>
+              <p :if={@career_page.description} class="text-sm text-base-content/50">
                 {@career_page.description}
               </p>
             </div>
           </div>
 
-          <h1 class="text-3xl font-bold text-gray-900">{@job.title}</h1>
+          <h1 class="text-3xl font-bold text-base-content">{@job.title}</h1>
 
-          <p :if={@job.salary_range} class="mt-2 text-gray-600">{@job.salary_range}</p>
+          <p :if={@job.salary_range} class="mt-2 text-base-content/70">{@job.salary_range}</p>
 
           <div class="mt-8 prose max-w-none">
-            <p class="whitespace-pre-wrap text-gray-700">{@job.description}</p>
+            <p class="whitespace-pre-wrap text-base-content/80">{@job.description}</p>
           </div>
 
           <.link
@@ -66,10 +66,10 @@ defmodule TrebyWeb.CareersLive.Show do
 
         <div
           :if={@job && @job.status != "open"}
-          class="mt-8 bg-white rounded-lg shadow p-8 text-center"
+          class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center"
         >
-          <h1 class="text-2xl font-bold text-gray-900">This position is no longer available</h1>
-          <p class="mt-4 text-gray-600">
+          <h1 class="text-2xl font-bold text-base-content">This position is no longer available</h1>
+          <p class="mt-4 text-base-content/70">
             The job you're looking for has been closed or removed.
           </p>
           <.link
@@ -80,9 +80,9 @@ defmodule TrebyWeb.CareersLive.Show do
           </.link>
         </div>
 
-        <div :if={!@job} class="mt-8 bg-white rounded-lg shadow p-8 text-center">
-          <h1 class="text-2xl font-bold text-gray-900">Position not found</h1>
-          <p class="mt-4 text-gray-600">
+        <div :if={!@job} class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center">
+          <h1 class="text-2xl font-bold text-base-content">Position not found</h1>
+          <p class="mt-4 text-base-content/70">
             The job you're looking for doesn't exist or has been removed.
           </p>
           <.link

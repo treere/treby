@@ -65,7 +65,7 @@ defmodule TrebyWeb.DashboardLive do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-7xl mx-auto">
         <h1 class="text-2xl font-bold mb-2">Dashboard</h1>
-        <p class="text-gray-600 mb-8">Welcome, {@current_user.name}!</p>
+        <p class="text-base-content/70 mb-8">Welcome, {@current_user.name}!</p>
 
         <.onboarding_checklist
           steps={@onboarding_steps}
@@ -75,27 +75,27 @@ defmodule TrebyWeb.DashboardLive do
 
         <%!-- Weekly Stats --%>
         <div class="grid grid-cols-4 gap-4 mb-8">
-          <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-sm text-gray-500">Applications This Week</p>
+          <div class="bg-base-100 rounded-lg shadow p-4">
+            <p class="text-sm text-base-content/50">Applications This Week</p>
             <p class="text-3xl font-bold text-blue-600">{@weekly_stats.applications}</p>
           </div>
-          <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-sm text-gray-500">Interviews This Week</p>
+          <div class="bg-base-100 rounded-lg shadow p-4">
+            <p class="text-sm text-base-content/50">Interviews This Week</p>
             <p class="text-3xl font-bold text-purple-600">{@weekly_stats.interviews}</p>
           </div>
-          <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-sm text-gray-500">Offers This Week</p>
+          <div class="bg-base-100 rounded-lg shadow p-4">
+            <p class="text-sm text-base-content/50">Offers This Week</p>
             <p class="text-3xl font-bold text-pink-600">{@weekly_stats.offers}</p>
           </div>
-          <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-sm text-gray-500">Hires This Week</p>
+          <div class="bg-base-100 rounded-lg shadow p-4">
+            <p class="text-sm text-base-content/50">Hires This Week</p>
             <p class="text-3xl font-bold text-green-600">{@weekly_stats.hires}</p>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-8">
           <%!-- Upcoming Interviews --%>
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-base-100 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold mb-4">Upcoming Interviews (7 days)</h2>
             <.empty_state
               :if={@upcoming_interviews == []}
@@ -106,18 +106,18 @@ defmodule TrebyWeb.DashboardLive do
             <div :for={interview <- @upcoming_interviews} class="border-b last:border-0 py-3">
               <div class="flex justify-between items-start">
                 <div>
-                  <p class="font-medium text-gray-900">
+                  <p class="font-medium text-base-content">
                     {interview.application.candidate.name}
                   </p>
-                  <p class="text-sm text-gray-500">
+                  <p class="text-sm text-base-content/50">
                     {interview.application.job.title}
                   </p>
                 </div>
                 <div class="text-right text-sm">
-                  <p class="text-gray-700">
+                  <p class="text-base-content/80">
                     {Elixir.Calendar.strftime(interview.start_at_utc, "%b %d")}
                   </p>
-                  <p class="text-gray-500">
+                  <p class="text-base-content/50">
                     {Elixir.Calendar.strftime(interview.start_at_utc, "%H:%M")} - {Elixir.Calendar.strftime(
                       interview.end_at_utc,
                       "%H:%M"
@@ -125,14 +125,14 @@ defmodule TrebyWeb.DashboardLive do
                   </p>
                 </div>
               </div>
-              <p class="text-xs text-gray-400 mt-1">
+              <p class="text-xs text-base-content/40 mt-1">
                 with {interview.interviewer.name}
               </p>
             </div>
           </div>
 
           <%!-- Stale Candidates --%>
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-base-100 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold mb-4">Stale Candidates (7+ days)</h2>
             <.empty_state
               :if={@stale_candidates == []}
@@ -143,14 +143,14 @@ defmodule TrebyWeb.DashboardLive do
             <div :for={app <- @stale_candidates} class="border-b last:border-0 py-3">
               <div class="flex justify-between items-center">
                 <div>
-                  <p class="font-medium text-gray-900">{app.candidate.name}</p>
-                  <p class="text-sm text-gray-500">{app.job.title}</p>
+                  <p class="font-medium text-base-content">{app.candidate.name}</p>
+                  <p class="text-sm text-base-content/50">{app.job.title}</p>
                 </div>
                 <div class="text-right">
                   <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
                     {app.pipeline_stage.name}
                   </span>
-                  <p class="text-xs text-gray-400 mt-1">
+                  <p class="text-xs text-base-content/40 mt-1">
                     Updated {Calendar.strftime(app.updated_at, "%b %d")}
                   </p>
                 </div>
@@ -160,7 +160,7 @@ defmodule TrebyWeb.DashboardLive do
         </div>
 
         <%!-- Pipeline Snapshot --%>
-        <div class="mt-8 bg-white rounded-lg shadow p-6">
+        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
           <h2 class="text-lg font-semibold mb-4">Pipeline Overview</h2>
           <.empty_state
             :if={@pipeline_snapshot == []}
@@ -170,13 +170,13 @@ defmodule TrebyWeb.DashboardLive do
             action={%{href: "/app/jobs", label: "Create your first job"}}
           />
           <div :for={job_data <- @pipeline_snapshot} class="mb-6 last:mb-0">
-            <h3 class="font-medium text-gray-800 mb-2">{job_data.job.title}</h3>
+            <h3 class="font-medium text-base-content/90 mb-2">{job_data.job.title}</h3>
             <div class="flex gap-2 items-end h-24">
               <div
                 :for={stage <- job_data.stages}
                 class="flex flex-col items-center flex-1"
               >
-                <span class="text-xs text-gray-600 mb-1">{stage.count}</span>
+                <span class="text-xs text-base-content/70 mb-1">{stage.count}</span>
                 <div
                   class="w-full rounded-t"
                   style={
@@ -184,7 +184,7 @@ defmodule TrebyWeb.DashboardLive do
                   }
                 >
                 </div>
-                <span class="text-xs text-gray-500 mt-1 truncate w-full text-center">
+                <span class="text-xs text-base-content/50 mt-1 truncate w-full text-center">
                   {stage.stage.name}
                 </span>
               </div>

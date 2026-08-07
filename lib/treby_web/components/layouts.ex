@@ -39,8 +39,8 @@ defmodule TrebyWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-50">
-      <nav class="bg-white shadow">
+    <div class="min-h-screen bg-base-200">
+      <nav class="bg-base-100 shadow">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
             <div class="flex items-center">
@@ -51,49 +51,49 @@ defmodule TrebyWeb.Layouts do
                 <.link
                   navigate={~p"/app/jobs"}
                   data-nav="/app/jobs"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Jobs")}
                 </.link>
                 <.link
                   navigate={~p"/app/candidates"}
                   data-nav="/app/candidates"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Candidates")}
                 </.link>
                 <.link
                   navigate={~p"/app/pipeline"}
                   data-nav="/app/pipeline"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Pipeline")}
                 </.link>
                 <.link
                   navigate={~p"/app/import"}
                   data-nav="/app/import"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Import")}
                 </.link>
                 <.link
                   navigate={~p"/app/interviews"}
                   data-nav="/app/interviews"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Interviews")}
                 </.link>
                 <.link
                   navigate={~p"/app/analytics"}
                   data-nav="/app/analytics"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Analytics")}
                 </.link>
                 <.link
                   navigate={~p"/app/email-queue"}
                   data-nav="/app/email-queue"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Email Queue")}
                 </.link>
@@ -101,21 +101,22 @@ defmodule TrebyWeb.Layouts do
                   :if={@current_scope && @current_scope.role == "admin"}
                   navigate={~p"/app/settings"}
                   data-nav="/app/settings"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
+                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Settings")}
                 </.link>
               </div>
             </div>
             <div class="hidden sm:flex sm:items-center sm:space-x-4">
+              <.theme_toggle />
               <.locale_switcher locale={@locale} />
-              <span :if={@current_scope} class="text-sm text-gray-600">
+              <span :if={@current_scope} class="text-sm text-base-content/70">
                 {@current_scope.name}
               </span>
               <.link
                 href={~p"/session"}
                 method="delete"
-                class="text-sm text-gray-600 hover:text-gray-900"
+                class="text-sm text-base-content/70 hover:text-base-content"
               >
                 {gettext("Logout")}
               </.link>
@@ -130,17 +131,17 @@ defmodule TrebyWeb.Layouts do
           Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
           |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
         }
-        class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg"
+        class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-base-100 rounded-lg shadow-lg"
         aria-label="Toggle navigation"
       >
-        <.icon name="hero-bars-3" class="w-6 h-6 text-gray-700" />
+        <.icon name="hero-bars-3" class="w-6 h-6 text-base-content/80" />
       </button>
 
       <%!-- Mobile navigation drawer --%>
       <div id="mobile-nav-overlay" class="sm:hidden fixed inset-0 bg-black/50 z-40 hidden" />
       <div
         id="mobile-nav-drawer"
-        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 transform -translate-x-full transition-transform"
+        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-base-100 shadow-xl z-50 transform -translate-x-full transition-transform"
       >
         <div class="p-4">
           <div class="flex justify-between items-center mb-6">
@@ -152,56 +153,56 @@ defmodule TrebyWeb.Layouts do
               }
               class="p-1"
             >
-              <.icon name="hero-x-mark" class="w-6 h-6 text-gray-500" />
+              <.icon name="hero-x-mark" class="w-6 h-6 text-base-content/50" />
             </button>
           </div>
           <div class="space-y-1">
             <.link
               navigate={~p"/app/jobs"}
               data-nav="/app/jobs"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Jobs")}
             </.link>
             <.link
               navigate={~p"/app/candidates"}
               data-nav="/app/candidates"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Candidates")}
             </.link>
             <.link
               navigate={~p"/app/pipeline"}
               data-nav="/app/pipeline"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Pipeline")}
             </.link>
             <.link
               navigate={~p"/app/import"}
               data-nav="/app/import"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Import")}
             </.link>
             <.link
               navigate={~p"/app/interviews"}
               data-nav="/app/interviews"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Interviews")}
             </.link>
             <.link
               navigate={~p"/app/analytics"}
               data-nav="/app/analytics"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Analytics")}
             </.link>
             <.link
               navigate={~p"/app/email-queue"}
               data-nav="/app/email-queue"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Email Queue")}
             </.link>
@@ -209,19 +210,22 @@ defmodule TrebyWeb.Layouts do
               :if={@current_scope && @current_scope.role == "admin"}
               navigate={~p"/app/settings"}
               data-nav="/app/settings"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Settings")}
             </.link>
           </div>
-          <div class="border-t border-gray-200 mt-4 pt-4 space-y-1">
-            <div class="px-3 py-2">
-              <.locale_switcher locale={@locale} id_suffix="-mobile" />
+          <div class="border-t border-base-300 mt-4 pt-4 space-y-1">
+            <div class="px-3 py-2 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <.theme_toggle />
+                <.locale_switcher locale={@locale} id_suffix="-mobile" />
+              </div>
             </div>
             <.link
               href={~p"/session"}
               method="delete"
-              class="block px-3 py-2 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100"
+              class="block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Logout")}
             </.link>
@@ -239,6 +243,22 @@ defmodule TrebyWeb.Layouts do
   end
 
   @doc """
+  Theme and locale toggles for unauthenticated pages (login, register, forgot
+  password). Rendered in a fixed top-right corner so users can switch theme or
+  language before signing in.
+  """
+  attr :locale, :string, required: true
+
+  def auth_toolbar(assigns) do
+    ~H"""
+    <div class="absolute top-4 right-4 z-50 flex items-center gap-2">
+      <.theme_toggle />
+      <.locale_switcher locale={@locale} />
+    </div>
+    """
+  end
+
+  @doc """
   Locale switcher dropdown for changing language.
   """
   attr :locale, :string, required: true
@@ -251,7 +271,7 @@ defmodule TrebyWeb.Layouts do
     <div class="relative" id={"locale-switcher#{@id_suffix}"}>
       <button
         type="button"
-        class="flex items-center gap-x-1 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+        class="flex items-center gap-x-1 text-sm font-medium text-base-content/80 hover:text-blue-600 transition-colors"
         phx-click={JS.toggle(to: "#locale-dropdown#{@id_suffix}")}
       >
         <.icon name="hero-language" class="h-4 w-4" />
@@ -259,12 +279,12 @@ defmodule TrebyWeb.Layouts do
       </button>
       <div
         id={"locale-dropdown#{@id_suffix}"}
-        class="hidden absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-50"
+        class="hidden absolute right-0 mt-2 w-32 bg-base-100 rounded-md shadow-lg py-1 z-50"
       >
         <.link
           href="/locale/en"
           class={[
-            "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
+            "block px-4 py-2 text-sm text-base-content/80 hover:bg-base-200",
             @locale == "en" && "font-bold text-blue-600"
           ]}
         >
@@ -273,7 +293,7 @@ defmodule TrebyWeb.Layouts do
         <.link
           href="/locale/it"
           class={[
-            "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
+            "block px-4 py-2 text-sm text-base-content/80 hover:bg-base-200",
             @locale == "it" && "font-bold text-blue-600"
           ]}
         >
@@ -335,7 +355,7 @@ defmodule TrebyWeb.Layouts do
   def theme_toggle(assigns) do
     ~H"""
     <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
-      <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
+      <div class="absolute w-1/3 h-full rounded-full border border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
 
       <button
         class="flex p-2 cursor-pointer w-1/3"

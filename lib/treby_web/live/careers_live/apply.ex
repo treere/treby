@@ -33,7 +33,7 @@ defmodule TrebyWeb.CareersLive.Apply do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-base-200">
       <div class="max-w-2xl mx-auto py-12 px-4">
         <.link
           navigate={~p"/#{@tenant.slug}/careers/#{@job.id}"}
@@ -42,9 +42,9 @@ defmodule TrebyWeb.CareersLive.Apply do
           &larr; Back to job
         </.link>
 
-        <div :if={@submitted} class="mt-8 bg-white rounded-lg shadow p-8 text-center">
-          <h2 class="text-2xl font-bold text-gray-900">Thank you!</h2>
-          <p class="mt-4 text-gray-600">
+        <div :if={@submitted} class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center">
+          <h2 class="text-2xl font-bold text-base-content">Thank you!</h2>
+          <p class="mt-4 text-base-content/70">
             Your application has been submitted. We'll be in touch soon.
           </p>
           <.link
@@ -55,8 +55,8 @@ defmodule TrebyWeb.CareersLive.Apply do
           </.link>
         </div>
 
-        <div :if={!@submitted} class="mt-8 bg-white rounded-lg shadow p-8">
-          <h2 class="text-2xl font-bold text-gray-900">Apply for {@job.title}</h2>
+        <div :if={!@submitted} class="mt-8 bg-base-100 rounded-lg shadow p-8">
+          <h2 class="text-2xl font-bold text-base-content">Apply for {@job.title}</h2>
 
           <.form for={@form} id="apply-form" phx-submit="submit_application" class="mt-6 space-y-4">
             <.input field={@form[:name]} type="text" label="Full Name" required />
@@ -64,7 +64,7 @@ defmodule TrebyWeb.CareersLive.Apply do
             <.input field={@form[:phone]} type="text" label="Phone" />
 
             <div :if={@sources != []}>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-base-content/80 mb-1">
                 How did you hear about us?
               </label>
               <select
@@ -77,7 +77,7 @@ defmodule TrebyWeb.CareersLive.Apply do
             </div>
 
             <div :if={@application_fields != []} class="border-t pt-4 mt-4">
-              <h3 class="text-sm font-medium text-gray-700 mb-3">Additional Information</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">Additional Information</h3>
               <div :for={field <- @application_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -106,12 +106,12 @@ defmodule TrebyWeb.CareersLive.Apply do
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-base-content/80 mb-1">
                 Resume (PDF, DOC, DOCX - max 10MB)
               </label>
               <.live_file_input
                 upload={@uploads.resume}
-                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-950 file:text-blue-700 dark:file:text-blue-100 hover:file:bg-blue-100 dark:bg-blue-900 dark:hover:file:bg-blue-900"
               />
               <p :for={err <- upload_errors(@uploads.resume)} class="text-red-500 text-sm mt-1">
                 {upload_error_to_string(err)}

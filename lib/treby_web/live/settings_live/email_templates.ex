@@ -32,7 +32,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
               &larr; {gettext("Back to Settings")}
             </.link>
             <h1 class="text-2xl font-bold mt-2">{gettext("Email Templates")}</h1>
-            <p class="mt-1 text-gray-600">
+            <p class="mt-1 text-base-content/70">
               {gettext("Configure email templates for stage transitions")}
             </p>
           </div>
@@ -44,7 +44,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
           </button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
           </h2>
@@ -95,12 +95,17 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
               }
             />
 
-            <div :if={@preview_subject != "" || @preview_body != ""} class="p-4 bg-gray-50 rounded-lg">
-              <h3 class="text-sm font-medium text-gray-700 mb-2">{gettext("Preview")}</h3>
-              <p class="text-sm text-gray-600 mb-2">
+            <div
+              :if={@preview_subject != "" || @preview_body != ""}
+              class="p-4 bg-base-200 rounded-lg"
+            >
+              <h3 class="text-sm font-medium text-base-content/80 mb-2">{gettext("Preview")}</h3>
+              <p class="text-sm text-base-content/70 mb-2">
                 <strong>{gettext("Subject")}:</strong> {@preview_subject}
               </p>
-              <div class="text-sm text-gray-600" phx-no-curly-interpolation>{@preview_body}</div>
+              <div class="text-sm text-base-content/70" phx-no-curly-interpolation>
+                {@preview_body}
+              </div>
             </div>
 
             <div class="flex gap-2">
@@ -112,29 +117,33 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
           </.form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Stage Type")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Subject")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={template <- @templates} class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{template.name}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{template.stage_type}</td>
-                <td class="px-6 py-4 text-gray-600 max-w-xs truncate">{template.subject}</td>
+            <tbody class="bg-base-100 divide-y divide-gray-200">
+              <tr :for={template <- @templates} class="hover:bg-base-200">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
+                  {template.name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
+                  {template.stage_type}
+                </td>
+                <td class="px-6 py-4 text-base-content/70 max-w-xs truncate">{template.subject}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
                     phx-click="edit_template"
@@ -156,7 +165,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
               </tr>
             </tbody>
           </table>
-          <div :if={@templates == []} class="p-8 text-center text-gray-500">
+          <div :if={@templates == []} class="p-8 text-center text-base-content/50">
             {gettext("No email templates yet. Create your first template!")}
           </div>
         </div>

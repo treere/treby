@@ -51,7 +51,10 @@ defmodule TrebyWeb.ComparisonLive.Index do
           </.link>
         </div>
 
-        <div :if={@error} class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div
+          :if={@error}
+          class="mb-4 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg text-red-700 dark:text-red-100"
+        >
           {@error}
         </div>
 
@@ -59,19 +62,19 @@ defmodule TrebyWeb.ComparisonLive.Index do
           <table class="w-full border-collapse text-sm">
             <thead>
               <tr>
-                <th class="text-left p-3 border bg-gray-50 w-48"></th>
+                <th class="text-left p-3 border bg-base-200 w-48"></th>
                 <th
                   :for={item <- @comparison_data}
-                  class="text-left p-3 border bg-gray-50 min-w-[250px]"
+                  class="text-left p-3 border bg-base-200 min-w-[250px]"
                 >
                   <div class="font-semibold">{item.candidate.name}</div>
-                  <div class="text-xs text-gray-500">{item.candidate.email}</div>
+                  <div class="text-xs text-base-content/50">{item.candidate.email}</div>
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="p-3 border font-medium bg-gray-50">{gettext("Phone")}</td>
+                <td class="p-3 border font-medium bg-base-200">{gettext("Phone")}</td>
                 <td
                   :for={item <- @comparison_data}
                   class="p-3 border"
@@ -81,7 +84,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
               </tr>
 
               <tr>
-                <td class="p-3 border font-medium bg-gray-50">{gettext("LinkedIn")}</td>
+                <td class="p-3 border font-medium bg-base-200">{gettext("LinkedIn")}</td>
                 <td
                   :for={item <- @comparison_data}
                   class="p-3 border"
@@ -99,14 +102,14 @@ defmodule TrebyWeb.ComparisonLive.Index do
               </tr>
 
               <tr>
-                <td class="p-3 border font-medium bg-gray-50">{gettext("Applications")}</td>
+                <td class="p-3 border font-medium bg-base-200">{gettext("Applications")}</td>
                 <td
                   :for={item <- @comparison_data}
                   class="p-3 border"
                 >
                   <div :for={app <- item.applications} class="text-xs">
                     <span class="font-medium">{app.job.title}</span>
-                    <span class="text-gray-500">
+                    <span class="text-base-content/50">
                       <span aria-hidden="true">→</span>{app.pipeline_stage.name}
                     </span>
                   </div>
@@ -115,28 +118,30 @@ defmodule TrebyWeb.ComparisonLive.Index do
               </tr>
 
               <tr>
-                <td class="p-3 border font-medium bg-gray-50">{gettext("Notes")}</td>
+                <td class="p-3 border font-medium bg-base-200">{gettext("Notes")}</td>
                 <td
                   :for={item <- @comparison_data}
                   class="p-3 border"
                 >
                   <div :for={note <- Enum.take(item.notes, 3)} class="text-xs">
                     <span :if={note.rating} class="text-yellow-600">★{note.rating}</span>
-                    <span class="text-gray-600">{String.slice(note.content || "", 0, 50)}</span>
+                    <span class="text-base-content/70">
+                      {String.slice(note.content || "", 0, 50)}
+                    </span>
                   </div>
                   <span :if={item.notes == []}>—</span>
                 </td>
               </tr>
 
               <tr>
-                <td class="p-3 border font-medium bg-gray-50">{gettext("Scorecards")}</td>
+                <td class="p-3 border font-medium bg-base-200">{gettext("Scorecards")}</td>
                 <td
                   :for={item <- @comparison_data}
                   class="p-3 border"
                 >
                   <div :for={sc <- item.scorecards} class="text-xs">
                     <span class="font-medium">{sc.interviewer && sc.interviewer.name}</span>
-                    <span class="text-gray-500"> — </span>
+                    <span class="text-base-content/50"> — </span>
                     <span :if={sc.total_score} class="text-blue-600 font-semibold">
                       {sc.total_score}%
                     </span>
@@ -144,11 +149,15 @@ defmodule TrebyWeb.ComparisonLive.Index do
                       :if={sc.recommendation}
                       class={[
                         "ml-2 px-2 py-0.5 rounded text-xs",
-                        sc.recommendation == "strong_hire" && "bg-green-100 text-green-800",
-                        sc.recommendation == "hire" && "bg-green-50 text-green-700",
-                        sc.recommendation == "neutral" && "bg-gray-100 text-gray-700",
-                        sc.recommendation == "no_hire" && "bg-red-50 text-red-700",
-                        sc.recommendation == "strong_no_hire" && "bg-red-100 text-red-800"
+                        sc.recommendation == "strong_hire" &&
+                          "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100",
+                        sc.recommendation == "hire" &&
+                          "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-100",
+                        sc.recommendation == "neutral" && "bg-base-200 text-base-content/80",
+                        sc.recommendation == "no_hire" &&
+                          "bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-100",
+                        sc.recommendation == "strong_no_hire" &&
+                          "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100"
                       ]}
                     >
                       {sc.recommendation}
@@ -159,13 +168,13 @@ defmodule TrebyWeb.ComparisonLive.Index do
               </tr>
 
               <tr :if={has_custom_fields?(@comparison_data)}>
-                <td class="p-3 border font-medium bg-gray-50">{gettext("Custom Fields")}</td>
+                <td class="p-3 border font-medium bg-base-200">{gettext("Custom Fields")}</td>
                 <td
                   :for={item <- @comparison_data}
                   class="p-3 border"
                 >
                   <div :for={{key, value} <- item.custom_fields || %{}} class="text-xs">
-                    <span class="text-gray-600">{key}:</span> {value}
+                    <span class="text-base-content/70">{key}:</span> {value}
                   </div>
                   <span :if={item.custom_fields == %{} or item.custom_fields == nil}>—</span>
                 </td>

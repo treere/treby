@@ -71,7 +71,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
             <.link
               :if={@duplicate_count > 0}
               navigate={~p"/app/candidates/merge"}
-              class="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 text-sm font-medium"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-100 hover:bg-amber-100 text-sm font-medium"
             >
               <.icon name="hero-user-group" class="w-4 h-4" /> Duplicates
               <span class="bg-amber-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5">
@@ -125,7 +125,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           </form>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">Add Candidate</h2>
           <.form for={@form} id="candidate-form" phx-submit="create_candidate">
             <.input field={@form[:name]} type="text" label="Name" />
@@ -134,7 +134,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
             <.input field={@form[:linkedin_url]} type="text" label="LinkedIn URL" />
 
             <div :if={@candidate_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-gray-700 mb-3">Additional Information</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">Additional Information</h3>
               <div :for={field <- @candidate_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -186,11 +186,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
           </.form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider w-10">
                   <input
                     type="checkbox"
                     phx-click="toggle_select_all"
@@ -198,29 +198,29 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     class="checkbox checkbox-sm"
                   />
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Name
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Email
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Phone
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Applications
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-base-100 divide-y divide-gray-200">
               <tr
                 :for={candidate <- @candidates}
                 class={[
-                  "hover:bg-gray-50",
-                  candidate.id in @selected_ids && "bg-blue-50"
+                  "hover:bg-base-200",
+                  candidate.id in @selected_ids && "bg-blue-50 dark:bg-blue-950"
                 ]}
               >
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -232,7 +232,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     class="checkbox checkbox-sm"
                   />
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
                   <.link
                     navigate={~p"/app/candidates/#{candidate.id}"}
                     class="text-blue-600 hover:text-blue-900"
@@ -240,9 +240,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     {candidate.name}
                   </.link>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{candidate.email}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{candidate.phone || "-"}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{candidate.email}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
+                  {candidate.phone || "-"}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
                   {Map.get(candidate, :application_count, 0)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -365,7 +367,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
             <button
               phx-click="clear_selection"
-              class="text-gray-400 hover:text-white text-sm"
+              class="text-base-content/40 hover:text-white text-sm"
             >
               ✕
             </button>
@@ -377,7 +379,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           :if={@bulk_action == "send_email"}
           class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50"
         >
-          <div class="bg-white rounded-lg shadow-2xl p-6 w-96">
+          <div class="bg-base-100 rounded-lg shadow-2xl p-6 w-96">
             <form
               id="bulk-email-composer"
               phx-submit="bulk_email_composer_submit"
@@ -412,7 +414,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-value-mode="now"
                     class="radio radio-sm"
                   />
-                  <span class="text-sm font-medium text-gray-700">Send now</span>
+                  <span class="text-sm font-medium text-base-content/80">Send now</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input
@@ -424,20 +426,20 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-value-mode="schedule"
                     class="radio radio-sm"
                   />
-                  <span class="text-sm font-medium text-gray-700">Schedule for later</span>
+                  <span class="text-sm font-medium text-base-content/80">Schedule for later</span>
                 </label>
               </div>
 
               <div
                 :if={@bulk_email_mode == "schedule"}
-                class="space-y-3 p-3 bg-gray-50 rounded-lg mb-3"
+                class="space-y-3 p-3 bg-base-200 rounded-lg mb-3"
               >
                 <div class="flex flex-wrap gap-2">
                   <button
                     type="button"
                     phx-click="bulk_email_preset"
                     phx-value-label="tomorrow_9"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
                     Tomorrow 9:00
                   </button>
@@ -445,7 +447,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     type="button"
                     phx-click="bulk_email_preset"
                     phx-value-label="tomorrow_14"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
                     Tomorrow 14:00
                   </button>
@@ -453,14 +455,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     type="button"
                     phx-click="bulk_email_preset"
                     phx-value-label="next_monday"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
                     Next Monday
                   </button>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">Date</label>
                     <input
                       type="date"
                       value={@bulk_email_date}
@@ -469,7 +471,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Time</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">Time</label>
                     <input
                       type="time"
                       value={@bulk_email_time}
@@ -485,7 +487,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-click="bulk_email_toggle_jitter"
                     class="checkbox checkbox-sm"
                   />
-                  <span class="text-sm text-gray-600">
+                  <span class="text-sm text-base-content/70">
                     Add randomness (±{@bulk_email_jitter} min)
                   </span>
                 </label>
@@ -499,10 +501,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
           :if={@merge_modal_open}
           class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
         >
-          <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+          <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4">
             <div class="p-6">
               <h3 class="text-lg font-semibold mb-1">Merge candidates</h3>
-              <p class="text-sm text-gray-500 mb-4">
+              <p class="text-sm text-base-content/50 mb-4">
                 Choose the primary profile. Its data and history are kept; the other {length(
                   @selected_ids
                 ) - 1} profiles are archived into it.
@@ -510,7 +512,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               <div class="space-y-2 max-h-80 overflow-y-auto">
                 <label
                   :for={candidate <- Enum.filter(@candidates, &(&1.id in @selected_ids))}
-                  class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50"
+                  class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-base-200"
                 >
                   <input
                     type="radio"
@@ -522,10 +524,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     class="radio radio-sm"
                   />
                   <div class="flex-1">
-                    <p class="font-medium text-gray-900">{candidate.name}</p>
-                    <p class="text-sm text-gray-500">{candidate.email}</p>
+                    <p class="font-medium text-base-content">{candidate.name}</p>
+                    <p class="text-sm text-base-content/50">{candidate.email}</p>
                   </div>
-                  <span class="text-xs text-gray-400">
+                  <span class="text-xs text-base-content/40">
                     {Map.get(candidate, :application_count, 0)} applications
                   </span>
                 </label>
@@ -533,7 +535,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               <div class="flex justify-end gap-3 mt-6">
                 <button
                   phx-click="cancel_merge_modal"
-                  class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  class="px-4 py-2 rounded-lg border border-base-300 text-sm font-medium text-base-content/80 hover:bg-base-200"
                 >
                   Cancel
                 </button>

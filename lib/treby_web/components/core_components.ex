@@ -551,11 +551,11 @@ defmodule TrebyWeb.CoreComponents do
         ]}>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm text-gray-800">{format_event(event)}</p>
-          <p class="text-xs text-gray-400">{relative_time(event.inserted_at)}</p>
+          <p class="text-sm text-base-content/90">{format_event(event)}</p>
+          <p class="text-xs text-base-content/40">{relative_time(event.inserted_at)}</p>
         </div>
       </div>
-      <div :if={@events == []} class="text-sm text-gray-500">
+      <div :if={@events == []} class="text-sm text-base-content/50">
         No activity yet.
       </div>
     </div>
@@ -639,7 +639,7 @@ defmodule TrebyWeb.CoreComponents do
     <div
       :if={@show && !@all_done}
       id="onboarding-checklist"
-      class="bg-white rounded-lg shadow border border-blue-100 p-6 mb-8"
+      class="bg-base-100 rounded-lg shadow border border-base-300 p-6 mb-8"
     >
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
@@ -647,15 +647,15 @@ defmodule TrebyWeb.CoreComponents do
             <.icon name="hero-rocket-launch" class="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h3 class="text-base font-semibold text-gray-900">Get Started with Treby</h3>
-            <p class="text-xs text-gray-500">{@done} of {@total} steps complete</p>
+            <h3 class="text-base font-semibold text-base-content">Get Started with Treby</h3>
+            <p class="text-xs text-base-content/50">{@done} of {@total} steps complete</p>
           </div>
         </div>
         <button
           type="button"
           phx-click="dismiss-onboarding"
           phx-value-dismiss="session"
-          class="text-gray-400 hover:text-gray-600 transition-colors"
+          class="text-base-content/40 hover:text-base-content/70 transition-colors"
           aria-label="Dismiss checklist"
         >
           <.icon name="hero-x-mark" class="h-5 w-5" />
@@ -668,14 +668,14 @@ defmodule TrebyWeb.CoreComponents do
             navigate={step.href}
             class={[
               "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors group",
-              step.done && "bg-green-50",
-              !step.done && "hover:bg-gray-50"
+              step.done && "bg-green-50 dark:bg-green-900/30",
+              !step.done && "hover:bg-base-200"
             ]}
           >
             <div class={[
               "flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors",
               step.done && "bg-green-500 border-green-500",
-              !step.done && "border-gray-300 group-hover:border-blue-400"
+              !step.done && "border-base-300 group-hover:border-blue-400"
             ]}>
               <.icon
                 :if={step.done}
@@ -685,15 +685,15 @@ defmodule TrebyWeb.CoreComponents do
             </div>
             <span class={[
               "text-sm transition-colors",
-              step.done && "text-gray-500 line-through",
-              !step.done && "text-gray-700 group-hover:text-blue-600"
+              step.done && "text-base-content/50 line-through",
+              !step.done && "text-base-content/80 group-hover:text-blue-600"
             ]}>
               {step.label}
             </span>
             <.icon
               :if={!step.done}
               name="hero-arrow-right"
-              class="h-4 w-4 text-gray-300 group-hover:text-blue-400 ml-auto transition-colors"
+              class="h-4 w-4 text-base-content/30 group-hover:text-blue-400 ml-auto transition-colors"
             />
           </.link>
         </div>
@@ -701,7 +701,7 @@ defmodule TrebyWeb.CoreComponents do
 
       <div class="flex items-center justify-between">
         <div class="flex-1 mr-4">
-          <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div class="h-2 bg-base-200 rounded-full overflow-hidden">
             <div
               class="h-full bg-blue-500 rounded-full transition-all duration-500"
               style={"width: #{if @total > 0, do: div(@done * 100, @total), else: 0}%"}
@@ -713,7 +713,7 @@ defmodule TrebyWeb.CoreComponents do
           type="button"
           phx-click="dismiss-onboarding"
           phx-value-dismiss="permanent"
-          class="text-xs text-gray-400 hover:text-gray-600 transition-colors whitespace-nowrap"
+          class="text-xs text-base-content/40 hover:text-base-content/70 transition-colors whitespace-nowrap"
         >
           Don't show again
         </button>

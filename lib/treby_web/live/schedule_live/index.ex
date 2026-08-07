@@ -44,17 +44,17 @@ defmodule TrebyWeb.ScheduleLive.Index do
             &larr; Back to Candidate
           </.link>
           <h1 class="text-2xl font-bold mt-2">Schedule Interview</h1>
-          <p class="mt-1 text-gray-600">
+          <p class="mt-1 text-base-content/70">
             Scheduling for <strong>{@application.candidate.name}</strong> — {@application.job.title}
           </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-base-100 rounded-lg shadow p-6">
               <h2 class="text-lg font-semibold mb-4">Select Interviewer</h2>
               <div :if={@users == []} class="text-center py-8">
-                <p class="text-gray-500 text-sm">
+                <p class="text-base-content/50 text-sm">
                   No team members have connected their Google Calendar yet.
                 </p>
                 <.link
@@ -73,13 +73,13 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     class={[
                       "w-full text-left px-4 py-3 rounded-lg border transition-colors",
                       if(@selected_user && @selected_user.id == user.id,
-                        do: "border-blue-500 bg-blue-50",
-                        else: "border-gray-200 hover:border-gray-300"
+                        do: "border-blue-500 bg-blue-50 dark:bg-blue-950",
+                        else: "border-base-300 hover:border-base-300"
                       )
                     ]}
                   >
                     <span class="font-medium">{user.name}</span>
-                    <span class="text-sm text-gray-500 ml-2">{user.email}</span>
+                    <span class="text-sm text-base-content/50 ml-2">{user.email}</span>
                   </button>
                 <% end %>
               </div>
@@ -91,11 +91,11 @@ defmodule TrebyWeb.ScheduleLive.Index do
                   <div class="flex items-center gap-4 mb-4">
                     <button
                       phx-click="prev_week"
-                      class="px-3 py-1 border rounded hover:bg-gray-50"
+                      class="px-3 py-1 border rounded hover:bg-base-200"
                     >
                       &larr; Prev
                     </button>
-                    <span class="text-sm text-gray-600">
+                    <span class="text-sm text-base-content/70">
                       {Elixir.Calendar.strftime(@selected_date, "%B %d")} - {Date.add(
                         @selected_date,
                         6
@@ -104,14 +104,14 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     </span>
                     <button
                       phx-click="next_week"
-                      class="px-3 py-1 border rounded hover:bg-gray-50"
+                      class="px-3 py-1 border rounded hover:bg-base-200"
                     >
                       Next &rarr;
                     </button>
                   </div>
 
                   <div :if={@slots == []} class="text-center py-8">
-                    <p class="text-gray-500 text-sm">No available slots for this week</p>
+                    <p class="text-base-content/50 text-sm">No available slots for this week</p>
                   </div>
 
                   <div :if={@slots != []} class="grid grid-cols-7 gap-2">
@@ -123,7 +123,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                           "px-3 py-2 text-xs rounded border text-center transition-colors",
                           if(@selected_slot && @selected_slot.start == slot.start,
                             do: "border-blue-500 bg-blue-500 text-white",
-                            else: "border-gray-200 hover:border-blue-300"
+                            else: "border-base-300 hover:border-blue-300"
                           )
                         ]}
                       >
@@ -137,23 +137,23 @@ defmodule TrebyWeb.ScheduleLive.Index do
           </div>
 
           <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-base-100 rounded-lg shadow p-6">
               <h2 class="text-lg font-semibold mb-4">Details</h2>
               <dl class="space-y-3 text-sm">
                 <div>
-                  <dt class="text-gray-500">Candidate</dt>
+                  <dt class="text-base-content/50">Candidate</dt>
                   <dd class="font-medium">{@application.candidate.name}</dd>
                 </div>
                 <div>
-                  <dt class="text-gray-500">Job</dt>
+                  <dt class="text-base-content/50">Job</dt>
                   <dd class="font-medium">{@application.job.title}</dd>
                 </div>
                 <div>
-                  <dt class="text-gray-500">Interview Type</dt>
+                  <dt class="text-base-content/50">Interview Type</dt>
                   <dd class="font-medium">Video (Google Meet)</dd>
                 </div>
                 <div :if={@selected_slot}>
-                  <dt class="text-gray-500">Selected Time</dt>
+                  <dt class="text-base-content/50">Selected Time</dt>
                   <dd class="font-medium">
                     {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                   </dd>
@@ -170,19 +170,21 @@ defmodule TrebyWeb.ScheduleLive.Index do
               <% end %>
 
               <div class="mt-6 pt-6 border-t">
-                <h3 class="text-sm font-medium text-gray-700 mb-2">Self-Scheduling Link</h3>
-                <p class="text-xs text-gray-500 mb-3">
+                <h3 class="text-sm font-medium text-base-content/80 mb-2">Self-Scheduling Link</h3>
+                <p class="text-xs text-base-content/50 mb-3">
                   Generate a public link for the candidate to choose their own time slot.
                 </p>
                 <button
                   phx-click="generate_booking_link"
-                  class="w-full px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  class="w-full px-4 py-2 text-sm border border-base-300 rounded-md text-base-content/80 hover:bg-base-200"
                 >
                   Generate Booking Link
                 </button>
                 <%= if @booking_link do %>
-                  <div class="mt-3 p-3 bg-gray-50 rounded-md">
-                    <p class="text-xs text-gray-500 mb-1">Share this link with the candidate:</p>
+                  <div class="mt-3 p-3 bg-base-200 rounded-md">
+                    <p class="text-xs text-base-content/50 mb-1">
+                      Share this link with the candidate:
+                    </p>
                     <code class="block text-xs text-blue-600 break-all">{@booking_link}</code>
                   </div>
                 <% end %>

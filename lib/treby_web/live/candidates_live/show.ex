@@ -115,7 +115,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           &larr; Back to Candidates
         </.link>
 
-        <div class="mt-6 bg-white rounded-lg shadow p-8">
+        <div class="mt-6 bg-base-100 rounded-lg shadow p-8">
           <%= if @editing? do %>
             <h2 class="text-lg font-semibold mb-4">Edit Candidate</h2>
             <.form
@@ -130,7 +130,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <.input field={@edit_form[:linkedin_url]} type="url" label="LinkedIn URL" />
 
               <div :if={@candidate_fields != []} class="border-t pt-4">
-                <h3 class="text-sm font-medium text-gray-700 mb-3">Custom Fields</h3>
+                <h3 class="text-sm font-medium text-base-content/80 mb-3">Custom Fields</h3>
                 <div :for={field <- @candidate_fields} class="mb-3">
                   <%= cond do %>
                     <% field.field_type == "select" -> %>
@@ -184,9 +184,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
           <% else %>
             <div class="flex justify-between items-start">
               <div>
-                <h1 class="text-2xl font-bold text-gray-900">{@candidate.name}</h1>
-                <p class="text-gray-600">{@candidate.email}</p>
-                <p :if={@candidate.phone} class="text-gray-600">{@candidate.phone}</p>
+                <h1 class="text-2xl font-bold text-base-content">{@candidate.name}</h1>
+                <p class="text-base-content/70">{@candidate.email}</p>
+                <p :if={@candidate.phone} class="text-base-content/70">{@candidate.phone}</p>
                 <p :if={@candidate.linkedin_url} class="mt-2">
                   <.link
                     href={@candidate.linkedin_url}
@@ -205,7 +205,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </button>
             </div>
 
-            <div :if={@merge_logs != []} class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div
+              :if={@merge_logs != []}
+              class="mt-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg p-4"
+            >
               <div class="flex items-center gap-2 mb-2">
                 <.icon name="hero-user-group" class="w-4 h-4 text-blue-700" />
                 <h3 class="text-sm font-semibold text-blue-900">
@@ -231,11 +234,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
 
             <div :if={@candidate_fields != []} class="mt-6 border-t pt-4">
-              <h3 class="text-sm font-medium text-gray-700 mb-2">Custom Fields</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-2">Custom Fields</h3>
               <dl class="grid grid-cols-2 gap-x-4 gap-y-2">
                 <div :for={field <- @candidate_fields}>
-                  <dt class="text-sm text-gray-500">{field.name}</dt>
-                  <dd class="text-sm text-gray-900">
+                  <dt class="text-sm text-base-content/50">{field.name}</dt>
+                  <dd class="text-sm text-base-content">
                     {Map.get(@candidate.custom_fields || %{}, field.id, "—")}
                   </dd>
                 </div>
@@ -246,17 +249,17 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
         <%= if @interviews != [] do %>
           <div class="mt-8">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Scheduled Interviews</h2>
+            <h2 class="text-xl font-semibold text-base-content/90 mb-4">Scheduled Interviews</h2>
             <div class="space-y-3">
               <%= for interview <- @interviews do %>
                 <div class={[
-                  "bg-white rounded-lg shadow p-4",
+                  "bg-base-100 rounded-lg shadow p-4",
                   interview.status == "cancelled" && "opacity-60"
                 ]}>
                   <div class="flex items-start justify-between">
                     <div>
                       <p class={[
-                        "font-medium text-gray-900",
+                        "font-medium text-base-content",
                         interview.status == "cancelled" && "line-through"
                       ]}>
                         {interview.application.job.title}
@@ -264,8 +267,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       <div class={[
                         "flex items-center gap-4 mt-1 text-sm",
                         interview.status == "cancelled" && "line-through",
-                        interview.status == "cancelled" && "text-gray-400",
-                        interview.status != "cancelled" && "text-gray-500"
+                        interview.status == "cancelled" && "text-base-content/40",
+                        interview.status != "cancelled" && "text-base-content/50"
                       ]}>
                         <span class="flex items-center gap-1">
                           <.icon name="hero-calendar" class="w-4 h-4" />
@@ -289,7 +292,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                         "px-2 py-1 text-xs rounded-full",
                         if(interview.status == "scheduled",
                           do: "bg-green-100 text-green-800",
-                          else: "bg-gray-100 text-gray-800"
+                          else: "bg-base-200 text-base-content/90"
                         )
                       ]}>
                         {interview.status}
@@ -298,7 +301,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                         <a
                           href={interview.video_conf_url}
                           target="_blank"
-                          class="px-3 py-1 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100"
+                          class="px-3 py-1 text-sm bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-100 rounded-md hover:bg-green-100"
                         >
                           Join Meet
                         </a>
@@ -312,11 +315,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
         <% end %>
 
         <div class="mt-8">
-          <h2 class="text-xl font-semibold text-gray-800 mb-4">Applications</h2>
-          <div :if={@applications == []} class="text-gray-500">
+          <h2 class="text-xl font-semibold text-base-content/90 mb-4">Applications</h2>
+          <div :if={@applications == []} class="text-base-content/50">
             No applications yet.
           </div>
-          <div :for={application <- @applications} class="bg-white rounded-lg shadow p-4 mb-4">
+          <div :for={application <- @applications} class="bg-base-100 rounded-lg shadow p-4 mb-4">
             <div class="flex justify-between items-center">
               <div>
                 <div class="flex items-center gap-2">
@@ -333,17 +336,17 @@ defmodule TrebyWeb.CandidatesLive.Show do
                     DUPLICATE APP
                   </span>
                 </div>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-base-content/50">
                   Stage: {application.pipeline_stage.name}
                 </p>
-                <p :if={application.source} class="text-sm text-gray-500">
+                <p :if={application.source} class="text-sm text-base-content/50">
                   Source: {application.source}
                 </p>
                 <div
                   :if={
                     application.anagrafica && anagrafica_differs?(application.anagrafica, @candidate)
                   }
-                  class="mt-2 text-xs bg-yellow-50 border border-yellow-200 rounded p-2"
+                  class="mt-2 text-xs bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-900 rounded p-2"
                 >
                   <p class="font-medium text-yellow-900 mb-1">As submitted</p>
                   <dl class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-yellow-900">
@@ -362,7 +365,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 >
                   View Resume
                 </a>
-                <span class="text-sm text-gray-400">
+                <span class="text-sm text-base-content/40">
                   {Calendar.strftime(application.inserted_at, "%b %d, %Y")}
                 </span>
                 <button
@@ -378,8 +381,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
             <div :if={@application_fields != []} class="mt-3 border-t pt-3">
               <dl class="grid grid-cols-2 gap-x-4 gap-y-1">
                 <div :for={field <- @application_fields}>
-                  <dt class="text-xs text-gray-500">{field.name}</dt>
-                  <dd class="text-xs text-gray-900">
+                  <dt class="text-xs text-base-content/50">{field.name}</dt>
+                  <dd class="text-xs text-base-content">
                     {Map.get(application.custom_fields || %{}, field.id, "—")}
                   </dd>
                 </div>
@@ -388,12 +391,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
             <%!-- Notes for this application --%>
             <div :if={application.notes != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-gray-700 mb-2">Notes</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-2">Notes</h3>
               <div :for={note <- application.notes} class="mb-3 last:mb-0">
                 <div class="flex items-start gap-2">
                   <div class="flex-1">
                     <div class="flex items-center gap-2">
-                      <span class="text-sm font-medium text-gray-900">{note.author.name}</span>
+                      <span class="text-sm font-medium text-base-content">{note.author.name}</span>
                       <span
                         :if={note.type == "interview_feedback"}
                         class="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded"
@@ -403,11 +406,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       <span :if={note.rating} class="text-xs text-yellow-600">
                         {"★" <> to_string(note.rating) <> "/5"}
                       </span>
-                      <span class="text-xs text-gray-400">
+                      <span class="text-xs text-base-content/40">
                         {Calendar.strftime(note.inserted_at, "%b %d, %Y at %H:%M")}
                       </span>
                     </div>
-                    <p class="text-sm text-gray-600 mt-1">{note.content}</p>
+                    <p class="text-sm text-base-content/70 mt-1">{note.content}</p>
                   </div>
                   <%= if note.author_id == @current_user.id do %>
                     <button
@@ -467,7 +470,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                     type="button"
                     phx-click="toggle_note_form"
                     phx-value-application_id=""
-                    class="text-sm text-gray-500 hover:text-gray-700"
+                    class="text-sm text-base-content/50 hover:text-base-content/80"
                   >
                     Cancel
                   </button>
@@ -478,7 +481,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         </div>
 
         <%!-- Activity Timeline --%>
-        <div class="mt-8 bg-white rounded-lg shadow p-6">
+        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
           <h2 class="text-lg font-semibold mb-4">Activity</h2>
           <.activity_timeline events={@activities} />
         </div>
@@ -486,38 +489,38 @@ defmodule TrebyWeb.CandidatesLive.Show do
         <%!-- Scorecards --%>
         <div
           :if={@scorecards != [] || @aggregate_scores.total_scorecards > 0}
-          class="mt-8 bg-white rounded-lg shadow p-6"
+          class="mt-8 bg-base-100 rounded-lg shadow p-6"
         >
           <h2 class="text-lg font-semibold mb-4">Scorecards</h2>
 
           <%!-- Aggregate View --%>
-          <div :if={@aggregate_scores.total_scorecards > 0} class="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 class="text-sm font-medium text-gray-700 mb-3">
+          <div :if={@aggregate_scores.total_scorecards > 0} class="mb-6 p-4 bg-base-200 rounded-lg">
+            <h3 class="text-sm font-medium text-base-content/80 mb-3">
               Aggregate ({@aggregate_scores.total_scorecards} scorecard{@aggregate_scores.total_scorecards >
                 1 && "s"})
             </h3>
 
             <div :if={@aggregate_scores.avg_scores != %{}} class="mb-4">
-              <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">Average Scores</h4>
+              <h4 class="text-xs font-medium text-base-content/50 uppercase mb-2">Average Scores</h4>
               <div class="grid grid-cols-2 gap-2">
                 <div
                   :for={{criterion, avg} <- @aggregate_scores.avg_scores}
                   class="flex justify-between text-sm"
                 >
-                  <span class="text-gray-600">{criterion}</span>
-                  <span class="font-medium text-gray-900">{Float.round(avg, 1)}</span>
+                  <span class="text-base-content/70">{criterion}</span>
+                  <span class="font-medium text-base-content">{Float.round(avg, 1)}</span>
                 </div>
               </div>
             </div>
 
             <div :if={@aggregate_scores.recommendation_counts != %{}}>
-              <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">Recommendations</h4>
+              <h4 class="text-xs font-medium text-base-content/50 uppercase mb-2">Recommendations</h4>
               <div class="flex gap-3">
                 <div :for={{rec, count} <- @aggregate_scores.recommendation_counts} class="text-sm">
-                  <span class="text-gray-600">
+                  <span class="text-base-content/70">
                     {String.capitalize(rec |> String.replace("_", " "))}
                   </span>
-                  <span class="font-medium text-gray-900 ml-1">({count})</span>
+                  <span class="font-medium text-base-content ml-1">({count})</span>
                 </div>
               </div>
             </div>
@@ -528,8 +531,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
             <div :for={scorecard <- @scorecards} class="border rounded-lg p-4">
               <div class="flex justify-between items-start mb-2">
                 <div>
-                  <span class="font-medium text-gray-900">{scorecard.interviewer.name}</span>
-                  <span class="text-sm text-gray-500 ml-2">
+                  <span class="font-medium text-base-content">{scorecard.interviewer.name}</span>
+                  <span class="text-sm text-base-content/50 ml-2">
                     {Calendar.strftime(scorecard.inserted_at, "%b %d, %Y")}
                   </span>
                 </div>
@@ -543,7 +546,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       "lean_no_hire" -> "bg-yellow-100 text-yellow-800"
                       "no_hire" -> "bg-orange-100 text-orange-800"
                       "strong_no_hire" -> "bg-red-100 text-red-800"
-                      _ -> "bg-gray-100 text-gray-800"
+                      _ -> "bg-base-200 text-base-content/90"
                     end
                   ]}
                 >
@@ -556,12 +559,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   :for={{criterion, value} <- scorecard.scores}
                   class="flex justify-between text-sm"
                 >
-                  <span class="text-gray-600">{criterion}</span>
-                  <span class="font-medium text-gray-900">{value}</span>
+                  <span class="text-base-content/70">{criterion}</span>
+                  <span class="font-medium text-base-content">{value}</span>
                 </div>
               </div>
 
-              <div :if={scorecard.notes} class="text-sm text-gray-600 border-t pt-2">
+              <div :if={scorecard.notes} class="text-sm text-base-content/70 border-t pt-2">
                 {scorecard.notes}
               </div>
             </div>
@@ -569,7 +572,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         </div>
 
         <%!-- Email Threads --%>
-        <div class="mt-8 bg-white rounded-lg shadow p-6">
+        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold">Email History</h2>
             <button
@@ -601,7 +604,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 placeholder="Type your message..."
                 rows={6}
               />
-              <div class="p-3 bg-gray-50 rounded-lg">
+              <div class="p-3 bg-base-200 rounded-lg">
                 <.live_component module={SchedulePicker} id="compose-schedule" prefix="compose" />
               </div>
               <div class="flex gap-2">
@@ -609,7 +612,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <button
                   type="button"
                   phx-click="cancel_compose"
-                  class="text-sm text-gray-500 hover:text-gray-700"
+                  class="text-sm text-base-content/50 hover:text-base-content/80"
                 >
                   Cancel
                 </button>
@@ -617,20 +620,20 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </.form>
           </div>
 
-          <div :if={@email_threads == [] && !@composing_email} class="text-gray-500 text-sm">
+          <div :if={@email_threads == [] && !@composing_email} class="text-base-content/50 text-sm">
             No email threads yet.
           </div>
 
           <div :for={thread <- @email_threads} class="border rounded-lg mb-4 last:mb-0">
-            <div class="p-4 border-b bg-gray-50 rounded-t-lg">
+            <div class="p-4 border-b bg-base-200 rounded-t-lg">
               <div class="flex justify-between items-center">
                 <div>
-                  <span class="font-medium text-gray-900">{thread.subject}</span>
-                  <span class="text-sm text-gray-500 ml-2">
+                  <span class="font-medium text-base-content">{thread.subject}</span>
+                  <span class="text-sm text-base-content/50 ml-2">
                     ({length(thread.messages)} message{length(thread.messages) != 1 && "s"})
                   </span>
                 </div>
-                <span class="text-xs text-gray-400">
+                <span class="text-xs text-base-content/40">
                   {Calendar.strftime(thread.last_message_at, "%b %d, %Y at %H:%M")}
                 </span>
               </div>
@@ -641,14 +644,16 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 :for={message <- Enum.reverse(thread.messages)}
                 class={[
                   "p-3 rounded-lg text-sm",
-                  message.direction == "inbound" && "bg-blue-50 border-l-4 border-blue-400",
-                  message.direction == "outbound" && "bg-green-50 border-l-4 border-green-400 ml-8",
+                  message.direction == "inbound" &&
+                    "bg-blue-50 dark:bg-blue-950 border-l-4 border-blue-400",
+                  message.direction == "outbound" &&
+                    "bg-green-50 dark:bg-green-950 border-l-4 border-green-400 ml-8",
                   message.status == "scheduled" && "border-dashed opacity-90",
                   message.status == "cancelled" && "opacity-60"
                 ]}
               >
                 <div class="flex justify-between items-center mb-1">
-                  <span class="font-medium text-gray-700 flex items-center gap-1.5">
+                  <span class="font-medium text-base-content/80 flex items-center gap-1.5">
                     <.icon
                       :if={message.status == "scheduled"}
                       name="hero-clock"
@@ -674,19 +679,22 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       Cancelled
                     </span>
                   </span>
-                  <span class="text-xs text-gray-400">
+                  <span class="text-xs text-base-content/40">
                     {Calendar.strftime(
                       message.scheduled_at || message.sent_at || message.received_at,
                       "%b %d, %Y at %H:%M"
                     )}
                   </span>
                 </div>
-                <div :if={message.status != "cancelled"} class="text-gray-600 whitespace-pre-wrap">
+                <div
+                  :if={message.status != "cancelled"}
+                  class="text-base-content/70 whitespace-pre-wrap"
+                >
                   {message.body}
                 </div>
                 <div
                   :if={message.status == "cancelled"}
-                  class="text-gray-400 italic text-xs"
+                  class="text-base-content/40 italic text-xs"
                 >
                   Email cancelled — content not available
                 </div>
@@ -717,7 +725,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   placeholder="Type your reply..."
                   rows={4}
                 />
-                <div class="p-3 bg-gray-50 rounded-lg">
+                <div class="p-3 bg-base-200 rounded-lg">
                   <.live_component
                     module={SchedulePicker}
                     id={"reply-schedule-#{thread.id}"}
@@ -729,7 +737,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   <button
                     type="button"
                     phx-click="cancel_reply"
-                    class="text-sm text-gray-500 hover:text-gray-700"
+                    class="text-sm text-base-content/50 hover:text-base-content/80"
                   >
                     Cancel
                   </button>

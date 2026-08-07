@@ -43,27 +43,27 @@ defmodule TrebyWeb.JobsLive.Index do
           <button
             phx-click="filter_jobs"
             phx-value-filter="all"
-            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "all", do: "bg-blue-100 text-blue-800", else: "bg-gray-100 text-gray-600 hover:bg-gray-200"}"}
+            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "all", do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
           >
             All
           </button>
           <button
             phx-click="filter_jobs"
             phx-value-filter="open"
-            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "open", do: "bg-green-100 text-green-800", else: "bg-gray-100 text-gray-600 hover:bg-gray-200"}"}
+            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
           >
             Open
           </button>
           <button
             phx-click="filter_jobs"
             phx-value-filter="closed"
-            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "closed", do: "bg-gray-200 text-gray-800", else: "bg-gray-100 text-gray-600 hover:bg-gray-200"}"}
+            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "closed", do: "bg-base-300 text-base-content/90", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
           >
             Closed
           </button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">Create Job</h2>
           <.form for={@form} id="job-form" phx-submit="create_job">
             <.input field={@form[:title]} type="text" label="Title" />
@@ -84,7 +84,7 @@ defmodule TrebyWeb.JobsLive.Index do
             />
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-gray-700 mb-3">Additional Information</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">Additional Information</h3>
               <div :for={field <- @job_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -119,29 +119,29 @@ defmodule TrebyWeb.JobsLive.Index do
           </.form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Title
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Salary
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Status
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Public
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={job <- @jobs} class="hover:bg-gray-50">
+            <tbody class="bg-base-100 divide-y divide-gray-200">
+              <tr :for={job <- @jobs} class="hover:bg-base-200">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <.link
                     navigate={~p"/app/jobs/#{job.id}"}
@@ -150,11 +150,11 @@ defmodule TrebyWeb.JobsLive.Index do
                     {job.title}
                   </.link>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
                   {job.salary_range || "-"}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if job.status == "open", do: "bg-green-100 text-green-800", else: "bg-gray-100 text-gray-800"}"}>
+                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if job.status == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/90"}"}>
                     {job.status}
                   </span>
                 </td>
@@ -163,7 +163,7 @@ defmodule TrebyWeb.JobsLive.Index do
                     phx-click="toggle_visibility"
                     phx-value-job_id={job.id}
                     disabled={job.status != "open"}
-                    class={"inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium #{if job.visible, do: "bg-blue-100 text-blue-800 hover:bg-blue-200", else: "bg-gray-100 text-gray-500 hover:bg-gray-200"} #{if job.status != "open", do: "opacity-50 cursor-not-allowed"}"}
+                    class={"inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium #{if job.visible, do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 hover:bg-blue-200", else: "bg-base-200 text-base-content/50 hover:bg-base-300"} #{if job.status != "open", do: "opacity-50 cursor-not-allowed"}"}
                   >
                     <.icon
                       name={if job.visible, do: "hero-globe-alt", else: "hero-lock-closed"}

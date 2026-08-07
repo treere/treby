@@ -42,15 +42,15 @@ defmodule TrebyWeb.SchedulingLive.Booking do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-base-200 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-2xl mx-auto">
         <%= if @confirmed do %>
-          <div class="bg-white rounded-lg shadow p-8 text-center">
+          <div class="bg-base-100 rounded-lg shadow p-8 text-center">
             <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
               <.icon name="hero-check" class="h-8 w-8 text-green-600" />
             </div>
-            <h1 class="text-2xl font-bold text-gray-900">Interview Scheduled!</h1>
-            <p class="mt-2 text-gray-600">
+            <h1 class="text-2xl font-bold text-base-content">Interview Scheduled!</h1>
+            <p class="mt-2 text-base-content/70">
               Your interview has been confirmed.
             </p>
             <div :if={@meet_link} class="mt-6">
@@ -62,19 +62,21 @@ defmodule TrebyWeb.SchedulingLive.Booking do
               >
                 <.icon name="hero-video-camera" class="h-5 w-5" /> Join Google Meet
               </a>
-              <p class="mt-3 text-xs text-gray-500">
+              <p class="mt-3 text-xs text-base-content/50">
                 A calendar invitation has been sent to your email.
               </p>
             </div>
             <div :if={!@meet_link} class="mt-6">
-              <p class="text-sm text-gray-500">A calendar invitation has been sent to your email.</p>
+              <p class="text-sm text-base-content/50">
+                A calendar invitation has been sent to your email.
+              </p>
             </div>
           </div>
         <% else %>
           <%= if @valid do %>
             <div class="text-center mb-8">
-              <h1 class="text-2xl font-bold text-gray-900">Schedule your interview</h1>
-              <p class="mt-2 text-gray-600">
+              <h1 class="text-2xl font-bold text-base-content">Schedule your interview</h1>
+              <p class="mt-2 text-base-content/70">
                 <%= if @interviewer do %>
                   with {@interviewer.name} for {@application.job.title}
                 <% else %>
@@ -83,30 +85,30 @@ defmodule TrebyWeb.SchedulingLive.Booking do
               </p>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="bg-base-100 rounded-lg shadow p-6">
               <h2 class="text-lg font-semibold mb-4">Select a time slot</h2>
 
               <div class="flex items-center gap-4 mb-4">
                 <button
                   phx-click="prev_week"
-                  class="px-3 py-1 border rounded hover:bg-gray-50"
+                  class="px-3 py-1 border rounded hover:bg-base-200"
                 >
                   &larr; Prev
                 </button>
-                <span class="text-sm text-gray-600">
+                <span class="text-sm text-base-content/70">
                   {Elixir.Calendar.strftime(@selected_date, "%B %d")} - {Date.add(@selected_date, 6)
                   |> Elixir.Calendar.strftime("%B %d, %Y")}
                 </span>
                 <button
                   phx-click="next_week"
-                  class="px-3 py-1 border rounded hover:bg-gray-50"
+                  class="px-3 py-1 border rounded hover:bg-base-200"
                 >
                   Next &rarr;
                 </button>
               </div>
 
               <div :if={@slots == []} class="text-center py-8">
-                <p class="text-gray-500 text-sm">No available slots for this period</p>
+                <p class="text-base-content/50 text-sm">No available slots for this period</p>
               </div>
 
               <div :if={@slots != []} class="grid grid-cols-7 gap-2">
@@ -118,7 +120,7 @@ defmodule TrebyWeb.SchedulingLive.Booking do
                       "px-3 py-2 text-xs rounded border text-center transition-colors",
                       if(@selected_slot && @selected_slot.start == slot.start,
                         do: "border-blue-500 bg-blue-500 text-white",
-                        else: "border-gray-200 hover:border-blue-300"
+                        else: "border-base-300 hover:border-blue-300"
                       )
                     ]}
                   >
@@ -129,7 +131,7 @@ defmodule TrebyWeb.SchedulingLive.Booking do
 
               <%= if @selected_slot do %>
                 <div class="mt-6 pt-6 border-t">
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-base-content/70">
                     Selected:
                     <strong>
                       {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
@@ -145,12 +147,12 @@ defmodule TrebyWeb.SchedulingLive.Booking do
               <% end %>
             </div>
           <% else %>
-            <div class="bg-white rounded-lg shadow p-8 text-center">
-              <h1 class="text-xl font-bold text-gray-900">Invalid or Expired Link</h1>
-              <p class="mt-2 text-gray-600">
+            <div class="bg-base-100 rounded-lg shadow p-8 text-center">
+              <h1 class="text-xl font-bold text-base-content">Invalid or Expired Link</h1>
+              <p class="mt-2 text-base-content/70">
                 This scheduling link has expired or has already been used.
               </p>
-              <p class="mt-2 text-sm text-gray-500">
+              <p class="mt-2 text-sm text-base-content/50">
                 Please contact the recruiter for a new link.
               </p>
             </div>

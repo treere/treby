@@ -40,52 +40,52 @@ defmodule TrebyWeb.ImportLive.Index do
       <div class="p-8 max-w-4xl mx-auto">
         <h1 class="text-2xl font-bold">{gettext("Import Candidates")}</h1>
 
-        <div class="mt-6 flex items-center gap-2 text-sm text-gray-600">
+        <div class="mt-6 flex items-center gap-2 text-sm text-base-content/70">
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 1 && "bg-blue-100 text-blue-800",
-            @step < 1 && "bg-gray-100 text-gray-500"
+            @step < 1 && "bg-base-200 text-base-content/50"
           ]}>
             1. {gettext("Upload")}
           </span>
-          <span class="text-gray-300">→</span>
+          <span class="text-base-content/30">→</span>
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 2 && "bg-blue-100 text-blue-800",
-            @step < 2 && "bg-gray-100 text-gray-500"
+            @step < 2 && "bg-base-200 text-base-content/50"
           ]}>
             2. {gettext("Map")}
           </span>
-          <span class="text-gray-300">→</span>
+          <span class="text-base-content/30">→</span>
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 3 && "bg-blue-100 text-blue-800",
-            @step < 3 && "bg-gray-100 text-gray-500"
+            @step < 3 && "bg-base-200 text-base-content/50"
           ]}>
             3. {gettext("Preview")}
           </span>
-          <span class="text-gray-300">→</span>
+          <span class="text-base-content/30">→</span>
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 4 && "bg-blue-100 text-blue-800",
-            @step < 4 && "bg-gray-100 text-gray-500"
+            @step < 4 && "bg-base-200 text-base-content/50"
           ]}>
             4. {gettext("Import")}
           </span>
         </div>
 
-        <div :if={@step == 1} class="mt-8 bg-white rounded-lg border border-gray-200 p-8">
+        <div :if={@step == 1} class="mt-8 bg-base-100 rounded-lg border border-base-300 p-8">
           <div
-            class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors bg-gray-50"
+            class="border-2 border-dashed border-base-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors bg-base-200"
             phx-drop-target={@uploads.csv.ref}
           >
-            <.icon name="hero-document-arrow-up" class="w-12 h-12 text-gray-400 mx-auto" />
-            <p class="mt-4 text-gray-600">{gettext("Drop a CSV file here or")}</p>
+            <.icon name="hero-document-arrow-up" class="w-12 h-12 text-base-content/40 mx-auto" />
+            <p class="mt-4 text-base-content/70">{gettext("Drop a CSV file here or")}</p>
             <.live_file_input
               upload={@uploads.csv}
               class="mt-2 text-blue-600 underline cursor-pointer"
             />
-            <p class="mt-2 text-xs text-gray-500">{gettext("Max 10MB, CSV format")}</p>
+            <p class="mt-2 text-xs text-base-content/50">{gettext("Max 10MB, CSV format")}</p>
           </div>
 
           <div :for={err <- upload_errors(@uploads.csv)} class="mt-4 text-red-600 text-sm">
@@ -102,14 +102,16 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
         </div>
 
-        <div :if={@step == 2} class="mt-8 bg-white rounded-lg border border-gray-200 p-8">
+        <div :if={@step == 2} class="mt-8 bg-base-100 rounded-lg border border-base-300 p-8">
           <h2 class="text-lg font-semibold">{gettext("Map Columns")}</h2>
-          <p class="mt-1 text-sm text-gray-600">{gettext("Match CSV columns to candidate fields")}</p>
+          <p class="mt-1 text-sm text-base-content/70">
+            {gettext("Match CSV columns to candidate fields")}
+          </p>
 
           <div class="mt-6 space-y-4">
             <div :for={csv_header <- @headers} class="flex items-center gap-4">
-              <span class="w-48 text-sm font-mono bg-gray-100 px-2 py-1 rounded">{csv_header}</span>
-              <span class="text-gray-400">→</span>
+              <span class="w-48 text-sm font-mono bg-base-200 px-2 py-1 rounded">{csv_header}</span>
+              <span class="text-base-content/40">→</span>
               <select
                 phx-change="update_mapping"
                 phx-value-header={csv_header}
@@ -163,7 +165,7 @@ defmodule TrebyWeb.ImportLive.Index do
           <div class="mt-8 flex gap-4">
             <.link
               phx-click="go_to_step_1"
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              class="px-4 py-2 border border-base-300 rounded-lg hover:bg-base-200 transition-colors"
             >
               {gettext("Back")}
             </.link>
@@ -176,13 +178,15 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
         </div>
 
-        <div :if={@step == 3} class="mt-8 bg-white rounded-lg border border-gray-200 p-8">
+        <div :if={@step == 3} class="mt-8 bg-base-100 rounded-lg border border-base-300 p-8">
           <h2 class="text-lg font-semibold">{gettext("Preview")}</h2>
-          <p class="mt-1 text-sm text-gray-600">{gettext("Review first 10 rows before importing")}</p>
+          <p class="mt-1 text-sm text-base-content/70">
+            {gettext("Review first 10 rows before importing")}
+          </p>
 
           <div class="mt-6 overflow-x-auto">
             <table class="w-full text-sm border">
-              <thead class="bg-gray-50">
+              <thead class="bg-base-200">
                 <tr>
                   <th class="px-3 py-2 text-left border">{gettext("Status")}</th>
                   <th
@@ -198,7 +202,7 @@ defmodule TrebyWeb.ImportLive.Index do
                   :for={row <- @preview}
                   class={[
                     "border",
-                    row.is_duplicate && "bg-yellow-50"
+                    row.is_duplicate && "bg-yellow-50 dark:bg-yellow-950"
                   ]}
                 >
                   <td class="px-3 py-2 border">
@@ -217,7 +221,7 @@ defmodule TrebyWeb.ImportLive.Index do
                   </td>
                   <td
                     :for={{_header, field} <- @mapping}
-                    class="px-3 py-2 border text-gray-700"
+                    class="px-3 py-2 border text-base-content/80"
                   >
                     {Map.get(row.candidate_attrs, field, "")}
                   </td>
@@ -226,11 +230,11 @@ defmodule TrebyWeb.ImportLive.Index do
             </table>
           </div>
 
-          <div :if={@jobs != []} class="mt-8 bg-gray-50 rounded-lg p-6">
+          <div :if={@jobs != []} class="mt-8 bg-base-200 rounded-lg p-6">
             <h3 class="font-medium">{gettext("Add to Job (Optional)")}</h3>
             <div class="mt-4 grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm text-gray-600">{gettext("Job")}</label>
+                <label class="block text-sm text-base-content/70">{gettext("Job")}</label>
                 <select
                   phx-change="select_job"
                   class="select w-full mt-1"
@@ -241,7 +245,7 @@ defmodule TrebyWeb.ImportLive.Index do
               </div>
 
               <div :if={@selected_job_id} class="space-y-3">
-                <label class="block text-sm text-gray-600">{gettext("Stage")}</label>
+                <label class="block text-sm text-base-content/70">{gettext("Stage")}</label>
                 <select
                   phx-change="select_stage"
                   class="select w-full mt-1"
@@ -258,7 +262,7 @@ defmodule TrebyWeb.ImportLive.Index do
             </div>
 
             <div class="mt-4">
-              <label class="block text-sm text-gray-600">{gettext("Source")}</label>
+              <label class="block text-sm text-base-content/70">{gettext("Source")}</label>
               <select
                 phx-change="select_source"
                 class="select w-full mt-1"
@@ -272,7 +276,7 @@ defmodule TrebyWeb.ImportLive.Index do
           <div class="mt-8 flex gap-4">
             <.link
               phx-click="go_to_step_2"
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              class="px-4 py-2 border border-base-300 rounded-lg hover:bg-base-200 transition-colors"
             >
               {gettext("Back")}
             </.link>
@@ -288,26 +292,29 @@ defmodule TrebyWeb.ImportLive.Index do
         <div :if={@step == 4 and @import_results} class="mt-8">
           <h2 class="text-lg font-semibold">{gettext("Import Complete")}</h2>
 
-          <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-6">
+          <div class="mt-6 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-900 rounded-lg p-6">
             <div class="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div class="text-2xl font-bold text-green-600">{@import_results.imported}</div>
-                <div class="text-sm text-gray-600">{gettext("Imported")}</div>
+                <div class="text-sm text-base-content/70">{gettext("Imported")}</div>
               </div>
               <div>
                 <div class="text-2xl font-bold text-yellow-600">{@import_results.skipped}</div>
-                <div class="text-sm text-gray-600">{gettext("Skipped")}</div>
+                <div class="text-sm text-base-content/70">{gettext("Skipped")}</div>
               </div>
               <div>
                 <div class="text-2xl font-bold text-red-600">{length(@import_results.errors)}</div>
-                <div class="text-sm text-gray-600">{gettext("Errors")}</div>
+                <div class="text-sm text-base-content/70">{gettext("Errors")}</div>
               </div>
             </div>
           </div>
 
           <div :if={@import_results.errors != []} class="mt-6">
             <h3 class="font-medium text-red-600">{gettext("Errors")}</h3>
-            <div :for={error <- @import_results.errors} class="mt-2 text-sm bg-red-50 rounded p-3">
+            <div
+              :for={error <- @import_results.errors}
+              class="mt-2 text-sm bg-red-50 dark:bg-red-950 rounded p-3"
+            >
               <span class="font-mono">{inspect(error)}</span>
             </div>
           </div>
@@ -321,7 +328,7 @@ defmodule TrebyWeb.ImportLive.Index do
             </.link>
             <.link
               navigate={~p"/app/candidates"}
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              class="px-4 py-2 border border-base-300 rounded-lg hover:bg-base-200 transition-colors"
             >
               {gettext("View Candidates")}
             </.link>

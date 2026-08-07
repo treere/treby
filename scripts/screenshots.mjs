@@ -140,7 +140,10 @@ async function run() {
     await waitForServer(`${BASE_URL}/login`)
 
     const browser = await chromium.launch()
-    const context = await browser.newContext({ viewport: VIEWPORT })
+    const context = await browser.newContext({
+      viewport: VIEWPORT,
+      colorScheme: "light",
+    })
     const page = await context.newPage()
 
     // Capture public pages first

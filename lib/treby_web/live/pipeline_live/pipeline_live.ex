@@ -22,7 +22,7 @@ defmodule TrebyWeb.PipelineLive do
         <h1 class="text-2xl font-bold mb-8">{gettext("Pipeline")}</h1>
 
         <div :if={@jobs == []} class="text-center py-12">
-          <p class="text-gray-500 mb-4">
+          <p class="text-base-content/50 mb-4">
             {gettext("No jobs yet. Create a job to get started with the pipeline.")}
           </p>
           <.link navigate={~p"/app/jobs"} class="text-blue-600 hover:text-blue-800 font-medium">
@@ -33,14 +33,14 @@ defmodule TrebyWeb.PipelineLive do
         <div :if={@jobs != []} class="grid gap-4">
           <div
             :for={job <- @jobs}
-            class="bg-white rounded-lg border border-gray-200 p-4 hover:border-blue-300 transition-colors"
+            class="bg-base-100 rounded-lg border border-base-300 p-4 hover:border-blue-300 transition-colors"
           >
             <.link navigate={~p"/app/pipeline/#{job.id}"} class="block">
               <div class="flex justify-between items-center">
                 <div>
-                  <h2 class="text-lg font-semibold text-gray-900">{job.title}</h2>
+                  <h2 class="text-lg font-semibold text-base-content">{job.title}</h2>
                 </div>
-                <.icon name="hero-chevron-right" class="w-5 h-5 text-gray-400 inline" />
+                <.icon name="hero-chevron-right" class="w-5 h-5 text-base-content/40 inline" />
               </div>
             </.link>
           </div>

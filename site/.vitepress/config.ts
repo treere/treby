@@ -49,6 +49,7 @@ export default defineConfig({
           { text: "Analytics", link: "/features/analytics" },
           { text: "Email Notifications", link: "/features/email-notifications" },
           { text: "Email Scheduler", link: "/features/email-scheduler" },
+          { text: "Dark Mode", link: "/features/dark-mode" },
         ],
       },
     ],

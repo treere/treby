@@ -61,7 +61,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
             &larr; Back to Settings
           </.link>
           <h1 class="text-2xl font-bold mt-2">Availability</h1>
-          <p class="mt-1 text-gray-600">Set your available hours for interview scheduling</p>
+          <p class="mt-1 text-base-content/70">Set your available hours for interview scheduling</p>
         </div>
 
         <div class="mb-6">
@@ -73,7 +73,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
           </button>
         </div>
 
-        <div :if={@show_form} class="mb-8 bg-white rounded-lg shadow p-6">
+        <div :if={@show_form} class="mb-8 bg-base-100 rounded-lg shadow p-6">
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_rule, do: "Edit Availability", else: "New Availability"}
           </h2>
@@ -123,36 +123,40 @@ defmodule TrebyWeb.SettingsLive.Availability do
           </.form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Day</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hours</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase">
+                  Day
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase">
+                  Hours
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase">
                   Timezone
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase">
                   Buffer
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th class="px-6 py-3 text-right text-xs font-medium text-base-content/50 uppercase">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-base-100 divide-y divide-gray-200">
               <%= for rule <- @rules do %>
                 <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-base-content">
                     {day_name(rule.day_of_week)}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/50">
                     {format_time(rule.start_time)} - {format_time(rule.end_time)}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/50">
                     {rule.timezone}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/50">
                     {rule.buffer_before}min before / {rule.buffer_after}min after
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -176,7 +180,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
                 </tr>
               <% end %>
               <tr :if={@rules == []}>
-                <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
+                <td colspan="5" class="px-6 py-8 text-center text-sm text-base-content/50">
                   No availability rules set. Add your available hours to enable interview scheduling.
                 </td>
               </tr>

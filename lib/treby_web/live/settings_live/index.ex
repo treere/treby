@@ -16,44 +16,50 @@ defmodule TrebyWeb.SettingsLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <h1 class="text-2xl font-bold">{gettext("Settings")}</h1>
-        <p class="mt-2 text-gray-600">{gettext("Company settings for")} {@current_tenant.name}</p>
+        <p class="mt-2 text-base-content/70">
+          {gettext("Company settings for")} {@current_tenant.name}
+        </p>
 
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <.link
             :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/pipeline"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Pipeline Stages")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Pipeline Stages")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Customize your hiring pipeline stages")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/branding"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Branding")}</h2>
-            <p class="mt-2 text-sm text-gray-600">{gettext("Customize career page appearance")}</p>
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Branding")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
+              {gettext("Customize career page appearance")}
+            </p>
           </.link>
 
           <.link
             :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/team"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Team")}</h2>
-            <p class="mt-2 text-sm text-gray-600">{gettext("Manage team members and invites")}</p>
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Team")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
+              {gettext("Manage team members and invites")}
+            </p>
           </.link>
 
           <.link
             :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/fields"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Custom Fields")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Custom Fields")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Define custom fields for candidates and jobs")}
             </p>
           </.link>
@@ -61,10 +67,10 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/scorecards"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Scorecard Templates")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Scorecard Templates")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Define evaluation criteria for interviews")}
             </p>
           </.link>
@@ -72,10 +78,10 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/emails"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Email Templates")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Email Templates")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Configure email templates for stage transitions")}
             </p>
           </.link>
@@ -83,10 +89,10 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/notifications"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Notifications")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Notifications")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Configure automated email notifications")}
             </p>
           </.link>
@@ -94,40 +100,40 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_user.role == "admin"}
             navigate={~p"/app/settings/sources"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Sources")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Sources")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Manage how candidates find you")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/calendar"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Calendar")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Calendar")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Connect Google Calendar for interview scheduling")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/availability"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Availability")}</h2>
-            <p class="mt-2 text-sm text-gray-600">
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Availability")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
               {gettext("Set your available hours for interviews")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/language"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-gray-900">{gettext("Language")}</h2>
-            <p class="mt-2 text-sm text-gray-600">{gettext("Set your preferred language")}</p>
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Language")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">{gettext("Set your preferred language")}</p>
           </.link>
         </div>
       </div>

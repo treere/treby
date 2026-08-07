@@ -24,10 +24,12 @@ defmodule TrebyWeb.SettingsLive.Calendar do
             &larr; Back to Settings
           </.link>
           <h1 class="text-2xl font-bold mt-2">Calendar Integration</h1>
-          <p class="mt-1 text-gray-600">Connect your Google Calendar for interview scheduling</p>
+          <p class="mt-1 text-base-content/70">
+            Connect your Google Calendar for interview scheduling
+          </p>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-base-100 rounded-lg shadow p-6">
           <%= if @connection do %>
             <div class="flex items-center justify-between">
               <div>
@@ -36,16 +38,16 @@ defmodule TrebyWeb.SettingsLive.Calendar do
                     Connected
                   </span>
                 </div>
-                <p class="mt-2 text-sm text-gray-600">
+                <p class="mt-2 text-sm text-base-content/70">
                   Connected as <strong>{@connection.google_email}</strong>
                 </p>
-                <p class="mt-1 text-xs text-gray-400">
+                <p class="mt-1 text-xs text-base-content/40">
                   Connected {Elixir.Calendar.strftime(@connection.connected_at, "%B %d, %Y")}
                 </p>
               </div>
               <.link
                 href={~p"/auth/google"}
-                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                class="inline-flex items-center px-4 py-2 border border-base-300 text-sm font-medium rounded-md text-base-content/80 bg-base-100 hover:bg-base-200"
               >
                 Reconnect
               </.link>
@@ -63,9 +65,9 @@ defmodule TrebyWeb.SettingsLive.Calendar do
             </div>
           <% else %>
             <div class="text-center py-8">
-              <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-gray-400" />
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No calendar connected</h3>
-              <p class="mt-1 text-sm text-gray-500">
+              <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-base-content/40" />
+              <h3 class="mt-2 text-sm font-medium text-base-content">No calendar connected</h3>
+              <p class="mt-1 text-sm text-base-content/50">
                 Connect your Google Calendar to enable interview scheduling
               </p>
               <div class="mt-6">

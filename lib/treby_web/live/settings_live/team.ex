@@ -31,7 +31,7 @@ defmodule TrebyWeb.SettingsLive.Team do
               &larr; Back to Settings
             </.link>
             <h1 class="text-2xl font-bold mt-2">Team Management</h1>
-            <p class="mt-1 text-gray-600">Manage your team members</p>
+            <p class="mt-1 text-base-content/70">Manage your team members</p>
           </div>
           <button
             phx-click="show_invite_form"
@@ -41,7 +41,7 @@ defmodule TrebyWeb.SettingsLive.Team do
           </button>
         </div>
 
-        <div :if={@show_invite_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_invite_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">Invite Team Member</h2>
           <.form
             for={@invite_form}
@@ -68,33 +68,33 @@ defmodule TrebyWeb.SettingsLive.Team do
           </.form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden mb-8">
           <div class="px-6 py-4 border-b">
             <h2 class="text-lg font-semibold">Team Members</h2>
           </div>
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Name
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Email
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Role
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={user <- @users} class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{user.name}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{user.email}</td>
+            <tbody class="bg-base-100 divide-y divide-gray-200">
+              <tr :for={user <- @users} class="hover:bg-base-200">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">{user.name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{user.email}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if user.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-gray-100 text-gray-800"}"}>
+                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if user.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-base-200 text-base-content/90"}"}>
                     {user.role}
                   </span>
                 </td>
@@ -110,7 +110,7 @@ defmodule TrebyWeb.SettingsLive.Team do
                       Remove
                     </button>
                   <% else %>
-                    <span class="text-gray-400">You</span>
+                    <span class="text-base-content/40">You</span>
                   <% end %>
                 </td>
               </tr>
@@ -118,36 +118,36 @@ defmodule TrebyWeb.SettingsLive.Team do
           </table>
         </div>
 
-        <div :if={@invites != []} class="bg-white rounded-lg shadow overflow-hidden">
+        <div :if={@invites != []} class="bg-base-100 rounded-lg shadow overflow-hidden">
           <div class="px-6 py-4 border-b">
             <h2 class="text-lg font-semibold">Pending Invites</h2>
           </div>
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Email
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Role
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Expires
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={invite <- @invites} class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-gray-900">{invite.email}</td>
+            <tbody class="bg-base-100 divide-y divide-gray-200">
+              <tr :for={invite <- @invites} class="hover:bg-base-200">
+                <td class="px-6 py-4 whitespace-nowrap text-base-content">{invite.email}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if invite.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-gray-100 text-gray-800"}"}>
+                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if invite.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-base-200 text-base-content/90"}"}>
                     {invite.role}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/50">
                   {Calendar.strftime(invite.expires_at, "%b %d, %Y")}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">

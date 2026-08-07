@@ -34,7 +34,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
               &larr; Back to Settings
             </.link>
             <h1 class="text-2xl font-bold mt-2">Custom Fields</h1>
-            <p class="mt-1 text-gray-600">
+            <p class="mt-1 text-base-content/70">
               Define custom fields for candidates, jobs, and applications
             </p>
           </div>
@@ -46,7 +46,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
           </button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_field, do: "Edit Field", else: "New Field"}
           </h2>
@@ -90,7 +90,9 @@ defmodule TrebyWeb.SettingsLive.Fields do
             </div>
 
             <div :if={@form[:field_type].value == "select"} class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Options (one per line)</label>
+              <label class="block text-sm font-medium text-base-content/80">
+                Options (one per line)
+              </label>
               <textarea
                 id="options-textarea"
                 name="options_text"
@@ -110,37 +112,39 @@ defmodule TrebyWeb.SettingsLive.Fields do
           </.form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Name
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Type
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Applies To
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Required
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={field <- @custom_fields} class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{field.name}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{field.field_type}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">{field.applies_to}</td>
+            <tbody class="bg-base-100 divide-y divide-gray-200">
+              <tr :for={field <- @custom_fields} class="hover:bg-base-200">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
+                  {field.name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{field.field_type}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{field.applies_to}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <%= if field.required do %>
                     <span class="text-green-600">Yes</span>
                   <% else %>
-                    <span class="text-gray-400">No</span>
+                    <span class="text-base-content/40">No</span>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -164,7 +168,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
               </tr>
             </tbody>
           </table>
-          <div :if={@custom_fields == []} class="p-8 text-center text-gray-500">
+          <div :if={@custom_fields == []} class="p-8 text-center text-base-content/50">
             No custom fields defined yet. Add your first custom field!
           </div>
         </div>

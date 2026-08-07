@@ -38,7 +38,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
               &larr; Back to Candidates
             </.link>
             <h1 class="text-2xl font-bold mt-2">Merge Duplicates</h1>
-            <p class="text-sm text-gray-500 mt-1">
+            <p class="text-sm text-base-content/50 mt-1">
               Candidates that look like they may be the same person. Review the evidence and merge them into a single profile — or dismiss the suggestion.
             </p>
           </div>
@@ -46,20 +46,20 @@ defmodule TrebyWeb.CandidatesLive.Merge do
 
         <div
           :if={@groups == []}
-          class="mt-8 bg-white rounded-lg shadow p-10 text-center"
+          class="mt-8 bg-base-100 rounded-lg shadow p-10 text-center"
         >
           <div class="mx-auto w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
             <.icon name="hero-check-circle" class="w-8 h-8 text-green-600" />
           </div>
-          <h2 class="mt-4 text-lg font-semibold text-gray-900">No duplicate candidates</h2>
-          <p class="mt-2 text-sm text-gray-500 max-w-md mx-auto">
+          <h2 class="mt-4 text-lg font-semibold text-base-content">No duplicate candidates</h2>
+          <p class="mt-2 text-sm text-base-content/50 max-w-md mx-auto">
             We didn't find any candidates that look like duplicates right now. New candidates are checked automatically as they come in.
           </p>
         </div>
 
-        <div :for={group <- @groups} class="bg-white rounded-lg shadow p-6 mb-6">
+        <div :for={group <- @groups} class="bg-base-100 rounded-lg shadow p-6 mb-6">
           <div class="flex items-center gap-3 mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">
+            <h2 class="text-lg font-semibold text-base-content">
               {length(group.candidates)} profiles may be the same person
             </h2>
             <%= case group.confidence do %>
@@ -72,7 +72,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
                   Medium confidence
                 </span>
             <% end %>
-            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+            <span class="text-xs text-base-content/50 bg-base-200 px-2 py-0.5 rounded-full">
               {signal_label(group.signal)}
             </span>
             <span
@@ -86,7 +86,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="text-left text-xs text-gray-500 border-b border-gray-200">
+                <tr class="text-left text-xs text-base-content/50 border-b border-base-300">
                   <th class="py-2 pr-3">Primary</th>
                   <th class="py-2 pr-3">Name</th>
                   <th class="py-2 pr-3">Email</th>
@@ -98,7 +98,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
               <tbody>
                 <tr
                   :for={candidate <- group.candidates}
-                  class="border-b border-gray-100 last:border-0"
+                  class="border-b border-base-300 last:border-0"
                 >
                   <td class="py-2 pr-3">
                     <input
@@ -112,7 +112,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
                       class="radio radio-sm"
                     />
                   </td>
-                  <td class="py-2 pr-3 font-medium text-gray-900">
+                  <td class="py-2 pr-3 font-medium text-base-content">
                     <span
                       :if={@selected_primary[group.id] == candidate.id}
                       class="text-xs text-blue-600 font-semibold mr-1"
@@ -121,9 +121,9 @@ defmodule TrebyWeb.CandidatesLive.Merge do
                     </span>
                     {candidate.name}
                   </td>
-                  <td class="py-2 pr-3 text-gray-600">{candidate.email}</td>
-                  <td class="py-2 pr-3 text-gray-600">{candidate.phone || "—"}</td>
-                  <td class="py-2 pr-3 text-gray-600">
+                  <td class="py-2 pr-3 text-base-content/70">{candidate.email}</td>
+                  <td class="py-2 pr-3 text-base-content/70">{candidate.phone || "—"}</td>
+                  <td class="py-2 pr-3 text-base-content/70">
                     <a
                       :if={candidate.linkedin_url}
                       href={candidate.linkedin_url}
@@ -134,7 +134,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
                     </a>
                     <span :if={!candidate.linkedin_url}>—</span>
                   </td>
-                  <td class="py-2 text-gray-600">{candidate.application_count}</td>
+                  <td class="py-2 text-base-content/70">{candidate.application_count}</td>
                 </tr>
               </tbody>
             </table>
@@ -151,11 +151,11 @@ defmodule TrebyWeb.CandidatesLive.Merge do
             <button
               phx-click="dismiss_group"
               phx-value-group_id={group.id}
-              class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              class="px-4 py-2 rounded-lg border border-base-300 text-sm font-medium text-base-content/80 hover:bg-base-200"
             >
               Dismiss
             </button>
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-base-content/50">
               The primary profile keeps all applications, email threads, and activity. The others are archived.
             </p>
           </div>

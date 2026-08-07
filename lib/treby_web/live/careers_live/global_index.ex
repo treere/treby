@@ -16,9 +16,9 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-base-200">
       <div class="max-w-4xl mx-auto py-12 px-4">
-        <h1 class="text-4xl font-bold text-gray-900 text-center mb-8">All Open Positions</h1>
+        <h1 class="text-4xl font-bold text-base-content text-center mb-8">All Open Positions</h1>
 
         <div class="mb-8">
           <.form for={@search_form} phx-submit="search" class="flex gap-2">
@@ -33,7 +33,7 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
           </.form>
         </div>
 
-        <div :if={@jobs == []} class="text-center py-12 text-gray-500">
+        <div :if={@jobs == []} class="text-center py-12 text-base-content/50">
           <%= if @search_query != "" do %>
             No positions match your search.
           <% else %>
@@ -45,14 +45,14 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
           <.link
             :for={job <- @jobs}
             navigate={~p"/#{job.tenant.slug}/careers/#{job.id}"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
             <div class="flex items-start justify-between">
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">{job.title}</h3>
-                <p class="text-sm text-gray-500">{job.tenant.name}</p>
+                <h3 class="text-xl font-semibold text-base-content">{job.title}</h3>
+                <p class="text-sm text-base-content/50">{job.tenant.name}</p>
               </div>
-              <p :if={job.salary_range} class="text-gray-600">{job.salary_range}</p>
+              <p :if={job.salary_range} class="text-base-content/70">{job.salary_range}</p>
             </div>
           </.link>
         </div>

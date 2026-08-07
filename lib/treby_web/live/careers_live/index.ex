@@ -20,7 +20,7 @@ defmodule TrebyWeb.CareersLive.Index do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-base-200">
       <div :if={@career_page} class="max-w-4xl mx-auto py-12 px-4">
         <div class="text-center mb-12">
           <img
@@ -29,8 +29,8 @@ defmodule TrebyWeb.CareersLive.Index do
             class="h-16 mx-auto mb-4"
             alt={@tenant.name}
           />
-          <h1 class="text-4xl font-bold text-gray-900">{@career_page.title}</h1>
-          <p :if={@career_page.description} class="mt-4 text-lg text-gray-600">
+          <h1 class="text-4xl font-bold text-base-content">{@career_page.title}</h1>
+          <p :if={@career_page.description} class="mt-4 text-lg text-base-content/70">
             {@career_page.description}
           </p>
         </div>
@@ -48,9 +48,9 @@ defmodule TrebyWeb.CareersLive.Index do
           </.form>
         </div>
 
-        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Open Positions</h2>
+        <h2 class="text-2xl font-semibold text-base-content/90 mb-6">Open Positions</h2>
 
-        <div :if={@jobs == []} class="text-center py-12 text-gray-500">
+        <div :if={@jobs == []} class="text-center py-12 text-base-content/50">
           <%= if @search_query != "" do %>
             No positions match your search.
           <% else %>
@@ -62,17 +62,17 @@ defmodule TrebyWeb.CareersLive.Index do
           <.link
             :for={job <- @jobs}
             navigate={~p"/#{@tenant.slug}/careers/#{job.id}"}
-            class="block bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h3 class="text-xl font-semibold text-gray-900">{job.title}</h3>
-            <p :if={job.salary_range} class="mt-2 text-gray-600">{job.salary_range}</p>
+            <h3 class="text-xl font-semibold text-base-content">{job.title}</h3>
+            <p :if={job.salary_range} class="mt-2 text-base-content/70">{job.salary_range}</p>
           </.link>
         </div>
       </div>
 
       <div :if={!@career_page} class="max-w-4xl mx-auto py-12 px-4 text-center">
-        <h1 class="text-4xl font-bold text-gray-900">{@tenant.name}</h1>
-        <p class="mt-4 text-lg text-gray-600">Career page coming soon.</p>
+        <h1 class="text-4xl font-bold text-base-content">{@tenant.name}</h1>
+        <p class="mt-4 text-lg text-base-content/70">Career page coming soon.</p>
       </div>
     </div>
     """

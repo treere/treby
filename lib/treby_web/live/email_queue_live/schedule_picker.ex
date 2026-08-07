@@ -31,7 +31,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-target={@myself}
             class="radio radio-sm"
           />
-          <span class="text-sm font-medium text-gray-700">Send now</span>
+          <span class="text-sm font-medium text-base-content/80">Send now</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
           <input
@@ -44,7 +44,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-target={@myself}
             class="radio radio-sm"
           />
-          <span class="text-sm font-medium text-gray-700">Schedule for later</span>
+          <span class="text-sm font-medium text-base-content/80">Schedule for later</span>
         </label>
       </div>
 
@@ -55,7 +55,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-click="preset"
             phx-value-label="tomorrow_9"
             phx-target={@myself}
-            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
           >
             Tomorrow 9:00
           </button>
@@ -64,7 +64,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-click="preset"
             phx-value-label="tomorrow_14"
             phx-target={@myself}
-            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
           >
             Tomorrow 14:00
           </button>
@@ -73,7 +73,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-click="preset"
             phx-value-label="next_monday"
             phx-target={@myself}
-            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
           >
             Next Monday
           </button>
@@ -81,7 +81,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+            <label class="block text-xs font-medium text-base-content/70 mb-1">Date</label>
             <input
               type="date"
               name={@prefix <> "[scheduled_at_date]"}
@@ -92,7 +92,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             />
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">Time</label>
+            <label class="block text-xs font-medium text-base-content/70 mb-1">Time</label>
             <input
               type="time"
               name={@prefix <> "[scheduled_at_time]"}
@@ -114,7 +114,7 @@ defmodule TrebyWeb.EmailQueueLive.SchedulePicker do
             phx-target={@myself}
             class="checkbox checkbox-sm"
           />
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-base-content/70">
             Add randomness (<span class="font-medium">±<%= @jitter_minutes %> min</span>) so emails don't all arrive at the exact same time
           </span>
         </label>

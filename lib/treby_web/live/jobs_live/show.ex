@@ -42,13 +42,13 @@ defmodule TrebyWeb.JobsLive.Show do
               id="copy-public-link"
               phx-hook=".CopyToClipboard"
               data-url={TrebyWeb.Endpoint.url() <> ~p"/#{@current_tenant.slug}/careers/#{@job.id}"}
-              class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 inline-flex items-center gap-1"
+              class="bg-base-300 px-4 py-2 rounded-lg hover:bg-base-300 inline-flex items-center gap-1"
             >
               <.icon name="hero-link" class="w-4 h-4" /> Copy Public Link
             </button>
             <button
               phx-click="start_editing"
-              class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 inline-flex items-center gap-1"
+              class="bg-base-300 px-4 py-2 rounded-lg hover:bg-base-300 inline-flex items-center gap-1"
             >
               <.icon name="hero-pencil" class="w-4 h-4" /> Edit
             </button>
@@ -61,7 +61,7 @@ defmodule TrebyWeb.JobsLive.Show do
           </div>
         </div>
 
-        <div :if={@editing} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@editing} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">Edit Job</h2>
           <.form for={@form} id="job-edit-form" phx-submit="update_job">
             <.input field={@form[:title]} type="text" label="Title" />
@@ -78,7 +78,7 @@ defmodule TrebyWeb.JobsLive.Show do
             />
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-gray-700 mb-3">Custom Fields</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">Custom Fields</h3>
               <div :for={field <- @job_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -131,36 +131,36 @@ defmodule TrebyWeb.JobsLive.Show do
         </div>
 
         <div class="grid grid-cols-3 gap-6">
-          <div class="col-span-2 bg-white rounded-lg shadow p-6">
+          <div class="col-span-2 bg-base-100 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold mb-4">Description</h2>
-            <p class="text-gray-700 whitespace-pre-wrap">{@job.description}</p>
+            <p class="text-base-content/80 whitespace-pre-wrap">{@job.description}</p>
           </div>
-          <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-base-100 rounded-lg shadow p-6">
             <h2 class="text-lg font-semibold mb-4">Details</h2>
             <dl class="space-y-4">
               <div>
-                <dt class="text-sm text-gray-500">Salary Range</dt>
-                <dd class="text-gray-900">{@job.salary_range || "Not specified"}</dd>
+                <dt class="text-sm text-base-content/50">Salary Range</dt>
+                <dd class="text-base-content">{@job.salary_range || "Not specified"}</dd>
               </div>
               <div>
-                <dt class="text-sm text-gray-500">Status</dt>
+                <dt class="text-sm text-base-content/50">Status</dt>
                 <dd>
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if @job.status == "open", do: "bg-green-100 text-green-800", else: "bg-gray-100 text-gray-800"}"}>
+                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if @job.status == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/90"}"}>
                     {@job.status}
                   </span>
                 </dd>
               </div>
               <div>
-                <dt class="text-sm text-gray-500">Created</dt>
-                <dd class="text-gray-900">{Calendar.strftime(@job.inserted_at, "%b %d, %Y")}</dd>
+                <dt class="text-sm text-base-content/50">Created</dt>
+                <dd class="text-base-content">{Calendar.strftime(@job.inserted_at, "%b %d, %Y")}</dd>
               </div>
 
               <div :if={@job_fields != []} class="border-t pt-4">
-                <dt class="text-sm text-gray-500 mb-2">Custom Fields</dt>
+                <dt class="text-sm text-base-content/50 mb-2">Custom Fields</dt>
                 <dl class="space-y-2">
                   <div :for={field <- @job_fields}>
-                    <dt class="text-xs text-gray-500">{field.name}</dt>
-                    <dd class="text-sm text-gray-900">
+                    <dt class="text-xs text-base-content/50">{field.name}</dt>
+                    <dd class="text-sm text-base-content">
                       {Map.get(@job.custom_fields || %{}, field.id, "—")}
                     </dd>
                   </div>
@@ -171,23 +171,23 @@ defmodule TrebyWeb.JobsLive.Show do
         </div>
 
         <%!-- Candidates Section --%>
-        <div class="mt-8 bg-white rounded-lg shadow p-6">
+        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
           <h2 class="text-lg font-semibold mb-4">
             Candidates
-            <span :if={@applications != []} class="text-sm font-normal text-gray-500">
+            <span :if={@applications != []} class="text-sm font-normal text-base-content/50">
               ({length(@applications)})
             </span>
           </h2>
-          <div :if={@applications == []} class="text-center text-gray-500 py-8">
+          <div :if={@applications == []} class="text-center text-base-content/50 py-8">
             No candidates yet
           </div>
           <div :if={@applications != []} class="space-y-4">
             <div
               :for={app <- @applications}
-              class="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+              class="flex items-center justify-between p-4 bg-base-200 rounded-lg"
             >
               <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                   <span class="text-sm font-medium text-blue-700">
                     {String.first(app.candidate.name || "?")}{String.first(
                       String.replace(app.candidate.name || "", ~r/ .*/, "") || ""
@@ -195,8 +195,8 @@ defmodule TrebyWeb.JobsLive.Show do
                   </span>
                 </div>
                 <div>
-                  <p class="font-medium text-gray-900">{app.candidate.name}</p>
-                  <p class="text-sm text-gray-500">{app.candidate.email}</p>
+                  <p class="font-medium text-base-content">{app.candidate.name}</p>
+                  <p class="text-sm text-base-content/50">{app.candidate.email}</p>
                 </div>
               </div>
               <div class="flex items-center gap-4">
@@ -206,7 +206,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 >
                   {app.pipeline_stage.name}
                 </span>
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-base-content/50">
                   {Calendar.strftime(app.inserted_at, "%b %d, %Y")}
                 </span>
               </div>

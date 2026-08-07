@@ -29,7 +29,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
               &larr; {gettext("Settings")}
             </.link>
             <h1 class="text-2xl font-bold mt-2">{gettext("Pipelines")}</h1>
-            <p class="mt-1 text-gray-600">{gettext("Manage your hiring pipelines")}</p>
+            <p class="mt-1 text-base-content/70">{gettext("Manage your hiring pipelines")}</p>
           </div>
           <button
             phx-click="show_create_form"
@@ -39,7 +39,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
           </button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">{gettext("New Pipeline")}</h2>
           <.form
             for={@form}
@@ -65,23 +65,23 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         <div class="space-y-4">
           <div
             :for={pipeline <- @pipelines}
-            class="bg-white rounded-lg shadow p-6 flex items-center justify-between"
+            class="bg-base-100 rounded-lg shadow p-6 flex items-center justify-between"
           >
             <div class="flex items-center gap-4">
               <div class="flex-shrink-0">
-                <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-gray-400" />
+                <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-base-content/40" />
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="text-lg font-semibold text-gray-900">{pipeline.name}</h3>
+                  <h3 class="text-lg font-semibold text-base-content">{pipeline.name}</h3>
                   <span
                     :if={pipeline.is_default}
-                    class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                    class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-100 ring-1 ring-inset ring-blue-700/10"
                   >
                     {gettext("Default")}
                   </span>
                 </div>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-base-content/50">
                   {gettext("%{count} stages", count: length(pipeline.pipeline_stages))} &middot; {gettext(
                     "%{count} active jobs",
                     count: Pipeline.count_active_jobs(pipeline.id)
@@ -100,14 +100,14 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                 :if={not pipeline.is_default}
                 phx-click="set_default"
                 phx-value-pipeline_id={pipeline.id}
-                class="text-gray-600 hover:text-gray-900 text-sm"
+                class="text-base-content/70 hover:text-base-content text-sm"
               >
                 {gettext("Set Default")}
               </button>
               <button
                 phx-click="duplicate_pipeline"
                 phx-value-pipeline_id={pipeline.id}
-                class="text-gray-600 hover:text-gray-900 text-sm"
+                class="text-base-content/70 hover:text-base-content text-sm"
               >
                 {gettext("Duplicate")}
               </button>

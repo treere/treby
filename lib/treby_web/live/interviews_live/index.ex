@@ -138,8 +138,8 @@ defmodule TrebyWeb.InterviewsLive.Index do
       <div class="p-8 max-w-6xl mx-auto">
         <div class="flex items-center justify-between mb-8">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Interviews</h1>
-            <p class="mt-1 text-sm text-gray-500">Manage and view all scheduled interviews</p>
+            <h1 class="text-2xl font-bold text-base-content">Interviews</h1>
+            <p class="mt-1 text-sm text-base-content/50">Manage and view all scheduled interviews</p>
           </div>
           <div class="flex items-center gap-3">
             <div class="flex gap-2">
@@ -150,7 +150,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   "px-4 py-2 text-sm rounded-md transition-colors",
                   if(@view == "all",
                     do: "bg-blue-600 text-white",
-                    else: "bg-white text-gray-700 border hover:bg-gray-50"
+                    else: "bg-base-100 text-base-content/80 border hover:bg-base-200"
                   )
                 ]}
               >
@@ -163,7 +163,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   "px-4 py-2 text-sm rounded-md transition-colors",
                   if(@view == "my",
                     do: "bg-blue-600 text-white",
-                    else: "bg-white text-gray-700 border hover:bg-gray-50"
+                    else: "bg-base-100 text-base-content/80 border hover:bg-base-200"
                   )
                 ]}
               >
@@ -191,26 +191,26 @@ defmodule TrebyWeb.InterviewsLive.Index do
           </div>
         </div>
 
-        <div :if={@interviews == []} class="text-center py-12 bg-white rounded-lg border">
-          <p class="text-gray-500">No interviews scheduled yet</p>
+        <div :if={@interviews == []} class="text-center py-12 bg-base-100 rounded-lg border">
+          <p class="text-base-content/50">No interviews scheduled yet</p>
         </div>
 
         <div :if={@interviews != []} class="space-y-3">
           <%= for event <- @interviews do %>
-            <div class="bg-white rounded-lg border p-4 hover:shadow-sm transition-shadow">
+            <div class="bg-base-100 rounded-lg border p-4 hover:shadow-sm transition-shadow">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-2">
-                    <h3 class="font-medium text-gray-900">
+                    <h3 class="font-medium text-base-content">
                       {event.application.candidate.name}
                     </h3>
-                    <span class="text-sm text-gray-500">for</span>
-                    <span class="font-medium text-gray-700">
+                    <span class="text-sm text-base-content/50">for</span>
+                    <span class="font-medium text-base-content/80">
                       {event.application.job.title}
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-4 text-sm text-gray-500">
+                  <div class="flex items-center gap-4 text-sm text-base-content/50">
                     <span class="flex items-center gap-1">
                       <.icon name="hero-calendar" class="w-4 h-4" />
                       {Elixir.Calendar.strftime(event.start_at_utc, "%B %d, %Y")}
@@ -234,7 +234,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                     <a
                       href={event.video_conf_url}
                       target="_blank"
-                      class="px-3 py-1 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100"
+                      class="px-3 py-1 text-sm bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-100 rounded-md hover:bg-green-100"
                     >
                       Join Meet
                     </a>
@@ -242,7 +242,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   <button
                     phx-click="open_scorecard"
                     phx-value-event_id={event.id}
-                    class="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100"
+                    class="px-3 py-1 text-sm bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-100 rounded-md hover:bg-blue-100"
                   >
                     Scorecard
                   </button>
@@ -250,7 +250,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                     phx-click="cancel_interview"
                     phx-value-id={event.id}
                     data-confirm="Are you sure you want to cancel this interview?"
-                    class="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                    class="px-3 py-1 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-md"
                   >
                     Cancel
                   </button>
@@ -264,11 +264,14 @@ defmodule TrebyWeb.InterviewsLive.Index do
           :if={@show_scorecard_form}
           class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
         >
-          <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div class="bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div class="p-6">
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-semibold">Scorecard</h2>
-                <button phx-click="close_scorecard" class="text-gray-400 hover:text-gray-600">
+                <button
+                  phx-click="close_scorecard"
+                  class="text-base-content/40 hover:text-base-content/70"
+                >
                   <.icon name="hero-x-mark" class="w-6 h-6" />
                 </button>
               </div>
@@ -280,7 +283,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                 class="space-y-4"
               >
                 <div :for={criterion <- @scorecard_criteria} class="space-y-1">
-                  <label class="block text-sm font-medium text-gray-700">
+                  <label class="block text-sm font-medium text-base-content/80">
                     {criterion["name"]}
                   </label>
                   <%= cond do %>
@@ -295,7 +298,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                               checked={@scorecard_form[criterion["name"]].value == to_string(n)}
                               class="sr-only peer"
                             />
-                            <span class="text-2xl peer-checked:text-yellow-500 text-gray-300 hover:text-yellow-400">
+                            <span class="text-2xl peer-checked:text-yellow-500 text-base-content/30 hover:text-yellow-400">
                               ★
                             </span>
                           </label>
@@ -335,7 +338,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                 </div>
 
                 <div class="space-y-1">
-                  <label class="block text-sm font-medium text-gray-700">Recommendation</label>
+                  <label class="block text-sm font-medium text-base-content/80">Recommendation</label>
                   <select
                     name="recommendation"
                     class="select w-full"
@@ -374,7 +377,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                 </div>
 
                 <div class="space-y-1">
-                  <label class="block text-sm font-medium text-gray-700">Notes</label>
+                  <label class="block text-sm font-medium text-base-content/80">Notes</label>
                   <textarea
                     name="notes"
                     rows="3"

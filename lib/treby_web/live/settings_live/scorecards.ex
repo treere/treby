@@ -30,7 +30,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
               &larr; {gettext("Back to Settings")}
             </.link>
             <h1 class="text-2xl font-bold mt-2">{gettext("Scorecard Templates")}</h1>
-            <p class="mt-1 text-gray-600">
+            <p class="mt-1 text-base-content/70">
               {gettext("Define evaluation criteria for interviews")}
             </p>
           </div>
@@ -42,7 +42,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
           </button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
           </h2>
@@ -53,7 +53,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
             class="space-y-4"
           >
             <div>
-              <label class="block text-sm font-medium text-gray-700">
+              <label class="block text-sm font-medium text-base-content/80">
                 {gettext("Template Name")}
               </label>
               <input
@@ -66,12 +66,14 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
             </div>
 
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">{gettext("Criteria")}</label>
+              <label class="block text-sm font-medium text-base-content/80">
+                {gettext("Criteria")}
+              </label>
               <div
                 :for={{criterion, idx} <- Enum.with_index(@criteria)}
                 class="flex gap-2 items-center"
               >
-                <span class="text-sm text-gray-500 w-8">{idx + 1}.</span>
+                <span class="text-sm text-base-content/50 w-8">{idx + 1}.</span>
                 <input
                   type="text"
                   name={"criteria[#{idx}][name]"}
@@ -154,25 +156,27 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
           </form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Criteria Count")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={template <- @templates} class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{template.name}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+            <tbody class="bg-base-100 divide-y divide-gray-200">
+              <tr :for={template <- @templates} class="hover:bg-base-200">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
+                  {template.name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
                   {length(template.criteria || [])}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -196,7 +200,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
               </tr>
             </tbody>
           </table>
-          <div :if={@templates == []} class="p-8 text-center text-gray-500">
+          <div :if={@templates == []} class="p-8 text-center text-base-content/50">
             {gettext("No scorecard templates yet. Create your first template!")}
           </div>
         </div>

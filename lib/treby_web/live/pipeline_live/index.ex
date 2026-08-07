@@ -122,7 +122,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               class={[
                 "px-3 py-1 text-sm rounded-lg",
                 @review_filter == "all" && "bg-blue-600 text-white",
-                @review_filter != "all" && "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                @review_filter != "all" && "bg-base-300 text-base-content/80 hover:bg-base-300"
               ]}
             >
               All
@@ -133,7 +133,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               class={[
                 "px-3 py-1 text-sm rounded-lg",
                 @review_filter == "new" && "bg-blue-600 text-white",
-                @review_filter != "new" && "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                @review_filter != "new" && "bg-base-300 text-base-content/80 hover:bg-base-300"
               ]}
             >
               New Only
@@ -145,13 +145,13 @@ defmodule TrebyWeb.PipelineLive.Index do
           <div
             :for={{stage, applications} <- @applications_by_stage}
             id={"stage-#{stage.id}"}
-            class="flex-shrink-0 w-80 bg-gray-100 rounded-lg p-4"
+            class="flex-shrink-0 w-80 bg-base-200 rounded-lg p-4"
             data-stage-id={stage.id}
           >
             <div class="flex items-center gap-2 mb-4">
               <div class="w-3 h-3 rounded-full" style={"background-color: #{stage.color}"}></div>
-              <h3 class="font-semibold text-gray-800">{stage.name}</h3>
-              <span class="ml-auto text-sm text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+              <h3 class="font-semibold text-base-content/90">{stage.name}</h3>
+              <span class="ml-auto text-sm text-base-content/50 bg-base-300 px-2 py-0.5 rounded-full">
                 {length(applications)}
               </span>
             </div>
@@ -167,7 +167,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 :if={@review_filter == "all" or not application.reviewed}
                 id={"application-#{application.id}"}
                 class={[
-                  "bg-white rounded-lg p-4 shadow-sm cursor-move hover:shadow-md transition-shadow relative",
+                  "bg-base-100 rounded-lg p-4 shadow-sm cursor-move hover:shadow-md transition-shadow relative",
                   application.id in @selected_ids && "ring-2 ring-blue-500"
                 ]}
                 data-application-id={application.id}
@@ -182,7 +182,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                   />
                 </div>
                 <div class="flex items-center gap-2">
-                  <p class="font-medium text-gray-900">{application.candidate.name}</p>
+                  <p class="font-medium text-base-content">{application.candidate.name}</p>
                   <span
                     :if={not application.reviewed}
                     class="text-xs bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium"
@@ -196,7 +196,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     DUPLICATE APP
                   </span>
                 </div>
-                <p class="text-sm text-gray-500">{application.candidate.email}</p>
+                <p class="text-sm text-base-content/50">{application.candidate.email}</p>
                 <p
                   :if={other_positions_text(@application_counts, application.candidate_id)}
                   class="mt-1 text-xs text-blue-700"
@@ -205,7 +205,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 </p>
                 <%= case Map.get(@upcoming_interviews, application.id) do %>
                   <% [next_interview | _] -> %>
-                    <div class="mt-2 flex items-center gap-1 text-xs text-green-700 bg-green-50 rounded px-2 py-1">
+                    <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
                       <.icon name="hero-video-camera" class="w-3 h-3" />
                       <span>
                         {Elixir.Calendar.strftime(next_interview.start_at_utc, "%b %d %H:%M")}
@@ -238,10 +238,10 @@ defmodule TrebyWeb.PipelineLive.Index do
         :if={@show_email_dialog}
         class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       >
-        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4">
           <div class="p-6">
             <h2 class="text-lg font-semibold mb-4">Send Email Notification?</h2>
-            <p class="text-sm text-gray-600 mb-4">
+            <p class="text-sm text-base-content/70 mb-4">
               <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
                 A stage transition email template exists. An email will be sent automatically when you move this candidate. You can preview it below or skip sending.
               <% else %>
@@ -249,23 +249,23 @@ defmodule TrebyWeb.PipelineLive.Index do
               <% end %>
             </p>
 
-            <div :if={@email_preview} class="p-4 bg-gray-50 rounded-lg mb-4">
-              <p class="text-sm text-gray-600 mb-2">
+            <div :if={@email_preview} class="p-4 bg-base-200 rounded-lg mb-4">
+              <p class="text-sm text-base-content/70 mb-2">
                 <strong>Subject:</strong> {@email_preview.subject}
               </p>
-              <div class="text-sm text-gray-600" phx-no-curly-interpolation>
+              <div class="text-sm text-base-content/70" phx-no-curly-interpolation>
                 {@email_preview.body}
               </div>
             </div>
 
             <%= if @show_schedule_picker do %>
-              <div class="space-y-3 p-4 bg-gray-50 rounded-lg mb-4">
+              <div class="space-y-3 p-4 bg-base-200 rounded-lg mb-4">
                 <div class="flex flex-wrap gap-2">
                   <button
                     type="button"
                     phx-click="preset_schedule"
                     phx-value-label="tomorrow_9"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
                     Tomorrow 9:00
                   </button>
@@ -273,7 +273,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     type="button"
                     phx-click="preset_schedule"
                     phx-value-label="tomorrow_14"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
                     Tomorrow 14:00
                   </button>
@@ -281,14 +281,14 @@ defmodule TrebyWeb.PipelineLive.Index do
                     type="button"
                     phx-click="preset_schedule"
                     phx-value-label="next_monday"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
                     Next Monday
                   </button>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">Date</label>
                     <input
                       type="date"
                       value={@schedule_date}
@@ -297,7 +297,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Time</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">Time</label>
                     <input
                       type="time"
                       value={@schedule_time}
@@ -313,7 +313,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     phx-click="toggle_schedule_jitter"
                     class="checkbox checkbox-sm"
                   />
-                  <span class="text-sm text-gray-600">
+                  <span class="text-sm text-base-content/70">
                     Add randomness (±{@schedule_jitter} min)
                   </span>
                 </label>
@@ -324,20 +324,20 @@ defmodule TrebyWeb.PipelineLive.Index do
               <button
                 phx-click="confirm_stage_move"
                 phx-value-action="cancel"
-                class="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300"
               >
                 Cancel
               </button>
               <button
                 phx-click="confirm_stage_move"
                 phx-value-action="skip"
-                class="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300"
               >
                 Skip Email
               </button>
               <button
                 phx-click="toggle_schedule"
-                class="px-4 py-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
+                class="px-4 py-2 text-sm text-blue-700 dark:text-blue-100 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg hover:bg-blue-100"
               >
                 {if @show_schedule_picker, do: "Remove Schedule", else: "Schedule"}
               </button>
@@ -425,7 +425,7 @@ defmodule TrebyWeb.PipelineLive.Index do
 
           <button
             phx-click="clear_selection"
-            class="text-gray-400 hover:text-white text-sm"
+            class="text-base-content/40 hover:text-white text-sm"
           >
             ✕
           </button>

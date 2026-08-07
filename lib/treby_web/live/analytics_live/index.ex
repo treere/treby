@@ -54,37 +54,37 @@ defmodule TrebyWeb.AnalyticsLive.Index do
 
         <%!-- Metrics Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-sm font-medium text-gray-500">Total Candidates</h3>
-            <p class="mt-2 text-3xl font-bold text-gray-900">
+          <div class="bg-base-100 rounded-lg shadow p-6">
+            <h3 class="text-sm font-medium text-base-content/50">Total Candidates</h3>
+            <p class="mt-2 text-3xl font-bold text-base-content">
               {Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end)}
             </p>
           </div>
-          <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-sm font-medium text-gray-500">Avg. Time to Hire</h3>
-            <p class="mt-2 text-3xl font-bold text-gray-900">
+          <div class="bg-base-100 rounded-lg shadow p-6">
+            <h3 class="text-sm font-medium text-base-content/50">Avg. Time to Hire</h3>
+            <p class="mt-2 text-3xl font-bold text-base-content">
               {if @avg_hire_days,
                 do: "#{@avg_hire_days |> Decimal.to_float() |> Float.round(1)} days",
                 else: "N/A"}
             </p>
           </div>
-          <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-sm font-medium text-gray-500">Active Jobs</h3>
-            <p class="mt-2 text-3xl font-bold text-gray-900">
+          <div class="bg-base-100 rounded-lg shadow p-6">
+            <h3 class="text-sm font-medium text-base-content/50">Active Jobs</h3>
+            <p class="mt-2 text-3xl font-bold text-base-content">
               {Enum.count(@jobs, &(&1.status == "open"))}
             </p>
           </div>
         </div>
 
         <%!-- Source Breakdown --%>
-        <div :if={@source_breakdown != []} class="bg-white rounded-lg shadow p-6 mb-8">
+        <div :if={@source_breakdown != []} class="bg-base-100 rounded-lg shadow p-6 mb-8">
           <h2 class="text-lg font-semibold mb-4">Candidates by Source</h2>
           <div class="space-y-3">
             <div :for={item <- @source_breakdown} class="flex items-center gap-4">
-              <div class="w-40 text-sm font-medium text-gray-700">
+              <div class="w-40 text-sm font-medium text-base-content/80">
                 {item.source || "Unknown"}
               </div>
-              <div class="flex-1 bg-gray-100 rounded-full h-6">
+              <div class="flex-1 bg-base-200 rounded-full h-6">
                 <div
                   class="h-6 rounded-full bg-blue-500 flex items-center justify-end pr-2"
                   style={"width: #{if @total_candidates > 0, do: max(item.count / @total_candidates * 100, 5), else: 5}%"}
@@ -94,22 +94,22 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   </span>
                 </div>
               </div>
-              <span class="w-8 text-sm text-gray-600 text-right">{item.count}</span>
+              <span class="w-8 text-sm text-base-content/70 text-right">{item.count}</span>
             </div>
           </div>
         </div>
 
         <%!-- Pipeline Overview --%>
-        <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <div class="bg-base-100 rounded-lg shadow p-6 mb-8">
           <h2 class="text-lg font-semibold mb-4">Pipeline Overview</h2>
           <div class="space-y-3">
             <div :for={item <- @pipeline_counts} class="flex items-center gap-4">
               <div class="w-32 flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full" style={"background-color: #{item.stage.color}"}>
                 </div>
-                <span class="text-sm font-medium text-gray-700">{item.stage.name}</span>
+                <span class="text-sm font-medium text-base-content/80">{item.stage.name}</span>
               </div>
-              <div class="flex-1 bg-gray-100 rounded-full h-6">
+              <div class="flex-1 bg-base-200 rounded-full h-6">
                 <div
                   class="h-6 rounded-full flex items-center justify-end pr-2"
                   style={
@@ -121,13 +121,13 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   </span>
                 </div>
               </div>
-              <span class="w-8 text-sm text-gray-600 text-right">{item.count}</span>
+              <span class="w-8 text-sm text-base-content/70 text-right">{item.count}</span>
             </div>
           </div>
         </div>
 
         <%!-- Time in Stage --%>
-        <div :if={@time_in_stage != []} class="bg-white rounded-lg shadow p-6 mb-8">
+        <div :if={@time_in_stage != []} class="bg-base-100 rounded-lg shadow p-6 mb-8">
           <h2 class="text-lg font-semibold mb-4">Time in Stage (Avg. Days)</h2>
           <div class="space-y-3">
             <div :for={item <- @time_in_stage} class="flex items-center gap-4">
@@ -137,11 +137,11 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   style={"background-color: #{if item.stage, do: item.stage.color, else: "#6B7280"}"}
                 >
                 </div>
-                <span class="text-sm font-medium text-gray-700">
+                <span class="text-sm font-medium text-base-content/80">
                   {if item.stage, do: item.stage.name, else: "Unknown"}
                 </span>
               </div>
-              <div class="flex-1 bg-gray-100 rounded-full h-6">
+              <div class="flex-1 bg-base-200 rounded-full h-6">
                 <div
                   class={[
                     "h-6 rounded-full flex items-center justify-end pr-2",
@@ -154,7 +154,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   </span>
                 </div>
               </div>
-              <span class="w-16 text-sm text-gray-600 text-right">
+              <span class="w-16 text-sm text-base-content/70 text-right">
                 {Float.round(item.avg_days, 1)}d
               </span>
             </div>
@@ -162,7 +162,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
         </div>
 
         <%!-- Hiring Funnel --%>
-        <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <div class="bg-base-100 rounded-lg shadow p-6 mb-8">
           <h2 class="text-lg font-semibold mb-4">Hiring Funnel</h2>
           <div class="flex flex-col items-center gap-1">
             <div
@@ -172,7 +172,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
               <div class="w-28 text-right flex items-center justify-end gap-2">
                 <div class="w-3 h-3 rounded-full" style={"background-color: #{item.stage.color}"}>
                 </div>
-                <span class="text-sm font-medium text-gray-700">{item.stage.name}</span>
+                <span class="text-sm font-medium text-base-content/80">{item.stage.name}</span>
               </div>
               <div class="flex-1 flex justify-center">
                 <div
@@ -188,7 +188,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   </span>
                 </div>
               </div>
-              <span class="w-10 text-sm text-gray-500 text-right">
+              <span class="w-10 text-sm text-base-content/50 text-right">
                 {total = Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end)
                 if total > 0, do: "#{trunc(item.count / total * 100)}%", else: "0%"}
               </span>
@@ -197,13 +197,13 @@ defmodule TrebyWeb.AnalyticsLive.Index do
         </div>
 
         <%!-- Conversion Rates --%>
-        <div :if={@conversion_rates != []} class="bg-white rounded-lg shadow p-6">
+        <div :if={@conversion_rates != []} class="bg-base-100 rounded-lg shadow p-6">
           <h2 class="text-lg font-semibold mb-4">Stage Conversion Rates</h2>
           <div class="space-y-2">
             <div :for={rate <- @conversion_rates} class="flex items-center gap-3 text-sm">
-              <span class="text-gray-700">{rate.from.name}</span>
-              <.icon name="hero-arrow-right" class="w-4 h-4 text-gray-400" />
-              <span class="text-gray-700">{rate.to.name}</span>
+              <span class="text-base-content/80">{rate.from.name}</span>
+              <.icon name="hero-arrow-right" class="w-4 h-4 text-base-content/40" />
+              <span class="text-base-content/80">{rate.to.name}</span>
               <span class={[
                 "font-medium ml-auto",
                 if(rate.rate >= 50, do: "text-green-600", else: "text-red-600")

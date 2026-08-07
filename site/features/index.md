@@ -25,3 +25,6 @@ Automated emails for pipeline events with stage-based templates.
 
 ## [Email Scheduler](/features/email-scheduler)
 Schedule emails for later with jitter, retries, and a full queue manager.
+
+## [Dark Mode](/features/dark-mode)
+Full dark theme with a light/dark/system toggle in the navigation.

@@ -34,10 +34,10 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             &larr; {gettext("Pipelines")}
           </.link>
           <h1 class="text-2xl font-bold mt-2">{@pipeline.name}</h1>
-          <p class="mt-1 text-gray-600">{gettext("Configure stages for this pipeline")}</p>
+          <p class="mt-1 text-base-content/70">{gettext("Configure stages for this pipeline")}</p>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-white rounded-lg shadow">
+        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_stage, do: gettext("Edit Stage"), else: gettext("New Stage")}
           </h2>
@@ -71,10 +71,10 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
 
         <div
           :if={@deleting_stage}
-          class="mb-8 p-6 bg-white rounded-lg shadow border-l-4 border-yellow-400"
+          class="mb-8 p-6 bg-base-100 rounded-lg shadow border-l-4 border-yellow-400"
         >
           <h2 class="text-lg font-semibold mb-2">{gettext("Reassign candidates")}</h2>
-          <p class="text-gray-600 mb-4">
+          <p class="text-base-content/70 mb-4">
             {gettext("%{count} candidates are in \"%{stage}\". Move them to:",
               count: @deleting_stage.active_count,
               stage: @deleting_stage.name
@@ -102,44 +102,44 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           </.form>
         </div>
 
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-base-200">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Color")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Type")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Position")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr :for={{stage, idx} <- Enum.with_index(@stages)} class="hover:bg-gray-50">
+            <tbody class="bg-base-100 divide-y divide-gray-200">
+              <tr :for={{stage, idx} <- Enum.with_index(@stages)} class="hover:bg-base-200">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="w-6 h-6 rounded-full" style={"background-color: #{stage.color}"} />
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
                   {stage.name}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
                   <span
                     :if={stage.stage_type}
-                    class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600"
+                    class="inline-flex items-center rounded-md bg-base-200 px-2 py-1 text-xs font-medium text-base-content/70"
                   >
                     {stage.stage_type}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-gray-600">
+                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
                   {stage.position}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -147,7 +147,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     :if={idx > 0}
                     phx-click="move_stage_up"
                     phx-value-stage_id={stage.id}
-                    class="text-gray-600 hover:text-gray-900 mr-2"
+                    class="text-base-content/70 hover:text-base-content mr-2"
                   >
                     &uarr;
                   </button>
@@ -155,7 +155,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     :if={idx < length(@stages) - 1}
                     phx-click="move_stage_down"
                     phx-value-stage_id={stage.id}
-                    class="text-gray-600 hover:text-gray-900 mr-2"
+                    class="text-base-content/70 hover:text-base-content mr-2"
                   >
                     &darr;
                   </button>

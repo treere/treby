@@ -1,10 +1,10 @@
 <Layouts.app flash={@flash} current_scope={@current_user}>
   <div class="max-w-6xl mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Email Queue</h1>
+      <h1 class="text-2xl font-bold text-base-content">Email Queue</h1>
     </div>
 
-    <div class="mb-6 border-b border-gray-200">
+    <div class="mb-6 border-b border-base-300">
       <nav class="flex space-x-8" role="tablist">
         <button
           phx-click="switch_tab"
@@ -13,7 +13,7 @@
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
             @tab == "queued" && "border-blue-500 text-blue-600",
             @tab != "queued" &&
-              "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
         >
           Queued ({@counts.queued})
@@ -25,7 +25,7 @@
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
             @tab == "sent" && "border-blue-500 text-blue-600",
             @tab != "sent" &&
-              "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
         >
           Sent ({@counts.sent})
@@ -37,7 +37,7 @@
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
             @tab == "failed" && "border-red-500 text-red-600",
             @tab != "failed" &&
-              "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
         >
           Failed ({@counts.failed})
@@ -47,9 +47,9 @@
           phx-value-tab="cancelled"
           class={[
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
-            @tab == "cancelled" && "border-gray-500 text-gray-600",
+            @tab == "cancelled" && "border-gray-500 text-base-content/70",
             @tab != "cancelled" &&
-              "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
         >
           Cancelled ({@counts.cancelled})
@@ -58,8 +58,8 @@
     </div>
 
     <%= if @selected_ids != MapSet.new() do %>
-      <div class="mb-4 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <span class="text-sm text-gray-600">{MapSet.size(@selected_ids)} selected</span>
+      <div class="mb-4 flex items-center gap-3 p-3 bg-base-200 rounded-lg border border-base-300">
+        <span class="text-sm text-base-content/70">{MapSet.size(@selected_ids)} selected</span>
         <%= if @tab == "queued" do %>
           <button
             phx-click="bulk_send_now"
@@ -76,16 +76,16 @@
         <% end %>
         <button
           phx-click="deselect_all"
-          class="text-sm px-3 py-1.5 text-gray-600 hover:text-gray-800 transition-colors"
+          class="text-sm px-3 py-1.5 text-base-content/70 hover:text-base-content/90 transition-colors"
         >
           Clear selection
         </button>
       </div>
     <% end %>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
       <%= if @emails == [] do %>
-        <div class="text-center py-16 text-gray-500">
+        <div class="text-center py-16 text-base-content/50">
           <p class="text-lg font-medium">
             <%= case @tab do %>
               <% "queued" -> %>
@@ -113,7 +113,7 @@
         </div>
       <% else %>
         <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+          <thead class="bg-base-200">
             <tr>
               <th class="w-10 px-3 py-3">
                 <input
@@ -129,16 +129,16 @@
                   class="checkbox checkbox-sm"
                 />
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                 To
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                 Subject
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden md:table-cell">
                 Type
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden md:table-cell">
                 <%= if @tab in ~w(queued cancelled) do %>
                   Scheduled
                 <% else %>
@@ -146,11 +146,11 @@
                 <% end %>
               </th>
               <%= if @tab == "failed" do %>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden lg:table-cell">
                   Error
                 </th>
               <% end %>
-              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-4 py-3 text-right text-xs font-medium text-base-content/50 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -158,8 +158,8 @@
           <tbody class="divide-y divide-gray-200">
             <%= for email <- @emails do %>
               <tr class={[
-                "hover:bg-gray-50 transition-colors",
-                email.status == "scheduled" && "bg-blue-50/30"
+                "hover:bg-base-200 transition-colors",
+                email.status == "scheduled" && "bg-blue-50 dark:bg-blue-950/30"
               ]}>
                 <td class="w-10 px-3 py-4">
                   <%= if @tab == "queued" or @tab == "cancelled" do %>
@@ -172,18 +172,18 @@
                     />
                   <% end %>
                 </td>
-                <td class="px-4 py-4 text-sm text-gray-900 max-w-[180px] truncate">
+                <td class="px-4 py-4 text-sm text-base-content max-w-[180px] truncate">
                   {email.to_address}
                 </td>
-                <td class="px-4 py-4 text-sm text-gray-700 max-w-[280px] truncate">
+                <td class="px-4 py-4 text-sm text-base-content/80 max-w-[280px] truncate">
                   {email.subject}
                 </td>
-                <td class="px-4 py-4 text-sm text-gray-500 hidden md:table-cell">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                <td class="px-4 py-4 text-sm text-base-content/50 hidden md:table-cell">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-base-200 text-base-content/80">
                     {email_type_label(email.email_type)}
                   </span>
                 </td>
-                <td class="px-4 py-4 text-sm text-gray-500 hidden md:table-cell whitespace-nowrap">
+                <td class="px-4 py-4 text-sm text-base-content/50 hidden md:table-cell whitespace-nowrap">
                   <%= cond do %>
                     <% email.status == "sent" -> %>
                       {format_datetime(email.sent_at)}
@@ -192,7 +192,7 @@
                     <% true -> %>
                       {format_datetime(email.scheduled_at)}
                       <%= if email.jitter_minutes && email.jitter_minutes > 0 do %>
-                        <span class="text-xs text-gray-400">±{email.jitter_minutes}m</span>
+                        <span class="text-xs text-base-content/40">±{email.jitter_minutes}m</span>
                       <% end %>
                   <% end %>
                 </td>
@@ -261,7 +261,7 @@
                     </button>
                   <% end %>
                   <%= if @tab == "sent" do %>
-                    <span class="text-gray-400">-</span>
+                    <span class="text-base-content/40">-</span>
                   <% end %>
                 </td>
               </tr>
@@ -274,8 +274,8 @@
 
   <%= if @edit_email do %>
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div class="bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Edit Scheduled Email</h2>
+      <div class="bg-base-100 rounded-xl shadow-xl max-w-lg w-full mx-4 p-6">
+        <h2 class="text-lg font-semibold text-base-content mb-4">Edit Scheduled Email</h2>
 
         <.form
           for={@edit_form}
@@ -285,19 +285,19 @@
         >
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+              <label class="block text-sm font-medium text-base-content/80 mb-1">To</label>
               <input
                 type="text"
                 value={@edit_email.to_address}
                 disabled
                 class="input w-full bg-base-200 text-base-content/60"
               />
-              <p class="text-xs text-gray-400 mt-1">Recipient cannot be changed</p>
+              <p class="text-xs text-base-content/40 mt-1">Recipient cannot be changed</p>
             </div>
             <div>
               <label
                 for="scheduled_email_subject"
-                class="block text-sm font-medium text-gray-700 mb-1"
+                class="block text-sm font-medium text-base-content/80 mb-1"
               >
                 Subject
               </label>
@@ -312,7 +312,7 @@
             <div>
               <label
                 for="scheduled_email_body"
-                class="block text-sm font-medium text-gray-700 mb-1"
+                class="block text-sm font-medium text-base-content/80 mb-1"
               >
                 Body
               </label>
@@ -327,7 +327,7 @@
               <div>
                 <label
                   for="scheduled_email_scheduled_at_date"
-                  class="block text-sm font-medium text-gray-700 mb-1"
+                  class="block text-sm font-medium text-base-content/80 mb-1"
                 >
                   Date
                 </label>
@@ -342,7 +342,7 @@
               <div>
                 <label
                   for="scheduled_email_scheduled_at_time"
-                  class="block text-sm font-medium text-gray-700 mb-1"
+                  class="block text-sm font-medium text-base-content/80 mb-1"
                 >
                   Time
                 </label>
@@ -358,7 +358,7 @@
             <div>
               <label
                 for="scheduled_email_jitter_minutes"
-                class="block text-sm font-medium text-gray-700 mb-1"
+                class="block text-sm font-medium text-base-content/80 mb-1"
               >
                 Jitter (± minutes)
               </label>
@@ -371,7 +371,7 @@
                 max="30"
                 class="input w-24"
               />
-              <p class="text-xs text-gray-400 mt-1">
+              <p class="text-xs text-base-content/40 mt-1">
                 Adds randomness so emails don't all arrive at the exact same time
               </p>
             </div>
@@ -381,7 +381,7 @@
             <button
               type="button"
               phx-click="close_edit"
-              class="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
             >
               Cancel
             </button>

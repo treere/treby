@@ -36,7 +36,7 @@ You can customize these in **Settings → Pipeline Stages**: change names, color
 
 ## Usage
 
-1. Navigate to any job's pipeline from the Jobs list
+1. Open any job from the **Jobs** page and click the pipeline link — there is no separate top-level Pipeline page
 2. Click and drag a candidate card to a new stage
 3. All team members see the update in real time
-4. Click on a candidate card to open their full profile
+4. Click a candidate's name on a card to open their full profile

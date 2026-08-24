@@ -32,6 +32,19 @@ The system SHALL provide a public page where candidates can select an interview 
 - **WHEN** a candidate navigates to a booking link that has already been used
 - **THEN** the system displays a message indicating the link has already been used
 
+### Requirement: Email booking link to candidate
+The system SHALL allow recruiters to email a candidate a self-scheduling booking link.
+
+#### Scenario: Email booking link from scheduling page
+- **WHEN** a recruiter clicks "Email booking link" on the scheduling page for an application
+- **THEN** the system generates a booking token linked to the application
+- **AND** emails the candidate a link in the format `/:tenant_slug/schedule/:token`
+
+#### Scenario: Candidate receives booking link email
+- **WHEN** a candidate receives the booking link email
+- **THEN** the email explains they can choose their own interview time slot
+- **AND** the booking link opens the public booking page with available slots
+
 ### Requirement: Candidate selects slot
 The system SHALL allow candidates to select an available time slot.
 

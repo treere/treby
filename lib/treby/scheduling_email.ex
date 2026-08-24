@@ -45,6 +45,35 @@ defmodule Treby.SchedulingEmail do
     """)
   end
 
+  def booking_link_candidate(candidate, job, tenant, link) do
+    new()
+    |> to(candidate.email)
+    |> from({"Treby", "noreply@treby.app"})
+    |> subject("Book your interview - #{job.title}")
+    |> html_body("""
+    <h2>Schedule your interview</h2>
+    <p>Hi #{candidate.name},</p>
+    <p>We'd like to move forward with your application for <strong>#{job.title}</strong> at #{tenant.name}.</p>
+    <p>Please choose an interview time that works for you by clicking the link below:</p>
+    <p><a href="#{link}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px;">Choose your interview time</a></p>
+    <p>If the button doesn't work, copy and paste this link into your browser: <a href="#{link}" style="color: #2563eb;">#{link}</a></p>
+    <p>The link will expire in 7 days. We look forward to speaking with you!</p>
+    """)
+    |> text_body("""
+    Schedule your interview
+
+    Hi #{candidate.name},
+
+    We'd like to move forward with your application for #{job.title} at #{tenant.name}.
+
+    Please choose an interview time that works for you by opening this link:
+
+    #{link}
+
+    The link will expire in 7 days. We look forward to speaking with you!
+    """)
+  end
+
   def interview_scheduled_interviewer(interviewer, candidate, job, meet_link, start_at) do
     new()
     |> to(interviewer.email)

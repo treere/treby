@@ -179,4 +179,21 @@ defmodule Treby.Interviews do
     |> BookingToken.changeset(%{used_at: DateTime.utc_now()})
     |> Repo.update()
   end
+
+  @doc """
+  Generates a booking token and returns the absolute self-scheduling URL.
+  """
+  def generate_booking_link(attrs) do
+    with {:ok, %BookingToken{} = token} <- generate_booking_token(attrs),
+         tenant <- Repo.preload(token, [:tenant]).tenant do
+      {:ok, absolute_booking_url(tenant, token.token)}
+    end
+  end
+
+  @doc """
+  Builds the absolute booking URL for a tenant slug and token.
+  """
+  def absolute_booking_url(%Treby.Tenants.Tenant{} = tenant, token) do
+    TrebyWeb.Endpoint.url() <> "/#{tenant.slug}/schedule/#{token}"
+  end
 end

@@ -365,6 +365,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 >
                   View Resume
                 </a>
+                <.link
+                  navigate={~p"/app/schedule/#{application.id}"}
+                  class="text-sm text-blue-600 hover:text-blue-900"
+                >
+                  Schedule Interview
+                </.link>
                 <span class="text-sm text-base-content/40">
                   {Calendar.strftime(application.inserted_at, "%b %d, %Y")}
                 </span>

@@ -27,6 +27,14 @@ The system SHALL compute available time slots by combining availability rules wi
 - **WHEN** a user requests available slots for a day where the interviewer has no availability rules
 - **THEN** no slots are returned for that day
 
+### Requirement: Reach scheduling from candidate page
+The system SHALL allow recruiters to open the scheduling page for an application from the candidate detail page.
+
+#### Scenario: Schedule Interview action on candidate page
+- **WHEN** a recruiter views a candidate's application list
+- **THEN** each application shows a "Schedule Interview" action
+- **AND** clicking it navigates to `/app/schedule/:application_id`
+
 ### Requirement: Schedule interview as recruiter
 The system SHALL allow recruiters to schedule interviews from the application page.
 

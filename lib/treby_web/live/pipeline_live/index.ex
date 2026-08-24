@@ -182,7 +182,12 @@ defmodule TrebyWeb.PipelineLive.Index do
                   />
                 </div>
                 <div class="flex items-center gap-2">
-                  <p class="font-medium text-base-content">{application.candidate.name}</p>
+                  <.link
+                    navigate={~p"/app/candidates/#{application.candidate_id}"}
+                    class="font-medium text-base-content hover:text-blue-600"
+                  >
+                    {application.candidate.name}
+                  </.link>
                   <span
                     :if={not application.reviewed}
                     class="text-xs bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium"

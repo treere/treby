@@ -1,6 +1,8 @@
 defmodule Treby.InterviewsTest do
   use Treby.DataCase, async: true
 
+  import Swoosh.TestAssertions
+
   alias Treby.Interviews
   alias Treby.Interviews.InterviewEvent
   alias Treby.Interviews.BookingToken
@@ -23,6 +25,22 @@ defmodule Treby.InterviewsTest do
       assert {:ok, %InterviewEvent{} = event} = Interviews.schedule_interview(attrs)
       assert event.status == "scheduled"
       assert event.duration_minutes == 30
+    end
+
+    test "sends confirmation email to the candidate", %{
+      user: user,
+      interviewer: interviewer,
+      tenant: tenant
+    } do
+      attrs = valid_interview_attrs(user.id, interviewer.id, tenant.id)
+
+      {:ok, event} = Interviews.schedule_interview(attrs)
+      event = Treby.Repo.preload(event, application: [:candidate, :job])
+
+      assert_email_sent(
+        to: [{"", event.application.candidate.email}],
+        subject: "Interview Scheduled - #{event.application.job.title}"
+      )
     end
 
     test "returns error with invalid attrs" do

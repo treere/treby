@@ -214,6 +214,59 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
     end
   end
 
+  describe "show page - schedule interview" do
+    test "shows a Schedule Interview link per application", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> Treby.Pipeline.PipelineStage.changeset(%{
+          name: "Applied",
+          position: 0,
+          stage_type: "applied"
+        })
+        |> Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Treby.Jobs.Job.changeset(%{
+          title: "Platform Engineer",
+          description: "Build platform",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Treby.Candidates.Candidate.changeset(%{
+          name: "Schedule Person",
+          email: "scheduleperson@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      conn = login_user(conn, user)
+      {:ok, _view, html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      assert html =~ "Schedule Interview"
+      assert html =~ "/app/schedule/#{application.id}"
+    end
+  end
+
   describe "show page - compose email" do
     test "shows compose email button", %{conn: conn} do
       {tenant, user} = setup_tenant()

@@ -6,7 +6,7 @@ Treby packs everything a small hiring team needs — in a clean, fast, open-sour
 ---
 
 ## [Kanban Pipeline](/features/pipeline)
-Drag-and-drop candidates through customizable pipeline stages with real-time updates.
+Drag-and-drop candidates through customizable pipeline stages with role-based access, scorecard gating, and rejection workflows.
 
 ## [Public Career Pages](/features/career-pages)
 Publish branded career pages for external applicants with resume upload.
@@ -15,7 +15,7 @@ Publish branded career pages for external applicants with resume upload.
 Central candidate database with notes, ratings, custom fields, and full history.
 
 ## [Interview Scheduling](/features/interview-scheduling)
-Self-scheduling via Google Calendar with automatic Google Meet links.
+Self-scheduling via Google Calendar with multi-examiner overlapping availability and automatic Google Meet links.
 
 ## [Analytics Dashboard](/features/analytics)
 Hiring metrics, conversion rates, and pipeline overview.

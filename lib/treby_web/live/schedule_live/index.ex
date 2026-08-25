@@ -258,7 +258,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
         start_at_utc: slot.start,
         end_at_utc: slot.end,
         duration_minutes: 30,
-        interviewer_id: interviewer.id,
+        examiner_ids: [interviewer.id],
         scheduled_by_id: socket.assigns.current_user.id,
         application_id: app.id,
         tenant_id: socket.assigns.current_tenant.id
@@ -289,23 +289,8 @@ defmodule TrebyWeb.ScheduleLive.Index do
                |> put_flash(:info, "Interview scheduled successfully!")
                |> push_navigate(to: ~p"/app/candidates/#{app.candidate_id}")}
 
-            {:error, changeset} ->
-              errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
-
-              if Keyword.has_key?(errors, :interviewer_id) do
-                # Slot was taken by someone else — refresh available slots
-                refreshed_slots = recompute_slots(socket, socket.assigns.selected_date)
-
-                {:noreply,
-                 socket
-                 |> assign(slots: refreshed_slots, selected_slot: nil)
-                 |> put_flash(
-                   :error,
-                   "That time slot is no longer available. Please choose another."
-                 )}
-              else
-                {:noreply, put_flash(socket, :error, "Failed to schedule interview")}
-              end
+            {:error, _changeset} ->
+              {:noreply, put_flash(socket, :error, "Failed to schedule interview")}
           end
 
         {:error, _reason} ->

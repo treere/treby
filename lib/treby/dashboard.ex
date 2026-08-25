@@ -20,13 +20,17 @@ defmodule Treby.Dashboard do
 
     Treby.Interviews.InterviewEvent
     |> join(:inner, [e], a in assoc(e, :application))
-    |> where([e, a], a.tenant_id == ^tenant_id and e.interviewer_id == ^user_id)
+    |> join(:inner, [e], ee in Treby.Interviews.EventExaminer, on: ee.interview_event_id == e.id)
+    |> where(
+      [e, a, ee],
+      a.tenant_id == ^tenant_id and ee.user_id == ^user_id and ee.status == "scheduled"
+    )
     |> where(
       [e],
       e.status == "scheduled" and e.start_at_utc > ^DateTime.utc_now() and
         e.start_at_utc <= ^cutoff
     )
-    |> preload([:application, :interviewer])
+    |> preload([e, a, ee], event_examiners: [:user], application: [])
     |> order_by([e], asc: e.start_at_utc)
     |> Repo.all()
   end

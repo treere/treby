@@ -9,13 +9,17 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
     pipelines = Pipeline.list_pipelines(tenant.id)
+    templates = Pipeline.list_templates(tenant.id)
 
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(pipelines: pipelines)
+     |> assign(templates: templates)
      |> assign(show_form: false)
+     |> assign(show_template_form: false)
      |> assign(form: to_form(Pipeline.change_pipeline(%PipelineDef{})))
+     |> assign(template_form: to_form(Pipeline.change_pipeline(%PipelineDef{})))
      |> assign(confirm_delete: nil)}
   end
 
@@ -124,6 +128,73 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             </div>
           </div>
         </div>
+
+        <%!-- Templates Section --%>
+        <div class="mt-12">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="text-xl font-bold">{gettext("Pipeline Templates")}</h2>
+              <p class="mt-1 text-base-content/70">{gettext("Reusable pipeline configurations")}</p>
+            </div>
+            <button
+              phx-click="show_create_template_form"
+              class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+            >
+              + {gettext("New Template")}
+            </button>
+          </div>
+
+          <div :if={@show_template_form} class="mb-6 p-6 bg-base-100 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-4">{gettext("New Template")}</h3>
+            <.form
+              for={@template_form}
+              id="template-form"
+              phx-submit="save_template"
+              class="flex gap-4 items-end"
+            >
+              <.input
+                field={@template_form[:name]}
+                type="text"
+                label={gettext("Name")}
+                placeholder={gettext("e.g. Standard Engineering Template")}
+              />
+              <div class="flex gap-2">
+                <.button type="submit">{gettext("Create")}</.button>
+                <.button type="button" phx-click="cancel_template_form" class="bg-gray-500">
+                  {gettext("Cancel")}
+                </.button>
+              </div>
+            </.form>
+          </div>
+
+          <div :if={@templates == []} class="text-center py-8 bg-base-100 rounded-lg border">
+            <p class="text-base-content/50">{gettext("No templates yet")}</p>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              :for={template <- @templates}
+              class="bg-base-100 rounded-lg shadow p-4 flex items-center justify-between"
+            >
+              <div>
+                <h3 class="font-medium text-base-content">{template.name}</h3>
+                <p class="text-sm text-base-content/50">
+                  {gettext("%{count} stages", count: length(template.pipeline_stages))}
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  phx-click="delete_template"
+                  phx-value-id={template.id}
+                  data-confirm={gettext("Are you sure you want to delete this template?")}
+                  class="text-red-600 hover:text-red-900 text-sm"
+                >
+                  {gettext("Delete")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_pipeline" />
@@ -215,6 +286,55 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
          socket
          |> assign(confirm_delete: nil)
          |> put_flash(:error, "Cannot delete the default pipeline")}
+    end
+  end
+
+  def handle_event("show_create_template_form", _, socket) do
+    form = to_form(Pipeline.change_pipeline(%PipelineDef{}))
+    {:noreply, assign(socket, show_template_form: true, template_form: form)}
+  end
+
+  def handle_event("cancel_template_form", _, socket) do
+    {:noreply, assign(socket, show_template_form: false)}
+  end
+
+  def handle_event("save_template", %{"pipeline" => params}, socket) do
+    attrs =
+      params
+      |> Map.put("tenant_id", socket.assigns.current_tenant.id)
+      |> Map.put("is_template", true)
+
+    case Pipeline.create_template(attrs) do
+      {:ok, _template} ->
+        templates = Pipeline.list_templates(socket.assigns.current_tenant.id)
+
+        {:noreply,
+         socket
+         |> assign(templates: templates, show_template_form: false)
+         |> put_flash(:info, "Template created")}
+
+      {:error, changeset} ->
+        {:noreply,
+         socket
+         |> assign(template_form: to_form(changeset))
+         |> put_flash(:error, "Please review the errors below")}
+    end
+  end
+
+  def handle_event("delete_template", %{"id" => template_id}, socket) do
+    template = Pipeline.get_pipeline!(template_id)
+
+    case Pipeline.delete_template(template) do
+      :ok ->
+        templates = Pipeline.list_templates(socket.assigns.current_tenant.id)
+
+        {:noreply,
+         socket
+         |> assign(templates: templates)
+         |> put_flash(:info, "Template deleted")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Could not delete template: #{inspect(reason)}")}
     end
   end
 end

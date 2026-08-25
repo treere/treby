@@ -60,7 +60,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         Treby.Interviews.InterviewEvent
         |> where([e], e.application_id in ^application_ids)
         |> order_by([e], desc: e.start_at_utc)
-        |> preload([:application, :interviewer])
+        |> preload([:application, examiners: :user])
         |> Treby.Repo.all()
       else
         []
@@ -283,7 +283,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                         </span>
                         <span class="flex items-center gap-1">
                           <.icon name="hero-user" class="w-4 h-4" />
-                          {interview.interviewer.name}
+                          {interview.examiners |> Enum.map(& &1.name) |> Enum.join(", ")}
                         </span>
                       </div>
                     </div>

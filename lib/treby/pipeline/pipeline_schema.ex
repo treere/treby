@@ -8,6 +8,7 @@ defmodule Treby.Pipeline.Pipeline do
   schema "pipelines" do
     field :name, :string
     field :is_default, :boolean, default: false
+    field :is_template, :boolean, default: false
 
     belongs_to :tenant, Treby.Tenants.Tenant
     has_many :pipeline_stages, Treby.Pipeline.PipelineStage
@@ -18,7 +19,7 @@ defmodule Treby.Pipeline.Pipeline do
   @doc false
   def changeset(pipeline, attrs) do
     pipeline
-    |> cast(attrs, [:name, :is_default, :tenant_id])
+    |> cast(attrs, [:name, :is_default, :is_template, :tenant_id])
     |> validate_required([:name])
   end
 end

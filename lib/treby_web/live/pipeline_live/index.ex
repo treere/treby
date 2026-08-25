@@ -60,7 +60,9 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(schedule_datetime: nil)
      |> assign(schedule_date: Calendar.strftime(DateTime.utc_now(), "%Y-%m-%d"))
      |> assign(schedule_time: "09:00")
-     |> assign(schedule_jitter: 5)}
+     |> assign(schedule_jitter: 5)
+     |> assign(rejecting_application: nil)
+     |> assign(rejection_reason: "")}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
@@ -138,6 +140,17 @@ defmodule TrebyWeb.PipelineLive.Index do
             >
               New Only
             </button>
+            <button
+              phx-click="filter_review"
+              value="rejected"
+              class={[
+                "px-3 py-1 text-sm rounded-lg",
+                @review_filter == "rejected" && "bg-red-600 text-white",
+                @review_filter != "rejected" && "bg-base-300 text-base-content/80 hover:bg-base-300"
+              ]}
+            >
+              Rejected
+            </button>
           </div>
         </div>
 
@@ -164,7 +177,11 @@ defmodule TrebyWeb.PipelineLive.Index do
             >
               <div
                 :for={application <- applications}
-                :if={@review_filter == "all" or not application.reviewed}
+                :if={
+                  @review_filter == "all" or
+                    (@review_filter == "new" and not application.reviewed) or
+                    (@review_filter == "rejected" and application.rejection_reason != nil)
+                }
                 id={"application-#{application.id}"}
                 class={[
                   "bg-base-100 rounded-lg p-4 shadow-sm cursor-move hover:shadow-md transition-shadow relative",
@@ -218,6 +235,15 @@ defmodule TrebyWeb.PipelineLive.Index do
                     </div>
                   <% _ -> %>
                 <% end %>
+                <%= if stage.stage_type == "interview" do %>
+                  <% scorecard_status = scorecard_status_for_card(application) %>
+                  <div class="mt-2 flex items-center gap-1 text-xs text-base-content/60">
+                    <.icon name="hero-document-text" class="w-3 h-3" />
+                    <span>
+                      {scorecard_status.completed}/{scorecard_status.total} scorecards
+                    </span>
+                  </div>
+                <% end %>
                 <a
                   :if={application.resume_url}
                   href={~p"/app/applications/#{application.id}/resume"}
@@ -225,6 +251,34 @@ defmodule TrebyWeb.PipelineLive.Index do
                 >
                   View Resume
                 </a>
+                <div class="flex items-center gap-3 mt-1">
+                  <%= if stage.stage_type == "interview" and Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                    <% scorecards_done = scorecards_completed_for_card(application) %>
+                    <button
+                      phx-click="advance_application"
+                      phx-value-id={application.id}
+                      disabled={not scorecards_done}
+                      class={[
+                        "text-xs mt-1",
+                        if(scorecards_done,
+                          do: "text-green-600 hover:text-green-900",
+                          else: "text-base-content/30 cursor-not-allowed"
+                        )
+                      ]}
+                    >
+                      Advance
+                    </button>
+                  <% end %>
+                  <%= if Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                    <button
+                      phx-click="reject_application"
+                      phx-value-id={application.id}
+                      class="text-xs text-red-600 hover:text-red-900 mt-1"
+                    >
+                      Reject
+                    </button>
+                  <% end %>
+                </div>
               </div>
             </div>
           </div>
@@ -236,6 +290,45 @@ defmodule TrebyWeb.PipelineLive.Index do
           title="No applications yet"
           description="When candidates apply to this job, they'll appear here in your pipeline. Drag and drop cards between stages to move candidates forward."
         />
+      </div>
+
+      <%!-- Rejection Modal --%>
+      <div
+        :if={@rejecting_application}
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        phx-click="cancel_reject"
+      >
+        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
+          <div class="p-6">
+            <h2 class="text-lg font-semibold mb-2">Reject Candidate</h2>
+            <p class="text-sm text-base-content/70 mb-4">
+              Are you sure you want to reject {@rejecting_application.candidate.name}?
+            </p>
+            <textarea
+              id="rejection-reason"
+              class="w-full border rounded-lg p-2 text-sm mb-4"
+              rows="3"
+              placeholder="Reason for rejection (required)"
+              required
+              phx-change="update_rejection_reason"
+              phx-hook=".AutoResize"
+            >{@rejection_reason}</textarea>
+            <div class="flex justify-end gap-2">
+              <button
+                phx-click="cancel_reject"
+                class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
+              >
+                Cancel
+              </button>
+              <button
+                phx-click="confirm_reject"
+                class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <%!-- Email Confirmation Dialog --%>
@@ -449,47 +542,57 @@ defmodule TrebyWeb.PipelineLive.Index do
     application = Pipeline.get_application!(application_id)
     stage = Pipeline.get_pipeline_stage!(stage_id)
 
-    # Check for email template
-    email_template =
-      EmailTemplates.get_email_template_for_stage(
-        socket.assigns.current_tenant.id,
-        stage.stage_type
-      )
-
-    if email_template do
-      # Show confirmation dialog with email preview
-      sample_assigns = %{
-        candidate_name: application.candidate.name,
-        job_title: application.job.title,
-        company_name: socket.assigns.current_tenant.name,
-        stage_name: stage.name,
-        recruiter_name: socket.assigns.current_user.name
-      }
-
-      {preview_subject, preview_body} =
-        EmailTemplates.render_email(email_template, sample_assigns)
-
-      now = DateTime.utc_now()
-
+    # Check advancer permission for the target stage
+    if not Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) do
       {:noreply,
-       socket
-       |> assign(show_email_dialog: true)
-       |> assign(pending_stage_move: %{application: application, stage: stage})
-       |> assign(
-         email_preview: %{subject: preview_subject, body: preview_body, template: email_template}
-       )
-       |> assign(show_schedule_picker: false, schedule_datetime: nil)
-       |> assign(schedule_date: Calendar.strftime(now, "%Y-%m-%d"), schedule_time: "09:00")
-       |> assign(schedule_jitter: 5)}
+       put_flash(socket, :error, "You are not authorized to move candidates to this stage")}
     else
-      # No email template, move directly
-      case Pipeline.move_application(application, stage_id, actor: socket.assigns.current_user) do
-        {:ok, _application} ->
-          applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
-          {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
+      # Check for email template
+      email_template =
+        EmailTemplates.get_email_template_for_stage(
+          socket.assigns.current_tenant.id,
+          stage.stage_type
+        )
 
-        {:error, _changeset} ->
-          {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+      if email_template do
+        # Show confirmation dialog with email preview
+        sample_assigns = %{
+          candidate_name: application.candidate.name,
+          job_title: application.job.title,
+          company_name: socket.assigns.current_tenant.name,
+          stage_name: stage.name,
+          recruiter_name: socket.assigns.current_user.name
+        }
+
+        {preview_subject, preview_body} =
+          EmailTemplates.render_email(email_template, sample_assigns)
+
+        now = DateTime.utc_now()
+
+        {:noreply,
+         socket
+         |> assign(show_email_dialog: true)
+         |> assign(pending_stage_move: %{application: application, stage: stage})
+         |> assign(
+           email_preview: %{
+             subject: preview_subject,
+             body: preview_body,
+             template: email_template
+           }
+         )
+         |> assign(show_schedule_picker: false, schedule_datetime: nil)
+         |> assign(schedule_date: Calendar.strftime(now, "%Y-%m-%d"), schedule_time: "09:00")
+         |> assign(schedule_jitter: 5)}
+      else
+        # No email template, move directly
+        case Pipeline.move_application(application, stage_id, actor: socket.assigns.current_user) do
+          {:ok, _application} ->
+            applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+            {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
+
+          {:error, _changeset} ->
+            {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+        end
       end
     end
   end
@@ -695,6 +798,105 @@ defmodule TrebyWeb.PipelineLive.Index do
     {:noreply, assign(socket, selected_ids: [], bulk_action: nil)}
   end
 
+  def handle_event("reject_application", %{"id" => application_id}, socket) do
+    application = Pipeline.get_application!(application_id)
+
+    {:noreply,
+     socket
+     |> assign(rejecting_application: application, rejection_reason: "")}
+  end
+
+  def handle_event("cancel_reject", _, socket) do
+    {:noreply,
+     socket
+     |> assign(rejecting_application: nil, rejection_reason: "")}
+  end
+
+  def handle_event("confirm_reject", _, socket) do
+    application = socket.assigns.rejecting_application
+
+    if String.trim(socket.assigns.rejection_reason) == "" do
+      {:noreply, put_flash(socket, :error, "Rejection motivation is required")}
+    else
+      # Find the "rejected" stage for this pipeline
+      job = Jobs.get_job!(socket.assigns.current_tenant.id, application.job_id)
+      stages = Pipeline.list_pipeline_stages(job.pipeline_id)
+      rejected_stage = Enum.find(stages, &(&1.stage_type == "rejected"))
+
+      if rejected_stage do
+        attrs = %{rejection_reason: socket.assigns.rejection_reason}
+
+        case Pipeline.move_application(application, rejected_stage.id,
+               actor: socket.assigns.current_user,
+               attrs: attrs
+             ) do
+          {:ok, _application} ->
+            applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+            {:noreply,
+             socket
+             |> assign(
+               applications_by_stage: applications_by_stage,
+               rejecting_application: nil,
+               rejection_reason: ""
+             )
+             |> put_flash(:info, "Candidate rejected")}
+
+          {:error, _changeset} ->
+            {:noreply, put_flash(socket, :error, "Failed to reject candidate")}
+        end
+      else
+        {:noreply,
+         socket
+         |> assign(rejecting_application: nil, rejection_reason: "")
+         |> put_flash(:error, "No rejected stage found in this pipeline")}
+      end
+    end
+  end
+
+  def handle_event("update_rejection_reason", %{"value" => value}, socket) do
+    {:noreply, assign(socket, rejection_reason: value)}
+  end
+
+  def handle_event("advance_application", %{"id" => application_id}, socket) do
+    application = Pipeline.get_application!(application_id)
+    application = application |> Treby.Repo.preload(:pipeline_stage)
+    stage = application.pipeline_stage
+
+    cond do
+      not Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) ->
+        {:noreply,
+         put_flash(socket, :error, "You are not authorized to advance candidates from this stage")}
+
+      stage.stage_type == "interview" and not Pipeline.all_scorecards_completed?(application) ->
+        {:noreply, put_flash(socket, :error, "All scorecards must be submitted before advancing")}
+
+      true ->
+        # Find the next stage in the pipeline
+        job = Jobs.get_job!(socket.assigns.current_tenant.id, application.job_id)
+        stages = Pipeline.list_pipeline_stages(job.pipeline_id)
+        current_idx = Enum.find_index(stages, &(&1.id == stage.id))
+
+        next_stage =
+          current_idx && current_idx + 1 < length(stages) && Enum.at(stages, current_idx + 1)
+
+        if next_stage do
+          case Pipeline.move_application(application, next_stage.id,
+                 actor: socket.assigns.current_user
+               ) do
+            {:ok, _application} ->
+              applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+              {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
+
+            {:error, _changeset} ->
+              {:noreply, put_flash(socket, :error, "Failed to advance candidate")}
+          end
+        else
+          {:noreply, put_flash(socket, :error, "No next stage found in this pipeline")}
+        end
+    end
+  end
+
   defp clear_stage_move_dialog(socket) do
     assign(socket,
       show_email_dialog: false,
@@ -801,5 +1003,42 @@ defmodule TrebyWeb.PipelineLive.Index do
       label = if other == 1, do: "position", else: "positions"
       "Also in #{other} other #{label}"
     end
+  end
+
+  defp scorecard_status_for_card(application) do
+    application =
+      application
+      |> Treby.Repo.preload(interviews: :event_examiners)
+
+    examiner_ids =
+      application.interviews
+      |> Enum.flat_map(&Enum.map(&1.event_examiners, fn ee -> ee.user_id end))
+      |> Enum.uniq()
+
+    total = length(examiner_ids)
+
+    if total == 0 do
+      %{completed: 0, total: 0}
+    else
+      completed =
+        application.interviews
+        |> Enum.map(& &1.id)
+        |> then(fn event_ids ->
+          import Ecto.Query
+
+          Treby.Scorecards.Scorecard
+          |> where([s], s.interview_event_id in ^event_ids)
+          |> where([s], s.interviewer_id in ^examiner_ids)
+          |> select([s], count(s.id))
+          |> Treby.Repo.one()
+        end)
+
+      %{completed: completed, total: total}
+    end
+  end
+
+  defp scorecards_completed_for_card(application) do
+    status = scorecard_status_for_card(application)
+    status.total > 0 and status.completed >= status.total
   end
 end

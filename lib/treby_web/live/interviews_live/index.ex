@@ -1,7 +1,7 @@
 defmodule TrebyWeb.InterviewsLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Interviews, Scorecards}
+  alias Treby.{Accounts, Interviews, Repo, Scorecards}
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -177,7 +177,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                 name="interviewer_id"
                 class="select"
               >
-                <option value="">All Interviewers</option>
+                <option value="">All Examiners</option>
                 <%= for user <- @users do %>
                   <option
                     value={user.id}
@@ -196,7 +196,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
         </div>
 
         <div :if={@interviews != []} class="space-y-3">
-          <%= for event <- @interviews do %>
+          <%= for {event, scorecard_status} <- @interviews do %>
             <div class="bg-base-100 rounded-lg border p-4 hover:shadow-sm transition-shadow">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
@@ -224,7 +224,11 @@ defmodule TrebyWeb.InterviewsLive.Index do
                     </span>
                     <span class="flex items-center gap-1">
                       <.icon name="hero-user" class="w-4 h-4" />
-                      {event.interviewer.name}
+                      {event.event_examiners |> Enum.map(& &1.user.name) |> Enum.join(", ")}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <.icon name="hero-document-text" class="w-4 h-4" />
+                      {scorecard_status.completed}/{scorecard_status.total} {gettext("scorecards")}
                     </span>
                   </div>
                 </div>
@@ -410,14 +414,25 @@ defmodule TrebyWeb.InterviewsLive.Index do
           Interviews.list_upcoming_for_user(user.id)
 
         _ ->
-          base = Interviews.list_upcoming_for_tenant(tenant_id)
+          base =
+            Interviews.list_upcoming_for_tenant(tenant_id)
+            |> Repo.preload(event_examiners: [:user], scorecards: [])
 
           if socket.assigns.filter_interviewer_id do
-            Enum.filter(base, &(&1.interviewer_id == socket.assigns.filter_interviewer_id))
+            Enum.filter(base, fn event ->
+              Enum.any?(
+                event.event_examiners,
+                &(&1.user_id == socket.assigns.filter_interviewer_id)
+              )
+            end)
           else
             base
           end
       end
+      |> Enum.map(fn event ->
+        scorecard_status = Interviews.scorecard_completion_status(event)
+        {event, scorecard_status}
+      end)
 
     assign(socket, interviews: interviews)
   end

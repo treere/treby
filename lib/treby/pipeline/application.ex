@@ -13,6 +13,7 @@ defmodule Treby.Pipeline.Application do
     field :reviewed, :boolean, default: false
     field :source, :string
     field :is_duplicate, :boolean, default: false
+    field :rejection_reason, :string
 
     belongs_to :tenant, Treby.Tenants.Tenant
     belongs_to :job, Treby.Jobs.Job
@@ -38,7 +39,8 @@ defmodule Treby.Pipeline.Application do
       :candidate_id,
       :pipeline_stage_id,
       :reviewed,
-      :source
+      :source,
+      :rejection_reason
     ])
     |> validate_required([:job_id, :candidate_id, :pipeline_stage_id, :applied_at])
   end

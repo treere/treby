@@ -10,12 +10,27 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     tenant = Tenants.get_tenant!(session["tenant_id"])
     pipeline = Pipeline.get_pipeline!(pipeline_id)
     stages = Pipeline.list_pipeline_stages(pipeline_id)
+    users = Accounts.list_users(tenant.id)
+
+    stages_with_counts =
+      Enum.map(stages, fn stage ->
+        examiner_count = length(Pipeline.list_examiner_ids(stage))
+        reviewer_count = length(Pipeline.list_reviewer_ids(stage))
+        advancer_count = length(Pipeline.list_advancer_ids(stage))
+
+        Map.merge(stage, %{
+          examiner_count: examiner_count,
+          reviewer_count: reviewer_count,
+          advancer_count: advancer_count
+        })
+      end)
 
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(pipeline: pipeline)
-     |> assign(stages: stages)
+     |> assign(stages: stages_with_counts)
+     |> assign(users: users)
      |> assign(show_form: false)
      |> assign(editing_stage: nil)
      |> assign(deleting_stage: nil)
@@ -60,6 +75,23 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               options={stage_type_options()}
             />
             <.input field={@form[:color]} type="color" label={gettext("Color")} />
+
+            <div :if={@form[:stage_type].value == "interview"} class="w-full">
+              <.input
+                field={@form[:min_examiners]}
+                type="number"
+                label={gettext("Min Examiners Required")}
+                min="1"
+              />
+              <.input
+                field={@form[:scorecard_template_id]}
+                type="select"
+                label={gettext("Scorecard Template")}
+                options={scorecard_template_options(@current_tenant.id)}
+                prompt={gettext("None")}
+              />
+            </div>
+
             <div class="flex gap-2">
               <.button type="submit">{gettext("Save")}</.button>
               <.button type="button" phx-click="cancel_form" class="bg-gray-500">
@@ -116,7 +148,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                   {gettext("Type")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  {gettext("Position")}
+                  {gettext("Roles")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   {gettext("Actions")}
@@ -139,8 +171,33 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     {stage.stage_type}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
-                  {stage.position}
+                <td class="px-6 py-4 text-sm text-base-content/70">
+                  <div class="flex flex-wrap gap-1">
+                    <span
+                      :if={stage.stage_type == "interview" && stage.min_examiners > 1}
+                      class="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+                    >
+                      {gettext("%{count} examiners", count: stage.min_examiners)}
+                    </span>
+                    <span
+                      :if={stage.examiner_count > 0}
+                      class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
+                    >
+                      {gettext("%{count}E", count: stage.examiner_count)}
+                    </span>
+                    <span
+                      :if={stage.reviewer_count > 0}
+                      class="inline-flex items-center rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
+                    >
+                      {gettext("%{count}R", count: stage.reviewer_count)}
+                    </span>
+                    <span
+                      :if={stage.advancer_count > 0}
+                      class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700"
+                    >
+                      {gettext("%{count}A", count: stage.advancer_count)}
+                    </span>
+                  </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
@@ -167,6 +224,14 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     {gettext("Edit")}
                   </button>
                   <button
+                    :if={stage.stage_type == "interview"}
+                    phx-click="show_roles"
+                    phx-value-stage_id={stage.id}
+                    class="text-green-600 hover:text-green-900 mr-2"
+                  >
+                    {gettext("Roles")}
+                  </button>
+                  <button
                     phx-click="delete_stage"
                     phx-value-stage_id={stage.id}
                     class="text-red-600 hover:text-red-900"
@@ -186,6 +251,148 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           >
             + {gettext("Add Stage")}
           </button>
+        </div>
+
+        <%!-- Role Assignment Modal --%>
+        <div
+          :if={@editing_roles}
+          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          phx-click="close_roles"
+        >
+          <div
+            class="bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            phx-click=""
+          >
+            <div class="p-6">
+              <h2 class="text-lg font-semibold mb-4">
+                {gettext("Roles for")} {@editing_roles.name}
+              </h2>
+
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Examiners")}</h3>
+                <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
+                  <span
+                    :for={examiner <- @editing_roles.examiners}
+                    class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs"
+                  >
+                    {examiner.user.name}
+                    <button
+                      phx-click="remove_examiner"
+                      phx-value-stage_id={@editing_roles.id}
+                      phx-value-user_id={examiner.user_id}
+                      class="text-blue-600 hover:text-blue-900"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                </div>
+                <.form
+                  for={%{}}
+                  id="add-examiner-form"
+                  phx-submit="add_examiner"
+                  class="flex gap-2"
+                >
+                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                  <.input
+                    name="user_id"
+                    type="select"
+                    options={
+                      Enum.map(available_users(@users, @editing_roles.examiners), &{&1.name, &1.id})
+                    }
+                    prompt={gettext("Select user...")}
+                    label=""
+                  />
+                  <.button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                    {gettext("Add")}
+                  </.button>
+                </.form>
+              </div>
+
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Reviewers")}</h3>
+                <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
+                  <span
+                    :for={reviewer <- @editing_roles.reviewers}
+                    class="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs"
+                  >
+                    {reviewer.user.name}
+                    <button
+                      phx-click="remove_reviewer"
+                      phx-value-stage_id={@editing_roles.id}
+                      phx-value-user_id={reviewer.user_id}
+                      class="text-green-600 hover:text-green-900"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                </div>
+                <.form
+                  for={%{}}
+                  id="add-reviewer-form"
+                  phx-submit="add_reviewer"
+                  class="flex gap-2"
+                >
+                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                  <.input
+                    name="user_id"
+                    type="select"
+                    options={
+                      Enum.map(available_users(@users, @editing_roles.reviewers), &{&1.name, &1.id})
+                    }
+                    prompt={gettext("Select user...")}
+                    label=""
+                  />
+                  <.button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                    {gettext("Add")}
+                  </.button>
+                </.form>
+              </div>
+
+              <div class="mb-6">
+                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Advancers")}</h3>
+                <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
+                  <span
+                    :for={advancer <- @editing_roles.advancers}
+                    class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-1 text-xs"
+                  >
+                    {advancer.user.name}
+                    <button
+                      phx-click="remove_advancer"
+                      phx-value-stage_id={@editing_roles.id}
+                      phx-value-user_id={advancer.user_id}
+                      class="text-purple-600 hover:text-purple-900"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                </div>
+                <.form
+                  for={%{}}
+                  id="add-advancer-form"
+                  phx-submit="add_advancer"
+                  class="flex gap-2"
+                >
+                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                  <.input
+                    name="user_id"
+                    type="select"
+                    options={
+                      Enum.map(available_users(@users, @editing_roles.advancers), &{&1.name, &1.id})
+                    }
+                    prompt={gettext("Select user...")}
+                    label=""
+                  />
+                  <.button type="submit" class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
+                    {gettext("Add")}
+                  </.button>
+                </.form>
+              </div>
+
+              <div class="flex justify-end">
+                <.button type="button" phx-click="close_roles">{gettext("Done")}</.button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layouts.app>
@@ -220,12 +427,12 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     result =
       case socket.assigns.editing_stage do
         nil -> Pipeline.create_pipeline_stage(attrs, socket.assigns.current_user)
-        stage -> Pipeline.update_pipeline_stage(stage, stage_params, socket.assigns.current_user)
+        stage -> Pipeline.update_pipeline_stage(stage, attrs, socket.assigns.current_user)
       end
 
     case result do
       {:ok, _stage} ->
-        stages = Pipeline.list_pipeline_stages(pipeline_id)
+        stages = reload_stages_with_counts(pipeline_id)
 
         {:noreply,
          socket
@@ -260,7 +467,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
       true ->
         case Pipeline.delete_pipeline_stage(stage, socket.assigns.current_user) do
           {:ok, _} ->
-            stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
+            stages = reload_stages_with_counts(socket.assigns.pipeline.id)
             {:noreply, socket |> assign(stages: stages) |> put_flash(:info, "Stage deleted")}
 
           {:error, :unauthorized} ->
@@ -272,7 +479,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
   def handle_event("confirm_reassign", %{"target_stage_id" => target_id}, socket) do
     stage = Pipeline.get_pipeline_stage!(socket.assigns.deleting_stage.id)
     Pipeline.reassign_and_delete_stage(stage, target_id)
-    stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
+    stages = reload_stages_with_counts(socket.assigns.pipeline.id)
 
     {:noreply,
      socket
@@ -304,7 +511,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
         socket.assigns.current_user
       )
 
-      stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
+      stages = reload_stages_with_counts(socket.assigns.pipeline.id)
       {:noreply, assign(socket, stages: stages)}
     else
       {:noreply, socket}
@@ -331,11 +538,99 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
         socket.assigns.current_user
       )
 
-      stages = Pipeline.list_pipeline_stages(socket.assigns.pipeline.id)
+      stages = reload_stages_with_counts(socket.assigns.pipeline.id)
       {:noreply, assign(socket, stages: stages)}
     else
       {:noreply, socket}
     end
+  end
+
+  def handle_event("show_roles", %{"stage_id" => stage_id}, socket) do
+    stage = Pipeline.get_pipeline_stage!(stage_id)
+
+    examiners = Pipeline.list_examiners(stage)
+    reviewers = Pipeline.list_reviewers(stage)
+    advancers = Pipeline.list_advancers(stage)
+
+    editing_roles = %{stage | examiners: examiners, reviewers: reviewers, advancers: advancers}
+
+    {:noreply, assign(socket, editing_roles: editing_roles)}
+  end
+
+  def handle_event("close_roles", _, socket) do
+    {:noreply, assign(socket, editing_roles: nil)}
+  end
+
+  def handle_event("add_examiner", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
+    stage = Pipeline.get_pipeline_stage!(stage_id)
+    Pipeline.assign_examiner(stage, user_id)
+    editing_roles = refresh_roles(socket.assigns.editing_roles)
+    {:noreply, assign(socket, editing_roles: editing_roles)}
+  end
+
+  def handle_event("remove_examiner", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
+    stage = Pipeline.get_pipeline_stage!(stage_id)
+    Pipeline.remove_examiner(stage, user_id)
+    editing_roles = refresh_roles(socket.assigns.editing_roles)
+    {:noreply, assign(socket, editing_roles: editing_roles)}
+  end
+
+  def handle_event("add_reviewer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
+    stage = Pipeline.get_pipeline_stage!(stage_id)
+    Pipeline.assign_reviewer(stage, user_id)
+    editing_roles = refresh_roles(socket.assigns.editing_roles)
+    {:noreply, assign(socket, editing_roles: editing_roles)}
+  end
+
+  def handle_event("remove_reviewer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
+    stage = Pipeline.get_pipeline_stage!(stage_id)
+    Pipeline.remove_reviewer(stage, user_id)
+    editing_roles = refresh_roles(socket.assigns.editing_roles)
+    {:noreply, assign(socket, editing_roles: editing_roles)}
+  end
+
+  def handle_event("add_advancer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
+    stage = Pipeline.get_pipeline_stage!(stage_id)
+    Pipeline.assign_advancer(stage, user_id)
+    editing_roles = refresh_roles(socket.assigns.editing_roles)
+    {:noreply, assign(socket, editing_roles: editing_roles)}
+  end
+
+  def handle_event("remove_advancer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
+    stage = Pipeline.get_pipeline_stage!(stage_id)
+    Pipeline.remove_advancer(stage, user_id)
+    editing_roles = refresh_roles(socket.assigns.editing_roles)
+    {:noreply, assign(socket, editing_roles: editing_roles)}
+  end
+
+  defp refresh_roles(editing_roles) do
+    stage = Pipeline.get_pipeline_stage!(editing_roles.id)
+
+    examiners = Pipeline.list_examiners(stage)
+    reviewers = Pipeline.list_reviewers(stage)
+    advancers = Pipeline.list_advancers(stage)
+
+    %{stage | examiners: examiners, reviewers: reviewers, advancers: advancers}
+  end
+
+  defp reload_stages_with_counts(pipeline_id) do
+    Pipeline.list_pipeline_stages(pipeline_id)
+    |> Enum.map(fn stage ->
+      examiner_count = length(Pipeline.list_examiner_ids(stage))
+      reviewer_count = length(Pipeline.list_reviewer_ids(stage))
+      advancer_count = length(Pipeline.list_advancer_ids(stage))
+
+      Map.merge(stage, %{
+        examiner_count: examiner_count,
+        reviewer_count: reviewer_count,
+        advancer_count: advancer_count
+      })
+    end)
+  end
+
+  defp available_users(users, assigned) do
+    assigned_ids = Enum.map(assigned, & &1.user_id) |> MapSet.new()
+    Enum.reject(users, &MapSet.member?(assigned_ids, &1.id))
   end
 
   defp new_stage_changeset(pipeline_id) do
@@ -352,5 +647,10 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
       {"Hired", "hired"},
       {"Rejected", "rejected"}
     ]
+  end
+
+  defp scorecard_template_options(tenant_id) do
+    Treby.Scorecards.list_scorecard_templates(tenant_id)
+    |> Enum.map(&{&1.name, &1.id})
   end
 end

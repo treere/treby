@@ -1,7 +1,7 @@
 defmodule TrebyWeb.SchedulingLive.Booking do
   use TrebyWeb, :live_view
 
-  alias Treby.{Availability, Interviews, Calendar}
+  alias Treby.{Availability, Interviews, Pipeline, Calendar}
 
   def mount(%{"tenant_slug" => _slug, "token" => token}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -15,22 +15,50 @@ defmodule TrebyWeb.SchedulingLive.Booking do
 
       booking_token ->
         interviewer = booking_token.interviewer
+        pipeline_stage = booking_token.pipeline_stage
         date_range = %{from: Date.utc_today(), to: Date.add(Date.utc_today(), 13)}
 
-        slots =
-          if interviewer do
-            case Availability.compute_slots(interviewer.id, date_range) do
-              slots when is_list(slots) -> slots
-              {:error, _} -> []
-            end
-          else
-            []
+        {slots, examiners} =
+          cond do
+            # Multi-examiner stage
+            pipeline_stage && pipeline_stage.stage_type == "interview" &&
+                pipeline_stage.min_examiners > 1 ->
+              min_examiners = pipeline_stage.min_examiners
+              eligible = Pipeline.list_eligible_examiners(pipeline_stage)
+              examiner_ids = Enum.map(eligible, & &1.user_id)
+
+              slots =
+                case Availability.compute_overlapping_slots(
+                       examiner_ids,
+                       min_examiners,
+                       date_range
+                     ) do
+                  slots when is_list(slots) -> slots
+                  {:error, _} -> []
+                end
+
+              {slots, eligible}
+
+            # Single interviewer
+            interviewer ->
+              slots =
+                case Availability.compute_slots(interviewer.id, date_range) do
+                  slots when is_list(slots) -> slots
+                  {:error, _} -> []
+                end
+
+              {slots, [%{user_id: interviewer.id, user: interviewer}]}
+
+            true ->
+              {[], []}
           end
 
         {:ok,
          socket
          |> assign(valid: true, confirmed: false, token: booking_token)
          |> assign(interviewer: interviewer)
+         |> assign(pipeline_stage: pipeline_stage)
+         |> assign(examiners: examiners)
          |> assign(application: booking_token.application)
          |> assign(tenant: booking_token.tenant)
          |> assign(slots: slots)
@@ -77,8 +105,8 @@ defmodule TrebyWeb.SchedulingLive.Booking do
             <div class="text-center mb-8">
               <h1 class="text-2xl font-bold text-base-content">Schedule your interview</h1>
               <p class="mt-2 text-base-content/70">
-                <%= if @interviewer do %>
-                  with {@interviewer.name} for {@application.job.title}
+                <%= if @examiners != [] do %>
+                  for {@application.job.title}
                 <% else %>
                   for {@application.job.title}
                 <% end %>
@@ -125,6 +153,11 @@ defmodule TrebyWeb.SchedulingLive.Booking do
                     ]}
                   >
                     {slot.start |> Elixir.Calendar.strftime("%a %H:%M")}
+                    <%= if Map.has_key?(slot, :available_examiners) && slot.available_examiners != [] do %>
+                      <div class="text-[10px] text-green-600 mt-0.5">
+                        {length(slot.available_examiners)} available
+                      </div>
+                    <% end %>
                   </button>
                 <% end %>
               </div>
@@ -137,6 +170,12 @@ defmodule TrebyWeb.SchedulingLive.Booking do
                       {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                     </strong>
                   </p>
+                  <div
+                    :if={Map.has_key?(@selected_slot, :available_examiners)}
+                    class="mt-2 text-sm text-base-content/60"
+                  >
+                    Examiners available: {length(@selected_slot.available_examiners)}
+                  </div>
                   <button
                     phx-click="confirm_booking"
                     class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -172,28 +211,55 @@ defmodule TrebyWeb.SchedulingLive.Booking do
 
   def handle_event("prev_week", _, socket) do
     new_date = Date.add(socket.assigns.selected_date, -7)
-    slots = recompute_slots(socket, new_date)
+    {slots, examiners} = recompute_slots(socket, new_date)
 
-    {:noreply, assign(socket, selected_date: new_date, slots: slots, selected_slot: nil)}
+    {:noreply,
+     assign(socket,
+       selected_date: new_date,
+       slots: slots,
+       examiners: examiners,
+       selected_slot: nil
+     )}
   end
 
   def handle_event("next_week", _, socket) do
     new_date = Date.add(socket.assigns.selected_date, 7)
-    slots = recompute_slots(socket, new_date)
+    {slots, examiners} = recompute_slots(socket, new_date)
 
-    {:noreply, assign(socket, selected_date: new_date, slots: slots, selected_slot: nil)}
+    {:noreply,
+     assign(socket,
+       selected_date: new_date,
+       slots: slots,
+       examiners: examiners,
+       selected_slot: nil
+     )}
   end
 
   def handle_event("confirm_booking", _, socket) do
-    %{selected_slot: slot, token: token, application: app, interviewer: interviewer} =
-      socket.assigns
+    %{
+      selected_slot: slot,
+      token: token,
+      application: app,
+      interviewer: interviewer,
+      pipeline_stage: _pipeline_stage
+    } = socket.assigns
 
     unless slot do
       {:noreply, socket}
     else
-      # Create Google Calendar event with Meet link
+      # Determine examiner IDs for the event
+      examiner_ids =
+        if Map.has_key?(slot, :available_examiners) && slot.available_examiners != [] do
+          slot.available_examiners
+        else
+          [interviewer.id]
+        end
+
+      # Create Google Calendar event with the first examiner
+      primary_examiner_id = List.first(examiner_ids)
+
       case Calendar.create_event_with_meet(
-             interviewer.id,
+             primary_examiner_id,
              %{
                summary: "Interview with #{app.candidate.name} - #{app.job.title}",
                description: "Scheduled via Treby self-scheduling",
@@ -208,7 +274,7 @@ defmodule TrebyWeb.SchedulingLive.Booking do
             start_at_utc: slot.start,
             end_at_utc: slot.end,
             duration_minutes: 30,
-            interviewer_id: interviewer.id,
+            examiner_ids: examiner_ids,
             application_id: app.id,
             tenant_id: token.tenant_id,
             video_conf_url: event_result.meet_link,
@@ -224,22 +290,16 @@ defmodule TrebyWeb.SchedulingLive.Booking do
                |> assign(confirmed: true, meet_link: event_result.meet_link)
                |> put_flash(:info, "Interview scheduled!")}
 
-            {:error, changeset} ->
-              errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+            {:error, _changeset} ->
+              refreshed_slots = recompute_slots(socket, socket.assigns.selected_date)
 
-              if Keyword.has_key?(errors, :interviewer_id) do
-                refreshed_slots = recompute_slots(socket, socket.assigns.selected_date)
-
-                {:noreply,
-                 socket
-                 |> assign(slots: refreshed_slots, selected_slot: nil)
-                 |> put_flash(
-                   :error,
-                   "That time slot is no longer available. Please choose another."
-                 )}
-              else
-                {:noreply, put_flash(socket, :error, "Failed to schedule interview")}
-              end
+              {:noreply,
+               socket
+               |> assign(slots: elem(refreshed_slots, 0), selected_slot: nil)
+               |> put_flash(
+                 :error,
+                 "That time slot is no longer available. Please choose another."
+               )}
           end
 
         {:error, _reason} ->
@@ -253,10 +313,35 @@ defmodule TrebyWeb.SchedulingLive.Booking do
 
   defp recompute_slots(socket, new_date) do
     date_range = %{from: new_date, to: Date.add(new_date, 6)}
+    interviewer = socket.assigns.interviewer
+    pipeline_stage = socket.assigns.pipeline_stage
 
-    case Availability.compute_slots(socket.assigns.interviewer.id, date_range) do
-      slots when is_list(slots) -> slots
-      {:error, _} -> socket.assigns.slots
+    cond do
+      pipeline_stage && pipeline_stage.stage_type == "interview" &&
+          pipeline_stage.min_examiners > 1 ->
+        min_examiners = pipeline_stage.min_examiners
+        eligible = Pipeline.list_eligible_examiners(pipeline_stage)
+        examiner_ids = Enum.map(eligible, & &1.user_id)
+
+        slots =
+          case Availability.compute_overlapping_slots(examiner_ids, min_examiners, date_range) do
+            slots when is_list(slots) -> slots
+            {:error, _} -> socket.assigns.slots
+          end
+
+        {slots, eligible}
+
+      interviewer ->
+        slots =
+          case Availability.compute_slots(interviewer.id, date_range) do
+            slots when is_list(slots) -> slots
+            {:error, _} -> socket.assigns.slots
+          end
+
+        {slots, socket.assigns.examiners}
+
+      true ->
+        {socket.assigns.slots, socket.assigns.examiners}
     end
   end
 end

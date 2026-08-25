@@ -15,9 +15,12 @@ defmodule Treby.Interviews.InterviewEvent do
     field :notes, :string
 
     belongs_to :scheduled_by, Treby.Accounts.User
-    belongs_to :interviewer, Treby.Accounts.User
     belongs_to :application, Treby.Pipeline.Application
     belongs_to :tenant, Treby.Tenants.Tenant
+
+    has_many :event_examiners, Treby.Interviews.EventExaminer
+    has_many :examiners, through: [:event_examiners, :user]
+    has_many :scorecards, Treby.Scorecards.Scorecard
 
     timestamps(type: :utc_datetime)
   end
@@ -33,7 +36,6 @@ defmodule Treby.Interviews.InterviewEvent do
       :status,
       :notes,
       :scheduled_by_id,
-      :interviewer_id,
       :application_id,
       :tenant_id
     ])
@@ -41,15 +43,10 @@ defmodule Treby.Interviews.InterviewEvent do
       :start_at_utc,
       :end_at_utc,
       :duration_minutes,
-      :interviewer_id,
       :application_id,
       :tenant_id
     ])
     |> validate_inclusion(:status, ~w(scheduled completed cancelled))
     |> validate_number(:duration_minutes, greater_than: 0)
-    |> unique_constraint([:interviewer_id, :start_at_utc],
-      name: "unique_scheduled_interview_per_interviewer_slot",
-      message: "This time slot is no longer available"
-    )
   end
 end

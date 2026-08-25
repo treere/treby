@@ -8,12 +8,23 @@ defmodule Treby.Pipeline do
   alias Treby.Pipeline.Pipeline, as: PipelineDef
   alias Treby.Pipeline.PipelineStage
   alias Treby.Pipeline.Application
+  alias Treby.Pipeline.StageExaminer
+  alias Treby.Pipeline.StageReviewer
+  alias Treby.Pipeline.StageAdvancer
 
   # Pipeline CRUD
 
   def list_pipelines(tenant_id) do
     PipelineDef
-    |> where([p], p.tenant_id == ^tenant_id)
+    |> where([p], p.tenant_id == ^tenant_id and p.is_template == false)
+    |> order_by([p], p.name)
+    |> Repo.all()
+    |> Repo.preload(:pipeline_stages)
+  end
+
+  def list_templates(tenant_id) do
+    PipelineDef
+    |> where([p], p.tenant_id == ^tenant_id and p.is_template == true)
     |> order_by([p], p.name)
     |> Repo.all()
     |> Repo.preload(:pipeline_stages)
@@ -53,6 +64,86 @@ defmodule Treby.Pipeline do
     end)
   end
 
+  # Templates
+
+  def create_template(attrs \\ %{}) do
+    %PipelineDef{}
+    |> PipelineDef.changeset(Map.put(attrs, :is_template, true))
+    |> Repo.insert()
+  end
+
+  def delete_template(%PipelineDef{} = pipeline) do
+    if pipeline.is_template do
+      Repo.delete(pipeline)
+    else
+      {:error, :not_a_template}
+    end
+  end
+
+  def clone_template_to_pipeline(%PipelineDef{} = template, new_attrs) do
+    Repo.transaction(fn ->
+      {:ok, new_pipeline} =
+        create_pipeline(Map.put(new_attrs, :is_template, false))
+
+      source_stages = Repo.preload(template, :pipeline_stages).pipeline_stages
+
+      Enum.each(source_stages, fn stage ->
+        # Preload role assignments
+        stage =
+          Repo.preload(stage, [
+            :examiner_assignments,
+            :reviewer_assignments,
+            :advancer_assignments
+          ])
+
+        {:ok, new_stage} =
+          %PipelineStage{}
+          |> PipelineStage.changeset(%{
+            name: stage.name,
+            position: stage.position,
+            color: stage.color,
+            stage_type: stage.stage_type,
+            min_examiners: stage.min_examiners,
+            scorecard_template_id: stage.scorecard_template_id,
+            pipeline_id: new_pipeline.id
+          })
+          |> Repo.insert()
+
+        # Copy examiner assignments
+        Enum.each(stage.examiner_assignments, fn assignment ->
+          %StageExaminer{}
+          |> StageExaminer.changeset(%{
+            pipeline_stage_id: new_stage.id,
+            user_id: assignment.user_id
+          })
+          |> Repo.insert!()
+        end)
+
+        # Copy reviewer assignments
+        Enum.each(stage.reviewer_assignments, fn assignment ->
+          %StageReviewer{}
+          |> StageReviewer.changeset(%{
+            pipeline_stage_id: new_stage.id,
+            user_id: assignment.user_id
+          })
+          |> Repo.insert!()
+        end)
+
+        # Copy advancer assignments
+        Enum.each(stage.advancer_assignments, fn assignment ->
+          %StageAdvancer{}
+          |> StageAdvancer.changeset(%{
+            pipeline_stage_id: new_stage.id,
+            user_id: assignment.user_id
+          })
+          |> Repo.insert!()
+        end)
+      end)
+
+      new_pipeline
+    end)
+  end
+
   def duplicate_pipeline(%PipelineDef{} = source_pipeline) do
     Repo.transaction(fn ->
       {:ok, new_pipeline} =
@@ -64,15 +155,43 @@ defmodule Treby.Pipeline do
       source_stages = Repo.preload(source_pipeline, :pipeline_stages).pipeline_stages
 
       Enum.each(source_stages, fn stage ->
-        %PipelineStage{}
-        |> PipelineStage.changeset(%{
-          name: stage.name,
-          position: stage.position,
-          color: stage.color,
-          stage_type: stage.stage_type,
-          pipeline_id: new_pipeline.id
-        })
-        |> Repo.insert!()
+        stage =
+          Repo.preload(stage, [
+            :examiner_assignments,
+            :reviewer_assignments,
+            :advancer_assignments
+          ])
+
+        {:ok, new_stage} =
+          %PipelineStage{}
+          |> PipelineStage.changeset(%{
+            name: stage.name,
+            position: stage.position,
+            color: stage.color,
+            stage_type: stage.stage_type,
+            min_examiners: stage.min_examiners,
+            scorecard_template_id: stage.scorecard_template_id,
+            pipeline_id: new_pipeline.id
+          })
+          |> Repo.insert()
+
+        Enum.each(stage.examiner_assignments, fn a ->
+          %StageExaminer{}
+          |> StageExaminer.changeset(%{pipeline_stage_id: new_stage.id, user_id: a.user_id})
+          |> Repo.insert!()
+        end)
+
+        Enum.each(stage.reviewer_assignments, fn a ->
+          %StageReviewer{}
+          |> StageReviewer.changeset(%{pipeline_stage_id: new_stage.id, user_id: a.user_id})
+          |> Repo.insert!()
+        end)
+
+        Enum.each(stage.advancer_assignments, fn a ->
+          %StageAdvancer{}
+          |> StageAdvancer.changeset(%{pipeline_stage_id: new_stage.id, user_id: a.user_id})
+          |> Repo.insert!()
+        end)
       end)
 
       new_pipeline
@@ -198,6 +317,151 @@ defmodule Treby.Pipeline do
 
   def change_pipeline(%PipelineDef{} = pipeline, attrs \\ %{}) do
     PipelineDef.changeset(pipeline, attrs)
+  end
+
+  # Stage Role Assignments
+
+  # Examiners
+
+  def assign_examiner(%PipelineStage{} = stage, user_id) do
+    %StageExaminer{}
+    |> StageExaminer.changeset(%{pipeline_stage_id: stage.id, user_id: user_id})
+    |> Repo.insert(on_conflict: :nothing)
+  end
+
+  def remove_examiner(%PipelineStage{} = stage, user_id) do
+    StageExaminer
+    |> where([se], se.pipeline_stage_id == ^stage.id and se.user_id == ^user_id)
+    |> Repo.delete_all()
+  end
+
+  def list_examiners(%PipelineStage{} = stage) do
+    StageExaminer
+    |> where([se], se.pipeline_stage_id == ^stage.id)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
+  def list_examiner_ids(%PipelineStage{} = stage) do
+    StageExaminer
+    |> where([se], se.pipeline_stage_id == ^stage.id)
+    |> select([se], se.user_id)
+    |> Repo.all()
+  end
+
+  # Reviewers
+
+  def assign_reviewer(%PipelineStage{} = stage, user_id) do
+    %StageReviewer{}
+    |> StageReviewer.changeset(%{pipeline_stage_id: stage.id, user_id: user_id})
+    |> Repo.insert(on_conflict: :nothing)
+  end
+
+  def remove_reviewer(%PipelineStage{} = stage, user_id) do
+    StageReviewer
+    |> where([sr], sr.pipeline_stage_id == ^stage.id and sr.user_id == ^user_id)
+    |> Repo.delete_all()
+  end
+
+  def list_reviewers(%PipelineStage{} = stage) do
+    StageReviewer
+    |> where([sr], sr.pipeline_stage_id == ^stage.id)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
+  def list_reviewer_ids(%PipelineStage{} = stage) do
+    StageReviewer
+    |> where([sr], sr.pipeline_stage_id == ^stage.id)
+    |> select([sr], sr.user_id)
+    |> Repo.all()
+  end
+
+  # Advancers
+
+  def assign_advancer(%PipelineStage{} = stage, user_id) do
+    %StageAdvancer{}
+    |> StageAdvancer.changeset(%{pipeline_stage_id: stage.id, user_id: user_id})
+    |> Repo.insert(on_conflict: :nothing)
+  end
+
+  def remove_advancer(%PipelineStage{} = stage, user_id) do
+    StageAdvancer
+    |> where([sa], sa.pipeline_stage_id == ^stage.id and sa.user_id == ^user_id)
+    |> Repo.delete_all()
+  end
+
+  def list_advancers(%PipelineStage{} = stage) do
+    StageAdvancer
+    |> where([sa], sa.pipeline_stage_id == ^stage.id)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
+  def list_advancer_ids(%PipelineStage{} = stage) do
+    StageAdvancer
+    |> where([sa], sa.pipeline_stage_id == ^stage.id)
+    |> select([sa], sa.user_id)
+    |> Repo.all()
+  end
+
+  def user_is_advancer?(%PipelineStage{} = stage, user_id) do
+    StageAdvancer
+    |> where([sa], sa.pipeline_stage_id == ^stage.id and sa.user_id == ^user_id)
+    |> Repo.exists?()
+  end
+
+  # Scorecard completion
+
+  def all_scorecards_completed?(%Application{} = application) do
+    application = Repo.preload(application, [:pipeline_stage, interviews: :event_examiners])
+    stage = application.pipeline_stage
+
+    if stage.stage_type != "interview" do
+      true
+    else
+      examiner_ids =
+        application.interviews
+        |> Enum.flat_map(&Enum.map(&1.event_examiners, fn ee -> ee.user_id end))
+        |> Enum.uniq()
+
+      if examiner_ids == [] do
+        true
+      else
+        completed_count =
+          application.interviews
+          |> Enum.map(& &1.id)
+          |> then(fn event_ids ->
+            Treby.Scorecards.Scorecard
+            |> where([s], s.interview_event_id in ^event_ids)
+            |> where([s], s.interviewer_id in ^examiner_ids)
+            |> select([s], count(s.id))
+            |> Repo.one()
+          end)
+
+        completed_count >= length(examiner_ids)
+      end
+    end
+  end
+
+  # Eligible examiners for a pipeline stage
+
+  def list_eligible_examiners(%PipelineStage{} = stage) do
+    examiner_ids = list_examiner_ids(stage)
+
+    if examiner_ids == [] do
+      []
+    else
+      connected_ids =
+        Treby.Calendar.CalendarConnection
+        |> where([cc], cc.user_id in ^examiner_ids)
+        |> select([cc], cc.user_id)
+        |> Repo.all()
+        |> MapSet.new()
+
+      list_examiners(stage)
+      |> Enum.filter(fn se -> MapSet.member?(connected_ids, se.user_id) end)
+    end
   end
 
   # Legacy: create default stages for a pipeline (used in migration/seeds)
@@ -370,10 +634,11 @@ defmodule Treby.Pipeline do
 
   def move_application(%Application{} = application, stage_id, opts \\ []) do
     old_stage_id = application.pipeline_stage_id
+    extra_attrs = opts[:attrs] || %{}
 
     result =
       application
-      |> Application.changeset(%{pipeline_stage_id: stage_id})
+      |> Application.changeset(Map.merge(%{pipeline_stage_id: stage_id}, extra_attrs))
       |> Repo.update()
 
     case result do

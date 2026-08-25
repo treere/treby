@@ -41,7 +41,7 @@ The system SHALL allow users to navigate from a pipeline candidate card to the c
 - **THEN** the click navigation does not interfere with the drag-and-drop interaction
 
 ### Requirement: Drag-and-drop stage transition
-The system SHALL allow dragging candidate cards between stages.
+The system SHALL allow dragging candidate cards between stages. For interview-type stages, advancement is restricted to assigned advancers and requires all examiners to have submitted scorecards.
 
 #### Scenario: Move candidate to new stage
 - **WHEN** a user drags a candidate card from one stage column to another
@@ -51,6 +51,21 @@ The system SHALL allow dragging candidate cards between stages.
 #### Scenario: Drop in same stage
 - **WHEN** a user drops a card in the same stage column
 - **THEN** no change is made
+
+#### Scenario: Advance from interview stage requires scorecards
+- **WHEN** a user attempts to advance a candidate from an interview-type stage
+- **AND** not all examiners for that stage have submitted their scorecards
+- **THEN** the system prevents the advancement
+- **AND** displays a message indicating which examiners still need to submit feedback
+
+#### Scenario: Advance from interview stage with all scorecards
+- **WHEN** a user attempts to advance a candidate from an interview-type stage
+- **AND** all examiners have submitted their scorecards
+- **THEN** the advancement proceeds normally
+
+#### Scenario: Only advancers can advance from stage
+- **WHEN** a user who is not an advancer for the current stage attempts to advance a candidate
+- **THEN** the system prevents the action with a permission error
 
 ### Requirement: Pipeline stages management
 The system SHALL allow admins to customize pipeline stages.
@@ -151,3 +166,20 @@ The system SHALL allow marking multiple selected applications as reviewed or unr
 #### Scenario: Bulk mark unreviewed
 - **WHEN** a user selects reviewed candidate cards and clicks "Mark as New"
 - **THEN** all selected applications have `reviewed` set to `false`
+
+### Requirement: Advance or reject candidate from stage
+The system SHALL allow assigned advancers to manually advance or reject candidates from a stage.
+
+#### Scenario: Advance candidate
+- **WHEN** an advancer clicks "Advance" on a candidate in their stage
+- **THEN** the candidate moves to the next stage in the pipeline
+
+#### Scenario: Reject candidate with motivation
+- **WHEN** an advancer clicks "Reject" on a candidate in their stage
+- **THEN** the system prompts for a rejection motivation
+- **AND** upon confirmation, the candidate is marked as rejected with the motivation
+- **AND** the candidate is removed from the active pipeline
+
+#### Scenario: Reject requires motivation
+- **WHEN** an advancer attempts to reject a candidate without providing a motivation
+- **THEN** the system prevents the rejection and prompts for a motivation

@@ -12,6 +12,7 @@ defmodule Treby.Interviews.BookingToken do
 
     belongs_to :application, Treby.Pipeline.Application
     belongs_to :interviewer, Treby.Accounts.User
+    belongs_to :pipeline_stage, Treby.Pipeline.PipelineStage
     belongs_to :tenant, Treby.Tenants.Tenant
 
     timestamps(type: :utc_datetime)
@@ -19,7 +20,15 @@ defmodule Treby.Interviews.BookingToken do
 
   def changeset(token, attrs) do
     token
-    |> cast(attrs, [:token, :expires_at, :used_at, :application_id, :interviewer_id, :tenant_id])
+    |> cast(attrs, [
+      :token,
+      :expires_at,
+      :used_at,
+      :application_id,
+      :interviewer_id,
+      :pipeline_stage_id,
+      :tenant_id
+    ])
     |> validate_required([:token, :expires_at, :application_id, :tenant_id])
     |> unique_constraint(:token)
   end

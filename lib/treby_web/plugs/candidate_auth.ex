@@ -41,7 +41,7 @@ defmodule TrebyWeb.Plugs.CandidateAuth do
       %{"tenant_slug" => slug} ->
         conn
         |> Phoenix.Controller.put_flash(:error, "Please log in to access the portal")
-        |> Phoenix.Controller.redirect(to: "/#{slug}/portal")
+        |> Phoenix.Controller.redirect(to: "/#{slug}/portal/login")
         |> halt()
 
       _ ->

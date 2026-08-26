@@ -106,6 +106,15 @@ defmodule TrebyWeb.Router do
     get "/privacy", StaticPageController, :privacy
   end
 
+  # Candidate portal — public auth endpoints (magic link request + validation)
+  scope "/:tenant_slug", TrebyWeb do
+    pipe_through :browser
+
+    live "/portal/login", CandidatePortalLive.RequestLink
+    post "/portal/login", MagicLinkController, :create
+    get "/portal/c/:token", MagicLinkController, :show
+  end
+
   # Candidate portal (authenticated)
   scope "/:tenant_slug", TrebyWeb do
     pipe_through [:browser, :candidate_auth]
@@ -114,15 +123,6 @@ defmodule TrebyWeb.Router do
     live "/portal/messages", CandidatePortalLive.Messages
     live "/portal/messages/:id", CandidatePortalLive.MessageThread
     live "/portal/settings", CandidatePortalLive.Settings
-  end
-
-  # Candidate portal routes (magic link auth - unauthenticated)
-  scope "/:tenant_slug", TrebyWeb do
-    pipe_through :browser
-
-    live "/portal", CandidatePortalLive.RequestLink
-    post "/portal", MagicLinkController, :create
-    get "/c/:token", MagicLinkController, :show
   end
 
   # Webhook routes (public, no auth)

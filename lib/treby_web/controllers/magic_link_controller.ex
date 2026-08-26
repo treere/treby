@@ -7,14 +7,6 @@ defmodule TrebyWeb.MagicLinkController do
   alias Treby.Tenants
 
   @doc """
-  Shows the magic link request form.
-  """
-  def new(conn, %{"tenant_slug" => slug}) do
-    tenant = Tenants.get_tenant_by_slug!(slug)
-    render(conn, "new.html", tenant: tenant)
-  end
-
-  @doc """
   Processes the magic link request. Sends an email with the link.
   Always shows success message to prevent email enumeration.
   """
@@ -25,7 +17,7 @@ defmodule TrebyWeb.MagicLinkController do
       [candidate | _] ->
         case CandidatePortal.generate_magic_link_token(candidate) do
           {:ok, raw_token} ->
-            url = "/#{slug}/c/#{raw_token}"
+            url = "/#{slug}/portal/c/#{raw_token}"
 
             email =
               NotificationEmail.magic_link_email(candidate, tenant, url)
@@ -34,19 +26,19 @@ defmodule TrebyWeb.MagicLinkController do
 
             conn
             |> put_flash(:info, "Check your email for a login link")
-            |> redirect(to: "/#{slug}/portal")
+            |> redirect(to: "/#{slug}/portal/login")
 
           {:error, _changeset} ->
             conn
             |> put_flash(:error, "Something went wrong. Please try again.")
-            |> redirect(to: "/#{slug}/portal")
+            |> redirect(to: "/#{slug}/portal/login")
         end
 
       _ ->
         # Always show success to prevent email enumeration
         conn
         |> put_flash(:info, "Check your email for a login link")
-        |> redirect(to: "/#{slug}/portal")
+        |> redirect(to: "/#{slug}/portal/login")
     end
   end
 
@@ -64,7 +56,7 @@ defmodule TrebyWeb.MagicLinkController do
       {:error, _reason} ->
         conn
         |> put_flash(:error, "This link is invalid or has expired. Please request a new one.")
-        |> redirect(to: "/#{slug}/portal")
+        |> redirect(to: "/#{slug}/portal/login")
     end
   end
 end

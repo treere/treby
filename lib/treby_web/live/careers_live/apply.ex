@@ -58,7 +58,7 @@ defmodule TrebyWeb.CareersLive.Apply do
           </p>
           <div class="mt-6 space-y-4">
             <.link
-              navigate={~p"/#{@tenant.slug}/portal"}
+              navigate={~p"/#{@tenant.slug}/portal/login"}
               class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               Access Your Portal

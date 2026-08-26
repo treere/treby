@@ -11,6 +11,7 @@ defmodule Treby.Candidates.Candidate do
     field :phone, :string
     field :linkedin_url, :string
     field :custom_fields, :map, default: %{}
+    field :notification_preferences, :map, default: %{}
     field :merged_at, :utc_datetime
 
     belongs_to :tenant, Treby.Tenants.Tenant
@@ -24,7 +25,14 @@ defmodule Treby.Candidates.Candidate do
   @doc false
   def changeset(candidate, attrs) do
     candidate
-    |> cast(attrs, [:name, :email, :phone, :linkedin_url, :custom_fields])
+    |> cast(attrs, [
+      :name,
+      :email,
+      :phone,
+      :linkedin_url,
+      :custom_fields,
+      :notification_preferences
+    ])
     |> validate_required([:name, :email])
     |> validate_format(:email, ~r/@/)
   end

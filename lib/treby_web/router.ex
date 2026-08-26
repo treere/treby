@@ -24,6 +24,10 @@ defmodule TrebyWeb.Router do
     plug TrebyWeb.Plugs.Auth
   end
 
+  pipeline :candidate_auth do
+    plug TrebyWeb.Plugs.CandidateAuth
+  end
+
   # Authenticated routes (before public catch-all to avoid route collisions)
   scope "/app", TrebyWeb do
     pipe_through [:browser, :require_auth]
@@ -100,6 +104,25 @@ defmodule TrebyWeb.Router do
     post "/invite/:token", InviteController, :create
     get "/terms", StaticPageController, :terms
     get "/privacy", StaticPageController, :privacy
+  end
+
+  # Candidate portal (authenticated)
+  scope "/:tenant_slug", TrebyWeb do
+    pipe_through [:browser, :candidate_auth]
+
+    live "/portal", CandidatePortalLive.Index
+    live "/portal/messages", CandidatePortalLive.Messages
+    live "/portal/messages/:id", CandidatePortalLive.MessageThread
+    live "/portal/settings", CandidatePortalLive.Settings
+  end
+
+  # Candidate portal routes (magic link auth - unauthenticated)
+  scope "/:tenant_slug", TrebyWeb do
+    pipe_through :browser
+
+    live "/portal", CandidatePortalLive.RequestLink
+    post "/portal", MagicLinkController, :create
+    get "/c/:token", MagicLinkController, :show
   end
 
   # Webhook routes (public, no auth)

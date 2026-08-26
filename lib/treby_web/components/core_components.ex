@@ -29,7 +29,10 @@ defmodule TrebyWeb.CoreComponents do
   use Phoenix.Component
   use Gettext, backend: TrebyWeb.Gettext
 
+  alias Phoenix.HTML.Form, as: HTMLForm
   alias Phoenix.LiveView.JS
+  alias TrebyWeb.DesignSystem.Button
+  alias TrebyWeb.DesignSystem.Pattern
 
   @doc """
   Renders flash notices.
@@ -110,7 +113,7 @@ defmodule TrebyWeb.CoreComponents do
   slot :inner_block, required: true
 
   def button(assigns) do
-    TrebyWeb.DesignSystem.Button.button(assigns)
+    Button.button(assigns)
   end
 
   @doc """
@@ -198,7 +201,7 @@ defmodule TrebyWeb.CoreComponents do
   def input(%{type: "checkbox"} = assigns) do
     assigns =
       assign_new(assigns, :checked, fn ->
-        Phoenix.HTML.Form.normalize_value("checkbox", assigns[:value])
+        HTMLForm.normalize_value("checkbox", assigns[:value])
       end)
 
     ~H"""
@@ -455,7 +458,7 @@ defmodule TrebyWeb.CoreComponents do
         end
       end)
 
-    TrebyWeb.DesignSystem.Pattern.confirm_dialog(modal_assigns)
+    Pattern.confirm_dialog(modal_assigns)
   end
 
   @doc """
@@ -620,7 +623,7 @@ defmodule TrebyWeb.CoreComponents do
   attr :actions, :list, default: []
 
   def empty_state(assigns) do
-    TrebyWeb.DesignSystem.Pattern.empty_state(assigns)
+    Pattern.empty_state(assigns)
   end
 
   @doc """

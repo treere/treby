@@ -3,6 +3,8 @@ defmodule Treby.JobsTest do
 
   alias Treby.{Tenants, Jobs, Repo}
   alias Treby.Accounts.User
+  alias Treby.Jobs.Job
+  alias Treby.Pipeline
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -44,7 +46,7 @@ defmodule Treby.JobsTest do
       {:ok, _job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Software Engineer",
           description: "Build things",
           pipeline_id: pipeline.id

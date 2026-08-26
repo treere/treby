@@ -6,6 +6,9 @@ defmodule TrebyWeb.ScheduleLive.IndexTest do
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+  alias Treby.Jobs.Job
+  alias Treby.Pipeline.PipelineStage
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -43,7 +46,7 @@ defmodule TrebyWeb.ScheduleLive.IndexTest do
     {:ok, stage} =
       pipeline
       |> Ecto.build_assoc(:pipeline_stages)
-      |> Treby.Pipeline.PipelineStage.changeset(%{
+      |> PipelineStage.changeset(%{
         name: "Applied",
         position: 0,
         stage_type: "applied"
@@ -53,7 +56,7 @@ defmodule TrebyWeb.ScheduleLive.IndexTest do
     {:ok, job} =
       tenant
       |> Ecto.build_assoc(:jobs)
-      |> Treby.Jobs.Job.changeset(%{
+      |> Job.changeset(%{
         title: "Backend Engineer",
         description: "Build APIs",
         pipeline_id: pipeline_id
@@ -63,7 +66,7 @@ defmodule TrebyWeb.ScheduleLive.IndexTest do
     {:ok, candidate} =
       tenant
       |> Ecto.build_assoc(:candidates)
-      |> Treby.Candidates.Candidate.changeset(%{
+      |> Candidate.changeset(%{
         name: "Jane Candidate",
         email: "jane-candidate@example.com"
       })

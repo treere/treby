@@ -69,4 +69,92 @@ defmodule Treby.Notifications.Email do
     View in Pipeline: /app/pipeline/#{job.id}
     """)
   end
+
+  @doc """
+  Sends a magic link email to a candidate for portal access.
+  """
+  def magic_link_email(candidate, tenant, url) do
+    Swoosh.Email.new()
+    |> Swoosh.Email.to(candidate.email)
+    |> Swoosh.Email.from({"Treby", "noreply@treby.app"})
+    |> Swoosh.Email.subject("Access your application portal")
+    |> Swoosh.Email.html_body("""
+    <h2>Access your portal</h2>
+    <p>Hi #{candidate.name},</p>
+    <p>Click the button below to access your application portal at #{tenant.name}.</p>
+    <p><a href="#{url}" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px;">Access Portal</a></p>
+    <p style="color: #6b7280; font-size: 14px;">This link expires in 15 minutes and can only be used once.</p>
+    """)
+    |> Swoosh.Email.text_body("""
+    Access your portal
+
+    Hi #{candidate.name},
+
+    Click the link below to access your application portal at #{tenant.name}:
+
+    #{url}
+
+    This link expires in 15 minutes and can only be used once.
+    """)
+  end
+
+  @doc """
+  Sends a notification ping email for a new message in the portal.
+  """
+  def notification_ping(candidate, tenant, conversation_id, notification_type, assigns \\ %{}) do
+    {subject, body} = ping_content(notification_type, candidate, tenant, assigns)
+
+    url = "/#{tenant.slug}/portal/messages/#{conversation_id}"
+
+    Swoosh.Email.new()
+    |> Swoosh.Email.to(candidate.email)
+    |> Swoosh.Email.from({"Treby", "noreply@treby.app"})
+    |> Swoosh.Email.subject(subject)
+    |> Swoosh.Email.html_body("""
+    <p>#{body}</p>
+    <p><a href="#{url}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px;">View in Portal</a></p>
+    """)
+    |> Swoosh.Email.text_body("""
+    #{body}
+
+    View in Portal: #{url}
+    """)
+  end
+
+  defp ping_content("new_message", _candidate, tenant, assigns) do
+    job_title = assigns[:job_title] || "your application"
+    {"New message from #{tenant.name}", "You have a new message regarding #{job_title}."}
+  end
+
+  defp ping_content("status_change", _candidate, _tenant, assigns) do
+    stage = assigns[:stage_name] || "a new stage"
+    job_title = assigns[:job_title] || "your application"
+    {"Application update: #{stage}", "Your application for #{job_title} has moved to #{stage}."}
+  end
+
+  defp ping_content("info_request", _candidate, _tenant, assigns) do
+    job_title = assigns[:job_title] || "your application"
+
+    {"Information needed: #{job_title}",
+     "We need some additional information to proceed with #{job_title}."}
+  end
+
+  defp ping_content("interview_update", _candidate, _tenant, assigns) do
+    job_title = assigns[:job_title] || "your application"
+
+    {"Interview update: #{job_title}",
+     "There's an update regarding your interview for #{job_title}."}
+  end
+
+  defp ping_content("offer", _candidate, _tenant, assigns) do
+    job_title = assigns[:job_title] || "your application"
+    {"Offer: #{job_title}", "You have received an offer for #{job_title}!"}
+  end
+
+  defp ping_content("rejection", _candidate, _tenant, assigns) do
+    job_title = assigns[:job_title] || "your application"
+
+    {"Application update: #{job_title}",
+     "There's an update regarding your application for #{job_title}."}
+  end
 end

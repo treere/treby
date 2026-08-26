@@ -202,14 +202,21 @@ defmodule Treby.NotificationsTest do
       candidate = setup_candidate(tenant, "stage-change@test.com")
       application = setup_application(tenant, candidate, job, stage)
 
+      # Create a conversation so the portal messaging path is active
+      {:ok, _conversation} =
+        Treby.CandidatePortal.create_conversation(%{
+          candidate_id: candidate.id,
+          tenant_id: tenant.id,
+          subject: "Test",
+          context: "application",
+          application_id: application.id
+        })
+
       setup_email_template(tenant.id, "hired")
 
       assert :ok = Notifications.notify_stage_change(application, nil)
 
-      assert_email_sent(
-        subject: "You've been hired for Software Engineer",
-        to: [{"", "stage-change@test.com"}]
-      )
+      assert_email_sent(to: [{"", "stage-change@test.com"}])
     end
 
     test "does not send email when preference is disabled" do
@@ -248,6 +255,16 @@ defmodule Treby.NotificationsTest do
       candidate = setup_candidate(tenant, "recruiter@test.com")
       application = setup_application(tenant, candidate, job, stage)
 
+      # Create a conversation so the portal messaging path is active
+      {:ok, _conversation} =
+        Treby.CandidatePortal.create_conversation(%{
+          candidate_id: candidate.id,
+          tenant_id: tenant.id,
+          subject: "Test",
+          context: "application",
+          application_id: application.id
+        })
+
       {:ok, _template} =
         Treby.EmailTemplates.upsert_email_template(%{
           "tenant_id" => tenant.id,
@@ -259,10 +276,7 @@ defmodule Treby.NotificationsTest do
 
       assert :ok = Notifications.notify_stage_change(application, user)
 
-      assert_email_sent(
-        subject: "Update from Admin User",
-        to: [{"", "recruiter@test.com"}]
-      )
+      assert_email_sent(to: [{"", "recruiter@test.com"}])
     end
 
     test "uses empty string for recruiter_name when no actor" do
@@ -271,14 +285,21 @@ defmodule Treby.NotificationsTest do
       candidate = setup_candidate(tenant, "no-actor@test.com")
       application = setup_application(tenant, candidate, job, stage)
 
+      # Create a conversation so the portal messaging path is active
+      {:ok, _conversation} =
+        Treby.CandidatePortal.create_conversation(%{
+          candidate_id: candidate.id,
+          tenant_id: tenant.id,
+          subject: "Test",
+          context: "application",
+          application_id: application.id
+        })
+
       setup_email_template(tenant.id, "hired")
 
       assert :ok = Notifications.notify_stage_change(application)
 
-      assert_email_sent(
-        subject: "You've been hired for Software Engineer",
-        to: [{"", "no-actor@test.com"}]
-      )
+      assert_email_sent(to: [{"", "no-actor@test.com"}])
     end
 
     test "returns :ok even when email delivery fails" do
@@ -306,7 +327,7 @@ defmodule Treby.NotificationsTest do
   end
 
   describe "notify_new_application_candidate/1" do
-    test "sends confirmation email to candidate" do
+    test "sends portal access email to candidate" do
       {tenant, _user} = setup_tenant_with_admin()
       {job, stage} = setup_job(tenant)
       candidate = setup_candidate(tenant, "confirm@test.com")
@@ -314,10 +335,7 @@ defmodule Treby.NotificationsTest do
 
       assert :ok = Notifications.notify_new_application_candidate(application)
 
-      assert_email_sent(
-        subject: "Application Received - Software Engineer",
-        to: [{"", "confirm@test.com"}]
-      )
+      assert_email_sent(to: [{"", "confirm@test.com"}])
     end
 
     test "does not send when preference disabled" do

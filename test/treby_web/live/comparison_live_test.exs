@@ -4,6 +4,8 @@ defmodule TrebyWeb.ComparisonLive.IndexTest do
   import Phoenix.LiveViewTest
 
   alias Treby.{Tenants, Repo}
+  alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -15,7 +17,7 @@ defmodule TrebyWeb.ComparisonLive.IndexTest do
     {:ok, user} =
       tenant
       |> Ecto.build_assoc(:users)
-      |> Treby.Accounts.User.changeset(%{
+      |> User.changeset(%{
         email: "compare-#{System.unique_integer([:positive])}@test.com",
         password: "password123",
         name: "Compare User",
@@ -30,7 +32,7 @@ defmodule TrebyWeb.ComparisonLive.IndexTest do
     {:ok, candidate} =
       tenant
       |> Ecto.build_assoc(:candidates)
-      |> Treby.Candidates.Candidate.changeset(%{
+      |> Candidate.changeset(%{
         name: name,
         email: email,
         phone: "555-0000"

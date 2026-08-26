@@ -5,6 +5,10 @@ defmodule TrebyWeb.DashboardLiveTest do
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+  alias Treby.Careers.CareerPage
+  alias Treby.Jobs.Job
+  alias Treby.Pipeline.PipelineStage
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -64,7 +68,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, _job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Software Engineer",
           description: "Build things",
           pipeline_id: pipeline.id
@@ -94,7 +98,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, _job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Software Engineer",
           description: "Build things",
           pipeline_id: pipeline.id
@@ -105,7 +109,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, _candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "John Doe",
           email: "john@example.com"
         })
@@ -115,7 +119,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, _career_page} =
         tenant
         |> Ecto.build_assoc(:career_pages)
-        |> Treby.Careers.CareerPage.changeset(%{
+        |> CareerPage.changeset(%{
           title: "Join Us",
           primary_color: "#3b82f6"
         })
@@ -225,7 +229,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, stage} =
         pipeline
         |> Ecto.build_assoc(:pipeline_stages)
-        |> Treby.Pipeline.PipelineStage.changeset(%{
+        |> PipelineStage.changeset(%{
           name: "Applied",
           position: 0,
           stage_type: "applied"
@@ -235,7 +239,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Software Engineer",
           description: "Build things",
           pipeline_id: pipeline_id
@@ -245,7 +249,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Jane Smith",
           email: "jane@example.com"
         })

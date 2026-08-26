@@ -21,7 +21,10 @@ Self-scheduling via Google Calendar with multi-examiner overlapping availability
 Hiring metrics, conversion rates, and pipeline overview.
 
 ## [Email Notifications](/features/email-notifications)
-Automated emails for pipeline events with stage-based templates.
+Automated emails for pipeline events with stage-based templates, plus in-app notification pings when the candidate portal is active.
+
+## [Candidate Portal](/features/candidate-management#candidate-portal)
+A self-service portal where candidates can track application status, converse with recruiters, and manage notification preferences — all via magic link auth.
 
 ## [Email Scheduler](/features/email-scheduler)
 Schedule emails for later with jitter, retries, and a full queue manager.

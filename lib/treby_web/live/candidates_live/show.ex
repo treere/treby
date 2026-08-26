@@ -10,9 +10,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
     Customization,
     Activities,
     Scorecards,
-    EmailThreads
+    EmailThreads,
+    CandidatePortal
   }
 
+  alias Treby.Notifications.Email, as: NotificationEmail
   alias TrebyWeb.EmailQueueLive.SchedulePicker
 
   def mount(%{"id" => id}, session, socket) do
@@ -79,6 +81,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
     # Load email threads
     email_threads = EmailThreads.list_threads_for_candidate(candidate.id)
 
+    # Load conversations for the candidate
+    conversations = CandidatePortal.list_conversations_for_candidate(candidate.id, tenant.id)
+
     # Get user email for sending replies
     user_email = user.email
 
@@ -95,6 +100,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(activities: activities)
      |> assign(merge_logs: merge_logs)
      |> assign(email_threads: email_threads)
+     |> assign(conversations: conversations)
      |> assign(user_email: user_email)
      |> assign(show_note_form: nil)
      |> assign(note_form: to_form(%{}, as: :note))
@@ -104,7 +110,15 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(confirm_delete: nil)
      |> assign(reply_form: to_form(%{}, as: :reply))
      |> assign(composing_email: false)
-     |> assign(compose_form: to_form(%{}, as: :compose))}
+     |> assign(compose_form: to_form(%{}, as: :compose))
+     |> assign(new_message_form_visible: false)
+     |> assign(new_message_form: to_form(%{}, as: :message))
+     |> assign(replying_to_conversation: nil)
+     |> assign(conversation_reply_form: to_form(%{}, as: :reply))
+     |> assign(show_request_info_form: false)
+     |> assign(request_info_form: to_form(%{}, as: :request_info))
+     |> assign(show_reject_form: false)
+     |> assign(reject_form: to_form(%{}, as: :reject))}
   end
 
   def render(assigns) do
@@ -752,6 +766,269 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
           </div>
         </div>
+
+        <%!-- Portal Conversations --%>
+        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Portal Conversations</h2>
+            <div class="flex items-center gap-2">
+              <span
+                :if={@conversations != []}
+                class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
+              >
+                {length(@conversations)}
+              </span>
+              <div class="flex gap-2">
+                <button
+                  phx-click="new_portal_message"
+                  class="text-sm text-blue-600 hover:text-blue-900 border border-blue-600 rounded px-3 py-1"
+                >
+                  + New Message
+                </button>
+                <button
+                  phx-click="request_info"
+                  class="text-sm text-amber-600 hover:text-amber-900 border border-amber-600 rounded px-3 py-1"
+                >
+                  Request Info
+                </button>
+                <button
+                  phx-click="reject_candidate"
+                  class="text-sm text-red-600 hover:text-red-900 border border-red-600 rounded px-3 py-1"
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <%!-- New Message Form --%>
+          <div
+            :if={@new_message_form_visible}
+            class="mb-6 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950"
+          >
+            <h3 class="text-sm font-medium text-blue-900 mb-3">New Portal Message</h3>
+            <.form
+              for={@new_message_form}
+              id="new-portal-message-form"
+              phx-submit="send_new_message"
+              class="space-y-3"
+            >
+              <.input
+                field={@new_message_form[:subject]}
+                type="text"
+                label="Subject"
+                placeholder="Message subject..."
+              />
+              <.input
+                field={@new_message_form[:body]}
+                type="textarea"
+                label="Message"
+                placeholder="Type your message..."
+                rows={4}
+              />
+              <div class="flex gap-2">
+                <.button type="submit" class="text-sm">Send Message</.button>
+                <button
+                  type="button"
+                  phx-click="cancel_new_message"
+                  class="text-sm text-base-content/50 hover:text-base-content/80"
+                >
+                  Cancel
+                </button>
+              </div>
+            </.form>
+          </div>
+
+          <div
+            :if={@conversations == [] && !@new_message_form_visible}
+            class="text-base-content/50 text-sm"
+          >
+            No conversations yet.
+          </div>
+
+          <%!-- Request Info Form --%>
+          <div
+            :if={@show_request_info_form}
+            class="mb-6 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950"
+          >
+            <h3 class="text-sm font-medium text-amber-900 mb-3">Request Information</h3>
+            <.form
+              for={@request_info_form}
+              id="request-info-form"
+              phx-submit="submit_request_info"
+              class="space-y-3"
+            >
+              <.input
+                field={@request_info_form[:template]}
+                type="select"
+                label="Template"
+                options={[
+                  {"Portfolio/Work Samples", "portfolio"},
+                  {"References", "references"},
+                  {"Availability", "availability"},
+                  {"Certificates", "certificates"},
+                  {"Custom", "custom"}
+                ]}
+              />
+              <.input
+                field={@request_info_form[:message]}
+                type="textarea"
+                label="Message"
+                placeholder="Describe what information you need..."
+                rows={3}
+              />
+              <div class="flex gap-2">
+                <.button type="submit" class="text-sm bg-amber-600 hover:bg-amber-700">
+                  Send Request
+                </.button>
+                <button
+                  type="button"
+                  phx-click="cancel_request_info"
+                  class="text-sm text-base-content/50 hover:text-base-content/80"
+                >
+                  Cancel
+                </button>
+              </div>
+            </.form>
+          </div>
+
+          <%!-- Reject Form --%>
+          <div :if={@show_reject_form} class="mb-6 p-4 border rounded-lg bg-red-50 dark:bg-red-950">
+            <h3 class="text-sm font-medium text-red-900 mb-3">Reject Candidate</h3>
+            <.form
+              for={@reject_form}
+              id="reject-form"
+              phx-submit="submit_rejection"
+              class="space-y-3"
+            >
+              <.input
+                field={@reject_form[:reason]}
+                type="select"
+                label="Reason"
+                options={[
+                  {"Not a fit for the role", "not_fit"},
+                  {"Insufficient experience", "insufficient_experience"},
+                  {"Position filled", "position_filled"},
+                  {"Culture fit", "culture_fit"},
+                  {"Other", "other"}
+                ]}
+              />
+              <.input
+                field={@reject_form[:feedback]}
+                type="textarea"
+                label="Feedback (optional)"
+                placeholder="Provide constructive feedback..."
+                rows={3}
+              />
+              <div class="flex gap-2">
+                <.button type="submit" class="text-sm bg-red-600 hover:bg-red-700">Reject</.button>
+                <button
+                  type="button"
+                  phx-click="cancel_reject"
+                  class="text-sm text-base-content/50 hover:text-base-content/80"
+                >
+                  Cancel
+                </button>
+              </div>
+            </.form>
+          </div>
+
+          <div :for={conversation <- @conversations} class="border rounded-lg mb-4 last:mb-0">
+            <div class="p-4 border-b bg-base-200 rounded-t-lg">
+              <div class="flex justify-between items-center">
+                <div>
+                  <span class="font-medium text-base-content">
+                    {conversation.subject || "Conversation"}
+                  </span>
+                  <span class="text-sm text-base-content/50 ml-2">
+                    ({length(conversations_messages(conversation))} message{length(
+                      conversations_messages(conversation)
+                    ) != 1 && "s"})
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class={[
+                    "px-2 py-1 text-xs rounded-full",
+                    conversation.status == "open" && "bg-green-100 text-green-800",
+                    conversation.status == "closed" && "bg-gray-100 text-gray-600"
+                  ]}>
+                    {conversation.status}
+                  </span>
+                  <span class="text-xs text-base-content/40">
+                    {if conversation.last_message_at do
+                      Calendar.strftime(conversation.last_message_at, "%b %d, %Y at %H:%M")
+                    end}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 space-y-3">
+              <div
+                :for={message <- Enum.take(conversations_messages(conversation), -5)}
+                class={[
+                  "p-3 rounded-lg text-sm",
+                  message.sender_type == "candidate" &&
+                    "bg-blue-50 dark:bg-blue-950 border-l-4 border-blue-400",
+                  message.sender_type == "recruiter" &&
+                    "bg-green-50 dark:bg-green-950 border-l-4 border-green-400 ml-8",
+                  message.sender_type == "system" &&
+                    "bg-gray-50 dark:bg-gray-800/50 text-center text-xs text-base-content/50"
+                ]}
+              >
+                <div class="flex justify-between items-center mb-1">
+                  <span class="font-medium text-base-content/80">
+                    {String.capitalize(message.sender_type)}
+                  </span>
+                  <span class="text-xs text-base-content/40">
+                    {Calendar.strftime(message.inserted_at, "%b %d, %Y at %H:%M")}
+                  </span>
+                </div>
+                <div class="text-base-content/70 whitespace-pre-wrap">
+                  {message.body}
+                </div>
+              </div>
+            </div>
+
+            <div :if={conversation.status == "open"} class="p-4 border-t">
+              <%= if @replying_to_conversation == conversation.id do %>
+                <.form
+                  for={@conversation_reply_form}
+                  id={"conversation-reply-form-#{conversation.id}"}
+                  phx-submit="send_conversation_reply"
+                  phx-value-conversation_id={conversation.id}
+                  class="space-y-3"
+                >
+                  <.input
+                    field={@conversation_reply_form[:body]}
+                    type="textarea"
+                    label="Reply"
+                    placeholder="Type your message..."
+                    rows={3}
+                  />
+                  <div class="flex gap-2">
+                    <.button type="submit" class="text-sm">Send</.button>
+                    <button
+                      type="button"
+                      phx-click="cancel_conversation_reply"
+                      class="text-sm text-base-content/50 hover:text-base-content/80"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </.form>
+              <% else %>
+                <button
+                  phx-click="reply_to_conversation"
+                  phx-value-conversation_id={conversation.id}
+                  class="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Reply
+                </button>
+              <% end %>
+            </div>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_note" />
@@ -981,6 +1258,249 @@ defmodule TrebyWeb.CandidatesLive.Show do
     end
   end
 
+  def handle_event("new_portal_message", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:new_message_form_visible, true)
+     |> assign(:new_message_form, to_form(%{}, as: :message))}
+  end
+
+  def handle_event("cancel_new_message", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:new_message_form_visible, false)
+     |> assign(:new_message_form, to_form(%{}, as: :message))}
+  end
+
+  def handle_event("send_new_message", %{"message" => params}, socket) do
+    subject = Map.get(params, "subject", "") |> String.trim()
+    body = Map.get(params, "body", "") |> String.trim()
+
+    cond do
+      subject == "" ->
+        {:noreply, put_flash(socket, :error, "Subject is required")}
+
+      body == "" ->
+        {:noreply, put_flash(socket, :error, "Message body is required")}
+
+      true ->
+        application = List.first(socket.assigns.applications)
+
+        {:ok, conversation} =
+          CandidatePortal.create_conversation(%{
+            candidate_id: socket.assigns.candidate.id,
+            tenant_id: socket.assigns.current_tenant.id,
+            subject: subject,
+            context: "application",
+            application_id: if(application, do: application.id)
+          })
+
+        CandidatePortal.send_message(%{
+          sender_id: socket.assigns.current_user.id,
+          sender_type: "recruiter",
+          conversation_id: conversation.id,
+          body: body,
+          message_type: "text"
+        })
+
+        conversations =
+          CandidatePortal.list_conversations_for_candidate(
+            socket.assigns.candidate.id,
+            socket.assigns.current_tenant.id
+          )
+
+        {:noreply,
+         socket
+         |> assign(conversations: conversations)
+         |> assign(:new_message_form_visible, false)
+         |> assign(:new_message_form, to_form(%{}, as: :message))
+         |> put_flash(:info, "Message sent")}
+    end
+  end
+
+  def handle_event("request_info", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_request_info_form, true)
+     |> assign(:request_info_form, to_form(%{}, as: :request_info))}
+  end
+
+  def handle_event("cancel_request_info", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_request_info_form, false)
+     |> assign(:request_info_form, to_form(%{}, as: :request_info))}
+  end
+
+  def handle_event("submit_request_info", %{"request_info" => params}, socket) do
+    template = Map.get(params, "template", "custom")
+    message = Map.get(params, "message", "") |> String.trim()
+
+    if message == "" do
+      {:noreply, put_flash(socket, :error, "Message cannot be empty")}
+    else
+      # Create a conversation with request_info type
+      {:ok, conversation} =
+        CandidatePortal.create_conversation(%{
+          candidate_id: socket.assigns.candidate.id,
+          tenant_id: socket.assigns.current_tenant.id,
+          subject: "Information Request",
+          context: "info_request",
+          application_id: List.first(socket.assigns.applications).id
+        })
+
+      CandidatePortal.send_message(%{
+        sender_id: socket.assigns.current_user.id,
+        sender_type: "recruiter",
+        conversation_id: conversation.id,
+        body: message,
+        message_type: "request_info",
+        metadata: %{"template" => template}
+      })
+
+      conversations =
+        CandidatePortal.list_conversations_for_candidate(
+          socket.assigns.candidate.id,
+          socket.assigns.current_tenant.id
+        )
+
+      {:noreply,
+       socket
+       |> assign(conversations: conversations)
+       |> assign(:show_request_info_form, false)
+       |> assign(:request_info_form, to_form(%{}, as: :request_info))
+       |> put_flash(:info, "Information request sent")}
+    end
+  end
+
+  def handle_event("reject_candidate", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_reject_form, true)
+     |> assign(:reject_form, to_form(%{}, as: :reject))}
+  end
+
+  def handle_event("cancel_reject", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_reject_form, false)
+     |> assign(:reject_form, to_form(%{}, as: :reject))}
+  end
+
+  def handle_event("submit_rejection", %{"reject" => params}, socket) do
+    reason = Map.get(params, "reason", "other")
+    feedback = Map.get(params, "feedback", "") |> String.trim()
+
+    # Create a conversation with rejection
+    {:ok, conversation} =
+      CandidatePortal.create_conversation(%{
+        candidate_id: socket.assigns.candidate.id,
+        tenant_id: socket.assigns.current_tenant.id,
+        subject: "Application Update",
+        context: "rejection",
+        application_id: List.first(socket.assigns.applications).id
+      })
+
+    CandidatePortal.send_message(%{
+      sender_id: socket.assigns.current_user.id,
+      sender_type: "recruiter",
+      conversation_id: conversation.id,
+      body: "We've decided to move forward with other candidates. #{feedback}",
+      message_type: "rejection",
+      metadata: %{"rejection_reason" => reason, "feedback" => feedback}
+    })
+
+    # Update application status to rejected
+    application = List.first(socket.assigns.applications)
+    # Find the rejected stage for this job
+    job = application.job
+    rejected_stage = Enum.find(job.pipeline_stages, &(&1.name == "Rejected"))
+
+    if rejected_stage do
+      Pipeline.move_application(application, rejected_stage.id, %{
+        rejection_reason: reason
+      })
+    end
+
+    # Send rejection notification email
+    try do
+      email =
+        NotificationEmail.notification_ping(
+          socket.assigns.candidate,
+          socket.assigns.current_tenant,
+          conversation.id,
+          "rejection",
+          %{"job_title" => job.title}
+        )
+
+      Treby.Mailer.deliver(email)
+    rescue
+      _ -> :ok
+    catch
+      _ -> :ok
+    end
+
+    conversations =
+      CandidatePortal.list_conversations_for_candidate(
+        socket.assigns.candidate.id,
+        socket.assigns.current_tenant.id
+      )
+
+    {:noreply,
+     socket
+     |> assign(conversations: conversations)
+     |> assign(:show_reject_form, false)
+     |> assign(:reject_form, to_form(%{}, as: :reject))
+     |> put_flash(:info, "Candidate rejected")}
+  end
+
+  def handle_event("reply_to_conversation", %{"conversation_id" => conversation_id}, socket) do
+    {:noreply,
+     socket
+     |> assign(:replying_to_conversation, conversation_id)
+     |> assign(:conversation_reply_form, to_form(%{}, as: :reply))}
+  end
+
+  def handle_event("cancel_conversation_reply", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:replying_to_conversation, nil)
+     |> assign(:conversation_reply_form, to_form(%{}, as: :reply))}
+  end
+
+  def handle_event(
+        "send_conversation_reply",
+        %{"conversation_id" => conversation_id, "reply" => %{"body" => body}},
+        socket
+      ) do
+    body = String.trim(body)
+
+    if body == "" do
+      {:noreply, put_flash(socket, :error, "Message cannot be empty")}
+    else
+      CandidatePortal.send_message(%{
+        sender_id: socket.assigns.current_user.id,
+        sender_type: "recruiter",
+        conversation_id: conversation_id,
+        body: body,
+        message_type: "text"
+      })
+
+      conversations =
+        CandidatePortal.list_conversations_for_candidate(
+          socket.assigns.candidate.id,
+          socket.assigns.current_tenant.id
+        )
+
+      {:noreply,
+       socket
+       |> assign(conversations: conversations)
+       |> assign(:replying_to_conversation, nil)
+       |> assign(:conversation_reply_form, to_form(%{}, as: :reply))
+       |> put_flash(:info, "Message sent")}
+    end
+  end
+
   defp build_schedule(params) do
     if params["mode"] == "schedule" do
       case DateTime.from_iso8601(params["scheduled_at"] || "") do
@@ -1007,6 +1527,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
       _ ->
         "an unexpected error occurred"
     end
+  end
+
+  defp conversations_messages(conversation) do
+    conversation.messages || []
   end
 
   defp reload_applications_with_notes(assigns) do

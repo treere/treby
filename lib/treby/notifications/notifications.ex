@@ -5,6 +5,8 @@ defmodule Treby.Notifications do
   """
 
   import Ecto.Query, warn: false
+  alias Treby.CandidatePortal
+  alias Treby.Notifications.Email, as: NotificationEmail
   alias Treby.Repo
   alias Treby.Tenants.Tenant
 
@@ -29,6 +31,10 @@ defmodule Treby.Notifications do
     Map.get(prefs, key, true)
   end
 
+  def candidate_notification_enabled?(candidate, key) do
+    Treby.CandidatePortal.notification_enabled?(candidate, key)
+  end
+
   def set_notification_preference(%Tenant{} = tenant, key, value) when is_boolean(value) do
     notifications = Map.put(notification_preferences(tenant), key, value)
 
@@ -44,7 +50,7 @@ defmodule Treby.Notifications do
   Resolves the email template for the target stage type, renders it with
   variables, and sends it via Swoosh.
   """
-  def notify_stage_change(application, actor \\ nil) do
+  def notify_stage_change(application, _actor \\ nil) do
     application = Repo.preload(application, [:candidate, :job, :pipeline_stage])
     candidate = application.candidate
     job = application.job
@@ -56,36 +62,54 @@ defmodule Treby.Notifications do
       throw(:skip)
     end
 
-    template =
-      Treby.EmailTemplates.get_email_template_for_stage(tenant.id, stage.stage_type)
+    unless candidate_notification_enabled?(candidate, "status_change") do
+      throw(:skip)
+    end
 
-    if template do
-      assigns = %{
-        candidate_name: candidate.name || "",
-        job_title: job.title || "",
-        company_name: tenant.name || "",
-        stage_name: stage.name || "",
-        recruiter_name: (actor && actor.name) || ""
-      }
+    # Create a system message in the conversation
+    conversations =
+      Treby.CandidatePortal.list_conversations_for_candidate(candidate.id, tenant.id)
 
-      {subject, body} = Treby.EmailTemplates.render_email(template, assigns)
+    application_conversations =
+      Enum.filter(conversations, fn conv ->
+        conv.context == "application" && conv.application_id == application.id
+      end)
+
+    if application_conversations != [] do
+      Enum.each(application_conversations, fn conversation ->
+        Treby.CandidatePortal.send_message(%{
+          sender_type: "system",
+          conversation_id: conversation.id,
+          body: "Your application has moved to #{stage.name}.",
+          message_type: "status_update",
+          metadata: %{"stage_name" => stage.name, "stage_type" => stage.stage_type}
+        })
+      end)
 
       email =
-        Swoosh.Email.new()
-        |> Swoosh.Email.to(candidate.email)
-        |> Swoosh.Email.from({"Treby", "noreply@treby.app"})
-        |> Swoosh.Email.subject(subject)
-        |> Swoosh.Email.html_body(body)
+        NotificationEmail.notification_ping(
+          candidate,
+          tenant,
+          List.first(application_conversations).id,
+          "status_change",
+          %{"job_title" => job.title, "stage_name" => stage.name}
+        )
 
       case Treby.Mailer.deliver(email) do
         {:ok, _} ->
-          log_email_event("stage_change_candidate", candidate.email, subject, "sent", tenant.id)
+          log_email_event(
+            "stage_change_candidate",
+            candidate.email,
+            email.subject,
+            "sent",
+            tenant.id
+          )
 
         {:error, reason} ->
           log_email_event(
             "stage_change_candidate",
             candidate.email,
-            subject,
+            email.subject,
             "failed",
             tenant.id,
             %{error: inspect(reason)}
@@ -104,7 +128,7 @@ defmodule Treby.Notifications do
   def notify_new_application_candidate(application) do
     application = Repo.preload(application, [:candidate, :job])
     candidate = application.candidate
-    job = application.job
+    _job = application.job
 
     tenant = Repo.get!(Tenant, application.tenant_id)
 
@@ -112,13 +136,11 @@ defmodule Treby.Notifications do
       throw(:skip)
     end
 
-    assigns = %{
-      candidate_name: candidate.name || "",
-      job_title: job.title || "",
-      company_name: tenant.name || ""
-    }
+    # Generate a magic link token for portal access
+    {:ok, token} = CandidatePortal.generate_magic_link_token(candidate)
+    portal_url = "/#{tenant.slug}/c/#{token}"
 
-    email = Treby.Notifications.Email.new_application_confirmation(candidate, job, assigns)
+    email = NotificationEmail.magic_link_email(candidate, tenant, portal_url)
 
     case Treby.Mailer.deliver(email) do
       {:ok, _} ->
@@ -173,7 +195,7 @@ defmodule Treby.Notifications do
         admin_name: admin.name || ""
       }
 
-      email = Treby.Notifications.Email.new_application_team_alert(admin, candidate, job, assigns)
+      email = NotificationEmail.new_application_team_alert(admin, candidate, job, assigns)
 
       case Treby.Mailer.deliver(email) do
         {:ok, _} ->

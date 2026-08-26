@@ -55,7 +55,7 @@ The system SHALL track the delivery status of each outbound email message in a t
 - **AND** it appears in the thread with a cancelled indicator
 
 ### Requirement: Display email threads
-The system SHALL display email threads on the candidate profile page.
+The system SHALL display email threads on the candidate profile page. When the candidate portal is enabled, email threads are displayed as a secondary communication channel alongside in-platform conversations.
 
 #### Scenario: Thread list
 - **WHEN** a user views a candidate profile
@@ -66,6 +66,12 @@ The system SHALL display email threads on the candidate profile page.
 - **THEN** the full conversation is displayed in chronological order
 - **AND** each message shows direction (inbound/outbound), sender, recipient, date, and body
 
+#### Scenario: Email threads alongside conversations
+- **WHEN** a user views a candidate profile that has both email threads and portal conversations
+- **THEN** the "Email" tab shows email threads
+- **AND** the "Conversations" tab shows portal conversations
+- **AND** both tabs are accessible from the candidate profile
+
 #### Scenario: Inbound message styling
 - **WHEN** a message is from the candidate (inbound)
 - **THEN** it is visually distinguished (e.g., different background color, left-aligned)
@@ -75,7 +81,7 @@ The system SHALL display email threads on the candidate profile page.
 - **THEN** it is visually distinguished (e.g., different background color, right-aligned)
 
 ### Requirement: Reply to email
-The system SHALL allow recruiters to reply to candidate emails from within Treby, either immediately or scheduled.
+The system SHALL allow recruiters to reply to candidate emails from within Treby, either immediately or scheduled. This remains available as a fallback for candidates who do not use the portal.
 
 #### Scenario: Reply button
 - **WHEN** a user views an email thread
@@ -100,19 +106,8 @@ The system SHALL allow recruiters to reply to candidate emails from within Treby
 - **WHEN** a thread has only inbound messages (no prior replies)
 - **THEN** the reply is sent and added as the first outbound message
 
-### Requirement: Reply with schedule option
-The system SHALL allow users to schedule a reply in an email thread.
-
-#### Scenario: Reply form has schedule option
-- **WHEN** a user clicks "Reply" in an email thread
-- **THEN** the reply form includes the same schedule option as compose
-
-#### Scenario: Scheduled reply appears in thread
-- **WHEN** a user schedules a reply
-- **THEN** the reply appears in the thread as a scheduled message with pending indicator
-
 ### Requirement: Compose new email thread
-The system SHALL allow recruiters to start a new email conversation with a candidate, either immediately or scheduled.
+The system SHALL allow recruiters to start a new email conversation with a candidate, either immediately or scheduled. When the portal is available, recruiters should prefer sending a portal message instead.
 
 #### Scenario: Compose button
 - **WHEN** a user views a candidate profile
@@ -143,6 +138,17 @@ The system SHALL allow recruiters to start a new email conversation with a candi
 #### Scenario: Compose validation
 - **WHEN** the user clicks "Send" with an empty subject or body
 - **THEN** the form shows a validation error and no email is sent
+
+### Requirement: Reply with schedule option
+The system SHALL allow users to schedule a reply in an email thread.
+
+#### Scenario: Reply form has schedule option
+- **WHEN** a user clicks "Reply" in an email thread
+- **THEN** the reply form includes the same schedule option as compose
+
+#### Scenario: Scheduled reply appears in thread
+- **WHEN** a user schedules a reply
+- **THEN** the reply appears in the thread as a scheduled message with pending indicator
 
 ### Requirement: Compose email with schedule option
 The system SHALL allow users to schedule a new email when composing from the candidate profile.

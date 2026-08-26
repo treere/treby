@@ -6,6 +6,9 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+  alias Treby.Jobs.Job
+  alias Treby.Pipeline.PipelineStage
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -55,7 +58,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, _candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Jane Smith",
           email: "jane@example.com"
         })
@@ -99,7 +102,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
     defp create_candidate(tenant, name, email) do
       tenant
       |> Ecto.build_assoc(:candidates)
-      |> Treby.Candidates.Candidate.changeset(%{name: name, email: email})
+      |> Candidate.changeset(%{name: name, email: email})
       |> Repo.insert!()
     end
 
@@ -189,7 +192,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Valid Name",
           email: "valid@example.com"
         })
@@ -224,7 +227,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, stage} =
         pipeline
         |> Ecto.build_assoc(:pipeline_stages)
-        |> Treby.Pipeline.PipelineStage.changeset(%{
+        |> PipelineStage.changeset(%{
           name: "Applied",
           position: 0,
           stage_type: "applied"
@@ -234,7 +237,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Platform Engineer",
           description: "Build platform",
           pipeline_id: pipeline_id
@@ -244,7 +247,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Schedule Person",
           email: "scheduleperson@example.com"
         })
@@ -274,7 +277,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Email Test",
           email: "emailtest@example.com"
         })
@@ -292,7 +295,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Compose Test",
           email: "compose@example.com"
         })
@@ -315,7 +318,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Cancel Test",
           email: "cancel@example.com"
         })
@@ -343,7 +346,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Subject Test",
           email: "subject@example.com"
         })
@@ -374,7 +377,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Body Test",
           email: "body@example.com"
         })
@@ -405,7 +408,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Send Test",
           email: "send@example.com"
         })
@@ -437,7 +440,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Schedule Test",
           email: "schedule@example.com"
         })
@@ -507,7 +510,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{name: name, email: email})
+        |> Candidate.changeset(%{name: name, email: email})
         |> Repo.insert()
 
       {:ok, _application} =

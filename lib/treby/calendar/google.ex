@@ -7,7 +7,9 @@ defmodule Treby.Calendar.Google do
   @base_url "https://www.googleapis.com/calendar/v3"
   @token_url "https://oauth2.googleapis.com/token"
 
-  def get_valid_token(%Treby.Calendar.CalendarConnection{} = conn) do
+  alias Treby.Calendar.CalendarConnection
+
+  def get_valid_token(%CalendarConnection{} = conn) do
     if token_valid?(conn) do
       {:ok, conn.access_token}
     else
@@ -44,7 +46,7 @@ defmodule Treby.Calendar.Google do
         expires_at = DateTime.utc_now() |> DateTime.add(expires_in, :second)
 
         changeset =
-          Treby.Calendar.CalendarConnection.changeset(conn, %{
+          CalendarConnection.changeset(conn, %{
             access_token: new_token,
             token_expires_at: expires_at
           })

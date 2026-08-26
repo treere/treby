@@ -245,6 +245,62 @@ defmodule TrebyWeb.Layouts do
   end
 
   @doc """
+  Layout for the candidate portal. Simplified navigation with tenant branding.
+  """
+  attr :flash, :map, required: true
+  attr :current_candidate, :map, required: true
+  attr :current_tenant, :map, required: true
+  slot :inner_block, required: true
+
+  def candidate_portal(assigns) do
+    ~H"""
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <nav class="bg-white dark:bg-gray-800 shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16">
+            <div class="flex items-center">
+              <.link
+                navigate={"/#{@current_tenant.slug}/portal/messages"}
+                class="flex-shrink-0 flex items-center"
+              >
+                <%= if @current_tenant.settings["logo_url"] do %>
+                  <img src={@current_tenant.settings["logo_url"]} class="h-8 w-8" alt="" />
+                <% else %>
+                  <span class="text-xl font-bold text-blue-600">{@current_tenant.name}</span>
+                <% end %>
+              </.link>
+            </div>
+            <div class="flex items-center space-x-4">
+              <.link
+                navigate={"/#{@current_tenant.slug}/portal/messages"}
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600"
+              >
+                Messages
+              </.link>
+              <.link
+                navigate={"/#{@current_tenant.slug}/portal/settings"}
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600"
+              >
+                Settings
+              </.link>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                {@current_candidate.name}
+              </span>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <.flash_group flash={@flash} />
+
+      <main>
+        {render_slot(@inner_block)}
+      </main>
+    </div>
+    """
+  end
+
+  @doc """
   Locale switcher dropdown for changing language.
   """
   attr :locale, :string, required: true

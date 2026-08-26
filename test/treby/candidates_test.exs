@@ -3,6 +3,7 @@ defmodule Treby.CandidatesTest do
 
   alias Treby.{Tenants, Candidates, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -37,7 +38,7 @@ defmodule Treby.CandidatesTest do
       {:ok, _candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "John Doe",
           email: "john@example.com"
         })

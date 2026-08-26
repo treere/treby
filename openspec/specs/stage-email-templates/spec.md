@@ -45,12 +45,18 @@ The system SHALL support variable interpolation in email templates.
 - **THEN** the variable is replaced with an empty string
 
 ### Requirement: Optional email on stage move
-The system SHALL offer to send a templated email when a candidate is moved to a stage with a configured template, giving the user the option to send immediately, schedule, or skip.
+The system SHALL offer to send a templated email when a candidate is moved to a stage with a configured template, giving the user the option to send immediately, schedule, or skip. When the candidate portal is enabled, the email content defaults to a notification ping format.
 
 #### Scenario: Email confirmation dialog
 - **WHEN** a user moves a candidate to a stage that has an email template
 - **THEN** a confirmation dialog is shown with the email preview (subject and body with variables resolved)
 - **AND** the user can choose to send the email immediately, schedule it, or skip
+
+#### Scenario: Ping format with portal
+- **WHEN** a user moves a candidate to a stage with a configured email template
+- **AND** the candidate has an active portal conversation
+- **THEN** the email preview shows a short notification format: "{stage_name} for {job_title}" with a "View in Portal" button
+- **AND** the user can still choose to send the full template, schedule, or skip
 
 #### Scenario: Skip email
 - **WHEN** the user clicks "Skip" in the confirmation dialog

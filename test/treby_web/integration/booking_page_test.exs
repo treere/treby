@@ -5,6 +5,9 @@ defmodule TrebyWeb.BookingPageTest do
 
   alias Treby.{Tenants, Pipeline, Calendar, Availability, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+  alias Treby.Interviews.BookingToken
+  alias Treby.Jobs.Job
 
   defp setup_tenant_and_user do
     {:ok, tenant} =
@@ -68,7 +71,7 @@ defmodule TrebyWeb.BookingPageTest do
     {:ok, job} =
       tenant
       |> Ecto.build_assoc(:jobs)
-      |> Treby.Jobs.Job.changeset(%{
+      |> Job.changeset(%{
         title: "Test Engineer",
         description: "A test job"
       })
@@ -77,7 +80,7 @@ defmodule TrebyWeb.BookingPageTest do
     {:ok, candidate} =
       tenant
       |> Ecto.build_assoc(:candidates)
-      |> Treby.Candidates.Candidate.changeset(%{
+      |> Candidate.changeset(%{
         name: "Test Candidate",
         email: "candidate-#{System.unique_integer([:positive])}@test.com"
       })
@@ -117,7 +120,7 @@ defmodule TrebyWeb.BookingPageTest do
 
       # Expire the token
       token
-      |> Treby.Interviews.BookingToken.changeset(%{
+      |> BookingToken.changeset(%{
         expires_at: DateTime.add(DateTime.utc_now(), -1, :day)
       })
       |> Repo.update()

@@ -7,12 +7,18 @@ Automated notification system that sends emails on pipeline stage transitions, n
 ## Requirements
 
 ### Requirement: Stage change candidate notification
-The system SHALL send an email to the candidate when their application is moved to a pipeline stage that has a configured email template.
+The system SHALL send an email to the candidate when their application is moved to a pipeline stage that has a configured email template. When the candidate portal is enabled for the tenant, the email SHALL be a short notification (ping) linking to the portal message, not a full-content email.
 
 #### Scenario: Stage has email template
 - **WHEN** a user moves a candidate to a pipeline stage with a configured email template
 - **AND** the `stage_change_candidate` notification is enabled for the tenant
 - **THEN** the candidate receives an email with the template content rendered with their variables
+
+#### Scenario: Stage change with portal enabled
+- **WHEN** a user moves a candidate to a pipeline stage
+- **AND** the candidate has an active portal conversation for that application
+- **THEN** a system message is created in the conversation with the stage change info
+- **AND** the notification email (if sent) is a short ping: "Your application for {job_title} has moved to {stage_name}" with a "View in Portal" button linking to the conversation
 
 #### Scenario: Stage has no email template
 - **WHEN** a user moves a candidate to a pipeline stage with no configured email template
@@ -29,12 +35,18 @@ The system SHALL send an email to the candidate when their application is moved 
 - **AND** the failure is logged in the activity audit trail with error details
 
 ### Requirement: New application candidate confirmation
-The system SHALL send a confirmation email to the candidate after they successfully submit an application via the public career page.
+The system SHALL send a confirmation email to the candidate after they successfully submit an application via the public career page. When the candidate portal is enabled, the email SHALL be a short notification linking to the portal.
 
 #### Scenario: Successful application submission
 - **WHEN** a candidate submits a valid application on the career page
 - **AND** the `new_application_candidate` notification is enabled for the tenant
 - **THEN** the candidate receives a confirmation email thanking them for applying
+
+#### Scenario: Confirmation with portal
+- **WHEN** a candidate submits a valid application
+- **AND** the tenant has the candidate portal enabled
+- **THEN** the confirmation email contains: a brief "Thank you for applying" message and a prominent "View Your Application" button linking to `/:tenant_slug/portal`
+- **AND** a welcome conversation is created in the portal with a system message
 
 #### Scenario: Confirmation email content
 - **WHEN** a confirmation email is sent to a candidate

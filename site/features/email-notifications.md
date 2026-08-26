@@ -25,3 +25,13 @@ Templates support variables:
 ## Technical Details
 
 Emails are sent via [Swoosh](https://hexdocs.pm/swoosh), the Elixir email library. In development, use the Swoosh mailbox at `/dev/mailbox` to preview emails. Configure your SMTP provider in production.
+
+## Notification Pings (Portal Mode)
+
+When the candidate portal is enabled, candidate-facing emails become short **pings** instead of full message bodies. A ping links directly to the portal where the candidate can see the full message in context.
+
+- **Stage change pings**: Short notification with stage name, linking to the portal dashboard
+- **Rejection pings**: Include structured rejection reason; full feedback visible in the portal conversation
+- **Interview invite pings**: Link to the portal conversation where details are posted
+
+Candidates can configure which events generate pings in their portal settings. A "important only" filter suppresses non-critical notifications.

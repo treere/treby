@@ -1,12 +1,12 @@
 defmodule Treby.EmailQueueTest do
   use Treby.DataCase, async: true
 
-  alias Treby.{EmailQueue, Repo}
+  alias Treby.{Tenants, Accounts, EmailQueue, Repo}
   alias Treby.EmailQueue.ScheduledEmail
 
   defp setup_tenant do
     {:ok, tenant} =
-      Treby.Tenants.create_tenant(%{
+      Tenants.create_tenant(%{
         name: "Test Corp",
         slug: "test-#{System.unique_integer([:positive])}"
       })
@@ -14,7 +14,7 @@ defmodule Treby.EmailQueueTest do
     {:ok, user} =
       tenant
       |> Ecto.build_assoc(:users)
-      |> Treby.Accounts.User.changeset(%{
+      |> Accounts.User.changeset(%{
         email: "test-#{System.unique_integer([:positive])}@test.com",
         password: "password123",
         name: "Test User",

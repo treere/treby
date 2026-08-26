@@ -2,6 +2,8 @@ defmodule Treby.EmailQueue do
   import Ecto.Query, warn: false
   alias Treby.Repo
   alias Treby.EmailQueue.ScheduledEmail
+  alias Treby.EmailThreads.EmailMessage
+  alias Treby.Workers.SendScheduledEmail
 
   def list_queued(tenant_id) do
     ScheduledEmail
@@ -91,8 +93,8 @@ defmodule Treby.EmailQueue do
             else: message_updates
 
         if message_updates != %{} do
-          Repo.get!(Treby.EmailThreads.EmailMessage, message_id)
-          |> Treby.EmailThreads.EmailMessage.changeset(message_updates)
+          Repo.get!(EmailMessage, message_id)
+          |> EmailMessage.changeset(message_updates)
           |> Repo.update!()
         end
       end
@@ -200,8 +202,8 @@ defmodule Treby.EmailQueue do
   defp mark_linked_message_sent(%ScheduledEmail{email_message_id: nil}), do: :ok
 
   defp mark_linked_message_sent(%ScheduledEmail{email_message_id: message_id}) do
-    Repo.get!(Treby.EmailThreads.EmailMessage, message_id)
-    |> Treby.EmailThreads.EmailMessage.changeset(%{status: "sent"})
+    Repo.get!(EmailMessage, message_id)
+    |> EmailMessage.changeset(%{status: "sent"})
     |> Repo.update!()
 
     :ok
@@ -209,7 +211,7 @@ defmodule Treby.EmailQueue do
 
   def schedule_delivery!(%ScheduledEmail{} = scheduled_email) do
     %{scheduled_email_id: scheduled_email.id}
-    |> Treby.Workers.SendScheduledEmail.new(scheduled_at: scheduled_email.send_at)
+    |> SendScheduledEmail.new(scheduled_at: scheduled_email.send_at)
     |> Oban.insert!()
   end
 
@@ -229,8 +231,8 @@ defmodule Treby.EmailQueue do
   end
 
   defp update_email_message_status(message_id, status) do
-    Repo.get!(Treby.EmailThreads.EmailMessage, message_id)
-    |> Treby.EmailThreads.EmailMessage.changeset(%{status: status})
+    Repo.get!(EmailMessage, message_id)
+    |> EmailMessage.changeset(%{status: status})
     |> Repo.update!()
   end
 

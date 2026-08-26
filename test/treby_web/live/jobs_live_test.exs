@@ -5,6 +5,7 @@ defmodule TrebyWeb.JobsLive.IndexTest do
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
+  alias Treby.Jobs.Job
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -55,7 +56,7 @@ defmodule TrebyWeb.JobsLive.IndexTest do
       {:ok, _job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Software Engineer",
           description: "Build things",
           pipeline_id: pipeline_id
@@ -105,7 +106,7 @@ defmodule TrebyWeb.JobsLive.IndexTest do
       {:ok, job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Copy Link Job",
           description: "Share me",
           pipeline_id: pipeline_id

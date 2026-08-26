@@ -3,6 +3,8 @@ defmodule TrebyWeb.TenantIsolationTest do
 
   alias Treby.{Tenants, Jobs, Candidates, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+  alias Treby.Jobs.Job
 
   defp create_tenant_with_user(attrs \\ %{}) do
     tenant_attrs = Map.merge(%{name: "Test Corp", slug: "test-corp"}, attrs[:tenant] || %{})
@@ -33,7 +35,7 @@ defmodule TrebyWeb.TenantIsolationTest do
       job =
         tenant2
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{title: "Secret Job", description: "Very secret"})
+        |> Job.changeset(%{title: "Secret Job", description: "Very secret"})
         |> Repo.insert!()
 
       assert_raise Ecto.NoResultsError, fn ->
@@ -51,7 +53,7 @@ defmodule TrebyWeb.TenantIsolationTest do
       candidate =
         tenant2
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Secret Candidate",
           email: "secret@test.com"
         })

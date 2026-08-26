@@ -3,7 +3,8 @@ defmodule Treby.Workers.SendScheduledEmailTest do
 
   import Oban.Testing
 
-  alias Treby.{EmailQueue, Repo}
+  alias Treby.{Tenants, Accounts, Candidates, EmailThreads, EmailQueue, Repo}
+  alias Treby.Candidates.Candidate
   alias Treby.EmailQueue.ScheduledEmail
   alias Treby.Workers.SendScheduledEmail
 
@@ -19,7 +20,7 @@ defmodule Treby.Workers.SendScheduledEmailTest do
 
   defp setup_tenant do
     {:ok, tenant} =
-      Treby.Tenants.create_tenant(%{
+      Tenants.create_tenant(%{
         name: "Test Corp",
         slug: "test-#{System.unique_integer([:positive])}"
       })
@@ -27,7 +28,7 @@ defmodule Treby.Workers.SendScheduledEmailTest do
     {:ok, _user} =
       tenant
       |> Ecto.build_assoc(:users)
-      |> Treby.Accounts.User.changeset(%{
+      |> Accounts.User.changeset(%{
         email: "test-#{System.unique_integer([:positive])}@test.com",
         password: "password123",
         name: "Test User",
@@ -88,14 +89,14 @@ defmodule Treby.Workers.SendScheduledEmailTest do
       {:ok, candidate} =
         tenant
         |> Ecto.build_assoc(:candidates)
-        |> Treby.Candidates.Candidate.changeset(%{
+        |> Candidate.changeset(%{
           name: "Linked Candidate",
           email: "linked@example.com"
         })
         |> Repo.insert()
 
       {:ok, message} =
-        Treby.EmailThreads.create_outbound_email(%{
+        EmailThreads.create_outbound_email(%{
           candidate_id: candidate.id,
           tenant_id: tenant.id,
           from_address: "recruiter@example.com",
@@ -110,7 +111,7 @@ defmodule Treby.Workers.SendScheduledEmailTest do
 
       {:ok, _} =
         scheduled
-        |> Treby.EmailQueue.ScheduledEmail.changeset(%{email_message_id: message.id})
+        |> ScheduledEmail.changeset(%{email_message_id: message.id})
         |> Repo.update()
 
       {:ok, _} = perform_job(SendScheduledEmail, %{scheduled_email_id: scheduled.id}, [])

@@ -3,6 +3,7 @@ defmodule TrebyWeb.PipelineDragDropTest do
 
   alias Treby.{Tenants, Candidates, Pipeline, Repo}
   alias Treby.Accounts.User
+  alias Treby.Jobs.Job
 
   defp setup_pipeline do
     {:ok, tenant} =
@@ -28,7 +29,7 @@ defmodule TrebyWeb.PipelineDragDropTest do
     {:ok, job} =
       tenant
       |> Ecto.build_assoc(:jobs)
-      |> Treby.Jobs.Job.changeset(%{
+      |> Job.changeset(%{
         title: "Pipeline Job",
         description: "Test job"
       })

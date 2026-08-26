@@ -70,3 +70,39 @@ Team members can add notes to any application:
 - **Content** — free-text feedback
 
 Authors can delete their own notes.
+
+## Candidate Portal
+
+When the portal is enabled, candidates get a self-service dashboard accessible via magic link — no account or password needed.
+
+### How It Works
+
+- **Magic link auth**: Candidates enter their email on the login page and receive a one-time login link (valid 15 minutes)
+- **Portal dashboard**: Shows all applications with current stage, applied date, and status
+- **Application details**: Click any application to see the full timeline — notes, feedback, status changes, and conversations
+- **Conversations**: In-platform messaging between candidates and recruiters, created automatically at lifecycle moments (application, stage changes, rejection)
+- **Notifications**: Candidates receive short "ping" emails linking to the portal instead of full email bodies; they can configure which events trigger pings
+
+### Recruiter Side
+
+On the candidate detail page, recruiters see a **Conversations** tab with:
+- All portal conversations for that candidate
+- Ability to start new conversations
+- Structured message types: text, status update, interview invite, rejection, request info
+- Read/unread tracking per message
+
+### Rejection Flow
+
+When a candidate is rejected (via the pipeline or candidate detail page), recruiters can:
+- Select a structured rejection reason
+- Optionally write feedback visible to the candidate
+- The candidate receives a ping email and can view the rejection in their portal
+
+### Notification Preferences
+
+Candidates can toggle which events generate pings in their portal settings:
+- Application updates (stage changes, rejections, offers)
+- Interview invitations
+- New messages from recruiters
+
+Default: all enabled. A separate "important only" flag filters out non-critical pings.

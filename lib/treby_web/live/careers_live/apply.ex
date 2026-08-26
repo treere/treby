@@ -1,7 +1,16 @@
 defmodule TrebyWeb.CareersLive.Apply do
   use TrebyWeb, :live_view
 
-  alias Treby.{Tenants, Jobs, Candidates, Pipeline, Careers, Customization, Sources}
+  alias Treby.{
+    Tenants,
+    Jobs,
+    Candidates,
+    Pipeline,
+    Careers,
+    Customization,
+    Sources,
+    CandidatePortal
+  }
 
   def mount(%{"tenant_slug" => tenant_slug, "job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -47,12 +56,22 @@ defmodule TrebyWeb.CareersLive.Apply do
           <p class="mt-4 text-base-content/70">
             Your application has been submitted. We'll be in touch soon.
           </p>
-          <.link
-            navigate={~p"/#{@tenant.slug}/careers"}
-            class="mt-6 inline-block text-blue-600 hover:text-blue-900"
-          >
-            View other positions
-          </.link>
+          <div class="mt-6 space-y-4">
+            <.link
+              navigate={~p"/#{@tenant.slug}/portal"}
+              class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Access Your Portal
+            </.link>
+            <div>
+              <.link
+                navigate={~p"/#{@tenant.slug}/careers"}
+                class="text-blue-600 hover:text-blue-900"
+              >
+                View other positions
+              </.link>
+            </div>
+          </div>
         </div>
 
         <div :if={!@submitted} class="mt-8 bg-base-100 rounded-lg shadow p-8">
@@ -180,6 +199,30 @@ defmodule TrebyWeb.CareersLive.Apply do
 
         case Pipeline.create_application(application_attrs) do
           {:ok, application} ->
+            # Create a welcome conversation for the candidate
+            try do
+              {:ok, conversation} =
+                CandidatePortal.create_conversation(%{
+                  candidate_id: candidate.id,
+                  tenant_id: tenant.id,
+                  subject: "Welcome - #{job.title}",
+                  context: "application",
+                  application_id: application.id
+                })
+
+              CandidatePortal.send_message(%{
+                sender_type: "system",
+                conversation_id: conversation.id,
+                body:
+                  "Welcome! Thank you for applying for #{job.title}. We've received your application and will review it shortly. You can use this portal to communicate with our team.",
+                message_type: "text"
+              })
+            rescue
+              _ -> :ok
+            catch
+              _ -> :ok
+            end
+
             # Send notification emails (non-blocking)
             try do
               Treby.Notifications.notify_new_application_candidate(application)

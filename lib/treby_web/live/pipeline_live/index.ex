@@ -1,7 +1,8 @@
 defmodule TrebyWeb.PipelineLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Jobs, Pipeline, EmailTemplates, BulkOperations}
+  alias Treby.{Accounts, Tenants, Jobs, Pipeline, EmailTemplates, BulkOperations, CandidatePortal}
+  alias Treby.Notifications.Email, as: NotificationEmail
 
   def mount(%{"job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -543,10 +544,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     stage = Pipeline.get_pipeline_stage!(stage_id)
 
     # Check advancer permission for the target stage
-    if not Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) do
-      {:noreply,
-       put_flash(socket, :error, "You are not authorized to move candidates to this stage")}
-    else
+    if Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) do
       # Check for email template
       email_template =
         EmailTemplates.get_email_template_for_stage(
@@ -594,6 +592,9 @@ defmodule TrebyWeb.PipelineLive.Index do
             {:noreply, put_flash(socket, :error, "Failed to move candidate")}
         end
       end
+    else
+      {:noreply,
+       put_flash(socket, :error, "You are not authorized to move candidates to this stage")}
     end
   end
 
@@ -818,19 +819,58 @@ defmodule TrebyWeb.PipelineLive.Index do
     if String.trim(socket.assigns.rejection_reason) == "" do
       {:noreply, put_flash(socket, :error, "Rejection motivation is required")}
     else
+      application = application |> Treby.Repo.preload([:candidate, :job])
+      rejection_reason = socket.assigns.rejection_reason
+
       # Find the "rejected" stage for this pipeline
       job = Jobs.get_job!(socket.assigns.current_tenant.id, application.job_id)
       stages = Pipeline.list_pipeline_stages(job.pipeline_id)
       rejected_stage = Enum.find(stages, &(&1.stage_type == "rejected"))
 
       if rejected_stage do
-        attrs = %{rejection_reason: socket.assigns.rejection_reason}
+        attrs = %{rejection_reason: rejection_reason}
 
         case Pipeline.move_application(application, rejected_stage.id,
                actor: socket.assigns.current_user,
                attrs: attrs
              ) do
           {:ok, _application} ->
+            # Create rejection conversation and send email to candidate
+            try do
+              {:ok, conversation} =
+                CandidatePortal.create_conversation(%{
+                  candidate_id: application.candidate.id,
+                  tenant_id: socket.assigns.current_tenant.id,
+                  subject: "Application Update",
+                  context: "rejection",
+                  application_id: application.id
+                })
+
+              CandidatePortal.send_message(%{
+                sender_id: socket.assigns.current_user.id,
+                sender_type: "recruiter",
+                conversation_id: conversation.id,
+                body: "We've decided to move forward with other candidates.",
+                message_type: "rejection",
+                metadata: %{"rejection_reason" => rejection_reason}
+              })
+
+              email =
+                NotificationEmail.notification_ping(
+                  application.candidate,
+                  socket.assigns.current_tenant,
+                  conversation.id,
+                  "rejection",
+                  %{"job_title" => application.job.title}
+                )
+
+              Treby.Mailer.deliver(email)
+            rescue
+              _ -> :ok
+            catch
+              _ -> :ok
+            end
+
             applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
 
             {:noreply,

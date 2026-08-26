@@ -6,6 +6,8 @@ defmodule TrebyWeb.SchedulingLiveTest do
 
   alias Treby.{Tenants, Pipeline, Calendar, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+  alias Treby.Jobs.Job
 
   defp setup_interviewer(tenant) do
     {:ok, user} =
@@ -35,7 +37,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
     {:ok, job} =
       tenant
       |> Ecto.build_assoc(:jobs)
-      |> Treby.Jobs.Job.changeset(%{
+      |> Job.changeset(%{
         title: "Test Engineer",
         description: "A test job"
       })
@@ -44,7 +46,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
     {:ok, candidate} =
       tenant
       |> Ecto.build_assoc(:candidates)
-      |> Treby.Candidates.Candidate.changeset(%{
+      |> Candidate.changeset(%{
         name: "Test Candidate",
         email: "candidate-#{System.unique_integer([:positive])}@test.com"
       })

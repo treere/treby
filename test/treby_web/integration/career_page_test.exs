@@ -5,6 +5,7 @@ defmodule TrebyWeb.CareerPageTest do
 
   alias Treby.{Tenants, Repo}
   alias Treby.Careers.CareerPage
+  alias Treby.Jobs.Job
 
   defp setup_tenant_with_career_page do
     {:ok, tenant} =
@@ -27,7 +28,7 @@ defmodule TrebyWeb.CareerPageTest do
     {:ok, job} =
       tenant
       |> Ecto.build_assoc(:jobs)
-      |> Treby.Jobs.Job.changeset(%{
+      |> Job.changeset(%{
         title: "Software Engineer",
         description: "Build amazing things",
         salary_range: "$100k-$150k"
@@ -71,7 +72,7 @@ defmodule TrebyWeb.CareerPageTest do
       closed_job =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Closed Position",
           description: "No longer open",
           status: "closed"

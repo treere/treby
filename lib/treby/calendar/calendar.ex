@@ -7,6 +7,7 @@ defmodule Treby.Calendar do
   import Ecto.Query
   alias Treby.Repo
   alias Treby.Calendar.CalendarConnection
+  alias Treby.Calendar.Google, as: CalendarGoogle
 
   def get_connection(user_id) do
     CalendarConnection
@@ -62,21 +63,21 @@ defmodule Treby.Calendar do
   def get_free_busy(user_id, time_min, time_max) do
     case get_connection(user_id) do
       nil -> {:error, :not_connected}
-      conn -> Treby.Calendar.Google.free_busy(conn, time_min, time_max)
+      conn -> CalendarGoogle.free_busy(conn, time_min, time_max)
     end
   end
 
   def create_event_with_meet(user_id, event_params, attendee_emails \\ []) do
     case get_connection(user_id) do
       nil -> {:error, :not_connected}
-      conn -> Treby.Calendar.Google.create_event_with_meet(conn, event_params, attendee_emails)
+      conn -> CalendarGoogle.create_event_with_meet(conn, event_params, attendee_emails)
     end
   end
 
   def delete_event(user_id, event_id) do
     case get_connection(user_id) do
       nil -> {:error, :not_connected}
-      conn -> Treby.Calendar.Google.delete_event(conn, event_id)
+      conn -> CalendarGoogle.delete_event(conn, event_id)
     end
   end
 

@@ -5,7 +5,9 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
 
   alias Treby.{Tenants, Repo, Candidates, Pipeline}
   alias Treby.Accounts.User
-  alias Treby.Candidates.Candidate
+  alias Treby.Candidates.{Candidate, DismissedMergeGroup}
+  alias Treby.Pipeline.PipelineStage
+  alias Treby.Jobs.Job
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -69,7 +71,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
     {:ok, job} =
       tenant
       |> Ecto.build_assoc(:jobs)
-      |> Treby.Jobs.Job.changeset(%{
+      |> Job.changeset(%{
         title: "Engineer #{System.unique_integer([:positive])}",
         description: "Build things",
         pipeline_id: pipeline_id
@@ -79,7 +81,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
     {:ok, stage} =
       pipeline
       |> Ecto.build_assoc(:pipeline_stages)
-      |> Treby.Pipeline.PipelineStage.changeset(%{
+      |> PipelineStage.changeset(%{
         name: "Applied",
         position: 0,
         stage_type: "applied"
@@ -129,7 +131,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       view |> element("button", "Dismiss") |> render_click()
       assert render(view) =~ "No duplicate candidates"
 
-      assert Repo.aggregate(Treby.Candidates.DismissedMergeGroup, :count) == 1
+      assert Repo.aggregate(DismissedMergeGroup, :count) == 1
 
       conn2 = login_user(conn, user)
       {:ok, _view2, html2} = live(conn2, ~p"/app/candidates/merge")
@@ -156,7 +158,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       assert render(view) =~ "No duplicate candidates"
 
       assert Repo.get!(Candidate, absorbed.id).merged_into_id == primary.id
-      assert Repo.get!(Treby.Pipeline.Application, app.id).candidate_id == primary.id
+      assert Repo.get!(Pipeline.Application, app.id).candidate_id == primary.id
     end
   end
 

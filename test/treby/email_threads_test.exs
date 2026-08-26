@@ -3,6 +3,7 @@ defmodule Treby.EmailThreadsTest do
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
   alias Treby.EmailThreads
   alias Treby.EmailQueue.ScheduledEmail
 
@@ -27,7 +28,7 @@ defmodule Treby.EmailThreadsTest do
     {:ok, candidate} =
       tenant
       |> Ecto.build_assoc(:candidates)
-      |> Treby.Candidates.Candidate.changeset(%{
+      |> Candidate.changeset(%{
         name: "Jane Candidate",
         email: "jane@example.com"
       })

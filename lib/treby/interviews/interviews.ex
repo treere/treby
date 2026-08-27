@@ -74,7 +74,7 @@ defmodule Treby.Interviews do
         send_interview_notifications(event)
 
         # Log the event
-        event = Repo.preload(event, [:application, :event_examiners])
+        event = Repo.preload(event, [:application, event_examiners: :user])
 
         examiner_names =
           event.event_examiners
@@ -147,10 +147,20 @@ defmodule Treby.Interviews do
     job = application.job
     meet_link = event.video_conf_url
 
+    # Use the first examiner as the interviewer; fall back to scheduled_by
+    interviewer =
+      case event.event_examiners do
+        [%EventExaminer{} = first | _] ->
+          Repo.preload(first, :user).user
+
+        _ ->
+          Repo.preload(event, :scheduled_by).scheduled_by
+      end
+
     # Notify candidate once
     Treby.SchedulingEmail.interview_scheduled_candidate(
       candidate,
-      nil,
+      interviewer,
       job,
       meet_link,
       event.start_at_utc

@@ -543,8 +543,12 @@ defmodule TrebyWeb.PipelineLive.Index do
     application = Pipeline.get_application!(application_id)
     stage = Pipeline.get_pipeline_stage!(stage_id)
 
-    # Check advancer permission for the target stage
-    if Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) do
+    # Check advancer permission for the target stage (admins always allowed)
+    is_advancer? =
+      socket.assigns.current_user.role == "admin" or
+        Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id)
+
+    if is_advancer? do
       # Check for email template
       email_template =
         EmailTemplates.get_email_template_for_stage(
@@ -1046,12 +1050,17 @@ defmodule TrebyWeb.PipelineLive.Index do
   end
 
   defp scorecard_status_for_card(application) do
-    application =
-      application
-      |> Treby.Repo.preload(interviews: :event_examiners)
+    import Ecto.Query
+
+    interviews =
+      Treby.Repo.all(
+        from ie in Treby.Interviews.InterviewEvent,
+          where: ie.application_id == ^application.id,
+          preload: [:event_examiners]
+      )
 
     examiner_ids =
-      application.interviews
+      interviews
       |> Enum.flat_map(&Enum.map(&1.event_examiners, fn ee -> ee.user_id end))
       |> Enum.uniq()
 
@@ -1061,11 +1070,9 @@ defmodule TrebyWeb.PipelineLive.Index do
       %{completed: 0, total: 0}
     else
       completed =
-        application.interviews
+        interviews
         |> Enum.map(& &1.id)
         |> then(fn event_ids ->
-          import Ecto.Query
-
           Treby.Scorecards.Scorecard
           |> where([s], s.interview_event_id in ^event_ids)
           |> where([s], s.interviewer_id in ^examiner_ids)

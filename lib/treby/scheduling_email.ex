@@ -6,6 +6,8 @@ defmodule Treby.SchedulingEmail do
   import Swoosh.Email
 
   def interview_scheduled_candidate(candidate, interviewer, job, meet_link, start_at) do
+    interviewer_name = if interviewer, do: interviewer.name, else: "To be determined"
+
     new()
     |> to(candidate.email)
     |> from({"Treby", "noreply@treby.app"})
@@ -17,7 +19,7 @@ defmodule Treby.SchedulingEmail do
     <table style="margin: 20px 0; padding: 15px; background-color: #f9fafb; border-radius: 8px;">
       <tr>
         <td style="padding: 5px 15px 5px 0; color: #6b7280;">Interviewer</td>
-        <td style="padding: 5px 0;"><strong>#{interviewer.name}</strong></td>
+        <td style="padding: 5px 0;"><strong>#{interviewer_name}</strong></td>
       </tr>
       <tr>
         <td style="padding: 5px 15px 5px 0; color: #6b7280;">Date & Time</td>
@@ -37,7 +39,7 @@ defmodule Treby.SchedulingEmail do
 
     Your interview for #{job.title} has been scheduled.
 
-    Interviewer: #{interviewer.name}
+    Interviewer: #{interviewer_name}
     Date & Time: #{format_datetime(start_at)}
     Meeting Link: #{meet_link}
 

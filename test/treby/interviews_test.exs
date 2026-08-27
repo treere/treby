@@ -45,7 +45,7 @@ defmodule Treby.InterviewsTest do
 
     test "returns error with invalid attrs" do
       assert {:error, changeset} = Interviews.schedule_interview(%{})
-      assert errors_on(changeset) |> Map.has_key?(:interviewer_id)
+      assert errors_on(changeset) |> Map.has_key?(:application_id)
     end
   end
 
@@ -72,6 +72,7 @@ defmodule Treby.InterviewsTest do
           :end_at_utc,
           DateTime.add(DateTime.utc_now(), 1, :day) |> DateTime.add(1800, :second)
         )
+        |> Map.put(:examiner_ids, [interviewer.id])
 
       {:ok, _event} = Interviews.schedule_interview(attrs)
 
@@ -237,7 +238,8 @@ defmodule Treby.InterviewsTest do
       interviewer_id: interviewer_id,
       scheduled_by_id: scheduled_by_id,
       application_id: app.id,
-      tenant_id: tenant_id
+      tenant_id: tenant_id,
+      examiner_ids: [interviewer_id]
     }
   end
 

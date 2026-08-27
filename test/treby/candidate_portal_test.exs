@@ -3,7 +3,7 @@ defmodule Treby.CandidatePortalTest do
 
   alias Treby.{Tenants, Candidates, Pipeline, Repo}
   alias Treby.CandidatePortal
-  alias Treby.CandidatePortal.{CandidateToken, Conversation, Message}
+  alias Treby.CandidatePortal.{Message}
   alias Treby.Jobs.Job
 
   defp setup_tenant_and_job do

@@ -8,7 +8,7 @@ defmodule Treby.Availability.SlotCache do
   @ttl_seconds 300
 
   def init do
-    :ets.new(@table, [:named_table, :set, :public, read_concurrent: true])
+    :ets.new(@table, [:named_table, :set, :public])
   end
 
   def get(examiner_ids, date_range) do

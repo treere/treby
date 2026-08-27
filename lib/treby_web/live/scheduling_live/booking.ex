@@ -105,12 +105,13 @@ defmodule TrebyWeb.SchedulingLive.Booking do
             <div class="text-center mb-8">
               <h1 class="text-2xl font-bold text-base-content">Schedule your interview</h1>
               <p class="mt-2 text-base-content/70">
-                <%= if @examiners != [] do %>
-                  for {@application.job.title}
-                <% else %>
-                  for {@application.job.title}
-                <% end %>
+                for {@application.job.title}
               </p>
+              <%= if @interviewer do %>
+                <p class="mt-1 text-sm text-base-content/50">
+                  with {@interviewer.name}
+                </p>
+              <% end %>
             </div>
 
             <div class="bg-base-100 rounded-lg shadow p-6">

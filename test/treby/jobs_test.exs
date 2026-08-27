@@ -4,7 +4,6 @@ defmodule Treby.JobsTest do
   alias Treby.{Tenants, Jobs, Repo}
   alias Treby.Accounts.User
   alias Treby.Jobs.Job
-  alias Treby.Pipeline
 
   defp setup_tenant do
     {:ok, tenant} =

@@ -99,6 +99,7 @@ defmodule TrebyWeb do
       import TrebyWeb.DesignSystem.Tabs, only: [tabs: 1]
       import TrebyWeb.DesignSystem.Feedback, only: [spinner: 1, skeleton: 1, toast: 1]
       import TrebyWeb.DesignSystem.Avatar, only: [avatar: 1]
+      import TrebyWeb.ScorecardForm, only: [scorecard_form: 1]
 
       import TrebyWeb.DesignSystem.Pattern,
         only: [

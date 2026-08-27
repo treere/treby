@@ -11,6 +11,7 @@ defmodule Treby.Pipeline do
   alias Treby.Pipeline.StageExaminer
   alias Treby.Pipeline.StageReviewer
   alias Treby.Pipeline.StageAdvancer
+  alias Treby.Interviews.InterviewEvent
 
   # Pipeline CRUD
 
@@ -431,14 +432,19 @@ defmodule Treby.Pipeline do
   # Scorecard completion
 
   def all_scorecards_completed?(%Application{} = application) do
-    application = Repo.preload(application, [:pipeline_stage, interviews: :event_examiners])
-    stage = application.pipeline_stage
+    stage = Repo.preload(application, [:pipeline_stage]).pipeline_stage
 
     if stage.stage_type != "interview" do
       true
     else
+      interviews =
+        InterviewEvent
+        |> where([e], e.application_id == ^application.id)
+        |> preload([:event_examiners])
+        |> Repo.all()
+
       examiner_ids =
-        application.interviews
+        interviews
         |> Enum.flat_map(&Enum.map(&1.event_examiners, fn ee -> ee.user_id end))
         |> Enum.uniq()
 
@@ -446,7 +452,7 @@ defmodule Treby.Pipeline do
         true
       else
         completed_count =
-          application.interviews
+          interviews
           |> Enum.map(& &1.id)
           |> then(fn event_ids ->
             Treby.Scorecards.Scorecard
@@ -459,6 +465,182 @@ defmodule Treby.Pipeline do
         completed_count >= length(examiner_ids)
       end
     end
+  end
+
+  @doc """
+  Returns true when an application is ready to advance out of its interview stage:
+  the interview has been marked completed AND all scorecards are submitted.
+  """
+  def ready_to_advance?(%Application{} = application) do
+    stage = Repo.preload(application, [:pipeline_stage]).pipeline_stage
+
+    if stage.stage_type != "interview" do
+      true
+    else
+      interview_completed?(application) and all_scorecards_completed?(application)
+    end
+  end
+
+  @doc """
+  Returns true when every interview event for the application is completed,
+  or when the application is not at the interview stage.
+  """
+  def interview_completed?(%Application{} = application) do
+    stage = Repo.preload(application, [:pipeline_stage]).pipeline_stage
+
+    if stage.stage_type != "interview" do
+      true
+    else
+      not (InterviewEvent
+           |> where([e], e.application_id == ^application.id and e.status != "completed")
+           |> Repo.exists?())
+    end
+  end
+
+  @doc """
+  Computes the current progress state for an application.
+
+  Returns a map with:
+    - `:stage` — the current `PipelineStage`
+    - `:blocked?` — whether advancement is blocked
+    - `:blockers` — list of `%{kind, assignee, label}` describing what must happen
+    - `:next_actions` — list of `%{kind, assignee, label}` of concrete next steps
+    - `:progress` — scorecard and interview progress counts
+  """
+  def current_state(%Application{} = application) do
+    application = Repo.preload(application, [:pipeline_stage])
+    stage = application.pipeline_stage
+
+    interviews =
+      Treby.Interviews.InterviewEvent
+      |> where([e], e.application_id == ^application.id)
+      |> order_by([e], asc: e.start_at_utc)
+      |> preload([:event_examiners])
+      |> Repo.all()
+      |> Repo.preload(event_examiners: :user)
+
+    interview = List.first(interviews)
+
+    {blockers, next_actions} =
+      if stage && stage.stage_type == "interview" do
+        interview_blockers(interview)
+      else
+        {[], non_interview_next_actions(stage)}
+      end
+
+    %{
+      stage: stage,
+      blocked?: blockers != [],
+      blockers: blockers,
+      next_actions: next_actions,
+      progress: %{
+        scorecards: scorecard_progress(interview),
+        interviews: %{
+          scheduled: interviews_any_status(interviews, "scheduled"),
+          completed: interviews_any_status(interviews, "completed")
+        }
+      }
+    }
+  end
+
+  defp interview_blockers(nil) do
+    blocker = %{
+      kind: :interview_not_scheduled,
+      assignee: nil,
+      label: "No interview scheduled yet"
+    }
+
+    action = %{kind: :schedule_interview, assignee: nil, label: "Schedule an interview"}
+    {[blocker], [action]}
+  end
+
+  defp interview_blockers(interview) do
+    pending_interview =
+      if interview.status != "completed" do
+        [%{kind: :interview_not_completed, assignee: nil, label: "Interview not yet completed"}]
+      else
+        []
+      end
+
+    pending_scorecards =
+      interview.event_examiners
+      |> Enum.reject(&(&1.user_id in submitted_scorecard_ids(interview.id)))
+      |> Enum.map(fn ee ->
+        %{
+          kind: :scorecard_pending,
+          assignee: %{user_id: ee.user_id, name: ee.user && ee.user.name},
+          label: "#{(ee.user && ee.user.name) || "Examiner"}: scorecard missing"
+        }
+      end)
+
+    blockers = pending_interview ++ pending_scorecards
+
+    next_actions =
+      cond do
+        interview.status != "completed" ->
+          [
+            %{kind: :complete_interview, assignee: nil, label: "Mark the interview as completed"}
+          ]
+
+        blockers != [] ->
+          [
+            %{
+              kind: :collect_scorecards,
+              assignee: nil,
+              label: "Collect the missing scorecards before advancing"
+            }
+          ]
+
+        true ->
+          [%{kind: :advance, assignee: nil, label: "Advance to the next stage"}]
+      end
+
+    {blockers, next_actions}
+  end
+
+  defp non_interview_next_actions(nil), do: []
+
+  defp non_interview_next_actions(stage) do
+    stages =
+      PipelineStage
+      |> where([s], s.pipeline_id == ^stage.pipeline_id)
+      |> order_by([s], asc: s.position)
+      |> Repo.all()
+
+    case Enum.find_index(stages, &(&1.id == stage.id)) do
+      nil ->
+        []
+
+      idx when idx < length(stages) - 1 ->
+        [%{kind: :advance, assignee: nil, label: "Advance to the next stage"}]
+
+      _ ->
+        []
+    end
+  end
+
+  defp scorecard_progress(nil), do: %{completed: 0, total: 0}
+
+  defp scorecard_progress(interview) do
+    total = length(interview.event_examiners)
+    submitted_ids = submitted_scorecard_ids(interview.id)
+
+    completed =
+      interview.event_examiners
+      |> Enum.count(&(&1.user_id in submitted_ids))
+
+    %{completed: completed, total: total}
+  end
+
+  defp submitted_scorecard_ids(interview_id) do
+    Treby.Scorecards.Scorecard
+    |> where([s], s.interview_event_id == ^interview_id)
+    |> select([s], s.interviewer_id)
+    |> Repo.all()
+  end
+
+  defp interviews_any_status(interviews, status) do
+    Enum.count(interviews, &(&1.status == status))
   end
 
   # Eligible examiners for a pipeline stage

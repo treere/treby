@@ -19,6 +19,9 @@ defmodule TrebyWeb.InterviewsLive.Index do
       |> assign(show_scorecard_form: false)
       |> assign(scorecard_event_id: nil)
       |> assign(scorecard_form: to_form(%{}))
+      |> assign(scorecard_criteria: [])
+      |> assign(scorecard_template: nil)
+      |> assign(completing_interview: nil)
       |> load_interviews()
 
     {:ok, socket}
@@ -65,6 +68,35 @@ defmodule TrebyWeb.InterviewsLive.Index do
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to cancel interview")}
+    end
+  end
+
+  def handle_event("complete_interview", %{"id" => event_id}, socket) do
+    event = Interviews.get_event!(event_id)
+
+    {:noreply, assign(socket, completing_interview: event)}
+  end
+
+  def handle_event("cancel_complete_interview", _params, socket) do
+    {:noreply, assign(socket, completing_interview: nil)}
+  end
+
+  def handle_event("confirm_complete_interview", _params, socket) do
+    event = socket.assigns.completing_interview
+
+    case Interviews.complete_interview(event, socket.assigns.current_user) do
+      {:ok, _event} ->
+        {:noreply,
+         socket
+         |> assign(completing_interview: nil)
+         |> put_flash(:info, "Interview marked as completed")
+         |> load_interviews()}
+
+      {:error, _changeset} ->
+        {:noreply,
+         socket
+         |> assign(completing_interview: nil)
+         |> put_flash(:error, "Failed to mark interview as completed")}
     end
   end
 
@@ -250,6 +282,15 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   >
                     Scorecard
                   </button>
+                  <%= if event.status == "scheduled" do %>
+                    <button
+                      phx-click="complete_interview"
+                      phx-value-id={event.id}
+                      class="px-3 py-1 text-sm bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-100 rounded-md hover:bg-indigo-100"
+                    >
+                      Mark as completed
+                    </button>
+                  <% end %>
                   <button
                     phx-click="cancel_interview"
                     phx-value-id={event.id}
@@ -264,138 +305,38 @@ defmodule TrebyWeb.InterviewsLive.Index do
           <% end %>
         </div>
 
-        <div
-          :if={@show_scorecard_form}
-          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        >
-          <div class="bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-semibold">Scorecard</h2>
-                <button
-                  phx-click="close_scorecard"
-                  class="text-base-content/40 hover:text-base-content/70"
-                >
-                  <.icon name="hero-x-mark" class="w-6 h-6" />
-                </button>
-              </div>
+        <.scorecard_form
+          show={@show_scorecard_form}
+          criteria={@scorecard_criteria}
+          form={@scorecard_form}
+        />
+      </div>
 
-              <.form
-                for={@scorecard_form}
-                id="scorecard-form"
-                phx-submit="submit_scorecard"
-                class="space-y-4"
+      <div
+        :if={@completing_interview}
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        phx-click="cancel_complete_interview"
+      >
+        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
+          <div class="p-6">
+            <h2 class="text-lg font-semibold mb-2">Mark Interview as Completed</h2>
+            <p class="text-sm text-base-content/70 mb-4">
+              This marks the interview as done. The candidate's stage will not change automatically;
+              you can collect scorecards before advancing.
+            </p>
+            <div class="flex justify-end gap-2">
+              <button
+                phx-click="cancel_complete_interview"
+                class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
               >
-                <div :for={criterion <- @scorecard_criteria} class="space-y-1">
-                  <label class="block text-sm font-medium text-base-content/80">
-                    {criterion["name"]}
-                  </label>
-                  <%= cond do %>
-                    <% criterion["type"] == "number_1_5" -> %>
-                      <div class="flex gap-1">
-                        <%= for n <- 1..5 do %>
-                          <label class="cursor-pointer">
-                            <input
-                              type="radio"
-                              name={criterion["name"]}
-                              value={n}
-                              checked={@scorecard_form[criterion["name"]].value == to_string(n)}
-                              class="sr-only peer"
-                            />
-                            <span class="text-2xl peer-checked:text-yellow-500 text-base-content/30 hover:text-yellow-400">
-                              ★
-                            </span>
-                          </label>
-                        <% end %>
-                      </div>
-                    <% criterion["type"] == "yes_no_maybe" -> %>
-                      <select
-                        name={criterion["name"]}
-                        class="select w-full"
-                      >
-                        <option value="" selected={@scorecard_form[criterion["name"]].value == ""}>
-                          Select...
-                        </option>
-                        <option
-                          value="yes"
-                          selected={@scorecard_form[criterion["name"]].value == "yes"}
-                        >
-                          Yes
-                        </option>
-                        <option value="no" selected={@scorecard_form[criterion["name"]].value == "no"}>
-                          No
-                        </option>
-                        <option
-                          value="maybe"
-                          selected={@scorecard_form[criterion["name"]].value == "maybe"}
-                        >
-                          Maybe
-                        </option>
-                      </select>
-                    <% true -> %>
-                      <textarea
-                        name={criterion["name"]}
-                        rows="2"
-                        class="textarea w-full"
-                      >{@scorecard_form[criterion["name"]].value}</textarea>
-                  <% end %>
-                </div>
-
-                <div class="space-y-1">
-                  <label class="block text-sm font-medium text-base-content/80">Recommendation</label>
-                  <select
-                    name="recommendation"
-                    class="select w-full"
-                  >
-                    <option value="" selected={@scorecard_form[:recommendation].value == ""}>
-                      Select...
-                    </option>
-                    <option value="hire" selected={@scorecard_form[:recommendation].value == "hire"}>
-                      Strong Hire
-                    </option>
-                    <option
-                      value="lean_hire"
-                      selected={@scorecard_form[:recommendation].value == "lean_hire"}
-                    >
-                      Hire
-                    </option>
-                    <option
-                      value="lean_no_hire"
-                      selected={@scorecard_form[:recommendation].value == "lean_no_hire"}
-                    >
-                      Lean No
-                    </option>
-                    <option
-                      value="no_hire"
-                      selected={@scorecard_form[:recommendation].value == "no_hire"}
-                    >
-                      No Hire
-                    </option>
-                    <option
-                      value="strong_no_hire"
-                      selected={@scorecard_form[:recommendation].value == "strong_no_hire"}
-                    >
-                      Strong No Hire
-                    </option>
-                  </select>
-                </div>
-
-                <div class="space-y-1">
-                  <label class="block text-sm font-medium text-base-content/80">Notes</label>
-                  <textarea
-                    name="notes"
-                    rows="3"
-                    class="textarea w-full"
-                  >{@scorecard_form[:notes].value}</textarea>
-                </div>
-
-                <div class="flex gap-2 justify-end">
-                  <.button type="button" phx-click="close_scorecard" class="bg-gray-500">
-                    Cancel
-                  </.button>
-                  <.button type="submit">Submit Scorecard</.button>
-                </div>
-              </.form>
+                Cancel
+              </button>
+              <button
+                phx-click="confirm_complete_interview"
+                class="px-4 py-2 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                Mark as completed
+              </button>
             </div>
           </div>
         </div>

@@ -30,6 +30,8 @@ Click **+ Add Candidate** to manually add a candidate with:
 Each candidate detail page shows:
 - Contact information (name, email, phone, LinkedIn)
 - All applications with job title and current pipeline stage
+- **Progress panel** — the current stage, any blockers (named pending examiners, un-completed interviews), and the next actions for the team
+- **Complete interview + Scorecard actions** — mark a scheduled interview as completed and open the scorecard form directly from the page
 - **Concurrent-application visibility** — when a candidate is in more than one pipeline, each application shows "Also in N other positions"
 - **Duplicate-application badges** when a candidate applied to the same job more than once
 - Per-application **anagrafica** — the name, email, and phone captured at apply time ("as submitted"), shown when it differs from the candidate's current master data
@@ -79,7 +81,10 @@ When the portal is enabled, candidates get a self-service dashboard accessible v
 
 - **Magic link auth**: Candidates enter their email on the login page and receive a one-time login link (valid 15 minutes)
 - **Portal dashboard**: Shows all applications with current stage, applied date, and status
-- **Application details**: Click any application to see the full timeline — notes, feedback, status changes, and conversations
+- **Application details**: Click any application to see job title, stage, applied date and source, plus a timeline of status changes
+- **Progress panel**: Each application shows where the candidate is ("Your application is under review", "You have an interview scheduled") in clear, candidate-friendly language — no internal roles or blocker jargon
+- **Pending actions**: If the recruiter is waiting on the candidate (e.g. a request for more info), the panel highlights it and links straight to the conversation
+- **Active conversations**: The application detail embeds the latest conversation thread with a reply form, so candidates can respond without leaving the page
 - **Conversations**: In-platform messaging between candidates and recruiters, created automatically at lifecycle moments (application, stage changes, rejection)
 - **Notifications**: Candidates receive short "ping" emails linking to the portal instead of full email bodies; they can configure which events trigger pings
 

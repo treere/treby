@@ -100,6 +100,38 @@ defmodule Treby.Interviews do
     end
   end
 
+  @doc """
+  Marks a scheduled interview as completed explicitly.
+
+  Transitions the event status "scheduled" → "completed". This does NOT move the
+  application to another stage; advancement remains a separate, explicit action.
+  """
+  def complete_interview(%InterviewEvent{} = event), do: complete_interview(event, nil)
+
+  def complete_interview(%InterviewEvent{} = event, actor) do
+    event = Repo.preload(event, [:application])
+
+    case event
+         |> InterviewEvent.changeset(%{status: "completed"})
+         |> Repo.update() do
+      {:ok, completed_event} ->
+        Treby.Activities.log_event(
+          "interview_completed",
+          "application",
+          event.application_id,
+          %{
+            completed_by: actor && actor.id,
+            tenant_id: event.tenant_id
+          }
+        )
+
+        {:ok, completed_event}
+
+      error ->
+        error
+    end
+  end
+
   def cancel_interview(%InterviewEvent{} = event) do
     event = Repo.preload(event, [:event_examiners, :application])
 

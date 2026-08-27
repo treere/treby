@@ -18,18 +18,78 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
      |> assign(:current_tenant, tenant)
      |> assign(:current_candidate, candidate)
      |> assign(:page_title, "Dashboard")
-     |> assign(:selected_application, nil)}
+     |> assign(:selected_application, nil)
+     |> assign(:selected_action, nil)
+     |> assign(:selected_conversations, [])
+     |> assign(:selected_timeline, [])
+     |> assign(:selected_draft, "")}
   end
 
   @impl true
   def handle_event("select_application", %{"id" => id}, socket) do
     application = Pipeline.get_application!(id)
-    {:noreply, assign(socket, :selected_application, application)}
+    tenant_id = socket.assigns.current_tenant.id
+
+    conversations =
+      Treby.CandidatePortal.list_conversations_for_application(application.id, tenant_id)
+
+    {:noreply,
+     assign(socket,
+       selected_application: application,
+       selected_action: candidate_pending_action(application, socket.assigns.current_tenant.slug),
+       selected_conversations: conversations,
+       selected_timeline: status_timeline(conversations),
+       selected_draft: ""
+     )}
   end
 
   @impl true
   def handle_event("close_detail", _, socket) do
-    {:noreply, assign(socket, :selected_application, nil)}
+    {:noreply,
+     assign(socket,
+       selected_application: nil,
+       selected_action: nil,
+       selected_conversations: [],
+       selected_timeline: [],
+       selected_draft: ""
+     )}
+  end
+
+  @impl true
+  def handle_event("update_detail_draft", %{"message" => message}, socket) do
+    {:noreply, assign(socket, :selected_draft, message)}
+  end
+
+  @impl true
+  def handle_event(
+        "send_detail_message",
+        %{"conversation_id" => conversation_id, "message" => body},
+        socket
+      ) do
+    body = String.trim(body)
+
+    if body != "" do
+      Treby.CandidatePortal.send_message(%{
+        sender_type: "candidate",
+        body: body,
+        message_type: "text",
+        conversation_id: conversation_id
+      })
+    end
+
+    application = socket.assigns.selected_application
+    tenant_id = socket.assigns.current_tenant.id
+
+    conversations =
+      Treby.CandidatePortal.list_conversations_for_application(application.id, tenant_id)
+
+    {:noreply,
+     assign(socket,
+       selected_conversations: conversations,
+       selected_timeline: status_timeline(conversations),
+       selected_action: candidate_pending_action(application, socket.assigns.current_tenant.slug),
+       selected_draft: ""
+     )}
   end
 
   @impl true
@@ -66,11 +126,115 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               <.status_badge status={@selected_application.pipeline_stage.name} />
             </div>
 
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                Applied {Calendar.strftime(@selected_application.applied_at, "%b %d, %Y")}
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
+              <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Where you are</p>
+              <p class="text-sm text-gray-600 dark:text-gray-300">
+                {candidate_step(@selected_application)}
               </p>
+
+              <%= if @selected_action do %>
+                <div class="mt-3 flex items-center justify-between gap-3 rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 px-3 py-2">
+                  <p class="text-sm text-blue-800 dark:text-blue-200">
+                    <span class="font-medium">Action needed:</span> {@selected_action.label}
+                  </p>
+                  <.link
+                    navigate={@selected_action.link}
+                    class="shrink-0 text-sm font-medium text-blue-700 dark:text-blue-300 hover:underline"
+                  >
+                    Reply now →
+                  </.link>
+                </div>
+              <% end %>
             </div>
+
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <p>
+                  Applied {Calendar.strftime(@selected_application.applied_at, "%b %d, %Y")}
+                </p>
+                <%= if @selected_application.source do %>
+                  <p>Via {String.capitalize(@selected_application.source)}</p>
+                <% end %>
+              </div>
+            </div>
+
+            <%= if @selected_timeline != [] do %>
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                <p class="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                  Timeline
+                </p>
+                <div class="space-y-3">
+                  <%= for entry <- @selected_timeline do %>
+                    <div class="flex items-start gap-3">
+                      <div class="mt-1.5 w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
+                      <div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">{entry.body}</p>
+                        <p class="text-xs text-gray-400">
+                          {Calendar.strftime(entry.inserted_at, "%b %d, %Y")}
+                        </p>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <%= if @selected_conversations != [] do %>
+              <% active = Enum.find(@selected_conversations, &(&1.status != "closed")) %>
+              <%= if active do %>
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                      {active.subject || "Conversation"}
+                    </p>
+                    <.link
+                      navigate={"/#{@current_tenant.slug}/portal/messages/#{active.id}"}
+                      class="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Open full thread →
+                    </.link>
+                  </div>
+
+                  <div class="space-y-2 max-h-64 overflow-y-auto mb-3 pr-1">
+                    <%= for message <- active.messages do %>
+                      <div class={[
+                        "rounded-lg p-3 max-w-3xl",
+                        message.sender_type == "candidate" && "bg-blue-50 dark:bg-blue-900/20 ml-auto",
+                        message.sender_type == "recruiter" && "bg-gray-100 dark:bg-gray-800",
+                        message.sender_type == "system" &&
+                          "bg-gray-50 dark:bg-gray-800/50 mx-auto text-center text-xs text-gray-500"
+                      ]}>
+                        <p class="text-sm text-gray-900 dark:text-white">{message.body}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">
+                          {Calendar.strftime(message.inserted_at, "%b %d, %H:%M")}
+                        </p>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <form
+                    phx-submit="send_detail_message"
+                    class="flex gap-2"
+                  >
+                    <input type="hidden" name="conversation_id" value={active.id} />
+                    <input
+                      type="text"
+                      name="message"
+                      value={@selected_draft}
+                      phx-change="update_detail_draft"
+                      placeholder="Type a message..."
+                      class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="submit"
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                    >
+                      Send
+                    </button>
+                  </form>
+                </div>
+              <% end %>
+            <% end %>
           </div>
         <% end %>
 
@@ -126,5 +290,68 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
       {String.capitalize(@status)}
     </span>
     """
+  end
+
+  defp status_timeline(conversations) do
+    conversations
+    |> Enum.flat_map(& &1.messages)
+    |> Enum.filter(&(&1.sender_type == "system" and &1.message_type == "status_update"))
+    |> Enum.sort_by(& &1.inserted_at)
+    |> Enum.map(&%{body: &1.body, inserted_at: &1.inserted_at})
+  end
+
+  defp candidate_step(application) do
+    state = Pipeline.current_state(application)
+    stage = state.stage
+    interviews = state.progress.interviews
+
+    cond do
+      stage.stage_type == "rejected" ->
+        "We're sorry, but we've decided to move forward with other candidates."
+
+      stage.stage_type == "hired" ->
+        "Congratulations! You've been hired."
+
+      stage.stage_type == "offer" ->
+        "We've sent you an offer. You can review it in your messages."
+
+      stage.stage_type == "interview" and interviews.scheduled > 0 and interviews.completed == 0 ->
+        "You have an interview scheduled. We'll share the details and next steps here."
+
+      stage.stage_type == "interview" and interviews.completed > 0 ->
+        "Your interview is complete. We'll be in touch with next steps."
+
+      true ->
+        "Your application is under review."
+    end
+  end
+
+  defp candidate_pending_action(application, tenant_slug) do
+    import Ecto.Query
+
+    conversation =
+      Treby.CandidatePortal.Conversation
+      |> where([c], c.application_id == ^application.id and c.status == "open")
+      |> order_by([c], desc: c.last_message_at)
+      |> limit(1)
+      |> preload(:messages)
+      |> Treby.Repo.one()
+
+    case conversation do
+      %{messages: messages} when messages != [] ->
+        last = List.last(messages)
+
+        if last.sender_type == "recruiter" do
+          subject = conversation.subject || "your application"
+
+          %{
+            label: "Reply to the recruiter about \"#{subject}\"",
+            link: "/#{tenant_slug}/portal/messages/#{conversation.id}"
+          }
+        end
+
+      _ ->
+        nil
+    end
   end
 end

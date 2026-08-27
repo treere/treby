@@ -63,7 +63,13 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(schedule_time: "09:00")
      |> assign(schedule_jitter: 5)
      |> assign(rejecting_application: nil)
-     |> assign(rejection_reason: "")}
+     |> assign(rejection_reason: "")
+     |> assign(completing_interview: nil)
+     |> assign(show_scorecard_form: false)
+     |> assign(scorecard_event_id: nil)
+     |> assign(scorecard_criteria: [])
+     |> assign(scorecard_template: nil)
+     |> assign(scorecard_form: to_form(%{}))}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
@@ -237,13 +243,24 @@ defmodule TrebyWeb.PipelineLive.Index do
                   <% _ -> %>
                 <% end %>
                 <%= if stage.stage_type == "interview" do %>
-                  <% scorecard_status = scorecard_status_for_card(application) %>
-                  <div class="mt-2 flex items-center gap-1 text-xs text-base-content/60">
-                    <.icon name="hero-document-text" class="w-3 h-3" />
-                    <span>
-                      {scorecard_status.completed}/{scorecard_status.total} scorecards
-                    </span>
-                  </div>
+                  <% state = Pipeline.current_state(application) %>
+                  <%= if state.blockers != [] do %>
+                    <div class="mt-2 space-y-1">
+                      <%= for blocker <- state.blockers do %>
+                        <div class="flex items-center gap-1 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950 rounded px-2 py-1">
+                          <.icon name="hero-exclamation-triangle" class="w-3 h-3" />
+                          <span>{blocker.label}</span>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <%= if Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                      <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
+                        <.icon name="hero-check-circle" class="w-3 h-3" />
+                        <span>Ready to advance</span>
+                      </div>
+                    <% end %>
+                  <% end %>
                 <% end %>
                 <a
                   :if={application.resume_url}
@@ -253,15 +270,43 @@ defmodule TrebyWeb.PipelineLive.Index do
                   View Resume
                 </a>
                 <div class="flex items-center gap-3 mt-1">
+                  <%= if stage.stage_type == "interview" do %>
+                    <% my_interview = examiner_interview_for_card(application, @current_user.id) %>
+                    <% pending_interview = pending_interview_for_card(application) %>
+                    <% can_complete? =
+                      @current_user.role == "admin" or
+                        Pipeline.user_is_advancer?(stage, @current_user.id) or
+                        my_interview != nil or
+                        (pending_interview != nil and
+                           pending_interview.scheduled_by_id == @current_user.id) %>
+                    <%= if my_interview do %>
+                      <button
+                        phx-click="open_scorecard"
+                        phx-value-event_id={my_interview.id}
+                        class="text-xs text-blue-600 hover:text-blue-900 mt-1"
+                      >
+                        Scorecard
+                      </button>
+                    <% end %>
+                    <%= if pending_interview && can_complete? do %>
+                      <button
+                        phx-click="complete_interview"
+                        phx-value-id={pending_interview.id}
+                        class="text-xs text-indigo-600 hover:text-indigo-900 mt-1"
+                      >
+                        Mark as completed
+                      </button>
+                    <% end %>
+                  <% end %>
                   <%= if stage.stage_type == "interview" and Pipeline.user_is_advancer?(stage, @current_user.id) do %>
-                    <% scorecards_done = scorecards_completed_for_card(application) %>
+                    <% ready = Pipeline.ready_to_advance?(application) %>
                     <button
                       phx-click="advance_application"
                       phx-value-id={application.id}
-                      disabled={not scorecards_done}
+                      disabled={not ready}
                       class={[
                         "text-xs mt-1",
-                        if(scorecards_done,
+                        if(ready,
                           do: "text-green-600 hover:text-green-900",
                           else: "text-base-content/30 cursor-not-allowed"
                         )
@@ -326,6 +371,37 @@ defmodule TrebyWeb.PipelineLive.Index do
                 class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700"
               >
                 Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Complete Interview Confirmation Dialog --%>
+      <div
+        :if={@completing_interview}
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        phx-click="cancel_complete_interview"
+      >
+        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
+          <div class="p-6">
+            <h2 class="text-lg font-semibold mb-2">Mark Interview as Completed</h2>
+            <p class="text-sm text-base-content/70 mb-4">
+              This marks the interview as done. You can now collect scorecards before advancing the candidate.
+              The candidate's stage will not change automatically.
+            </p>
+            <div class="flex justify-end gap-2">
+              <button
+                phx-click="cancel_complete_interview"
+                class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
+              >
+                Cancel
+              </button>
+              <button
+                phx-click="confirm_complete_interview"
+                class="px-4 py-2 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                Mark as completed
               </button>
             </div>
           </div>
@@ -531,6 +607,11 @@ defmodule TrebyWeb.PipelineLive.Index do
         </div>
       </div>
     </Layouts.app>
+    <.scorecard_form
+      show={@show_scorecard_form}
+      criteria={@scorecard_criteria}
+      form={@scorecard_form}
+    />
     <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_bulk_execute_delete" />
     """
   end
@@ -902,6 +983,103 @@ defmodule TrebyWeb.PipelineLive.Index do
     {:noreply, assign(socket, rejection_reason: value)}
   end
 
+  def handle_event("complete_interview", %{"id" => interview_id}, socket) do
+    interview = Treby.Repo.get!(Treby.Interviews.InterviewEvent, interview_id)
+
+    {:noreply, assign(socket, completing_interview: interview)}
+  end
+
+  def handle_event("cancel_complete_interview", _, socket) do
+    {:noreply, assign(socket, completing_interview: nil)}
+  end
+
+  def handle_event("confirm_complete_interview", _, socket) do
+    interview = socket.assigns.completing_interview
+
+    case Treby.Interviews.complete_interview(interview, socket.assigns.current_user) do
+      {:ok, _interview} ->
+        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+        {:noreply,
+         socket
+         |> assign(applications_by_stage: applications_by_stage)
+         |> assign(completing_interview: nil)
+         |> put_flash(:info, "Interview marked as completed")}
+
+      {:error, _changeset} ->
+        {:noreply,
+         socket
+         |> assign(completing_interview: nil)
+         |> put_flash(:error, "Failed to mark interview as completed")}
+    end
+  end
+
+  def handle_event("open_scorecard", %{"event_id" => event_id}, socket) do
+    template = Treby.Scorecards.get_active_template(socket.assigns.current_tenant.id)
+
+    existing_scorecard =
+      Treby.Scorecards.get_scorecard_for_interview(event_id, socket.assigns.current_user.id)
+
+    criteria = template.criteria || []
+
+    scores = (existing_scorecard && existing_scorecard.scores) || %{}
+
+    form_data = %{
+      "recommendation" => (existing_scorecard && existing_scorecard.recommendation) || "",
+      "notes" => (existing_scorecard && existing_scorecard.notes) || ""
+    }
+
+    form_data =
+      Enum.reduce(criteria, form_data, fn c, acc ->
+        key = c["name"]
+        Map.put(acc, key, scores[key] || "")
+      end)
+
+    {:noreply,
+     socket
+     |> assign(show_scorecard_form: true, scorecard_event_id: event_id)
+     |> assign(scorecard_template: template)
+     |> assign(scorecard_criteria: criteria)
+     |> assign(scorecard_form: to_form(form_data))}
+  end
+
+  def handle_event("close_scorecard", _, socket) do
+    {:noreply,
+     socket
+     |> assign(show_scorecard_form: false, scorecard_event_id: nil)}
+  end
+
+  def handle_event("submit_scorecard", params, socket) do
+    event_id = socket.assigns.scorecard_event_id
+    criteria = socket.assigns.scorecard_criteria
+
+    scores =
+      criteria
+      |> Enum.map(fn c -> {c["name"], Map.get(params, c["name"], "")} end)
+      |> Map.new()
+
+    attrs = %{
+      "scores" => scores,
+      "recommendation" => Map.get(params, "recommendation", ""),
+      "notes" => Map.get(params, "notes", ""),
+      "tenant_id" => socket.assigns.current_tenant.id
+    }
+
+    case Treby.Scorecards.submit_scorecard(event_id, socket.assigns.current_user.id, attrs) do
+      {:ok, _scorecard} ->
+        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+
+        {:noreply,
+         socket
+         |> assign(show_scorecard_form: false, scorecard_event_id: nil)
+         |> assign(applications_by_stage: applications_by_stage)
+         |> put_flash(:info, "Scorecard submitted")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to submit scorecard")}
+    end
+  end
+
   def handle_event("advance_application", %{"id" => application_id}, socket) do
     application = Pipeline.get_application!(application_id)
     application = application |> Treby.Repo.preload(:pipeline_stage)
@@ -912,8 +1090,13 @@ defmodule TrebyWeb.PipelineLive.Index do
         {:noreply,
          put_flash(socket, :error, "You are not authorized to advance candidates from this stage")}
 
-      stage.stage_type == "interview" and not Pipeline.all_scorecards_completed?(application) ->
-        {:noreply, put_flash(socket, :error, "All scorecards must be submitted before advancing")}
+      stage.stage_type == "interview" and not Pipeline.ready_to_advance?(application) ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Mark the interview as completed and all scorecards submitted before advancing"
+         )}
 
       true ->
         # Find the next stage in the pipeline
@@ -1049,43 +1232,25 @@ defmodule TrebyWeb.PipelineLive.Index do
     end
   end
 
-  defp scorecard_status_for_card(application) do
+  defp pending_interview_for_card(application) do
     import Ecto.Query
 
-    interviews =
-      Treby.Repo.all(
-        from ie in Treby.Interviews.InterviewEvent,
-          where: ie.application_id == ^application.id,
-          preload: [:event_examiners]
-      )
-
-    examiner_ids =
-      interviews
-      |> Enum.flat_map(&Enum.map(&1.event_examiners, fn ee -> ee.user_id end))
-      |> Enum.uniq()
-
-    total = length(examiner_ids)
-
-    if total == 0 do
-      %{completed: 0, total: 0}
-    else
-      completed =
-        interviews
-        |> Enum.map(& &1.id)
-        |> then(fn event_ids ->
-          Treby.Scorecards.Scorecard
-          |> where([s], s.interview_event_id in ^event_ids)
-          |> where([s], s.interviewer_id in ^examiner_ids)
-          |> select([s], count(s.id))
-          |> Treby.Repo.one()
-        end)
-
-      %{completed: completed, total: total}
-    end
+    Treby.Interviews.InterviewEvent
+    |> where([e], e.application_id == ^application.id and e.status != "completed")
+    |> order_by([e], asc: e.start_at_utc)
+    |> limit(1)
+    |> preload(:event_examiners)
+    |> Treby.Repo.one()
   end
 
-  defp scorecards_completed_for_card(application) do
-    status = scorecard_status_for_card(application)
-    status.total > 0 and status.completed >= status.total
+  defp examiner_interview_for_card(application, user_id) do
+    import Ecto.Query
+
+    Treby.Interviews.InterviewEvent
+    |> where([e], e.application_id == ^application.id)
+    |> order_by([e], asc: e.start_at_utc)
+    |> preload(:event_examiners)
+    |> Treby.Repo.all()
+    |> Enum.find(&Enum.any?(&1.event_examiners, fn ee -> ee.user_id == user_id end))
   end
 end

@@ -112,6 +112,51 @@ defmodule TrebyWeb.CandidatePortalLiveTest do
     end
   end
 
+  describe "portal progress panel" do
+    test "shows candidate-friendly progress and no internal blockers", %{conn: conn} do
+      {tenant, candidate, application} = setup_tenant_and_candidate()
+
+      conn = login_candidate_via_session(conn, candidate, tenant)
+      {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/portal")
+
+      view |> render_click("select_application", %{"id" => application.id})
+
+      html = render(view)
+      assert html =~ "Your application is under review"
+      refute html =~ "scorecard"
+      refute html =~ "blocker"
+    end
+
+    test "application detail embeds the active conversation with a reply form", %{conn: conn} do
+      {tenant, candidate, application} = setup_tenant_and_candidate()
+
+      {:ok, conversation} =
+        CandidatePortal.create_conversation(%{
+          candidate_id: candidate.id,
+          tenant_id: tenant.id,
+          subject: "Info Request",
+          context: "application",
+          application_id: application.id
+        })
+
+      CandidatePortal.send_message(%{
+        sender_type: "recruiter",
+        body: "Please share your portfolio",
+        conversation_id: conversation.id
+      })
+
+      conn = login_candidate_via_session(conn, candidate, tenant)
+      {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/portal")
+
+      view |> render_click("select_application", %{"id" => application.id})
+
+      html = render(view)
+      assert html =~ "Please share your portfolio"
+      assert html =~ "Info Request"
+      assert html =~ "Type a message..."
+    end
+  end
+
   describe "portal messages" do
     test "shows conversation list", %{conn: conn} do
       {tenant, candidate, application} = setup_tenant_and_candidate()

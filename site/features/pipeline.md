@@ -18,7 +18,8 @@ The pipeline is the heart of Treby. It's a drag-and-drop Kanban board where you 
 - **"Also in N other positions"** — shown when a candidate has applications in other pipelines, so you can spot candidates interviewing for multiple roles
 - **DUPLICATE APP** badge — shown when the same candidate has a second application to this job
 - **NEW** badge — shown until an application has been reviewed
-- **Scorecard progress** — on interview-type stages, shows how many examiners have submitted their scorecards (e.g., "2/3 scorecards")
+- **Actionable blockers** — on interview-type stages, cards show exactly what stands between the candidate and the next stage, naming the pending examiners ("Scorecard missing: Caio") or an un-completed interview, instead of an opaque count
+- **Ready to advance** — a green indicator replaces the blockers once the interview is completed and all scorecards are in
 
 ## Role-Based Stage Access
 
@@ -34,11 +35,14 @@ Only assigned **advancers** can move candidates forward or reject them. Non-adva
 
 ### Advancement Gating
 
-For interview-type stages, advancement is gated on scorecard completion:
+For interview-type stages, advancement is gated on both the interview being marked **completed** and all scorecards being submitted:
 
 - The **Advance** button is only visible to advancers
-- It is disabled until all examiners have submitted their scorecards
+- **Mark as completed** on the card (with a confirmation dialog) explicitly records that the interview happened
+- The **Advance** button stays disabled until the interview is completed and every examiner has submitted their scorecard
 - Drag-and-drop moves to interview stages also require the user to be an advancer
+
+Examiners can open the scorecard form directly from a candidate's card instead of hunting for the interviews page.
 
 ### Rejection
 

@@ -41,6 +41,7 @@ When a confirmed examiner cancels:
 - **Availability rules**: configure when you're available for interviews
 - **Timezone-aware**: automatic timezone detection for candidates
 - **Scorecard completion tracking**: per-examiner scorecard status (pending/completed)
+- **Explicit interview completion**: mark an interview as completed (with a confirmation dialog) — completion is a prerequisite for advancing the candidate
 
 ## Interviews Dashboard
 
@@ -50,6 +51,8 @@ The interviews dashboard shows all upcoming interviews with:
 - Scorecard completion status (e.g., "2/3 scorecards")
 - Filter by specific examiner
 - Direct links to Google Meet and candidate profiles
+- **Mark as completed** action on scheduled interviews
+- Scorecard form inline — examiners can submit or edit their scorecard without leaving the page
 
 ## Configuration
 

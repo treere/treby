@@ -344,4 +344,99 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       assert render(view) =~ "DUPLICATE APP"
     end
   end
+
+  describe "interview completion on card" do
+    defp setup_interview_card_data(tenant, user) do
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Interview", position: 0, stage_type: "interview"})
+        |> Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "SWE", description: "d", pipeline_id: pipeline_id})
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{
+          name: "Interview Candidate",
+          email: "iv-#{System.unique_integer([:positive])}@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, event} =
+        %Treby.Interviews.InterviewEvent{}
+        |> Treby.Interviews.InterviewEvent.changeset(%{
+          start_at_utc: DateTime.add(now, 3600),
+          end_at_utc: DateTime.add(now, 3600 + 1800),
+          duration_minutes: 30,
+          application_id: application.id,
+          tenant_id: tenant.id,
+          status: "scheduled"
+        })
+        |> Repo.insert()
+
+      # Make the user an examiner so the Scorecard button is shown
+      %Treby.Interviews.EventExaminer{}
+      |> Treby.Interviews.EventExaminer.changeset(%{
+        interview_event_id: event.id,
+        user_id: user.id
+      })
+      |> Repo.insert!()
+
+      %{job: job, application: application, event: event}
+    end
+
+    test "shows Mark as completed for a scheduled interview", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      data = setup_interview_card_data(tenant, user)
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job.id}")
+
+      assert render(view) =~ "Mark as completed"
+    end
+
+    test "completing the interview removes the action but keeps the scorecard", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      data = setup_interview_card_data(tenant, user)
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job.id}")
+
+      html = render(view)
+      assert html =~ "Mark as completed"
+      assert html =~ "Scorecard"
+
+      view |> render_click("complete_interview", %{"id" => data.event.id})
+      assert render(view) =~ "Mark Interview as Completed"
+
+      view |> render_click("confirm_complete_interview", %{})
+
+      assert Repo.get!(Treby.Interviews.InterviewEvent, data.event.id).status == "completed"
+
+      # A fresh connection reflects the updated card state
+      {:ok, view2, _html2} = live(conn, ~p"/app/pipeline/#{data.job.id}")
+      refute has_element?(view2, "button[phx-click='complete_interview']")
+      assert has_element?(view2, "button[phx-click='open_scorecard']")
+    end
+  end
 end

@@ -81,121 +81,91 @@ defmodule Treby.Pipeline do
   end
 
   def clone_template_to_pipeline(%PipelineDef{} = template, new_attrs) do
+    clone_pipeline(template, new_attrs)
+  end
+
+  def clone_pipeline(%PipelineDef{} = source, new_attrs) do
+    {:ok, {new_pipeline, _id_map}} = clone_pipeline_with_map(source, new_attrs)
+    {:ok, new_pipeline}
+  end
+
+  defp clone_pipeline_with_map(%PipelineDef{} = source, new_attrs) do
     Repo.transaction(fn ->
       {:ok, new_pipeline} =
         create_pipeline(Map.put(new_attrs, :is_template, false))
 
-      source_stages = Repo.preload(template, :pipeline_stages).pipeline_stages
-
-      Enum.each(source_stages, fn stage ->
-        # Preload role assignments
-        stage =
-          Repo.preload(stage, [
-            :examiner_assignments,
-            :reviewer_assignments,
-            :advancer_assignments
-          ])
-
-        {:ok, new_stage} =
-          %PipelineStage{}
-          |> PipelineStage.changeset(%{
-            name: stage.name,
-            position: stage.position,
-            color: stage.color,
-            stage_type: stage.stage_type,
-            min_examiners: stage.min_examiners,
-            scorecard_template_id: stage.scorecard_template_id,
-            pipeline_id: new_pipeline.id
-          })
-          |> Repo.insert()
-
-        # Copy examiner assignments
-        Enum.each(stage.examiner_assignments, fn assignment ->
-          %StageExaminer{}
-          |> StageExaminer.changeset(%{
-            pipeline_stage_id: new_stage.id,
-            user_id: assignment.user_id
-          })
-          |> Repo.insert!()
+      id_map =
+        source
+        |> Repo.preload(:pipeline_stages)
+        |> Map.fetch!(:pipeline_stages)
+        |> Enum.reduce(%{}, fn stage, acc ->
+          new_stage = clone_stage_with_roles(stage, new_pipeline.id)
+          Map.put(acc, stage.id, new_stage.id)
         end)
 
-        # Copy reviewer assignments
-        Enum.each(stage.reviewer_assignments, fn assignment ->
-          %StageReviewer{}
-          |> StageReviewer.changeset(%{
-            pipeline_stage_id: new_stage.id,
-            user_id: assignment.user_id
-          })
-          |> Repo.insert!()
-        end)
-
-        # Copy advancer assignments
-        Enum.each(stage.advancer_assignments, fn assignment ->
-          %StageAdvancer{}
-          |> StageAdvancer.changeset(%{
-            pipeline_stage_id: new_stage.id,
-            user_id: assignment.user_id
-          })
-          |> Repo.insert!()
-        end)
-      end)
-
-      new_pipeline
+      {new_pipeline, id_map}
     end)
   end
 
-  def duplicate_pipeline(%PipelineDef{} = source_pipeline) do
-    Repo.transaction(fn ->
-      {:ok, new_pipeline} =
-        create_pipeline(%{
-          name: "#{source_pipeline.name} (Copy)",
-          tenant_id: source_pipeline.tenant_id
-        })
+  defp clone_stage_with_roles(stage, new_pipeline_id) do
+    stage =
+      Repo.preload(stage, [
+        :examiner_assignments,
+        :reviewer_assignments,
+        :advancer_assignments
+      ])
 
-      source_stages = Repo.preload(source_pipeline, :pipeline_stages).pipeline_stages
+    {:ok, new_stage} =
+      %PipelineStage{}
+      |> PipelineStage.changeset(%{
+        name: stage.name,
+        position: stage.position,
+        color: stage.color,
+        stage_type: stage.stage_type,
+        min_examiners: stage.min_examiners,
+        scorecard_template_id: stage.scorecard_template_id,
+        pipeline_id: new_pipeline_id
+      })
+      |> Repo.insert()
 
-      Enum.each(source_stages, fn stage ->
-        stage =
-          Repo.preload(stage, [
-            :examiner_assignments,
-            :reviewer_assignments,
-            :advancer_assignments
-          ])
-
-        {:ok, new_stage} =
-          %PipelineStage{}
-          |> PipelineStage.changeset(%{
-            name: stage.name,
-            position: stage.position,
-            color: stage.color,
-            stage_type: stage.stage_type,
-            min_examiners: stage.min_examiners,
-            scorecard_template_id: stage.scorecard_template_id,
-            pipeline_id: new_pipeline.id
-          })
-          |> Repo.insert()
-
-        Enum.each(stage.examiner_assignments, fn a ->
-          %StageExaminer{}
-          |> StageExaminer.changeset(%{pipeline_stage_id: new_stage.id, user_id: a.user_id})
-          |> Repo.insert!()
-        end)
-
-        Enum.each(stage.reviewer_assignments, fn a ->
-          %StageReviewer{}
-          |> StageReviewer.changeset(%{pipeline_stage_id: new_stage.id, user_id: a.user_id})
-          |> Repo.insert!()
-        end)
-
-        Enum.each(stage.advancer_assignments, fn a ->
-          %StageAdvancer{}
-          |> StageAdvancer.changeset(%{pipeline_stage_id: new_stage.id, user_id: a.user_id})
-          |> Repo.insert!()
-        end)
-      end)
-
-      new_pipeline
+    Enum.each(stage.examiner_assignments, fn assignment ->
+      %StageExaminer{}
+      |> StageExaminer.changeset(%{
+        pipeline_stage_id: new_stage.id,
+        user_id: assignment.user_id
+      })
+      |> Repo.insert!()
     end)
+
+    Enum.each(stage.reviewer_assignments, fn assignment ->
+      %StageReviewer{}
+      |> StageReviewer.changeset(%{
+        pipeline_stage_id: new_stage.id,
+        user_id: assignment.user_id
+      })
+      |> Repo.insert!()
+    end)
+
+    Enum.each(stage.advancer_assignments, fn assignment ->
+      %StageAdvancer{}
+      |> StageAdvancer.changeset(%{
+        pipeline_stage_id: new_stage.id,
+        user_id: assignment.user_id
+      })
+      |> Repo.insert!()
+    end)
+
+    new_stage
+  end
+
+  def duplicate_pipeline(%PipelineDef{} = source_pipeline) do
+    {:ok, {new_pipeline, _id_map}} =
+      clone_pipeline_with_map(source_pipeline, %{
+        name: "#{source_pipeline.name} (Copy)",
+        tenant_id: source_pipeline.tenant_id
+      })
+
+    {:ok, new_pipeline}
   end
 
   def default_pipeline_id(tenant_id) do
@@ -237,6 +207,53 @@ defmodule Treby.Pipeline do
     |> order_by([ps], ps.position)
     |> Repo.all()
   end
+
+  def job_effective_pipeline_id(%Treby.Jobs.Job{} = job) do
+    job.pipeline_id || default_pipeline_id(job.tenant_id)
+  end
+
+  def job_effective_pipeline(%Treby.Jobs.Job{} = job) do
+    get_pipeline!(job_effective_pipeline_id(job))
+  end
+
+  def pipeline_shared?(pipeline_id) do
+    count_active_jobs(pipeline_id) > 1
+  end
+
+  def detach_job_pipeline(%Treby.Jobs.Job{} = job) do
+    effective_id = job_effective_pipeline_id(job)
+
+    if pipeline_shared?(effective_id) do
+      source = get_pipeline!(effective_id)
+
+      {:ok, {new_pipeline, id_map}} =
+        clone_pipeline_with_map(source, %{
+          name: "#{source.name} (Job)",
+          tenant_id: job.tenant_id
+        })
+
+      remap_job_applications(job.id, id_map)
+
+      {:ok, updated_job} = Treby.Jobs.update_job(job, %{pipeline_id: new_pipeline.id})
+      {:ok, updated_job, new_pipeline}
+    else
+      {:ok, job, get_pipeline!(effective_id)}
+    end
+  end
+
+  defp remap_job_applications(job_id, id_map) when map_size(id_map) > 0 do
+    Application
+    |> where([a], a.job_id == ^job_id and a.pipeline_stage_id in ^Map.keys(id_map))
+    |> Repo.all()
+    |> Enum.each(fn app ->
+      new_stage_id = Map.fetch!(id_map, app.pipeline_stage_id)
+      Application.changeset(app, %{pipeline_stage_id: new_stage_id}) |> Repo.update!()
+    end)
+
+    :ok
+  end
+
+  defp remap_job_applications(_job_id, _id_map), do: :ok
 
   def get_pipeline_stage!(id), do: Repo.get!(PipelineStage, id)
 

@@ -1,11 +1,10 @@
 defmodule Treby.CandidatesMergeTest do
   use Treby.DataCase, async: true
 
-  alias Treby.{Tenants, Repo, Pipeline, Candidates, Activities, EmailThreads, CsvImport}
+  alias Treby.{Tenants, Repo, Pipeline, Candidates, Activities, CsvImport}
   alias Treby.Accounts.User
   alias Treby.Candidates.{Candidate, MergeLog}
   alias Treby.Candidates.Duplicates
-  alias Treby.EmailThreads.EmailThread
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -82,25 +81,21 @@ defmodule Treby.CandidatesMergeTest do
     application
   end
 
-  defp create_thread(tenant, user, candidate) do
-    scheduled_at = DateTime.truncate(DateTime.add(DateTime.utc_now(), 3600, :second), :second)
-
-    {:ok, message} =
-      EmailThreads.create_outbound_email(%{
-        subject: "Hello",
-        body: "Hi there",
-        from_address: user.email,
+  defp create_conversation(tenant, candidate, application) do
+    {:ok, conversation} =
+      Treby.CandidatePortal.create_conversation(%{
         candidate_id: candidate.id,
         tenant_id: tenant.id,
-        created_by_id: user.id,
-        schedule: %{scheduled_at: scheduled_at, jitter_minutes: 0}
+        application_id: application.id,
+        subject: "Hello",
+        context: "application"
       })
 
-    message.thread_id
+    conversation.id
   end
 
   describe "merge_candidates/3" do
-    test "reassigns applications, email threads and activity, and tombstones the absorbed candidate" do
+    test "reassigns applications, portal conversations and activity, and tombstones the absorbed candidate" do
       {tenant, user, job, stage} = setup_tenant()
       primary = create_candidate(tenant, %{name: "Primary Person", email: "primary@example.com"})
 
@@ -108,7 +103,7 @@ defmodule Treby.CandidatesMergeTest do
         create_candidate(tenant, %{name: "Absorbed Person", email: "absorbed@example.com"})
 
       app = create_application(tenant, job, stage, absorbed)
-      thread_id = create_thread(tenant, user, absorbed)
+      conversation_id = create_conversation(tenant, absorbed, app)
 
       {:ok, _created_event} =
         Activities.log_event("candidate_created", "candidate", absorbed.id, %{
@@ -119,7 +114,9 @@ defmodule Treby.CandidatesMergeTest do
         Candidates.merge_candidates(primary, [absorbed], user)
 
       assert Repo.reload!(app).candidate_id == primary.id
-      assert Repo.get!(EmailThread, thread_id).candidate_id == primary.id
+
+      assert Repo.get!(Treby.CandidatePortal.Conversation, conversation_id).candidate_id ==
+               primary.id
 
       assert Enum.any?(
                Activities.list_events_for_entity("candidate", primary.id, 50),
@@ -135,7 +132,7 @@ defmodule Treby.CandidatesMergeTest do
       assert persisted_log.absorbed_candidate_id == absorbed.id
       assert persisted_log.actor_id == user.id
       assert persisted_log.application_mapping[app.id] == absorbed.id
-      assert persisted_log.thread_mapping[thread_id] == absorbed.id
+      assert persisted_log.thread_mapping[conversation_id] == absorbed.id
     end
 
     test "keeps the primary untouched and no rows are deleted" do
@@ -207,7 +204,7 @@ defmodule Treby.CandidatesMergeTest do
         create_candidate(tenant, %{name: "Absorbed Person", email: "absorbed@example.com"})
 
       app = create_application(tenant, job, stage, absorbed)
-      thread_id = create_thread(tenant, user, absorbed)
+      conversation_id = create_conversation(tenant, absorbed, app)
 
       {:ok, %{merge_logs: [log]}} = Candidates.merge_candidates(primary, [absorbed], user)
       assert Repo.get!(Candidate, absorbed.id).merged_into_id == primary.id
@@ -216,7 +213,10 @@ defmodule Treby.CandidatesMergeTest do
         Candidates.undo_merge(Repo.get!(MergeLog, log.id), user)
 
       assert Repo.reload!(app).candidate_id == absorbed.id
-      assert Repo.get!(EmailThread, thread_id).candidate_id == absorbed.id
+
+      assert Repo.get!(Treby.CandidatePortal.Conversation, conversation_id).candidate_id ==
+               absorbed.id
+
       assert Repo.get!(Candidate, absorbed.id).merged_into_id == nil
       assert Repo.get!(Candidate, absorbed.id).merged_at == nil
       assert Repo.get(MergeLog, log.id) == nil

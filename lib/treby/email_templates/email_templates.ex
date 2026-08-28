@@ -1,11 +1,14 @@
 defmodule Treby.EmailTemplates do
   @moduledoc """
-  The EmailTemplates context — manages email templates and sending.
+  The EmailTemplates context — manages message templates per pipeline stage
+  and posts rendered templated messages into candidate portal conversations.
   """
 
   import Ecto.Query, warn: false
+  alias Treby.CandidatePortal
   alias Treby.Repo
   alias Treby.EmailTemplates.EmailTemplate
+  alias Treby.ScheduledMessages
 
   def list_email_templates(tenant_id) do
     EmailTemplate
@@ -72,43 +75,76 @@ defmodule Treby.EmailTemplates do
     {subject, body}
   end
 
-  def send_stage_email(template, candidate, _job, assigns \\ %{}) do
-    rendered = render_email(template, assigns)
+  @doc """
+  Renders a template and posts it as a message in the candidate's conversation
+  for the application. Creates a conversation if none exists.
+  """
+  def send_stage_message(template, candidate, application, assigns \\ %{}) do
+    {_subject, body} = render_email(template, assigns)
 
-    email =
-      Swoosh.Email.new()
-      |> Swoosh.Email.to(candidate.email)
-      |> Swoosh.Email.from(assigns[:company_name] || "Treby")
-      |> Swoosh.Email.subject(elem(rendered, 0))
-      |> Swoosh.Email.html_body(elem(rendered, 1))
+    conversation_id = conversation_for_application(candidate, application, assigns)
 
-    case Treby.Mailer.deliver(email) do
-      {:ok, _} -> :ok
-      {:error, reason} -> {:error, reason}
+    attrs = %{
+      sender_type: "recruiter",
+      conversation_id: conversation_id,
+      body: body,
+      message_type: "templated",
+      metadata: %{
+        "template_id" => template.id,
+        "stage_name" => assigns[:stage_name] || ""
+      }
+    }
+
+    case CandidatePortal.send_message(attrs) do
+      {:ok, _message} -> :ok
+      {:error, _changeset} -> {:error, :insert_failed}
     end
   end
 
-  def send_stage_email_scheduled(template, candidate, _job, assigns, schedule) do
-    rendered = render_email(template, assigns)
-    {subject, body} = rendered
+  @doc """
+  Schedules a rendered templated message for future delivery into the
+  candidate's conversation.
+  """
+  def send_stage_message_scheduled(template, candidate, application, assigns, schedule) do
+    {_subject, body} = render_email(template, assigns)
+
+    conversation_id = conversation_for_application(candidate, application, assigns)
     tenant_id = assigns[:tenant_id]
-    scheduled_at = schedule.scheduled_at
-    jitter_minutes = schedule[:jitter_minutes] || 0
 
-    alias Treby.EmailQueue
+    ScheduledMessages.create_scheduled_message(%{
+      tenant_id: tenant_id,
+      sender_type: "recruiter",
+      conversation_id: conversation_id,
+      body: body,
+      message_type: "templated",
+      metadata: %{
+        "template_id" => template.id,
+        "stage_name" => assigns[:stage_name] || ""
+      },
+      send_at: schedule.scheduled_at,
+      created_by_id: assigns[:actor_id]
+    })
+  end
 
-    {:ok, _scheduled_email} =
-      EmailQueue.create_scheduled_email(%{
-        tenant_id: tenant_id,
-        scheduled_at: scheduled_at,
-        jitter_minutes: jitter_minutes,
-        to_address: candidate.email,
-        from_address: assigns[:company_name] || "noreply@treby.app",
-        subject: subject,
-        html_body: body,
-        email_type: "stage_change",
-        reference_type: "candidate",
-        reference_id: candidate.id
-      })
+  defp conversation_for_application(candidate, application, assigns) do
+    existing =
+      CandidatePortal.list_conversations_for_application(application.id, application.tenant_id)
+
+    case Enum.find(existing, &(&1.context == "application")) do
+      nil ->
+        {:ok, conversation} =
+          CandidatePortal.create_conversation(%{
+            candidate_id: candidate.id,
+            tenant_id: application.tenant_id,
+            application_id: application.id,
+            subject: assigns[:job_title] || "Application",
+            context: "application"
+          })
+
+        conversation.id
+
+      conversation ->
+        conversation.id
+    end
   end
 end

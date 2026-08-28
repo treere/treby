@@ -10,12 +10,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
     Customization,
     Activities,
     Scorecards,
-    EmailThreads,
     CandidatePortal
   }
 
   alias Treby.Notifications.Email, as: NotificationEmail
-  alias TrebyWeb.EmailQueueLive.SchedulePicker
 
   def mount(%{"id" => id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -78,14 +76,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
     # Load merge history where this candidate was the surviving primary
     merge_logs = Candidates.list_merge_logs_for_primary(candidate.id)
 
-    # Load email threads
-    email_threads = EmailThreads.list_threads_for_candidate(candidate.id)
-
     # Load conversations for the candidate
     conversations = CandidatePortal.list_conversations_for_candidate(candidate.id, tenant.id)
-
-    # Get user email for sending replies
-    user_email = user.email
 
     {:ok,
      socket
@@ -99,18 +91,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
      |> assign(aggregate_scores: aggregate_scores)
      |> assign(activities: activities)
      |> assign(merge_logs: merge_logs)
-     |> assign(email_threads: email_threads)
      |> assign(conversations: conversations)
-     |> assign(user_email: user_email)
      |> assign(show_note_form: nil)
      |> assign(note_form: to_form(%{}, as: :note))
      |> assign(editing?: false)
      |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))
-     |> assign(replying_to_thread: nil)
      |> assign(confirm_delete: nil)
-     |> assign(reply_form: to_form(%{}, as: :reply))
-     |> assign(composing_email: false)
-     |> assign(compose_form: to_form(%{}, as: :compose))
      |> assign(new_message_form_visible: false)
      |> assign(new_message_form: to_form(%{}, as: :message))
      |> assign(replying_to_conversation: nil)
@@ -666,182 +652,6 @@ defmodule TrebyWeb.CandidatesLive.Show do
           </div>
         </div>
 
-        <%!-- Email Threads --%>
-        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">Email History</h2>
-            <button
-              phx-click="compose_email"
-              class="text-sm text-blue-600 hover:text-blue-900 border border-blue-600 rounded px-3 py-1"
-            >
-              + Compose Email
-            </button>
-          </div>
-
-          <%!-- Compose form --%>
-          <div :if={@composing_email} class="mb-6 p-4 border rounded-lg">
-            <.form
-              for={@compose_form}
-              id="compose-form"
-              phx-submit="send_compose"
-              class="space-y-3"
-            >
-              <.input
-                field={@compose_form[:subject]}
-                type="text"
-                label="Subject"
-                placeholder="Enter email subject..."
-              />
-              <.input
-                field={@compose_form[:body]}
-                type="textarea"
-                label="Message"
-                placeholder="Type your message..."
-                rows={6}
-              />
-              <div class="p-3 bg-base-200 rounded-lg">
-                <.live_component module={SchedulePicker} id="compose-schedule" prefix="compose" />
-              </div>
-              <div class="flex gap-2">
-                <.button type="submit" class="text-sm">Send Email</.button>
-                <button
-                  type="button"
-                  phx-click="cancel_compose"
-                  class="text-sm text-base-content/50 hover:text-base-content/80"
-                >
-                  Cancel
-                </button>
-              </div>
-            </.form>
-          </div>
-
-          <div :if={@email_threads == [] && !@composing_email} class="text-base-content/50 text-sm">
-            No email threads yet.
-          </div>
-
-          <div :for={thread <- @email_threads} class="border rounded-lg mb-4 last:mb-0">
-            <div class="p-4 border-b bg-base-200 rounded-t-lg">
-              <div class="flex justify-between items-center">
-                <div>
-                  <span class="font-medium text-base-content">{thread.subject}</span>
-                  <span class="text-sm text-base-content/50 ml-2">
-                    ({length(thread.messages)} message{length(thread.messages) != 1 && "s"})
-                  </span>
-                </div>
-                <span class="text-xs text-base-content/40">
-                  {Calendar.strftime(thread.last_message_at, "%b %d, %Y at %H:%M")}
-                </span>
-              </div>
-            </div>
-
-            <div class="p-4 space-y-3">
-              <div
-                :for={message <- Enum.reverse(thread.messages)}
-                class={[
-                  "p-3 rounded-lg text-sm",
-                  message.direction == "inbound" &&
-                    "bg-blue-50 dark:bg-blue-950 border-l-4 border-blue-400",
-                  message.direction == "outbound" &&
-                    "bg-green-50 dark:bg-green-950 border-l-4 border-green-400 ml-8",
-                  message.status == "scheduled" && "border-dashed opacity-90",
-                  message.status == "cancelled" && "opacity-60"
-                ]}
-              >
-                <div class="flex justify-between items-center mb-1">
-                  <span class="font-medium text-base-content/80 flex items-center gap-1.5">
-                    <.icon
-                      :if={message.status == "scheduled"}
-                      name="hero-clock"
-                      class="w-3.5 h-3.5 text-amber-500"
-                    />
-                    <.icon
-                      :if={message.status == "cancelled"}
-                      name="hero-x-mark"
-                      class="w-3.5 h-3.5 text-red-400"
-                    />
-                    {message.direction == "inbound" && "From: #{message.from_address}"}
-                    {message.direction == "outbound" && "From: #{message.from_address}"}
-                    <span
-                      :if={message.status == "scheduled"}
-                      class="text-xs text-amber-600 font-medium"
-                    >
-                      Scheduled
-                    </span>
-                    <span
-                      :if={message.status == "cancelled"}
-                      class="text-xs text-red-500 font-medium"
-                    >
-                      Cancelled
-                    </span>
-                  </span>
-                  <span class="text-xs text-base-content/40">
-                    {Calendar.strftime(
-                      message.scheduled_at || message.sent_at || message.received_at,
-                      "%b %d, %Y at %H:%M"
-                    )}
-                  </span>
-                </div>
-                <div
-                  :if={message.status != "cancelled"}
-                  class="text-base-content/70 whitespace-pre-wrap"
-                >
-                  {message.body}
-                </div>
-                <div
-                  :if={message.status == "cancelled"}
-                  class="text-base-content/40 italic text-xs"
-                >
-                  Email cancelled — content not available
-                </div>
-              </div>
-            </div>
-
-            <div class="p-4 border-t">
-              <button
-                phx-click="show_reply_form"
-                phx-value-thread_id={thread.id}
-                class="text-sm text-blue-600 hover:text-blue-800"
-              >
-                Reply
-              </button>
-
-              <.form
-                :if={@replying_to_thread == thread.id}
-                for={@reply_form}
-                id={"reply-form-#{thread.id}"}
-                phx-submit="send_reply"
-                phx-value-thread_id={thread.id}
-                class="mt-4 space-y-3"
-              >
-                <.input
-                  field={@reply_form[:body]}
-                  type="textarea"
-                  label="Reply"
-                  placeholder="Type your reply..."
-                  rows={4}
-                />
-                <div class="p-3 bg-base-200 rounded-lg">
-                  <.live_component
-                    module={SchedulePicker}
-                    id={"reply-schedule-#{thread.id}"}
-                    prefix="reply"
-                  />
-                </div>
-                <div class="flex gap-2">
-                  <.button type="submit" class="text-sm">Send Reply</.button>
-                  <button
-                    type="button"
-                    phx-click="cancel_reply"
-                    class="text-sm text-base-content/50 hover:text-base-content/80"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </.form>
-            </div>
-          </div>
-        </div>
-
         <%!-- Portal Conversations --%>
         <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
           <div class="flex justify-between items-center mb-4">
@@ -1264,110 +1074,6 @@ defmodule TrebyWeb.CandidatesLive.Show do
     end
   end
 
-  def handle_event("show_reply_form", %{"thread_id" => thread_id}, socket) do
-    {:noreply,
-     socket
-     |> assign(replying_to_thread: thread_id)
-     |> assign(reply_form: to_form(%{}, as: :reply))}
-  end
-
-  def handle_event("cancel_reply", _params, socket) do
-    {:noreply,
-     socket
-     |> assign(replying_to_thread: nil)
-     |> assign(reply_form: to_form(%{}, as: :reply))}
-  end
-
-  def handle_event("send_reply", %{"thread_id" => thread_id, "reply" => params}, socket) do
-    body = Map.get(params, "body", "")
-    schedule = build_schedule(params)
-
-    if params["mode"] == "schedule" && is_nil(schedule) do
-      {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
-    else
-      case EmailThreads.send_reply(
-             thread_id,
-             socket.assigns.user_email,
-             body,
-             socket.assigns.current_tenant.id,
-             schedule: schedule
-           ) do
-        {:ok, _message} ->
-          # Refresh threads
-          email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
-
-          {:noreply,
-           socket
-           |> assign(email_threads: email_threads, replying_to_thread: nil)
-           |> assign(reply_form: to_form(%{}, as: :reply))
-           |> put_flash(:info, if(schedule, do: "Reply scheduled", else: "Reply sent"))}
-
-        {:error, reason} ->
-          {:noreply, put_flash(socket, :error, "Failed to send reply: #{inspect(reason)}")}
-      end
-    end
-  end
-
-  def handle_event("compose_email", _params, socket) do
-    {:noreply,
-     socket
-     |> assign(composing_email: true)
-     |> assign(compose_form: to_form(%{}, as: :compose))}
-  end
-
-  def handle_event("cancel_compose", _params, socket) do
-    {:noreply,
-     socket
-     |> assign(composing_email: false)
-     |> assign(compose_form: to_form(%{}, as: :compose))}
-  end
-
-  def handle_event("send_compose", %{"compose" => params}, socket) do
-    subject = Map.get(params, "subject", "") |> String.trim()
-    body = Map.get(params, "body", "") |> String.trim()
-
-    cond do
-      subject == "" ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Subject is required")}
-
-      body == "" ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Message body is required")}
-
-      true ->
-        schedule = build_schedule(params)
-
-        if params["mode"] == "schedule" && is_nil(schedule) do
-          {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
-        else
-          case EmailThreads.create_outbound_email(%{
-                 subject: subject,
-                 body: body,
-                 from_address: socket.assigns.user_email,
-                 candidate_id: socket.assigns.candidate.id,
-                 tenant_id: socket.assigns.current_tenant.id,
-                 created_by_id: socket.assigns.current_user.id,
-                 schedule: schedule
-               }) do
-            {:ok, _message} ->
-              email_threads = EmailThreads.list_threads_for_candidate(socket.assigns.candidate.id)
-
-              {:noreply,
-               socket
-               |> assign(email_threads: email_threads, composing_email: false)
-               |> assign(compose_form: to_form(%{}, as: :compose))
-               |> put_flash(:info, if(schedule, do: "Email scheduled", else: "Email sent"))}
-
-            {:error, reason} ->
-              {:noreply, put_flash(socket, :error, "Failed to send email: #{inspect(reason)}")}
-          end
-        end
-    end
-  end
-
   def handle_event("new_portal_message", _params, socket) do
     {:noreply,
      socket
@@ -1412,6 +1118,16 @@ defmodule TrebyWeb.CandidatesLive.Show do
           body: body,
           message_type: "text"
         })
+
+        CandidatePortal.notify_new_message(
+          socket.assigns.candidate,
+          socket.assigns.current_tenant,
+          "new_message",
+          %{
+            conversation_id: conversation.id,
+            job_title: application && application.job && application.job.title
+          }
+        )
 
         conversations =
           CandidatePortal.list_conversations_for_candidate(
@@ -1467,6 +1183,18 @@ defmodule TrebyWeb.CandidatesLive.Show do
         message_type: "request_info",
         metadata: %{"template" => template}
       })
+
+      application = List.first(socket.assigns.applications)
+
+      CandidatePortal.notify_new_message(
+        socket.assigns.candidate,
+        socket.assigns.current_tenant,
+        "info_request",
+        %{
+          conversation_id: conversation.id,
+          job_title: application && application.job && application.job.title
+        }
+      )
 
       conversations =
         CandidatePortal.list_conversations_for_candidate(
@@ -1707,21 +1435,6 @@ defmodule TrebyWeb.CandidatesLive.Show do
        |> assign(:replying_to_conversation, nil)
        |> assign(:conversation_reply_form, to_form(%{}, as: :reply))
        |> put_flash(:info, "Message sent")}
-    end
-  end
-
-  defp build_schedule(params) do
-    if params["mode"] == "schedule" do
-      case DateTime.from_iso8601(params["scheduled_at"] || "") do
-        {:ok, dt, _offset} ->
-          %{
-            scheduled_at: dt,
-            jitter_minutes: String.to_integer(params["jitter_minutes"] || "0")
-          }
-
-        _ ->
-          nil
-      end
     end
   end
 

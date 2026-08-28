@@ -5,7 +5,6 @@ defmodule Treby.Notifications do
   """
 
   import Ecto.Query, warn: false
-  alias Treby.CandidatePortal
   alias Treby.Notifications.Email, as: NotificationEmail
   alias Treby.Repo
   alias Treby.Tenants.Tenant
@@ -136,11 +135,14 @@ defmodule Treby.Notifications do
       throw(:skip)
     end
 
-    # Generate a magic link token for portal access
-    {:ok, token} = CandidatePortal.generate_magic_link_token(candidate)
-    portal_url = "/#{tenant.slug}/c/#{token}"
+    unless candidate_notification_enabled?(candidate, "new_message") do
+      throw(:skip)
+    end
 
-    email = NotificationEmail.magic_link_email(candidate, tenant, portal_url)
+    email =
+      NotificationEmail.notification_ping(candidate, tenant, nil, "new_application", %{
+        "job_title" => application.job.title
+      })
 
     case Treby.Mailer.deliver(email) do
       {:ok, _} ->
@@ -169,8 +171,8 @@ defmodule Treby.Notifications do
   end
 
   @doc """
-  Send notification emails to tenant admins and the job owner when a new application
-  is submitted (via career page or manual creation).
+  Log an in-app activity event when a new application is submitted,
+  so tenant admins and the job owner are notified inside the app.
   """
   def notify_team_new_application(application) do
     application = Repo.preload(application, [:candidate, :job])
@@ -183,41 +185,17 @@ defmodule Treby.Notifications do
       throw(:skip)
     end
 
-    admin_users =
-      Treby.Accounts.list_users(tenant.id)
-      |> Enum.filter(&(&1.role == "admin"))
-
-    Enum.each(admin_users, fn admin ->
-      assigns = %{
+    Treby.Activities.log_event(
+      "new_application",
+      "application",
+      application.id,
+      %{
+        tenant_id: tenant.id,
         candidate_name: candidate.name || "",
-        job_title: job.title || "",
-        company_name: tenant.name || "",
-        admin_name: admin.name || ""
+        candidate_email: candidate.email || "",
+        job_title: job.title || ""
       }
-
-      email = NotificationEmail.new_application_team_alert(admin, candidate, job, assigns)
-
-      case Treby.Mailer.deliver(email) do
-        {:ok, _} ->
-          log_email_event(
-            "new_application_team",
-            admin.email,
-            email.subject,
-            "sent",
-            tenant.id
-          )
-
-        {:error, reason} ->
-          log_email_event(
-            "new_application_team",
-            admin.email,
-            email.subject,
-            "failed",
-            tenant.id,
-            %{error: inspect(reason)}
-          )
-      end
-    end)
+    )
 
     :ok
   catch

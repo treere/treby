@@ -8,6 +8,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
   alias Treby.Candidates.Candidate
   alias Treby.Jobs.Job
   alias Treby.Pipeline.PipelineStage
+  alias Treby.Interviews.{InterviewEvent, EventExaminer}
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -194,7 +195,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       %{job: job, stage2: stage2, application: application}
     end
 
-    test "schedules email when moving candidate with schedule", %{conn: conn} do
+    test "schedules message when moving candidate with schedule", %{conn: conn} do
       {tenant, user} = setup_tenant()
       data = setup_pipeline_data(tenant)
 
@@ -215,13 +216,18 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       view |> render_click("preset_schedule", %{"label" => "tomorrow_9"})
       view |> render_click("confirm_stage_move", %{"action" => "schedule"})
 
-      assert render(view) =~ "Candidate moved and email scheduled"
+      assert render(view) =~ "Candidate moved and message scheduled"
 
-      queued =
-        Repo.get_by!(Treby.EmailQueue.ScheduledEmail, to_address: "pipe-schedule@example.com")
+      conversation =
+        Treby.CandidatePortal.list_conversations_for_application(data.application.id, tenant.id)
+        |> List.first()
 
-      assert queued.email_type == "stage_change"
-      assert queued.subject == "Interview Invite"
+      scheduled =
+        Repo.get_by!(Treby.ScheduledMessages.ScheduledMessage, conversation_id: conversation.id)
+
+      assert scheduled.message_type == "templated"
+      assert scheduled.body =~ "Hi"
+      assert scheduled.status == "scheduled"
 
       updated = Treby.Pipeline.get_application!(data.application.id)
       assert updated.pipeline_stage_id == data.stage2.id
@@ -383,8 +389,8 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
       {:ok, event} =
-        %Treby.Interviews.InterviewEvent{}
-        |> Treby.Interviews.InterviewEvent.changeset(%{
+        %InterviewEvent{}
+        |> InterviewEvent.changeset(%{
           start_at_utc: DateTime.add(now, 3600),
           end_at_utc: DateTime.add(now, 3600 + 1800),
           duration_minutes: 30,
@@ -395,8 +401,8 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         |> Repo.insert()
 
       # Make the user an examiner so the Scorecard button is shown
-      %Treby.Interviews.EventExaminer{}
-      |> Treby.Interviews.EventExaminer.changeset(%{
+      %EventExaminer{}
+      |> EventExaminer.changeset(%{
         interview_event_id: event.id,
         user_id: user.id
       })
@@ -431,7 +437,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
 
       view |> render_click("confirm_complete_interview", %{})
 
-      assert Repo.get!(Treby.Interviews.InterviewEvent, data.event.id).status == "completed"
+      assert Repo.get!(InterviewEvent, data.event.id).status == "completed"
 
       # A fresh connection reflects the updated card state
       {:ok, view2, _html2} = live(conn, ~p"/app/pipeline/#{data.job.id}")

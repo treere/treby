@@ -61,10 +61,16 @@ defmodule TrebyWeb.CandidatePortalLiveTest do
   end
 
   defp login_candidate_via_session(conn, candidate, tenant) do
+    expires_at =
+      DateTime.utc_now()
+      |> DateTime.add(4, :hour)
+      |> DateTime.to_unix()
+
     conn
     |> init_test_session(%{
       "candidate_id" => candidate.id,
-      "candidate_tenant_id" => tenant.id
+      "candidate_tenant_id" => tenant.id,
+      "candidate_expires_at" => expires_at
     })
   end
 
@@ -281,6 +287,18 @@ defmodule TrebyWeb.CandidatePortalLiveTest do
       updated = Repo.get!(Candidates.Candidate, candidate.id)
       prefs = CandidatePortal.get_notification_preferences(updated)
       assert prefs["new_message"] == false
+    end
+  end
+
+  describe "portal schedule" do
+    test "shows nothing to schedule when no interview-stage application", %{conn: conn} do
+      {tenant, candidate, _application} = setup_tenant_and_candidate()
+
+      conn = login_candidate_via_session(conn, candidate, tenant)
+      {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/portal/schedule")
+
+      html = render(view)
+      assert html =~ "Nothing to schedule"
     end
   end
 end

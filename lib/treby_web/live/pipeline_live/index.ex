@@ -408,19 +408,19 @@ defmodule TrebyWeb.PipelineLive.Index do
         </div>
       </div>
 
-      <%!-- Email Confirmation Dialog --%>
+      <%!-- Message Confirmation Dialog --%>
       <div
         :if={@show_email_dialog}
         class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       >
         <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4">
           <div class="p-6">
-            <h2 class="text-lg font-semibold mb-4">Send Email Notification?</h2>
+            <h2 class="text-lg font-semibold mb-4">Send Message Notification?</h2>
             <p class="text-sm text-base-content/70 mb-4">
               <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
-                A stage transition email template exists. An email will be sent automatically when you move this candidate. You can preview it below or skip sending.
+                A stage transition message template exists. A message will be posted to the candidate's portal automatically when you move this candidate. You can preview it below or skip posting.
               <% else %>
-                A stage transition email template exists. Would you like to send it?
+                A stage transition message template exists. Would you like to post it?
               <% end %>
             </p>
 
@@ -508,7 +508,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 phx-value-action="skip"
                 class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300"
               >
-                Skip Email
+                Skip Message
               </button>
               <button
                 phx-click="toggle_schedule"
@@ -1137,23 +1137,24 @@ defmodule TrebyWeb.PipelineLive.Index do
   defp handle_stage_move_send(socket) do
     pending = socket.assigns.pending_stage_move
 
-    case EmailTemplates.send_stage_email(
+    case EmailTemplates.send_stage_message(
            socket.assigns.email_preview.template,
            pending.application.candidate,
-           pending.application.job,
+           pending.application,
            %{
              candidate_name: pending.application.candidate.name,
              job_title: pending.application.job.title,
              company_name: socket.assigns.current_tenant.name,
              stage_name: pending.stage.name,
-             recruiter_name: socket.assigns.current_user.name
+             recruiter_name: socket.assigns.current_user.name,
+             actor_id: socket.assigns.current_user.id
            }
          ) do
       :ok ->
-        move_and_reply(socket, pending, "Candidate moved and email sent")
+        move_and_reply(socket, pending, "Candidate moved and message sent")
 
       {:error, _reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to send email")}
+        {:noreply, put_flash(socket, :error, "Failed to post message")}
     end
   end
 
@@ -1180,17 +1181,18 @@ defmodule TrebyWeb.PipelineLive.Index do
       pending = socket.assigns.pending_stage_move
       email_preview = socket.assigns.email_preview
 
-      EmailTemplates.send_stage_email_scheduled(
+      EmailTemplates.send_stage_message_scheduled(
         email_preview.template,
         pending.application.candidate,
-        pending.application.job,
+        pending.application,
         %{
           candidate_name: pending.application.candidate.name,
           job_title: pending.application.job.title,
           company_name: socket.assigns.current_tenant.name,
           stage_name: pending.stage.name,
           recruiter_name: socket.assigns.current_user.name,
-          tenant_id: socket.assigns.current_tenant.id
+          tenant_id: socket.assigns.current_tenant.id,
+          actor_id: socket.assigns.current_user.id
         },
         %{
           scheduled_at: schedule_datetime,
@@ -1198,7 +1200,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         }
       )
 
-      move_and_reply(socket, pending, "Candidate moved and email scheduled")
+      move_and_reply(socket, pending, "Candidate moved and message scheduled")
     end
   end
 

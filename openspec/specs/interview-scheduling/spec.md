@@ -59,7 +59,8 @@ The system SHALL allow recruiters to schedule interviews from the application pa
 - **THEN** the system creates a single Google Calendar event with a Google Meet link
 - **AND** creates an `interview_event` record with status "scheduled"
 - **AND** links all eligible examiners for that slot to the event
-- **AND** sends email notifications to all examiners and the candidate
+- **AND** notifies all examiners in-app (activity log)
+- **AND** posts an interview message in the candidate's portal conversation with the date, time, interviewer, and Meet link
 - **AND** moves the application to the interview pipeline stage
 
 #### Scenario: Slot no longer available
@@ -83,15 +84,17 @@ The system SHALL create Google Calendar events with auto-generated Google Meet l
 - **AND** does not move the application to a new stage
 
 ### Requirement: Interview notifications
-The system SHALL send email notifications when interviews are scheduled.
+The system SHALL notify candidates and examiners about scheduled interviews without sending full-content emails to the candidate.
 
 #### Scenario: Candidate notification
 - **WHEN** an interview is scheduled for a candidate
-- **THEN** the system sends an email to the candidate with the interview date/time, Google Meet link, and interviewer name
+- **THEN** the system posts a message in the candidate's portal conversation with the interview date/time, Google Meet link, and interviewer name
+- **AND** if the candidate's `interview_update` preference is enabled, sends a short ping email: "There's an update regarding your interview for {job_title}" with a "View in Portal" button linking to `/:tenant_slug/portal`
 
 #### Scenario: Interviewer notification
 - **WHEN** an interview is scheduled with an interviewer
-- **THEN** the system sends an email to the interviewer with the interview date/time, candidate name, and Google Meet link
+- **THEN** the system logs an in-app activity event with the interview date/time, candidate name, and Google Meet link
+- **AND** no email is sent to the interviewer
 
 ### Requirement: Cancel interview
 The system SHALL allow cancelling scheduled interviews. When a multi-examiner event is cancelled, all examiners are notified.

@@ -54,13 +54,13 @@ The **Merge Duplicates** center (`/app/candidates/merge`) lists these groups wit
 - A primary-profile selector (radio buttons)
 - **Merge** and **Dismiss** actions per group
 
-Merging reassigns all applications, email threads, and activity to the primary profile; the absorbed profiles are archived and shown as a merged badge. Merges are recorded and can be undone.
+Merging reassigns all applications, portal conversations, and activity to the primary profile; the absorbed profiles are archived and shown as a merged badge. Merges are recorded and can be undone.
 
 Dismissed suggestions stay hidden across reloads for the whole workspace — the duplicates badge on the candidates list only counts undismissed groups.
 
 ## Undo Merge
 
-When a candidate profile has been absorbed into another, its page redirects to the primary profile with a notice. The primary profile shows a **Undo merge** action that restores all applications, threads, and activity to the absorbed candidate.
+When a candidate profile has been absorbed into another, its page redirects to the primary profile with a notice. The primary profile shows a **Undo merge** action that restores all applications, conversations, and activity to the absorbed candidate.
 
 ## Notes & Feedback
 
@@ -75,26 +75,28 @@ Authors can delete their own notes.
 
 ## Candidate Portal
 
-When the portal is enabled, candidates get a self-service dashboard accessible via magic link — no account or password needed.
+Every candidate gets a self-service portal — no password needed, secured by email login codes (OTP).
 
 ### How It Works
 
-- **Magic link auth**: Candidates enter their email on the login page and receive a one-time login link (valid 15 minutes)
+- **OTP login**: Candidates enter their email on the login page and receive a 6-digit one-time code (valid 10 minutes). Sessions last a few hours and can be ended with **Logout**
 - **Portal dashboard**: Shows all applications with current stage, applied date, and status
 - **Application details**: Click any application to see job title, stage, applied date and source, plus a timeline of status changes
 - **Progress panel**: Each application shows where the candidate is ("Your application is under review", "You have an interview scheduled") in clear, candidate-friendly language — no internal roles or blocker jargon
 - **Pending actions**: If the recruiter is waiting on the candidate (e.g. a request for more info), the panel highlights it and links straight to the conversation
 - **Active conversations**: The application detail embeds the latest conversation thread with a reply form, so candidates can respond without leaving the page
 - **Conversations**: In-platform messaging between candidates and recruiters, created automatically at lifecycle moments (application, stage changes, rejection)
+- **Self-scheduling**: Candidates with an application in an interview stage can book their own slot from the portal
 - **Notifications**: Candidates receive short "ping" emails linking to the portal instead of full email bodies; they can configure which events trigger pings
 
 ### Recruiter Side
 
-On the candidate detail page, recruiters see a **Conversations** tab with:
+On the candidate detail page, recruiters see a **Conversations** section with:
 - All portal conversations for that candidate
 - Ability to start new conversations
 - Structured message types: text, status update, interview invite, rejection, request info
 - Read/unread tracking per message
+- No email threads — every communication lives in the portal
 
 ### Rejection Flow
 

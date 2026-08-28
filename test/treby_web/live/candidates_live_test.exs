@@ -2,7 +2,6 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
   use TrebyWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
-  import Swoosh.TestAssertions
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
@@ -156,7 +155,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
     end
   end
 
-  describe "bulk email composer" do
+  describe "bulk message composer" do
     test "composer form wraps inputs so Enter does not reload the page", %{conn: conn} do
       {tenant, user} = setup_tenant()
 
@@ -169,14 +168,14 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
       view
       |> element("select[name=bulk_action]")
-      |> render_change(%{"bulk_action" => "send_email"})
+      |> render_change(%{"bulk_action" => "send_message"})
 
-      assert has_element?(view, "#bulk-email-composer")
+      assert has_element?(view, "#bulk-message-composer")
 
       html =
         view
-        |> form("#bulk-email-composer", %{
-          "bulk_email_subject" => "Hello",
+        |> form("#bulk-message-composer", %{
+          "bulk_email_body" => "Hello",
           "bulk_email_mode" => "now"
         })
         |> render_submit()
@@ -270,214 +269,6 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
     end
   end
 
-  describe "show page - compose email" do
-    test "shows compose email button", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-
-      {:ok, candidate} =
-        tenant
-        |> Ecto.build_assoc(:candidates)
-        |> Candidate.changeset(%{
-          name: "Email Test",
-          email: "emailtest@example.com"
-        })
-        |> Repo.insert()
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
-
-      assert has_element?(view, "button", "Compose Email")
-    end
-
-    test "shows compose form when clicking compose", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-
-      {:ok, candidate} =
-        tenant
-        |> Ecto.build_assoc(:candidates)
-        |> Candidate.changeset(%{
-          name: "Compose Test",
-          email: "compose@example.com"
-        })
-        |> Repo.insert()
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
-
-      view
-      |> element("button", "+ Compose Email")
-      |> render_click()
-
-      assert has_element?(view, "input[name=\"compose[subject]\"]")
-      assert has_element?(view, "button", "Send Email")
-    end
-
-    test "hides compose form on cancel", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-
-      {:ok, candidate} =
-        tenant
-        |> Ecto.build_assoc(:candidates)
-        |> Candidate.changeset(%{
-          name: "Cancel Test",
-          email: "cancel@example.com"
-        })
-        |> Repo.insert()
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
-
-      view
-      |> element("button", "+ Compose Email")
-      |> render_click()
-
-      assert has_element?(view, "button", "Send Email")
-
-      view
-      |> element("#compose-form button", "Cancel")
-      |> render_click()
-
-      refute has_element?(view, "button", "Send Email")
-    end
-
-    test "shows error when sending with empty subject", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-
-      {:ok, candidate} =
-        tenant
-        |> Ecto.build_assoc(:candidates)
-        |> Candidate.changeset(%{
-          name: "Subject Test",
-          email: "subject@example.com"
-        })
-        |> Repo.insert()
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
-
-      view
-      |> element("button", "+ Compose Email")
-      |> render_click()
-
-      view
-      |> form("#compose-form", %{
-        "compose" => %{
-          "subject" => "",
-          "body" => "Hello"
-        }
-      })
-      |> render_submit()
-
-      assert render(view) =~ "Subject is required"
-    end
-
-    test "shows error when sending with empty body", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-
-      {:ok, candidate} =
-        tenant
-        |> Ecto.build_assoc(:candidates)
-        |> Candidate.changeset(%{
-          name: "Body Test",
-          email: "body@example.com"
-        })
-        |> Repo.insert()
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
-
-      view
-      |> element("button", "+ Compose Email")
-      |> render_click()
-
-      view
-      |> form("#compose-form", %{
-        "compose" => %{
-          "subject" => "Hello",
-          "body" => ""
-        }
-      })
-      |> render_submit()
-
-      assert render(view) =~ "Message body is required"
-    end
-
-    test "sends email successfully", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-
-      {:ok, candidate} =
-        tenant
-        |> Ecto.build_assoc(:candidates)
-        |> Candidate.changeset(%{
-          name: "Send Test",
-          email: "send@example.com"
-        })
-        |> Repo.insert()
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
-
-      view
-      |> element("button", "+ Compose Email")
-      |> render_click()
-
-      view
-      |> form("#compose-form", %{
-        "compose" => %{
-          "subject" => "Hello from Treby",
-          "body" => "This is a test email"
-        }
-      })
-      |> render_submit()
-
-      assert render(view) =~ "Email sent"
-      assert_email_sent(subject: "Hello from Treby", to: [{"", "send@example.com"}])
-    end
-
-    test "schedules email when schedule mode is selected", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-
-      {:ok, candidate} =
-        tenant
-        |> Ecto.build_assoc(:candidates)
-        |> Candidate.changeset(%{
-          name: "Schedule Test",
-          email: "schedule@example.com"
-        })
-        |> Repo.insert()
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
-
-      view
-      |> element("button", "+ Compose Email")
-      |> render_click()
-
-      assert render(view) =~ "Schedule for later"
-
-      scheduled_at =
-        Date.add(Date.utc_today(), 1)
-        |> DateTime.new!(~T[09:00:00], "Etc/UTC")
-
-      view
-      |> render_submit("send_compose", %{
-        "compose" => %{
-          "subject" => "Scheduled hello",
-          "body" => "Sent later",
-          "mode" => "schedule",
-          "scheduled_at" => DateTime.to_iso8601(scheduled_at),
-          "jitter_minutes" => 0
-        }
-      })
-
-      assert render(view) =~ "Email scheduled"
-
-      queued = Repo.get_by!(Treby.EmailQueue.ScheduledEmail, to_address: "schedule@example.com")
-      assert queued.email_type == "compose"
-      assert queued.subject == "Scheduled hello"
-    end
-  end
-
   describe "bulk email - scheduling" do
     defp create_job_pipeline(tenant) do
       {:ok, job} =
@@ -539,7 +330,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
       view
       |> element("select[name=bulk_action]")
-      |> render_change(%{"bulk_action" => "send_email"})
+      |> render_change(%{"bulk_action" => "send_message"})
 
       assert render(view) =~ "Schedule for later"
 
@@ -550,7 +341,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       assert has_element?(view, "button", "Next Monday")
     end
 
-    test "schedules bulk emails when schedule mode selected", %{conn: conn} do
+    test "schedules bulk messages when schedule mode selected", %{conn: conn} do
       {tenant, user} = setup_tenant()
       {job, stage} = create_job_pipeline(tenant)
 
@@ -564,14 +355,10 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
       view
       |> element("select[name=bulk_action]")
-      |> render_change(%{"bulk_action" => "send_email"})
+      |> render_change(%{"bulk_action" => "send_message"})
 
       view |> element(~s{input[phx-value-mode="schedule"]}) |> render_click()
       view |> element(~s{button[phx-value-label="tomorrow_9"]}) |> render_click()
-
-      view
-      |> element(~s{input[name="bulk_email_subject"]})
-      |> render_change(%{"bulk_email_subject" => "Bulk scheduled"})
 
       view
       |> element(~s{textarea[name="bulk_email_body"]})
@@ -579,11 +366,17 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
       view |> element("button", "Send") |> render_click()
 
-      assert render(view) =~ "1 emails scheduled"
+      assert render(view) =~ "1 messages scheduled"
 
-      queued = Repo.get_by!(Treby.EmailQueue.ScheduledEmail, to_address: "bulk@example.com")
-      assert queued.email_type == "bulk"
-      assert queued.subject == "Bulk scheduled"
+      conversation =
+        Treby.CandidatePortal.list_conversations_for_candidate(candidate.id, tenant.id)
+        |> List.first()
+
+      queued =
+        Repo.get_by!(Treby.ScheduledMessages.ScheduledMessage, conversation_id: conversation.id)
+
+      assert queued.message_type == "text"
+      assert queued.body == "Hello Bulk Test"
     end
   end
 

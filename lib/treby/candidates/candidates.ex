@@ -9,7 +9,7 @@ defmodule Treby.Candidates do
   alias Treby.Candidates.MergeLog
   alias Treby.Candidates.Duplicates
   alias Treby.Candidates.DismissedMergeGroup
-  alias Treby.EmailThreads.EmailThread
+  alias Treby.CandidatePortal.Conversation
   alias Treby.Activities.ActivityLog
   alias Treby.Pipeline.Application
 
@@ -237,7 +237,10 @@ defmodule Treby.Candidates do
     now = DateTime.utc_now()
 
     application_mapping = reassign_to_primary(Application, :candidate_id, absorbed.id, primary.id)
-    thread_mapping = reassign_to_primary(EmailThread, :candidate_id, absorbed.id, primary.id)
+
+    conversation_mapping =
+      reassign_to_primary(Conversation, :candidate_id, absorbed.id, primary.id)
+
     activity_mapping = reassign_candidate_activities(absorbed.id, primary.id)
 
     from(c in Candidate, where: c.id == ^absorbed.id)
@@ -252,7 +255,7 @@ defmodule Treby.Candidates do
         actor_id: actor && actor.id,
         merged_at: now,
         application_mapping: stringify_keys(application_mapping),
-        thread_mapping: stringify_keys(thread_mapping),
+        thread_mapping: stringify_keys(conversation_mapping),
         activity_mapping: stringify_keys(activity_mapping)
       })
       |> Repo.insert()
@@ -319,7 +322,7 @@ defmodule Treby.Candidates do
       true ->
         Repo.transaction(fn ->
           restore_owner(Application, :candidate_id, merge_log.application_mapping, absorbed.id)
-          restore_owner(EmailThread, :candidate_id, merge_log.thread_mapping, absorbed.id)
+          restore_owner(Conversation, :candidate_id, merge_log.thread_mapping, absorbed.id)
           restore_owner(ActivityLog, :entity_id, merge_log.activity_mapping, absorbed.id)
 
           from(c in Candidate, where: c.id == ^absorbed.id)

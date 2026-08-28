@@ -2,7 +2,6 @@ defmodule TrebyWeb.ScheduleLive.IndexTest do
   use TrebyWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
-  import Swoosh.TestAssertions
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
@@ -84,33 +83,17 @@ defmodule TrebyWeb.ScheduleLive.IndexTest do
     %{job: job, candidate: candidate, application: application}
   end
 
-  describe "booking link email" do
-    test "emails the booking link to the candidate", %{conn: conn} do
-      {tenant, user} = setup_tenant()
-      data = setup_application(tenant)
-
-      conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/schedule/#{data.application.id}")
-
-      view |> render_click("email_booking_link", %{})
-
-      assert render(view) =~ "Booking link sent to jane-candidate@example.com"
-
-      assert_email_sent(
-        to: [{"", "jane-candidate@example.com"}],
-        subject: "Book your interview - Backend Engineer"
-      )
-    end
-
-    test "renders the email booking link button", %{conn: conn} do
+  describe "self-scheduling" do
+    test "shows self-scheduling info instead of public booking link", %{conn: conn} do
       {tenant, user} = setup_tenant()
       data = setup_application(tenant)
 
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, ~p"/app/schedule/#{data.application.id}")
 
-      assert html =~ "Email Booking Link"
-      assert html =~ "Generate Booking Link"
+      assert html =~ "Self-Scheduling"
+      refute html =~ "Email Booking Link"
+      refute html =~ "Generate Booking Link"
     end
   end
 end

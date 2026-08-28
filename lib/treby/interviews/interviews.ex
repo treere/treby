@@ -7,7 +7,7 @@ defmodule Treby.Interviews do
   alias Treby.Repo
   alias Treby.Interviews.InterviewEvent
   alias Treby.Interviews.EventExaminer
-  alias Treby.Interviews.BookingToken
+  alias Treby.Notifications.Email, as: NotificationEmail
 
   def list_upcoming_for_user(user_id) do
     now = DateTime.utc_now()
@@ -189,32 +189,96 @@ defmodule Treby.Interviews do
           Repo.preload(event, :scheduled_by).scheduled_by
       end
 
-    # Notify candidate once
-    Treby.SchedulingEmail.interview_scheduled_candidate(
-      candidate,
-      interviewer,
-      job,
-      meet_link,
-      event.start_at_utc
-    )
-    |> Treby.Mailer.deliver()
+    # Post interview details into the candidate's portal conversation
+    post_interview_message(event, application, candidate, interviewer, meet_link)
 
-    # Notify each examiner
+    # Notify each examiner in-app via the activity log
     event.event_examiners
     |> Enum.each(fn event_examiner ->
       examiner = Repo.preload(event_examiner, :user).user
 
       if examiner do
-        Treby.SchedulingEmail.interview_scheduled_interviewer(
-          examiner,
-          candidate,
-          job,
-          meet_link,
-          event.start_at_utc
+        Treby.Activities.log_event(
+          "interview_scheduled",
+          "interview_event",
+          event.id,
+          %{
+            examiner_id: examiner.id,
+            tenant_id: event.tenant_id,
+            candidate_name: candidate.name,
+            job_title: job.title,
+            start_at: event.start_at_utc,
+            meet_link: meet_link
+          }
         )
-        |> Treby.Mailer.deliver()
       end
     end)
+  end
+
+  defp post_interview_message(event, application, candidate, interviewer, meet_link) do
+    interviewer_name = if interviewer, do: interviewer.name, else: "To be determined"
+    start_at = event.start_at_utc
+
+    conversation =
+      case Treby.CandidatePortal.list_conversations_for_application(
+             application.id,
+             event.tenant_id
+           )
+           |> Enum.find(&(&1.context == "application")) do
+        nil ->
+          {:ok, conversation} =
+            Treby.CandidatePortal.create_conversation(%{
+              candidate_id: candidate.id,
+              tenant_id: event.tenant_id,
+              application_id: application.id,
+              subject: application.job.title,
+              context: "application"
+            })
+
+          conversation
+
+        conversation ->
+          conversation
+      end
+
+    body =
+      "Your interview for #{application.job.title} has been scheduled.\n" <>
+        "Interviewer: #{interviewer_name}\n" <>
+        "Date & Time: #{format_datetime(start_at)}\n" <>
+        "Meeting Link: #{meet_link}"
+
+    Treby.CandidatePortal.send_message(%{
+      sender_type: "system",
+      conversation_id: conversation.id,
+      body: body,
+      message_type: "interview_invite",
+      metadata: %{
+        "interview_event_id" => event.id,
+        "meet_link" => meet_link,
+        "start_at" => start_at,
+        "interviewer_name" => interviewer_name
+      }
+    })
+
+    # Optional notification ping to the candidate
+    if Treby.CandidatePortal.notification_enabled?(candidate, "interview_update") do
+      tenant = Repo.get!(Treby.Tenants.Tenant, event.tenant_id)
+
+      email =
+        NotificationEmail.notification_ping(
+          candidate,
+          tenant,
+          conversation.id,
+          "interview_update",
+          %{"job_title" => application.job.title}
+        )
+
+      Treby.Mailer.deliver(email)
+    end
+  end
+
+  defp format_datetime(dt) do
+    Elixir.Calendar.strftime(dt, "%B %d, %Y at %H:%M UTC")
   end
 
   defp move_application_to_interview(application_id) do
@@ -360,48 +424,5 @@ defmodule Treby.Interviews do
       end)
 
     %{completed: completed, total: total, pending: pending}
-  end
-
-  # Booking token functions
-
-  def generate_booking_token(attrs) do
-    token = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
-    expires_at = DateTime.utc_now() |> DateTime.add(7, :day)
-
-    %BookingToken{}
-    |> BookingToken.changeset(Map.merge(attrs, %{token: token, expires_at: expires_at}))
-    |> Repo.insert()
-  end
-
-  def get_booking_token(token) do
-    BookingToken
-    |> where([t], t.token == ^token and is_nil(t.used_at))
-    |> where([t], t.expires_at > ^DateTime.utc_now())
-    |> preload([:application, :interviewer, :pipeline_stage, :tenant])
-    |> preload(application: [:job, :candidate])
-    |> Repo.one()
-  end
-
-  def use_booking_token(%BookingToken{} = token) do
-    token
-    |> BookingToken.changeset(%{used_at: DateTime.utc_now()})
-    |> Repo.update()
-  end
-
-  @doc """
-  Generates a booking token and returns the absolute self-scheduling URL.
-  """
-  def generate_booking_link(attrs) do
-    with {:ok, %BookingToken{} = token} <- generate_booking_token(attrs),
-         tenant <- Repo.preload(token, [:tenant]).tenant do
-      {:ok, absolute_booking_url(tenant, token.token)}
-    end
-  end
-
-  @doc """
-  Builds the absolute booking URL for a tenant slug and token.
-  """
-  def absolute_booking_url(%Treby.Tenants.Tenant{} = tenant, token) do
-    TrebyWeb.Endpoint.url() <> "/#{tenant.slug}/schedule/#{token}"
   end
 end

@@ -1,9 +1,10 @@
 defmodule TrebyWeb.Plugs.CandidateAuth do
   @moduledoc """
-  Plug for authenticating candidates via magic link session.
+  Plug for authenticating candidates via OTP session.
 
   Checks for a valid candidate session and loads the candidate and tenant.
-  Redirects to the magic link request page if no valid session exists.
+  Redirects to the OTP request page if no valid session exists.
+  Sessions expire after a limited lifetime (checked via `candidate_expires_at`).
   """
 
   import Plug.Conn
@@ -16,26 +17,44 @@ defmodule TrebyWeb.Plugs.CandidateAuth do
   def call(conn, _opts) do
     case get_session(conn, "candidate_id") do
       nil ->
-        redirect_to_magic_link(conn)
+        redirect_to_login(conn)
 
       candidate_id ->
-        case Repo.get(Candidate, candidate_id) do
-          nil ->
-            conn
-            |> delete_session("candidate_id")
-            |> redirect_to_magic_link()
+        if session_expired?(conn) do
+          conn
+          |> delete_session("candidate_id")
+          |> delete_session("candidate_tenant_id")
+          |> delete_session("candidate_expires_at")
+          |> redirect_to_login()
+        else
+          case Repo.get(Candidate, candidate_id) do
+            nil ->
+              conn
+              |> delete_session("candidate_id")
+              |> redirect_to_login()
 
-          candidate ->
-            tenant = Repo.get!(Tenant, candidate.tenant_id)
+            candidate ->
+              tenant = Repo.get!(Tenant, candidate.tenant_id)
 
-            conn
-            |> assign(:current_candidate, candidate)
-            |> assign(:current_tenant, tenant)
+              conn
+              |> assign(:current_candidate, candidate)
+              |> assign(:current_tenant, tenant)
+          end
         end
     end
   end
 
-  defp redirect_to_magic_link(conn) do
+  defp session_expired?(conn) do
+    case get_session(conn, "candidate_expires_at") do
+      nil ->
+        true
+
+      expires_at ->
+        DateTime.compare(DateTime.from_unix!(expires_at), DateTime.utc_now()) == :lt
+    end
+  end
+
+  defp redirect_to_login(conn) do
     # Extract tenant_slug from path if available
     case conn.path_params do
       %{"tenant_slug" => slug} ->

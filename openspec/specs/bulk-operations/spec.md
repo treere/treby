@@ -37,9 +37,9 @@ The system SHALL allow moving multiple selected applications to a specific pipel
 - **THEN** a dropdown shows available stages in the pipeline
 - **AND** selecting a stage and confirming moves all selected applications
 
-#### Scenario: Bulk move with email templates
-- **WHEN** the target stage has an email template configured (Phase 2)
-- **THEN** a confirmation dialog shows "Send email to all X candidates?" with Send/Skip options
+#### Scenario: Bulk move with message templates
+- **WHEN** the target stage has a message template configured
+- **THEN** a confirmation dialog shows "Send message to all X candidates?" with Send/Skip options
 
 #### Scenario: Bulk move in single transaction
 - **WHEN** a bulk move is executed
@@ -84,58 +84,58 @@ The system SHALL allow comparing 2-3 selected candidates side-by-side from the b
 - **WHEN** a user clicks "Compare"
 - **THEN** the system navigates to the comparison view with the selected candidate ids in the URL
 
-### Requirement: Bulk send email
-The system SHALL allow sending a custom email to multiple selected candidates, either immediately or scheduled.
+### Requirement: Bulk send message
+The system SHALL allow sending a custom message to multiple selected candidates, either immediately or scheduled, through their portal conversations.
 
-#### Scenario: Bulk email composer
-- **WHEN** a user selects candidates and clicks "Send Email"
-- **THEN** an email composer opens with subject and body fields
+#### Scenario: Bulk message composer
+- **WHEN** a user selects candidates and clicks "Send Message"
+- **THEN** a message composer opens with subject and body fields
 - **AND** variables like `{candidate_name}` are interpolated per recipient
 - **AND** the composer includes immediate send and schedule options
 
 #### Scenario: Composer fields update without errors
-- **WHEN** a user types in the subject, body, date, or time fields of the bulk email composer
+- **WHEN** a user types in the subject, body, date, or time fields of the bulk message composer
 - **THEN** each change is sent to the server and reflected in the composer
 - **AND** no "form events require the input to be inside a form" error is raised
 
 #### Scenario: Enter in the composer does not reload the page
-- **WHEN** a user presses Enter while typing in a bulk email composer text field
+- **WHEN** a user presses Enter while typing in a bulk message composer text field
 - **THEN** the page does not reload or navigate
 - **AND** the typed content is preserved
 
-#### Scenario: Bulk email send immediate
+#### Scenario: Bulk message send immediate
 - **WHEN** the user confirms sending immediately
-- **THEN** personalized emails are sent to each selected candidate
-- **AND** a summary is shown: "X emails sent"
+- **THEN** a personalized message is posted to each selected candidate's conversation
+- **AND** a summary is shown: "X messages sent"
 
-#### Scenario: Bulk email send scheduled
+#### Scenario: Bulk message send scheduled
 - **WHEN** the user schedules the bulk send
-- **THEN** personalized emails are created as scheduled records for each candidate
-- **AND** a summary is shown: "X emails scheduled"
-- **AND** the emails appear in the queue
+- **THEN** personalized messages are created as scheduled records for each candidate
+- **AND** a summary is shown: "X messages scheduled"
+- **AND** the messages appear in the queue
 
-#### Scenario: Bulk email with missing emails
-- **WHEN** some selected candidates have no email address
-- **THEN** those candidates are skipped
-- **AND** the summary notes "X sent/scheduled, Y skipped (no email)"
+#### Scenario: Bulk message with no conversation
+- **WHEN** some selected candidates have no conversation for the target application
+- **THEN** a conversation is created for each before the message is posted
+- **AND** the summary notes "X sent/scheduled, Y conversations created"
 
 ### Requirement: Bulk send with schedule
-The system SHALL allow users to schedule bulk email sends for a future time.
+The system SHALL allow users to schedule bulk message sends for a future time.
 
 #### Scenario: Schedule option in bulk composer
-- **WHEN** a user selects candidates and opens the bulk email composer
+- **WHEN** a user selects candidates and opens the bulk message composer
 - **THEN** the composer includes a "Schedule for later" option alongside "Send now"
 
 #### Scenario: Bulk schedule creates individual records
-- **WHEN** a user schedules a bulk email for 50 candidates
-- **THEN** 50 individual scheduled email records are created
+- **WHEN** a user schedules a bulk message for 50 candidates
+- **THEN** 50 individual scheduled message records are created
 - **AND** each record has its own Oban job for independent execution
-- **AND** each appears individually in the email queue
+- **AND** each appears individually in the message queue
 
 #### Scenario: Bulk schedule with jitter
 - **WHEN** a user enables jitter on a bulk schedule
-- **THEN** each email gets an independent random offset within the jitter range
-- **AND** the emails are distributed across the jitter window
+- **THEN** each message gets an independent random offset within the jitter range
+- **AND** the messages are distributed across the jitter window
 
 ### Requirement: Floating action bar
 The system SHALL display a floating action bar when items are selected.

@@ -205,7 +205,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
       assert has_element?(view, "span", "Interviewer User")
     end
 
-    test "can generate booking link", %{conn: conn} do
+    test "shows self-scheduling info instead of public booking link", %{conn: conn} do
       {tenant, user} = setup_tenant_and_user()
       {_job, _candidate, app} = setup_candidate_and_app(tenant)
 
@@ -213,13 +213,11 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/schedule/#{app.id}")
+      {:ok, _view, html} = live(conn, ~p"/app/schedule/#{app.id}")
 
-      view |> element("button", "Generate Booking Link") |> render_click()
-
-      html = render(view)
-      assert html =~ "Share this link with the candidate"
-      assert html =~ "/scheduling-test-"
+      assert html =~ "Self-Scheduling"
+      refute html =~ "Generate Booking Link"
+      refute html =~ "Email Booking Link"
     end
   end
 end

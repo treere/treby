@@ -12,10 +12,13 @@ defmodule TrebyWeb.DashboardLive do
     steps = onboarding_steps(tenant, user)
     all_done = Enum.all?(steps, & &1.done)
 
+    recent_activities = Treby.Activities.list_events_for_tenant(tenant.id)
+
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(data)
+     |> assign(recent_activities: recent_activities)
      |> assign(
        onboarding_steps: steps,
        show_onboarding: !all_done && !user.onboarding_checklist_dismissed
@@ -191,8 +194,38 @@ defmodule TrebyWeb.DashboardLive do
             </div>
           </div>
         </div>
+        <%!-- Recent Activity --%>
+        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+          <div :if={@recent_activities == []} class="text-base-content/50 text-sm">
+            No activity yet.
+          </div>
+          <ul class="space-y-3">
+            <li :for={activity <- @recent_activities} class="flex items-start gap-3 text-sm">
+              <span class="mt-1.5 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+              <div>
+                <span class="font-medium text-base-content">{activity_label(activity)}</span>
+                <span class="text-base-content/50">
+                  {activity.metadata && activity.metadata["candidate_name"]}
+                </span>
+                <div class="text-xs text-base-content/40">
+                  {Calendar.strftime(activity.inserted_at, "%b %d, %Y at %H:%M")}
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </Layouts.app>
     """
   end
+
+  defp activity_label(%{action: "new_application"}), do: "New application"
+  defp activity_label(%{action: "interview_scheduled"}), do: "Interview scheduled"
+  defp activity_label(%{action: "application_stage_changed"}), do: "Stage change"
+  defp activity_label(%{action: "candidates_merged"}), do: "Candidates merged"
+  defp activity_label(%{action: "candidate_created"}), do: "Candidate created"
+
+  defp activity_label(activity),
+    do: activity.action |> String.replace("_", " ") |> String.capitalize()
 end

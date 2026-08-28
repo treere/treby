@@ -4,15 +4,16 @@ Let candidates self-schedule interviews, integrated with Google Calendar. Suppor
 
 ## How it works
 
-1. A team member sends a scheduling link to a candidate — either by emailing the candidate's booking link or from the candidate profile via **Schedule Interview**
-2. The candidate picks an available time slot
+1. A recruiter schedules an interview manually, or lets the candidate book from their portal
+2. The candidate picks an available time slot from the portal (or the recruiter picks one)
 3. A Google Calendar event is created with a Google Meet link
-4. All examiners and the candidate receive email confirmations
+4. The candidate is notified in their portal (conversation message + optional ping email); examiners are notified in-app
 
-## Sending a booking link
+## Self-scheduling in the portal
 
-- From an application's **Schedule Interview** page, click **Email Booking Link** to send the candidate a link they can use to pick their own slot
-- Manual bookings from the platform also email the candidate and examiners a confirmation
+- Candidates with an application in an interview stage see a **Schedule** page in their portal and pick their own slot
+- The recruiter's **Schedule Interview** page shows a self-scheduling hint — no public booking link or email is sent
+- Manual bookings also post the interview details into the candidate's portal conversation
 
 ## Multi-Examiner Scheduling
 

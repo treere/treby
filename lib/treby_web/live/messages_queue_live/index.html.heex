@@ -1,0 +1,346 @@
+<Layouts.app flash={@flash} current_scope={@current_user}>
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-base-content">Message Queue</h1>
+    </div>
+
+    <div class="mb-6 border-b border-base-300">
+      <nav class="flex space-x-8" role="tablist">
+        <button
+          phx-click="switch_tab"
+          phx-value-tab="scheduled"
+          class={[
+            "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
+            @tab == "scheduled" && "border-blue-500 text-blue-600",
+            @tab != "scheduled" &&
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+          ]}
+        >
+          Scheduled ({@counts.scheduled})
+        </button>
+        <button
+          phx-click="switch_tab"
+          phx-value-tab="sent"
+          class={[
+            "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
+            @tab == "sent" && "border-blue-500 text-blue-600",
+            @tab != "sent" &&
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+          ]}
+        >
+          Posted ({@counts.sent})
+        </button>
+        <button
+          phx-click="switch_tab"
+          phx-value-tab="failed"
+          class={[
+            "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
+            @tab == "failed" && "border-red-500 text-red-600",
+            @tab != "failed" &&
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+          ]}
+        >
+          Failed ({@counts.failed})
+        </button>
+        <button
+          phx-click="switch_tab"
+          phx-value-tab="cancelled"
+          class={[
+            "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
+            @tab == "cancelled" && "border-gray-500 text-base-content/70",
+            @tab != "cancelled" &&
+              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+          ]}
+        >
+          Cancelled ({@counts.cancelled})
+        </button>
+      </nav>
+    </div>
+
+    <%= if @selected_ids != MapSet.new() do %>
+      <div class="mb-4 flex items-center gap-3 p-3 bg-base-200 rounded-lg border border-base-300">
+        <span class="text-sm text-base-content/70">{MapSet.size(@selected_ids)} selected</span>
+        <%= if @tab == "scheduled" do %>
+          <button
+            phx-click="bulk_send_now"
+            class="text-sm px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Post Selected
+          </button>
+          <button
+            phx-click="bulk_cancel"
+            class="text-sm px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Cancel Selected
+          </button>
+        <% end %>
+        <button
+          phx-click="deselect_all"
+          class="text-sm px-3 py-1.5 text-base-content/70 hover:text-base-content/90 transition-colors"
+        >
+          Clear selection
+        </button>
+      </div>
+    <% end %>
+
+    <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+      <%= if @messages == [] do %>
+        <div class="text-center py-16 text-base-content/50">
+          <p class="text-lg font-medium">
+            <%= case @tab do %>
+              <% "scheduled" -> %>
+                No scheduled messages
+              <% "sent" -> %>
+                No posted messages yet
+              <% "failed" -> %>
+                No failed messages
+              <% "cancelled" -> %>
+                No cancelled messages
+            <% end %>
+          </p>
+          <p class="mt-1 text-sm">
+            <%= case @tab do %>
+              <% "scheduled" -> %>
+                Messages you schedule will appear here
+              <% "sent" -> %>
+                Successfully posted messages will appear here
+              <% "failed" -> %>
+                Messages that failed to post will appear here
+              <% "cancelled" -> %>
+                Cancelled messages will appear here
+            <% end %>
+          </p>
+        </div>
+      <% else %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-base-200">
+            <tr>
+              <th class="w-10 px-3 py-3">
+                <input
+                  type="checkbox"
+                  phx-click={
+                    if Enum.count(@messages) == MapSet.size(@selected_ids),
+                      do: "deselect_all",
+                      else: "select_all"
+                  }
+                  checked={
+                    Enum.count(@messages) > 0 &&
+                      Enum.count(@messages) == MapSet.size(@selected_ids)
+                  }
+                  class="checkbox checkbox-sm"
+                />
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                Body
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden md:table-cell">
+                Type
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden md:table-cell">
+                <%= if @tab in ~w(scheduled cancelled) do %>
+                  Scheduled
+                <% else %>
+                  Date
+                <% end %>
+              </th>
+              <%= if @tab == "failed" do %>
+                <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden lg:table-cell">
+                  Error
+                </th>
+              <% end %>
+              <th class="px-4 py-3 text-right text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <%= for message <- @messages do %>
+              <tr class={[
+                "hover:bg-base-200 transition-colors",
+                message.status == "scheduled" && "bg-blue-50 dark:bg-blue-950/30"
+              ]}>
+                <td class="w-10 px-3 py-4">
+                  <%= if @tab == "scheduled" or @tab == "cancelled" do %>
+                    <input
+                      type="checkbox"
+                      phx-click="toggle_select"
+                      phx-value-id={message.id}
+                      checked={MapSet.member?(@selected_ids, message.id)}
+                      class="checkbox checkbox-sm"
+                    />
+                  <% end %>
+                </td>
+                <td class="px-4 py-4 text-sm text-base-content/80 max-w-[320px] truncate">
+                  {message.body}
+                </td>
+                <td class="px-4 py-4 text-sm text-base-content/50 hidden md:table-cell">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-base-200 text-base-content/80">
+                    {message_type_label(message.message_type)}
+                  </span>
+                </td>
+                <td class="px-4 py-4 text-sm text-base-content/50 hidden md:table-cell whitespace-nowrap">
+                  <%= cond do %>
+                    <% message.status == "sent" -> %>
+                      {format_datetime(message.sent_at)}
+                    <% message.status == "failed" -> %>
+                      {format_datetime(message.failed_at)}
+                    <% true -> %>
+                      {format_datetime(message.send_at)}
+                  <% end %>
+                </td>
+                <%= if @tab == "failed" do %>
+                  <td
+                    class="px-4 py-4 text-sm text-red-600 hidden lg:table-cell max-w-[200px] truncate"
+                    title={message.error_reason}
+                  >
+                    {message.error_reason}
+                  </td>
+                <% end %>
+                <td class="px-4 py-4 text-sm text-right whitespace-nowrap">
+                  <%= if @tab == "scheduled" do %>
+                    <button
+                      phx-click="open_edit"
+                      phx-value-id={message.id}
+                      class="text-blue-600 hover:text-blue-800 transition-colors mr-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      phx-click="send_now"
+                      phx-value-id={message.id}
+                      class="text-green-600 hover:text-green-800 transition-colors mr-2"
+                    >
+                      Post Now
+                    </button>
+                    <button
+                      phx-click="cancel"
+                      phx-value-id={message.id}
+                      class="text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  <% end %>
+                  <%= if @tab == "failed" do %>
+                    <button
+                      phx-click="retry"
+                      phx-value-id={message.id}
+                      class="text-blue-600 hover:text-blue-800 transition-colors mr-2"
+                    >
+                      Retry
+                    </button>
+                    <button
+                      phx-click="delete"
+                      phx-value-id={message.id}
+                      class="text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  <% end %>
+                  <%= if @tab == "cancelled" do %>
+                    <button
+                      phx-click="send_now"
+                      phx-value-id={message.id}
+                      class="text-green-600 hover:text-green-800 transition-colors mr-2"
+                    >
+                      Post Now
+                    </button>
+                    <button
+                      phx-click="delete"
+                      phx-value-id={message.id}
+                      class="text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  <% end %>
+                  <%= if @tab == "sent" do %>
+                    <span class="text-base-content/40">-</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+  </div>
+
+  <%= if @edit_message do %>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div class="bg-base-100 rounded-xl shadow-xl max-w-lg w-full mx-4 p-6">
+        <h2 class="text-lg font-semibold text-base-content mb-4">Edit Scheduled Message</h2>
+
+        <.form
+          for={@edit_form}
+          id="edit-scheduled-message"
+          phx-submit="save_edit"
+          as={:scheduled_message}
+        >
+          <div class="space-y-4">
+            <div>
+              <label
+                for="scheduled_message_body"
+                class="block text-sm font-medium text-base-content/80 mb-1"
+              >
+                Body
+              </label>
+              <textarea
+                id="scheduled_message_body"
+                name="scheduled_message[body]"
+                rows="5"
+                class="textarea w-full"
+              ><%= @edit_form[:body].value %></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  for="scheduled_message_scheduled_at_date"
+                  class="block text-sm font-medium text-base-content/80 mb-1"
+                >
+                  Date
+                </label>
+                <input
+                  id="scheduled_message_scheduled_at_date"
+                  type="date"
+                  name="scheduled_message[scheduled_at_date]"
+                  value={@edit_form[:scheduled_at_date].value}
+                  class="input w-full"
+                />
+              </div>
+              <div>
+                <label
+                  for="scheduled_message_scheduled_at_time"
+                  class="block text-sm font-medium text-base-content/80 mb-1"
+                >
+                  Time
+                </label>
+                <input
+                  id="scheduled_message_scheduled_at_time"
+                  type="time"
+                  name="scheduled_message[scheduled_at_time]"
+                  value={@edit_form[:scheduled_at_time].value}
+                  class="input w-full"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              phx-click="close_edit"
+              class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Save
+            </button>
+          </div>
+        </.form>
+      </div>
+    </div>
+  <% end %>
+</Layouts.app>

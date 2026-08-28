@@ -84,11 +84,11 @@ defmodule TrebyWeb.Layouts do
                   {gettext("Analytics")}
                 </.link>
                 <.link
-                  navigate={~p"/app/email-queue"}
-                  data-nav="/app/email-queue"
+                  navigate={~p"/app/messages-queue"}
+                  data-nav="/app/messages-queue"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
-                  {gettext("Email Queue")}
+                  {gettext("Message Queue")}
                 </.link>
                 <.link
                   :if={@current_scope && @current_scope.role == "admin"}
@@ -186,11 +186,11 @@ defmodule TrebyWeb.Layouts do
               {gettext("Analytics")}
             </.link>
             <.link
-              navigate={~p"/app/email-queue"}
-              data-nav="/app/email-queue"
+              navigate={~p"/app/messages-queue"}
+              data-nav="/app/messages-queue"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
-              {gettext("Email Queue")}
+              {gettext("Message Queue")}
             </.link>
             <.link
               :if={@current_scope && @current_scope.role == "admin"}
@@ -278,6 +278,12 @@ defmodule TrebyWeb.Layouts do
                 Messages
               </.link>
               <.link
+                navigate={"/#{@current_tenant.slug}/portal/schedule"}
+                class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600"
+              >
+                Schedule
+              </.link>
+              <.link
                 navigate={"/#{@current_tenant.slug}/portal/settings"}
                 class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600"
               >
@@ -286,6 +292,19 @@ defmodule TrebyWeb.Layouts do
               <span class="text-sm text-gray-500 dark:text-gray-400">
                 {@current_candidate.name}
               </span>
+              <.form
+                for={%{}}
+                action={~p"/#{@current_tenant.slug}/portal/logout"}
+                method="post"
+                class="inline"
+              >
+                <button
+                  type="submit"
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600"
+                >
+                  Logout
+                </button>
+              </.form>
             </div>
           </div>
         </div>

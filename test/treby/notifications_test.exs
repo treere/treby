@@ -8,7 +8,6 @@ defmodule Treby.NotificationsTest do
   alias Treby.Candidates.Candidate
   alias Treby.Jobs.Job
   alias Treby.Pipeline.{Application, PipelineStage}
-  alias Treby.Notifications.Email
 
   defp setup_tenant_with_admin do
     {:ok, tenant} =
@@ -29,27 +28,6 @@ defmodule Treby.NotificationsTest do
       |> Repo.insert()
 
     {tenant, user}
-  end
-
-  defp setup_tenant_with_non_admin do
-    {:ok, tenant} =
-      Tenants.create_tenant(%{
-        name: "Non-Admin Corp",
-        slug: "nonadmin-test-#{System.unique_integer([:positive])}"
-      })
-
-    {:ok, _user} =
-      tenant
-      |> Ecto.build_assoc(:users)
-      |> User.changeset(%{
-        email: "member-#{System.unique_integer([:positive])}@test.com",
-        password: "password123",
-        name: "Member User",
-        role: "member"
-      })
-      |> Repo.insert()
-
-    tenant
   end
 
   defp setup_job(tenant, stage_type \\ "hired") do
@@ -377,35 +355,19 @@ defmodule Treby.NotificationsTest do
   end
 
   describe "notify_team_new_application/1" do
-    test "sends alert to all admin users" do
-      {tenant, admin} = setup_tenant_with_admin()
+    test "logs an in-app activity event" do
+      {tenant, _admin} = setup_tenant_with_admin()
       {job, stage} = setup_job(tenant)
       candidate = setup_candidate(tenant, "team-alert@test.com")
       application = setup_application(tenant, candidate, job, stage)
 
       assert :ok = Notifications.notify_team_new_application(application)
 
-      assert_email_sent(
-        subject: "New Application: Test Candidate for Software Engineer",
-        to: [{"", admin.email}]
-      )
+      events = Treby.Activities.list_events_for_entity("application", application.id, 50)
+      assert Enum.any?(events, &(&1.action == "new_application"))
     end
 
-    test "does not send to non-admin users from different tenant" do
-      {tenant, admin} = setup_tenant_with_admin()
-      _other_tenant = setup_tenant_with_non_admin()
-
-      {job, stage} = setup_job(tenant)
-      candidate = setup_candidate(tenant, "team-member@test.com")
-      application = setup_application(tenant, candidate, job, stage)
-
-      assert :ok = Notifications.notify_team_new_application(application)
-
-      # Should only send to the admin of the correct tenant
-      assert_email_sent(to: [{"", admin.email}])
-    end
-
-    test "does not send when preference disabled" do
+    test "does not log when preference disabled" do
       {tenant, _admin} = setup_tenant_with_admin()
       {:ok, _} = Notifications.set_notification_preference(tenant, "new_application_team", false)
       tenant = Repo.get!(Tenants.Tenant, tenant.id)
@@ -416,27 +378,8 @@ defmodule Treby.NotificationsTest do
 
       assert :ok = Notifications.notify_team_new_application(application)
 
-      assert_no_email_sent()
-    end
-
-    test "returns :ok even when email delivery fails" do
-      {tenant, _admin} = setup_tenant_with_admin()
-      {job, stage} = setup_job(tenant)
-      candidate = setup_candidate(tenant, "fail-team@test.com")
-      application = setup_application(tenant, candidate, job, stage)
-
-      original_config = Elixir.Application.get_env(:treby, Treby.Mailer)
-
-      Elixir.Application.put_env(:treby, Treby.Mailer,
-        adapter: Swoosh.Adapters.Test,
-        api_key: "fake"
-      )
-
-      try do
-        assert :ok = Notifications.notify_team_new_application(application)
-      after
-        Elixir.Application.put_env(:treby, Treby.Mailer, original_config)
-      end
+      events = Treby.Activities.list_events_for_entity("application", application.id, 50)
+      refute Enum.any?(events, &(&1.action == "new_application"))
     end
   end
 
@@ -469,65 +412,6 @@ defmodule Treby.NotificationsTest do
       {tenant, _user} = setup_tenant_with_admin()
       template = setup_email_template(tenant.id, "rejected")
       assert template.stage_type == "rejected"
-    end
-  end
-
-  describe "Email.new_application_confirmation/3" do
-    test "builds correct email with assigns" do
-      {tenant, _user} = setup_tenant_with_admin()
-      {job, _stage} = setup_job(tenant)
-      candidate = setup_candidate(tenant, "email-test@test.com")
-
-      assigns = %{
-        candidate_name: candidate.name,
-        job_title: job.title,
-        company_name: tenant.name
-      }
-
-      email = Email.new_application_confirmation(candidate, job, assigns)
-
-      assert email.to == [{"", "email-test@test.com"}]
-      assert email.subject == "Application Received - Software Engineer"
-      assert email.html_body =~ "Thank you for applying"
-      assert email.html_body =~ candidate.name
-      assert email.html_body =~ job.title
-      assert email.text_body =~ "Thank you for applying"
-    end
-
-    test "uses defaults when assigns are empty" do
-      {tenant, _user} = setup_tenant_with_admin()
-      {job, _stage} = setup_job(tenant)
-      candidate = setup_candidate(tenant, "defaults@test.com")
-
-      email = Email.new_application_confirmation(candidate, job)
-
-      assert email.html_body =~ candidate.name
-      assert email.html_body =~ job.title
-    end
-  end
-
-  describe "Email.new_application_team_alert/4" do
-    test "builds correct email with assigns" do
-      {tenant, admin} = setup_tenant_with_admin()
-      {job, _stage} = setup_job(tenant)
-      candidate = setup_candidate(tenant, "team-email@test.com")
-
-      assigns = %{
-        candidate_name: candidate.name,
-        job_title: job.title,
-        company_name: tenant.name,
-        admin_name: admin.name
-      }
-
-      email = Email.new_application_team_alert(admin, candidate, job, assigns)
-
-      assert email.to == [{"", admin.email}]
-      assert email.subject == "New Application: Test Candidate for Software Engineer"
-      assert email.html_body =~ "New Application Received"
-      assert email.html_body =~ candidate.name
-      assert email.html_body =~ candidate.email
-      assert email.html_body =~ job.title
-      assert email.text_body =~ "New Application Received"
     end
   end
 end

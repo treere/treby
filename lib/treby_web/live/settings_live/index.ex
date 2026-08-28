@@ -80,9 +80,9 @@ defmodule TrebyWeb.SettingsLive.Index do
             navigate={~p"/app/settings/emails"}
             class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Email Templates")}</h2>
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Message Templates")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
-              {gettext("Configure email templates for stage transitions")}
+              {gettext("Configure message templates for stage transitions")}
             </p>
           </.link>
 

@@ -11,12 +11,12 @@
 | Multi-tenant architecture | ✅ Complete |
 | Kanban pipeline (drag-and-drop, real-time) | ✅ Complete |
 | Public career page (branded, per tenant) | ✅ Complete |
-| Candidate self-scheduling with Google Meet | ✅ Complete |
+| Candidate self-scheduling (in-portal) with Google Meet | ✅ Complete |
 | Google Calendar integration | ✅ Complete |
 | Custom fields (dynamic, per-entity) | ✅ Complete |
 | Notes with star ratings | ✅ Complete |
 | Resume uploads (S3) | ✅ Complete |
-| Email notifications (Swoosh) | ✅ Complete |
+| Email notifications (Swoosh, OTP + pings only) | ✅ Complete |
 | Team invites | ✅ Complete |
 | i18n (English/Italian) | ✅ Complete |
 | Landing page | ✅ Complete |
@@ -39,7 +39,7 @@ Goal: Make it collaborative.
 
 - **2.1 Role-Based Access Control** — enforce admin vs member permissions
 - **2.2 Interview Scorecards** — structured evaluation with criteria
-- **2.3 Stage-Based Email Templates** — templated emails per pipeline stage
+- **2.3 Stage-Based Message Templates** — templated portal messages per pipeline stage
 - **2.4 Pipeline Selector on Analytics** — per-pipeline analytics views
 - **2.5 Time-in-Stage Metrics** — where do candidates get stuck?
 
@@ -51,22 +51,22 @@ Goal: Single source of truth.
 - **3.2 Bulk Operations** — select and act on many candidates at once
 - **3.3 Candidate Comparison** — side-by-side evaluation
 - **3.4 Source Tracking** — where do candidates come from?
-- **3.5 Bidirectional Email** — reply to candidate emails within Treby
+- **3.5 (replaced) Portal-First Communications** — email is notification-only; all content lives in the portal
 
 ## Priority Matrix
 
 ```
   IMPACT
   HIGH  │  CSV Import     Scorecards
-        │  Bulk Ops       Email Templates
+        │  Bulk Ops       Message Templates
         │  Dashboard*      Search*
         │  Edit*           Review State*
         │  Activity Log*
         │
   LOW   │  Comparison     Time-in-Stage
         │  Source Track    Pipeline Analytics
-        │  Bidirectional   RBAC
-        │  Email
+        │  RBAC
+        │
         └────────────────────────────────
            LOW EFFORT          HIGH EFFORT
 ```
@@ -92,7 +92,7 @@ Goal: Single source of truth.
 | Email | Swoosh | Already used for notifications |
 | File storage | S3/ExAWS | Already used for resumes |
 | Search | Ecto + PostgreSQL | ilike is fine for <1000 candidates |
-| Background jobs | Not needed yet | Email is synchronous, fine for now |
+| Background jobs | Oban | Scheduled portal messages |
 | Encryption | Cloak/Ecto | Already used for Google tokens |
 
 No new dependencies needed for Phase 1 or 2.

@@ -28,8 +28,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
      |> assign(selected_user: nil)
      |> assign(slots: [])
      |> assign(selected_slot: nil)
-     |> assign(selected_date: Date.utc_today())
-     |> assign(booking_link: nil)}
+     |> assign(selected_date: Date.utc_today())}
   end
 
   def render(assigns) do
@@ -170,32 +169,11 @@ defmodule TrebyWeb.ScheduleLive.Index do
               <% end %>
 
               <div class="mt-6 pt-6 border-t">
-                <h3 class="text-sm font-medium text-base-content/80 mb-2">Self-Scheduling Link</h3>
-                <p class="text-xs text-base-content/50 mb-3">
-                  Generate or email a public link so the candidate can choose their own time slot.
+                <h3 class="text-sm font-medium text-base-content/80 mb-2">Self-Scheduling</h3>
+                <p class="text-xs text-base-content/50">
+                  The candidate can choose their own time slot from their application portal.
+                  Send them a message in the portal to let them know they can book.
                 </p>
-                <div class="mt-3 flex flex-col gap-2">
-                  <button
-                    phx-click="generate_booking_link"
-                    class="w-full px-4 py-2 text-sm border border-base-300 rounded-md text-base-content/80 hover:bg-base-200"
-                  >
-                    Generate Booking Link
-                  </button>
-                  <button
-                    phx-click="email_booking_link"
-                    class="w-full px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Email Booking Link
-                  </button>
-                </div>
-                <%= if @booking_link do %>
-                  <div class="mt-3 p-3 bg-base-200 rounded-md">
-                    <p class="text-xs text-base-content/50 mb-1">
-                      Share this link with the candidate:
-                    </p>
-                    <code class="block text-xs text-blue-600 break-all">{@booking_link}</code>
-                  </div>
-                <% end %>
               </div>
             </div>
           </div>
@@ -300,63 +278,6 @@ defmodule TrebyWeb.ScheduleLive.Index do
            |> put_flash(:error, "Failed to create calendar event. Please try again.")}
       end
     end
-  end
-
-  def handle_event("generate_booking_link", _, socket) do
-    case generate_booking_token(socket) do
-      {:ok, token} ->
-        booking_link = Interviews.absolute_booking_url(socket.assigns.current_tenant, token.token)
-        {:noreply, assign(socket, booking_link: booking_link)}
-
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to generate booking link")}
-    end
-  end
-
-  def handle_event("email_booking_link", _, socket) do
-    case generate_booking_token(socket) do
-      {:ok, token} ->
-        %{application: app, current_tenant: tenant} = socket.assigns
-        link = Interviews.absolute_booking_url(tenant, token.token)
-
-        email =
-          Treby.SchedulingEmail.booking_link_candidate(
-            app.candidate,
-            app.job,
-            tenant,
-            link
-          )
-
-        try do
-          Treby.Mailer.deliver(email)
-
-          {:noreply,
-           socket
-           |> assign(booking_link: link)
-           |> put_flash(:info, "Booking link sent to #{app.candidate.email}")}
-        rescue
-          _ ->
-            {:noreply, put_flash(socket, :error, "Failed to send booking link email")}
-        end
-
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to generate booking link")}
-    end
-  end
-
-  defp generate_booking_token(socket) do
-    %{application: app, current_tenant: tenant} = socket.assigns
-
-    interviewer_id = if socket.assigns.selected_user, do: socket.assigns.selected_user.id
-
-    attrs = %{
-      application_id: app.id,
-      tenant_id: tenant.id
-    }
-
-    attrs = if interviewer_id, do: Map.put(attrs, :interviewer_id, interviewer_id), else: attrs
-
-    Interviews.generate_booking_token(attrs)
   end
 
   defp recompute_slots(socket, new_date) do

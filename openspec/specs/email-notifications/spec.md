@@ -7,27 +7,24 @@ Automated notification system that sends emails on pipeline stage transitions, n
 ## Requirements
 
 ### Requirement: Stage change candidate notification
-The system SHALL send an email to the candidate when their application is moved to a pipeline stage that has a configured email template. When the candidate portal is enabled for the tenant, the email SHALL be a short notification (ping) linking to the portal message, not a full-content email.
+The system SHALL notify the candidate of pipeline stage changes through a portal conversation message. When the candidate's email notification preferences allow it, the system SHALL send a short ping email linking to the portal — never a full-content email.
 
-#### Scenario: Stage has email template
-- **WHEN** a user moves a candidate to a pipeline stage with a configured email template
+#### Scenario: Stage change creates portal message
+- **WHEN** a user moves a candidate to a new pipeline stage
+- **THEN** a system message is created in the candidate's conversation for that application with the stage change info
+- **AND** if the stage has a configured message template, the template content is used as the message body
+
+#### Scenario: Stage change with ping email
+- **WHEN** a user moves a candidate to a new pipeline stage
 - **AND** the `stage_change_candidate` notification is enabled for the tenant
-- **THEN** the candidate receives an email with the template content rendered with their variables
+- **AND** the candidate has the `status_change` preference enabled
+- **THEN** the candidate receives a short ping email: "Your application for {job_title} has moved to {stage_name}"
+- **AND** the email contains a "View in Portal" button linking to `/:tenant_slug/portal`
 
-#### Scenario: Stage change with portal enabled
-- **WHEN** a user moves a candidate to a pipeline stage
-- **AND** the candidate has an active portal conversation for that application
-- **THEN** a system message is created in the conversation with the stage change info
-- **AND** the notification email (if sent) is a short ping: "Your application for {job_title} has moved to {stage_name}" with a "View in Portal" button linking to the conversation
-
-#### Scenario: Stage has no email template
-- **WHEN** a user moves a candidate to a pipeline stage with no configured email template
-- **THEN** no email is sent and the stage move completes normally
-
-#### Scenario: Notification disabled
+#### Scenario: No ping email when disabled
 - **WHEN** the `stage_change_candidate` notification is disabled for the tenant
-- **AND** a user moves a candidate to a stage with a configured email template
-- **THEN** no email is sent and the stage move completes normally
+- **OR** the candidate has the `status_change` preference disabled
+- **THEN** no ping email is sent and the stage move completes normally
 
 #### Scenario: Email delivery failure
 - **WHEN** email delivery fails during a stage change notification
@@ -35,22 +32,17 @@ The system SHALL send an email to the candidate when their application is moved 
 - **AND** the failure is logged in the activity audit trail with error details
 
 ### Requirement: New application candidate confirmation
-The system SHALL send a confirmation email to the candidate after they successfully submit an application via the public career page. When the candidate portal is enabled, the email SHALL be a short notification linking to the portal.
+The system SHALL send a confirmation notification to the candidate after they successfully submit an application via the public career page. The confirmation SHALL be a short ping email linking to the portal, never a full-content email.
 
 #### Scenario: Successful application submission
 - **WHEN** a candidate submits a valid application on the career page
-- **AND** the `new_application_candidate` notification is enabled for the tenant
-- **THEN** the candidate receives a confirmation email thanking them for applying
+- **THEN** a welcome conversation is created in the portal with a system message
+- **AND** if the `new_application_candidate` notification is enabled for the tenant, the candidate receives a short confirmation ping email
 
-#### Scenario: Confirmation with portal
-- **WHEN** a candidate submits a valid application
-- **AND** the tenant has the candidate portal enabled
-- **THEN** the confirmation email contains: a brief "Thank you for applying" message and a prominent "View Your Application" button linking to `/:tenant_slug/portal`
-- **AND** a welcome conversation is created in the portal with a system message
-
-#### Scenario: Confirmation email content
-- **WHEN** a confirmation email is sent to a candidate
-- **THEN** the email includes: candidate name, job title, company name, and a link back to the career page
+#### Scenario: Confirmation ping content
+- **WHEN** a confirmation ping email is sent to a candidate
+- **THEN** the email contains a brief "Thank you for applying" message
+- **AND** a prominent "View Your Application" button linking to `/:tenant_slug/portal`
 
 #### Scenario: Notification disabled
 - **WHEN** the `new_application_candidate` notification is disabled for the tenant
@@ -60,27 +52,6 @@ The system SHALL send a confirmation email to the candidate after they successfu
 #### Scenario: Application via manual creation
 - **WHEN** an authenticated user manually creates an application for a candidate
 - **THEN** no confirmation email is sent (only public career page submissions trigger confirmations)
-
-### Requirement: New application team alert
-The system SHALL send a notification email to the job owner and tenant admins when a new application is submitted for any job.
-
-#### Scenario: New application alert
-- **WHEN** a new application is created (via career page or manual creation)
-- **AND** the `new_application_team` notification is enabled for the tenant
-- **THEN** all tenant admins and the job's assigned owner receive an email alert
-
-#### Scenario: Alert email content
-- **WHEN** a team alert email is sent
-- **THEN** the email includes: candidate name, job title, application source, and a link to the application in the pipeline
-
-#### Scenario: No job owner assigned
-- **WHEN** a job has no assigned owner
-- **AND** a new application is submitted
-- **THEN** only tenant admins receive the team alert
-
-#### Scenario: Notification disabled
-- **WHEN** the `new_application_team` notification is disabled for the tenant
-- **THEN** no team alert emails are sent
 
 ### Requirement: Notification preferences
 The system SHALL allow tenant admins to configure which notification types are enabled or disabled.

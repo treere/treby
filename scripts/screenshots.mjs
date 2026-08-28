@@ -94,7 +94,8 @@ const screenshotDefs = [
   { name: "13-settings-team", url: () => `${BASE_URL}/app/settings/team`, auth: true },
   { name: "14-settings-fields", url: () => `${BASE_URL}/app/settings/fields`, auth: true },
   { name: "15-settings-branding", url: () => `${BASE_URL}/app/settings/branding`, auth: true },
-  { name: "23-email-queue", url: () => `${BASE_URL}/app/email-queue`, auth: true },
+  { name: "23-message-queue", url: () => `${BASE_URL}/app/messages-queue`, auth: true },
+  { name: "26-portal-login", url: () => `${BASE_URL}/acme/portal/login` },
 ]
 
 async function waitForServer(url, timeoutMs = 120000) {

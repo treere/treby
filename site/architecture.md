@@ -25,7 +25,7 @@ Treby is a standard Phoenix LiveView application with a multi-tenant PostgreSQL 
 │              (multi-tenant, scoped queries)             │
 ├────────────────────────────────────────────────────────┤
 │             External Services                           │
-│  S3 (resumes) │ Google Calendar │ SMTP (email)         │
+│  S3 (resumes) │ Google Calendar │ SMTP (OTP + pings)     │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -47,6 +47,10 @@ The entire UI is driven by Phoenix LiveView. There are no REST endpoints for pag
 
 Authentication uses Phoenix sessions with BCrypt passwords. No JWT, no OAuth (for now). Sessions are scoped to tenants.
 
+### Candidate portal auth (OTP)
+
+Candidates never create passwords. They request a login code by email (6-digit OTP, hashed at rest, 10-minute validity, single-use, rate-limited) and verify it to open a portal session with a limited lifetime (a few hours) and explicit logout.
+
 ### S3 for file storage
 
 Resumes and brand logos are stored in S3-compatible storage (MinIO in dev, any S3 provider in production). Uploads go through ExAWS with pre-signed URLs.
@@ -66,7 +70,7 @@ Resumes and brand logos are stored in S3-compatible storage (MinIO in dev, any S
 | Real-time | Phoenix PubSub |
 | HTTP Client | [Req](https://hexdocs.pm/req) |
 | Encryption | Cloak (Google token encryption) |
-| Background Jobs | None yet (email is synchronous) |
+| Background Jobs | Oban (scheduled portal messages) |
 
 ## Data Model (Simplified)
 
@@ -80,5 +84,5 @@ Tenants
   │   └── Pipeline Stages (configurable order & color)
   ├── Candidates (shared across jobs)
   ├── Custom Fields (per entity type)
-  └── Email Templates (per stage)
+  └── Message Templates (per stage)
 ```

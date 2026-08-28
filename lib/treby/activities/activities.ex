@@ -48,4 +48,16 @@ defmodule Treby.Activities do
     |> preload([:actor])
     |> Repo.all()
   end
+
+  @doc """
+  List recent activity events for a tenant, most recent first.
+  """
+  def list_events_for_tenant(tenant_id, limit \\ 15) do
+    ActivityLog
+    |> where([a], a.tenant_id == ^tenant_id)
+    |> order_by([a], desc: a.inserted_at)
+    |> limit(^limit)
+    |> preload([:actor])
+    |> Repo.all()
+  end
 end

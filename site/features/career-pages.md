@@ -35,8 +35,8 @@ Applications are automatically placed in the first pipeline stage. Duplicate can
 When the candidate portal is active, the application flow gains additional features:
 
 - **Welcome conversation**: A conversation is automatically created when a candidate submits their application
-- **Portal link in confirmation email**: The thank-you email includes a link to the candidate portal
-- **Magic link login**: Candidates can return anytime using just their email — no account setup required
+- **Portal link in confirmation ping**: The confirmation email links to the candidate portal
+- **OTP login**: Candidates can return anytime using just their email and a one-time login code — no account setup required
 
 ## Branding
 

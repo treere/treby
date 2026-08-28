@@ -25,8 +25,14 @@ config :treby, TrebyWeb.Endpoint,
 # Configure Oban
 config :treby, Oban,
   engine: Oban.Engines.Basic,
-  queues: [email: 10],
+  queues: [email: 10, messages: 10],
   repo: Treby.Repo
+
+# Candidate portal auth
+config :treby, Treby.CandidatePortal,
+  otp_validity_minutes: 10,
+  otp_resend_cooldown_seconds: 60,
+  session_lifetime_hours: 4
 
 # Configure the mailer
 #

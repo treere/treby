@@ -31,9 +31,9 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
             <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
               &larr; {gettext("Back to Settings")}
             </.link>
-            <h1 class="text-2xl font-bold mt-2">{gettext("Email Templates")}</h1>
+            <h1 class="text-2xl font-bold mt-2">{gettext("Message Templates")}</h1>
             <p class="mt-1 text-base-content/70">
-              {gettext("Configure email templates for stage transitions")}
+              {gettext("Configure message templates for stage transitions")}
             </p>
           </div>
           <button
@@ -60,7 +60,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                 field={@form[:name]}
                 type="text"
                 label={gettext("Template Name")}
-                placeholder={gettext("e.g. Rejection Email")}
+                placeholder={gettext("e.g. Rejection Message")}
               />
               <.input
                 field={@form[:stage_type]}
@@ -156,7 +156,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                     phx-click="confirm_delete"
                     phx-value-id={template.id}
                     phx-value-title="Delete template"
-                    phx-value-message="Are you sure you want to delete this email template? This action cannot be undone."
+                    phx-value-message="Are you sure you want to delete this message template? This action cannot be undone."
                     class="text-red-600 hover:text-red-900"
                   >
                     {gettext("Delete")}
@@ -166,7 +166,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
             </tbody>
           </table>
           <div :if={@templates == []} class="p-8 text-center text-base-content/50">
-            {gettext("No email templates yet. Create your first template!")}
+            {gettext("No message templates yet. Create your first template!")}
           </div>
         </div>
       </div>
@@ -261,7 +261,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
          |> put_flash(:info, "Template saved")}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can manage email templates")}
+        {:noreply, put_flash(socket, :error, "Only admins can manage message templates")}
 
       {:error, changeset} ->
         {:noreply,
@@ -299,7 +299,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         {:noreply,
          socket
          |> assign(confirm_delete: nil)
-         |> put_flash(:error, "Only admins can delete email templates")}
+         |> put_flash(:error, "Only admins can delete message templates")}
 
       {:error, _} ->
         {:noreply,

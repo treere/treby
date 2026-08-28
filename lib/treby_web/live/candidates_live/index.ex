@@ -49,7 +49,6 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(bulk_stage_id: nil)
      |> assign(merge_modal_open: false)
      |> assign(merge_primary_id: nil)
-     |> assign(bulk_email_subject: "")
      |> assign(bulk_email_body: "")
      |> assign(bulk_email_mode: "now")
      |> assign(bulk_email_scheduled_at: nil)
@@ -290,7 +289,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   <option value="move_stage">Move to Stage</option>
                   <option value="mark_reviewed">Mark as Reviewed</option>
                   <option value="mark_unreviewed">Mark as New</option>
-                  <option value="send_email">Send Email</option>
+                  <option value="send_message">Send Message</option>
                   <option value="merge">Merge into one</option>
                   <option value="compare">Compare</option>
                   <option value="delete">Delete</option>
@@ -358,8 +357,8 @@ defmodule TrebyWeb.CandidatesLive.Index do
             </button>
 
             <button
-              :if={@bulk_action == "send_email"}
-              phx-click="bulk_execute_send_email"
+              :if={@bulk_action == "send_message"}
+              phx-click="bulk_execute_send_message"
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
               Send
@@ -376,24 +375,16 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
         <%!-- Bulk Email Composer --%>
         <div
-          :if={@bulk_action == "send_email"}
+          :if={@bulk_action == "send_message"}
           class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50"
         >
           <div class="bg-base-100 rounded-lg shadow-2xl p-6 w-96">
             <form
-              id="bulk-email-composer"
+              id="bulk-message-composer"
               phx-submit="bulk_email_composer_submit"
               class="contents"
             >
-              <h3 class="font-semibold mb-3">Send Email to {length(@selected_ids)} candidates</h3>
-              <input
-                type="text"
-                placeholder="Subject"
-                value={@bulk_email_subject}
-                phx-change="bulk_email_subject_change"
-                name="bulk_email_subject"
-                class="input w-full mb-3"
-              />
+              <h3 class="font-semibold mb-3">Send Message to {length(@selected_ids)} candidates</h3>
               <textarea
                 placeholder="Use {candidate_name} for personalization"
                 value={@bulk_email_body}
@@ -834,10 +825,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> put_flash(:info, "#{length(ids)} candidates marked as new")}
   end
 
-  def handle_event("bulk_execute_send_email", _params, socket) do
+  def handle_event("bulk_execute_send_message", _params, socket) do
     %{
       selected_ids: ids,
-      bulk_email_subject: subject,
       bulk_email_body: body,
       bulk_email_mode: mode,
       bulk_email_scheduled_at: scheduled_at,
@@ -861,28 +851,16 @@ defmodule TrebyWeb.CandidatesLive.Index do
         end)
 
       {:ok, result} =
-        BulkOperations.bulk_send_email(application_ids, subject, body, tenant.id,
-          schedule: schedule
-        )
+        BulkOperations.bulk_send_message(application_ids, body, tenant.id, schedule: schedule)
 
-      message =
-        if schedule do
-          "scheduled"
-        else
-          "sent"
-        end
+      verb = if schedule, do: "scheduled", else: "sent"
 
-      flash_message =
-        if result.skipped > 0 do
-          "#{result.sent} emails #{message}, #{result.skipped} skipped (no email)"
-        else
-          "#{result.sent} emails #{message}"
-        end
+      flash_message = "#{result.sent} messages #{verb}"
 
       {:noreply,
        socket
        |> assign(selected_ids: [], bulk_action: nil)
-       |> assign(bulk_email_subject: "", bulk_email_body: "")
+       |> assign(bulk_email_body: "")
        |> assign(bulk_email_mode: "now", bulk_email_scheduled_at: nil)
        |> put_flash(:info, flash_message)}
     end
@@ -890,10 +868,6 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("clear_selection", _params, socket) do
     {:noreply, assign(socket, selected_ids: [], bulk_action: nil)}
-  end
-
-  def handle_event("bulk_email_subject_change", %{"bulk_email_subject" => subject}, socket) do
-    {:noreply, assign(socket, bulk_email_subject: subject)}
   end
 
   def handle_event("bulk_email_composer_submit", _params, socket) do

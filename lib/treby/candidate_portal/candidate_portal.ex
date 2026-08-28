@@ -1,82 +1,173 @@
 defmodule Treby.CandidatePortal do
   @moduledoc """
-  The CandidatePortal context — manages magic link authentication,
+  The CandidatePortal context — manages OTP authentication,
   conversations, messages, and candidate notification preferences.
   """
 
   import Ecto.Query, warn: false
   alias Treby.Repo
-  alias Treby.CandidatePortal.{CandidateToken, Conversation, Message}
+  alias Treby.CandidatePortal.{Conversation, Message, CandidateOtp}
   alias Treby.Candidates.Candidate
+  alias Treby.Notifications.Email, as: NotificationEmail
 
   @messages_query from(m in Message, order_by: [asc: m.inserted_at])
 
-  @token_validity_minutes 15
-
-  # --- Magic Link Tokens ---
+  @otp_validity_minutes Application.compile_env(
+                          :treby,
+                          [Treby.CandidatePortal, :otp_validity_minutes],
+                          10
+                        )
+  @otp_resend_cooldown_seconds Application.compile_env(
+                                 :treby,
+                                 [Treby.CandidatePortal, :otp_resend_cooldown_seconds],
+                                 60
+                               )
 
   @doc """
-  Generates a magic link token for a candidate.
-  Returns {:ok, raw_token} on success.
-  The raw token is included in the email URL; only the hash is stored.
+  Returns the lifetime of a candidate session, in hours.
   """
-  def generate_magic_link_token(%Candidate{} = candidate) do
-    raw_token = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
-    hashed_token = hash_token(raw_token)
+  def session_lifetime_hours do
+    Application.get_env(:treby, Treby.CandidatePortal, [])
+    |> Keyword.get(:session_lifetime_hours, 4)
+  end
 
-    expires_at = DateTime.utc_now() |> DateTime.add(@token_validity_minutes, :minute)
+  # --- OTP Login ---
 
-    %CandidateToken{}
-    |> CandidateToken.changeset(%{
-      token: hashed_token,
-      expires_at: expires_at,
-      candidate_id: candidate.id,
-      tenant_id: candidate.tenant_id
-    })
-    |> Repo.insert()
+  @doc """
+  Generates a one-time password for a candidate and returns the raw 6-digit code.
+  Only the SHA-256 hash of the code is stored in `candidate_otps`.
+
+  Invalidates any previously pending code for the candidate. Returns
+  `{:error, :rate_limited}` if the candidate requested a code less than
+  `otp_resend_cooldown_seconds` ago.
+  """
+  def generate_otp(%Candidate{} = candidate) do
+    now = DateTime.utc_now()
+
+    case latest_pending_otp(candidate.id) do
+      %{inserted_at: inserted_at} ->
+        if DateTime.diff(now, inserted_at, :second) < @otp_resend_cooldown_seconds do
+          {:error, :rate_limited}
+        else
+          do_generate_otp(candidate, now)
+        end
+
+      nil ->
+        do_generate_otp(candidate, now)
+    end
+  end
+
+  defp do_generate_otp(%Candidate{} = candidate, now) do
+    raw_code = (:rand.uniform(1_000_000) - 1) |> Integer.to_string() |> String.pad_leading(6, "0")
+    hashed_code = hash_otp(raw_code)
+
+    expires_at = now |> DateTime.add(@otp_validity_minutes, :minute)
+
+    Repo.transaction(fn ->
+      invalidate_pending_otps(candidate.id)
+
+      %CandidateOtp{}
+      |> CandidateOtp.changeset(%{
+        code: hashed_code,
+        expires_at: expires_at,
+        candidate_id: candidate.id,
+        tenant_id: candidate.tenant_id
+      })
+      |> Repo.insert()
+    end)
     |> case do
-      {:ok, _} -> {:ok, raw_token}
-      {:error, changeset} -> {:error, changeset}
+      {:ok, {:ok, _}} -> {:ok, raw_code}
+      {:ok, {:error, changeset}} -> {:error, changeset}
+      {:error, _} -> {:error, :invalid}
     end
   end
 
   @doc """
-  Validates a magic link token. Returns {:ok, candidate, tenant} on success.
-  Marks the token as used.
+  Verifies a one-time password for a candidate. Returns `{:ok, candidate, tenant}`
+  on success and invalidates all pending codes for the candidate.
   """
-  def validate_magic_link_token(raw_token) do
-    hashed_token = hash_token(raw_token)
-
+  def verify_otp(%Candidate{} = candidate, raw_code) do
     now = DateTime.utc_now()
+    hashed_code = hash_otp(raw_code)
 
-    CandidateToken
-    |> where([t], t.token == ^hashed_token)
+    CandidateOtp
+    |> where([o], o.candidate_id == ^candidate.id and o.code == ^hashed_code)
     |> Repo.one()
     |> case do
       nil ->
-        {:error, :invalid_token}
+        {:error, :invalid_or_expired}
 
-      token ->
-        cond do
-          not is_nil(token.used_at) ->
-            {:error, :token_already_used}
+      %{used_at: used_at} when not is_nil(used_at) ->
+        {:error, :invalid_or_expired}
 
-          DateTime.compare(token.expires_at, now) == :lt ->
-            {:error, :token_expired}
+      %{attempts: attempts} when attempts >= 5 ->
+        {:error, :too_many_attempts}
 
-          true ->
-            token
-            |> CandidateToken.changeset(%{used_at: DateTime.utc_now()})
-            |> Repo.update()
+      otp ->
+        if DateTime.compare(otp.expires_at, now) == :lt do
+          {:error, :invalid_or_expired}
+        else
+          Repo.transaction(fn ->
+            otp
+            |> CandidateOtp.changeset(%{used_at: now})
+            |> Repo.update!()
 
-            candidate = Repo.get!(Candidate, token.candidate_id) |> Repo.preload(:tenant)
-            {:ok, candidate, candidate.tenant}
+            invalidate_pending_otps(candidate.id)
+
+            candidate
+            |> Repo.preload(:tenant)
+          end)
+          |> case do
+            {:ok, candidate} ->
+              {:ok, candidate, candidate.tenant}
+
+            {:error, _} ->
+              {:error, :invalid}
+          end
         end
     end
   end
 
-  defp hash_token(raw_token) do
-    :crypto.hash(:sha256, raw_token) |> Base.url_encode64(padding: false)
+  @doc """
+  Registers a failed verification attempt for a candidate's pending code.
+  """
+  def record_failed_otp_attempt(%Candidate{} = candidate, raw_code) do
+    hashed_code = hash_otp(raw_code)
+
+    CandidateOtp
+    |> where([o], o.candidate_id == ^candidate.id and o.code == ^hashed_code)
+    |> Repo.one()
+    |> case do
+      nil ->
+        :ok
+
+      otp ->
+        otp
+        |> CandidateOtp.changeset(%{attempts: otp.attempts + 1})
+        |> Repo.update()
+        |> case do
+          {:ok, _} -> :ok
+          {:error, _} -> :ok
+        end
+    end
+  end
+
+  defp latest_pending_otp(candidate_id) do
+    CandidateOtp
+    |> where([o], o.candidate_id == ^candidate_id and is_nil(o.used_at))
+    |> order_by([o], desc: o.inserted_at)
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  defp invalidate_pending_otps(candidate_id) do
+    CandidateOtp
+    |> where([o], o.candidate_id == ^candidate_id and is_nil(o.used_at))
+    |> Repo.update_all(set: [used_at: DateTime.utc_now()])
+  end
+
+  defp hash_otp(raw_code) do
+    :crypto.hash(:sha256, raw_code) |> Base.url_encode64(padding: false)
   end
 
   # --- Conversations ---
@@ -280,6 +371,27 @@ defmodule Treby.CandidatePortal do
     else
       Map.get(prefs, notification_type, true)
     end
+  end
+
+  @doc """
+  Sends an optional notification ping email when a recruiter sends a message,
+  respecting the candidate's preferences.
+  """
+  def notify_new_message(%Candidate{} = candidate, tenant, notification_type, assigns \\ %{}) do
+    if notification_enabled?(candidate, notification_type) do
+      conversation_id = assigns[:conversation_id]
+
+      NotificationEmail.notification_ping(
+        candidate,
+        tenant,
+        conversation_id,
+        notification_type,
+        assigns
+      )
+      |> Treby.Mailer.deliver()
+    end
+
+    :ok
   end
 
   # --- Internal ---

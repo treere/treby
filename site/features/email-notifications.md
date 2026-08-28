@@ -1,37 +1,43 @@
 # Email Notifications
 
-Automated email notifications keep candidates and team members informed at every pipeline stage.
+Treby uses email sparingly: **login codes** and **notification pings**. All real communication lives inside the candidate portal.
 
-## Stage-Based Templates
+## What emails remain
 
-Configure email templates for each pipeline stage in **Settings**. When a candidate moves to a stage, an email is sent automatically.
+| Email | When | Purpose |
+|---|---|---|
+| Login code (OTP) | Candidate requests portal access | 6-digit one-time code, valid 10 minutes |
+| Notification pings | Something happened in the portal | Short "check your portal" notice with a link to the panel |
+
+Email is never used to deliver content (interview details, stage updates, offers, messages). Those live in the portal conversation; the email only tells the candidate to go look.
+
+## Message Templates
+
+Instead of stage-based email templates, Treby provides **message templates** configured in **Settings → Message Templates**. When a candidate moves to a stage, the recruiter can post the rendered template into the candidate's portal conversation — immediately, on a schedule, or skip it.
 
 Templates support variables:
 - `{candidate_name}` — the candidate's name
 - `{job_title}` — the position they applied for
 - `{company_name}` — your company's name
+- `{stage_name}` — the stage name
+- `{recruiter_name}` — the user who moved the candidate
 
-## Email Types
+## Notification Pings
 
-| Type | Trigger | Recipient |
-|---|---|---|
-| Application Received | Candidate applies via career page | Candidate |
-| Moving Forward | Moved to Screen or Interview stages | Candidate |
-| Interview Confirmation | Interview is scheduled | Candidate |
-| Offer Letter | Moved to Offer stage | Candidate |
-| Not Moving Forward | Moved to Rejected stage | Candidate |
-| Team Invitation | Admin invites a new team member | New member |
+Candidate-facing pings are short and link back to the portal (`/portal`):
+
+- **New application** — "Thank you for applying… track your application in your panel"
+- **Stage change** — "Your application for {job_title} has moved to {stage}"
+- **New message** — "You have a new message regarding {job_title}"
+- **Interview update** — "There's an update regarding your interview"
+- **Rejection** — "There's an update regarding your application"
+
+Candidates can configure which events generate pings in their portal settings, including an "important only" filter.
+
+## Team Notifications
+
+Team members (recruiters, admins, examiners) receive **no emails**. New applications, scheduled interviews, and pipeline changes are recorded in the in-app **Recent Activity** feed on the dashboard.
 
 ## Technical Details
 
-Emails are sent via [Swoosh](https://hexdocs.pm/swoosh), the Elixir email library. In development, use the Swoosh mailbox at `/dev/mailbox` to preview emails. Configure your SMTP provider in production.
-
-## Notification Pings (Portal Mode)
-
-When the candidate portal is enabled, candidate-facing emails become short **pings** instead of full message bodies. A ping links directly to the portal where the candidate can see the full message in context.
-
-- **Stage change pings**: Short notification with stage name, linking to the portal dashboard
-- **Rejection pings**: Include structured rejection reason; full feedback visible in the portal conversation
-- **Interview invite pings**: Link to the portal conversation where details are posted
-
-Candidates can configure which events generate pings in their portal settings. A "important only" filter suppresses non-critical notifications.
+Emails are sent via [Swoosh](https://hexdocs.pm/swoosh). In development, use the Swoosh mailbox at `/dev/mailbox` to preview emails. Configure your SMTP provider in production.

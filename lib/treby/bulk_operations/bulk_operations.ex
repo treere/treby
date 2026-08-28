@@ -2,7 +2,6 @@ defmodule Treby.BulkOperations do
   import Ecto.Query, warn: false
   alias Treby.Repo
   alias Treby.Pipeline.Application
-  alias Treby.EmailQueue
 
   def bulk_move_stage(application_ids, pipeline_stage_id, tenant_id, _actor \\ nil) do
     Application
@@ -51,7 +50,7 @@ defmodule Treby.BulkOperations do
     {:ok, length(application_ids)}
   end
 
-  def bulk_send_email(application_ids, subject, body, tenant_id, opts \\ []) do
+  def bulk_send_message(application_ids, body, tenant_id, opts \\ []) do
     candidates_with_apps =
       Application
       |> join(:inner, [a], c in Treby.Candidates.Candidate, on: a.candidate_id == c.id)
@@ -60,33 +59,30 @@ defmodule Treby.BulkOperations do
       |> Repo.all()
 
     if schedule = opts[:schedule] do
-      bulk_send_scheduled(candidates_with_apps, subject, body, tenant_id, schedule)
+      bulk_send_scheduled(candidates_with_apps, body, tenant_id, schedule)
     else
-      bulk_send_immediate(candidates_with_apps, subject, body)
+      bulk_send_immediate(candidates_with_apps, body)
     end
   end
 
-  defp bulk_send_immediate(candidates_with_apps, subject, body) do
+  defp bulk_send_immediate(candidates_with_apps, body) do
     results =
-      Enum.map(candidates_with_apps, fn %{candidate: candidate} ->
+      Enum.map(candidates_with_apps, fn %{candidate: candidate, application: application} ->
         personalized_body =
           body
           |> String.replace("{candidate_name}", candidate.name || "")
 
-        if candidate.email in [nil, ""] do
-          :skipped
-        else
-          email =
-            Swoosh.Email.new()
-            |> Swoosh.Email.to(candidate.email)
-            |> Swoosh.Email.from("noreply@treby.app")
-            |> Swoosh.Email.subject(subject)
-            |> Swoosh.Email.text_body(personalized_body)
+        conversation_id = conversation_for_application(candidate, application, personalized_body)
 
-          case Treby.Mailer.deliver(email) do
-            {:ok, _result} -> {:ok, candidate.email}
-            {:error, reason} -> {:error, candidate.email, reason}
-          end
+        case Treby.CandidatePortal.send_message(%{
+               sender_type: "recruiter",
+               conversation_id: conversation_id,
+               body: personalized_body,
+               message_type: "text",
+               metadata: %{"bulk" => true}
+             }) do
+          {:ok, _message} -> {:ok, candidate.email}
+          {:error, _} -> {:error, candidate.email, "failed to post message"}
         end
       end)
 
@@ -97,36 +93,31 @@ defmodule Treby.BulkOperations do
     {:ok, %{sent: length(successes), failed: length(failures), skipped: skipped}}
   end
 
-  defp bulk_send_scheduled(candidates_with_apps, subject, body, tenant_id, schedule) do
+  defp bulk_send_scheduled(candidates_with_apps, body, tenant_id, schedule) do
     scheduled_at = schedule.scheduled_at
     jitter_minutes = schedule[:jitter_minutes] || 0
 
     results =
-      Enum.map(candidates_with_apps, fn %{candidate: candidate} ->
+      Enum.map(candidates_with_apps, fn %{candidate: candidate, application: application} ->
         personalized_body =
           body
           |> String.replace("{candidate_name}", candidate.name || "")
 
-        if candidate.email in [nil, ""] do
-          :skipped
-        else
-          case EmailQueue.create_scheduled_email(%{
-                 tenant_id: tenant_id,
-                 scheduled_at: scheduled_at,
-                 jitter_minutes: jitter_minutes,
-                 to_address: candidate.email,
-                 from_address: "noreply@treby.app",
-                 subject: subject,
-                 body: personalized_body,
-                 email_type: "bulk"
-               }) do
-            {:ok, scheduled_email} ->
-              EmailQueue.schedule_delivery!(scheduled_email)
-              {:ok, candidate.email}
+        conversation_id = conversation_for_application(candidate, application, personalized_body)
 
-            {:error, _} ->
-              {:error, candidate.email, "failed to create scheduled email"}
-          end
+        send_at = apply_jitter(scheduled_at, jitter_minutes)
+
+        case Treby.ScheduledMessages.create_scheduled_message(%{
+               tenant_id: tenant_id,
+               sender_type: "recruiter",
+               conversation_id: conversation_id,
+               body: personalized_body,
+               message_type: "text",
+               metadata: %{"bulk" => true},
+               send_at: send_at
+             }) do
+          {:ok, _scheduled_message} -> {:ok, candidate.email}
+          {:error, _} -> {:error, candidate.email, "failed to create scheduled message"}
         end
       end)
 
@@ -135,5 +126,42 @@ defmodule Treby.BulkOperations do
     skipped = Enum.count(results, &(&1 == :skipped))
 
     {:ok, %{sent: length(successes), failed: length(failures), skipped: skipped}}
+  end
+
+  defp conversation_for_application(candidate, application, body) do
+    existing =
+      Treby.CandidatePortal.list_conversations_for_application(
+        application.id,
+        application.tenant_id
+      )
+
+    case Enum.find(existing, &(&1.context == "application")) do
+      nil ->
+        subject =
+          body
+          |> String.slice(0, 80)
+          |> String.replace("\n", " ")
+
+        {:ok, conversation} =
+          Treby.CandidatePortal.create_conversation(%{
+            candidate_id: candidate.id,
+            tenant_id: application.tenant_id,
+            application_id: application.id,
+            subject: subject || "Message",
+            context: "application"
+          })
+
+        conversation.id
+
+      conversation ->
+        conversation.id
+    end
+  end
+
+  defp apply_jitter(scheduled_at, 0), do: scheduled_at
+
+  defp apply_jitter(scheduled_at, jitter_minutes) when jitter_minutes > 0 do
+    offset_seconds = :rand.uniform(2 * jitter_minutes * 60) - jitter_minutes * 60
+    DateTime.add(scheduled_at, offset_seconds, :second)
   end
 end

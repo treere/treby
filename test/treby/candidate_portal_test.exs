@@ -47,54 +47,137 @@ defmodule Treby.CandidatePortalTest do
     {tenant, candidate, application}
   end
 
-  describe "magic link tokens" do
+  describe "OTP login" do
     setup do
       {tenant, candidate, _application} = setup_tenant_and_job()
       {:ok, tenant: tenant, candidate: candidate}
     end
 
-    test "generate_magic_link_token/1 creates a valid token", %{candidate: candidate} do
-      assert {:ok, token} = CandidatePortal.generate_magic_link_token(candidate)
-      assert is_binary(token)
-      assert String.length(token) > 0
+    test "generate_otp/1 creates a 6-digit code", %{candidate: candidate} do
+      assert {:ok, code} = CandidatePortal.generate_otp(candidate)
+      assert is_binary(code)
+      assert String.length(code) == 6
+      assert code =~ ~r/^\d{6}$/
     end
 
-    test "validate_magic_link_token/1 returns candidate for valid token", %{
+    test "generate_otp/1 stores only the hash", %{candidate: candidate} do
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
+
+      otp =
+        Repo.one(
+          from o in Treby.CandidatePortal.CandidateOtp, where: o.candidate_id == ^candidate.id
+        )
+
+      assert otp.code != code
+      assert String.length(otp.code) > 0
+    end
+
+    test "generate_otp/1 rate limits within cooldown", %{candidate: candidate} do
+      assert {:ok, _} = CandidatePortal.generate_otp(candidate)
+      assert {:error, :rate_limited} = CandidatePortal.generate_otp(candidate)
+    end
+
+    test "generate_otp/1 invalidates previous pending codes", %{candidate: candidate} do
+      assert {:ok, _} = CandidatePortal.generate_otp(candidate)
+      old_inserted = ~U[2020-01-01 00:00:00Z]
+
+      Repo.update_all(
+        from(o in Treby.CandidatePortal.CandidateOtp,
+          where: o.candidate_id == ^candidate.id,
+          update: [set: [inserted_at: ^old_inserted]]
+        ),
+        []
+      )
+
+      assert {:ok, _} = CandidatePortal.generate_otp(candidate)
+
+      otps =
+        Repo.all(
+          from o in Treby.CandidatePortal.CandidateOtp, where: o.candidate_id == ^candidate.id
+        )
+
+      assert length(Enum.filter(otps, &is_nil(&1.used_at))) == 1
+    end
+
+    test "verify_otp/2 returns candidate and tenant for valid code", %{
       candidate: candidate,
       tenant: tenant
     } do
-      {:ok, token} = CandidatePortal.generate_magic_link_token(candidate)
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
 
-      assert {:ok, validated_candidate, validated_tenant} =
-               CandidatePortal.validate_magic_link_token(token)
+      assert {:ok, verified_candidate, verified_tenant} =
+               CandidatePortal.verify_otp(candidate, code)
 
-      assert validated_candidate.id == candidate.id
-      assert validated_tenant.id == tenant.id
+      assert verified_candidate.id == candidate.id
+      assert verified_tenant.id == tenant.id
     end
 
-    test "validate_magic_link_token/1 returns error for invalid token" do
-      assert {:error, :invalid_token} = CandidatePortal.validate_magic_link_token("invalid_token")
+    test "verify_otp/2 invalidates all pending codes on success", %{candidate: candidate} do
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
+      {:ok, _, _} = CandidatePortal.verify_otp(candidate, code)
+
+      otps =
+        Repo.all(
+          from o in Treby.CandidatePortal.CandidateOtp, where: o.candidate_id == ^candidate.id
+        )
+
+      assert Enum.all?(otps, &(not is_nil(&1.used_at)))
     end
 
-    test "validate_magic_link_token/1 returns error for expired token", %{candidate: candidate} do
-      {:ok, token} = CandidatePortal.generate_magic_link_token(candidate)
-
-      # Manually expire the token by using it and then checking
-      # We'll test expiry indirectly by validating that the token works once
-      assert {:ok, _, _} = CandidatePortal.validate_magic_link_token(token)
-
-      # Token is now used, so it should fail with token_already_used
-      assert {:error, :token_already_used} = CandidatePortal.validate_magic_link_token(token)
+    test "verify_otp/2 returns error for invalid code", %{candidate: candidate} do
+      assert {:ok, _} = CandidatePortal.generate_otp(candidate)
+      assert {:error, :invalid_or_expired} = CandidatePortal.verify_otp(candidate, "000000")
     end
 
-    test "validate_magic_link_token/1 returns error for used token", %{candidate: candidate} do
-      {:ok, token} = CandidatePortal.generate_magic_link_token(candidate)
+    test "verify_otp/2 returns error for expired code", %{candidate: candidate} do
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
+      expired = ~U[2020-01-01 00:00:00Z]
 
-      # Use the token
-      assert {:ok, _, _} = CandidatePortal.validate_magic_link_token(token)
+      Repo.update_all(
+        from(o in Treby.CandidatePortal.CandidateOtp,
+          where: o.candidate_id == ^candidate.id,
+          update: [set: [expires_at: ^expired]]
+        ),
+        []
+      )
 
-      # Try to use it again
-      assert {:error, :token_already_used} = CandidatePortal.validate_magic_link_token(token)
+      assert {:error, :invalid_or_expired} = CandidatePortal.verify_otp(candidate, code)
+    end
+
+    test "verify_otp/2 returns error after too many attempts", %{candidate: candidate} do
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
+
+      Repo.update_all(
+        from(o in Treby.CandidatePortal.CandidateOtp,
+          where: o.candidate_id == ^candidate.id,
+          update: [set: [attempts: 5]]
+        ),
+        []
+      )
+
+      assert {:error, :too_many_attempts} = CandidatePortal.verify_otp(candidate, code)
+    end
+
+    test "verify_otp/2 returns error for already used code", %{candidate: candidate} do
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
+      assert {:ok, _, _} = CandidatePortal.verify_otp(candidate, code)
+      assert {:error, :invalid_or_expired} = CandidatePortal.verify_otp(candidate, code)
+    end
+
+    test "record_failed_otp_attempt/2 increments attempts", %{candidate: candidate} do
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
+      CandidatePortal.record_failed_otp_attempt(candidate, code)
+
+      otp =
+        Repo.one(
+          from o in Treby.CandidatePortal.CandidateOtp, where: o.candidate_id == ^candidate.id
+        )
+
+      assert otp.attempts == 1
+    end
+
+    test "session_lifetime_hours/0 returns a positive value" do
+      assert CandidatePortal.session_lifetime_hours() > 0
     end
   end
 

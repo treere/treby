@@ -15,11 +15,6 @@ defmodule TrebyWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :webhook do
-    plug :accepts, ["json"]
-    plug TrebyWeb.Plugs.WebhookVerification
-  end
-
   pipeline :require_auth do
     plug TrebyWeb.Plugs.Auth
   end
@@ -48,7 +43,7 @@ defmodule TrebyWeb.Router do
       live "/schedule/:application_id", ScheduleLive.Index
       live "/interviews", InterviewsLive.Index
       live "/import", ImportLive.Index
-      live "/email-queue", EmailQueueLive.Index
+      live "/messages-queue", MessagesQueueLive.Index
 
       get "/applications/:id/resume", ResumeController, :show
     end
@@ -99,20 +94,20 @@ defmodule TrebyWeb.Router do
     live "/:tenant_slug/careers", CareersLive.Index
     live "/:tenant_slug/careers/:job_id", CareersLive.Show
     live "/:tenant_slug/careers/:job_id/apply", CareersLive.Apply
-    live "/:tenant_slug/schedule/:token", SchedulingLive.Booking
     get "/invite/:token", InviteController, :show
     post "/invite/:token", InviteController, :create
     get "/terms", StaticPageController, :terms
     get "/privacy", StaticPageController, :privacy
   end
 
-  # Candidate portal — public auth endpoints (magic link request + validation)
+  # Candidate portal — public auth endpoints (OTP request + verification)
   scope "/:tenant_slug", TrebyWeb do
     pipe_through :browser
 
     live "/portal/login", CandidatePortalLive.RequestLink
-    post "/portal/login", MagicLinkController, :create
-    get "/portal/c/:token", MagicLinkController, :show
+    live "/portal/verify", CandidatePortalLive.Verify
+    post "/portal/login", CandidateOtpController, :create
+    post "/portal/verify", CandidateOtpController, :verify
   end
 
   # Candidate portal (authenticated)
@@ -122,14 +117,9 @@ defmodule TrebyWeb.Router do
     live "/portal", CandidatePortalLive.Index
     live "/portal/messages", CandidatePortalLive.Messages
     live "/portal/messages/:id", CandidatePortalLive.MessageThread
+    live "/portal/schedule", CandidatePortalLive.Schedule
     live "/portal/settings", CandidatePortalLive.Settings
-  end
-
-  # Webhook routes (public, no auth)
-  scope "/webhooks", TrebyWeb do
-    pipe_through :webhook
-
-    post "/inbound", EmailWebhookController, :create
+    delete "/portal/logout", CandidatePortalLogoutController, :delete
   end
 
   # Auth-required routes (for OAuth callbacks)

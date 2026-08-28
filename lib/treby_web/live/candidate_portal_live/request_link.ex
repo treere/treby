@@ -23,7 +23,7 @@ defmodule TrebyWeb.CandidatePortalLive.RequestLink do
             Access your portal
           </h2>
           <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Enter your email to receive a login link
+            Enter your email to receive a one-time login code
           </p>
         </div>
 
@@ -50,7 +50,7 @@ defmodule TrebyWeb.CandidatePortalLive.RequestLink do
               type="submit"
               class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Send login link
+              Send login code
             </button>
           </div>
         </.form>

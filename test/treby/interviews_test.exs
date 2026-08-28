@@ -5,7 +5,6 @@ defmodule Treby.InterviewsTest do
 
   alias Treby.Interviews
   alias Treby.Interviews.InterviewEvent
-  alias Treby.Interviews.BookingToken
 
   setup do
     {:ok, tenant} = insert_tenant()
@@ -27,7 +26,7 @@ defmodule Treby.InterviewsTest do
       assert event.duration_minutes == 30
     end
 
-    test "sends confirmation email to the candidate", %{
+    test "posts interview message to the candidate's portal conversation", %{
       user: user,
       interviewer: interviewer,
       tenant: tenant
@@ -37,9 +36,24 @@ defmodule Treby.InterviewsTest do
       {:ok, event} = Interviews.schedule_interview(attrs)
       event = Treby.Repo.preload(event, application: [:candidate, :job])
 
+      conversations =
+        Treby.CandidatePortal.list_conversations_for_application(
+          event.application.id,
+          tenant.id
+        )
+
+      assert length(conversations) == 1
+      conversation = List.first(conversations)
+      messages = Treby.Repo.preload(conversation, :messages).messages
+
+      assert length(messages) == 1
+      assert List.first(messages).message_type == "interview_invite"
+      assert List.first(messages).body =~ "has been scheduled"
+      assert List.first(messages).body =~ "Meeting Link"
+
       assert_email_sent(
         to: [{"", event.application.candidate.email}],
-        subject: "Interview Scheduled - #{event.application.job.title}"
+        subject: "Interview update: #{event.application.job.title}"
       )
     end
 
@@ -118,109 +132,6 @@ defmodule Treby.InterviewsTest do
 
       interviews = Interviews.list_for_application(app.id)
       assert length(interviews) == 1
-    end
-  end
-
-  describe "booking tokens" do
-    test "generate_booking_token/1 creates token with expiry", %{
-      user: _user,
-      interviewer: interviewer,
-      tenant: tenant
-    } do
-      {:ok, job} = insert_job(tenant.id)
-      {:ok, candidate} = insert_candidate(tenant.id)
-      {:ok, app} = insert_application(tenant.id, job.id, candidate.id)
-
-      attrs = %{
-        application_id: app.id,
-        interviewer_id: interviewer.id,
-        tenant_id: tenant.id
-      }
-
-      assert {:ok, %BookingToken{} = token} = Interviews.generate_booking_token(attrs)
-      assert token.token != nil
-      assert DateTime.after?(token.expires_at, DateTime.utc_now())
-      assert token.used_at == nil
-    end
-
-    test "get_booking_token/1 returns valid unused token", %{
-      interviewer: interviewer,
-      tenant: tenant
-    } do
-      {:ok, job} = insert_job(tenant.id)
-      {:ok, candidate} = insert_candidate(tenant.id)
-      {:ok, app} = insert_application(tenant.id, job.id, candidate.id)
-
-      {:ok, token} =
-        Interviews.generate_booking_token(%{
-          application_id: app.id,
-          interviewer_id: interviewer.id,
-          tenant_id: tenant.id
-        })
-
-      found = Interviews.get_booking_token(token.token)
-      assert found.id == token.id
-    end
-
-    test "get_booking_token/1 returns nil for used token", %{
-      interviewer: interviewer,
-      tenant: tenant
-    } do
-      {:ok, job} = insert_job(tenant.id)
-      {:ok, candidate} = insert_candidate(tenant.id)
-      {:ok, app} = insert_application(tenant.id, job.id, candidate.id)
-
-      {:ok, token} =
-        Interviews.generate_booking_token(%{
-          application_id: app.id,
-          interviewer_id: interviewer.id,
-          tenant_id: tenant.id
-        })
-
-      {:ok, _} = Interviews.use_booking_token(token)
-      assert Interviews.get_booking_token(token.token) == nil
-    end
-
-    test "get_booking_token/1 returns nil for expired token", %{
-      interviewer: interviewer,
-      tenant: tenant
-    } do
-      {:ok, job} = insert_job(tenant.id)
-      {:ok, candidate} = insert_candidate(tenant.id)
-      {:ok, app} = insert_application(tenant.id, job.id, candidate.id)
-
-      {:ok, token} =
-        Interviews.generate_booking_token(%{
-          application_id: app.id,
-          interviewer_id: interviewer.id,
-          tenant_id: tenant.id
-        })
-
-      # Manually expire the token
-      token
-      |> BookingToken.changeset(%{expires_at: DateTime.add(DateTime.utc_now(), -1, :day)})
-      |> Treby.Repo.update()
-
-      assert Interviews.get_booking_token(token.token) == nil
-    end
-
-    test "use_booking_token/1 marks token as used", %{
-      interviewer: interviewer,
-      tenant: tenant
-    } do
-      {:ok, job} = insert_job(tenant.id)
-      {:ok, candidate} = insert_candidate(tenant.id)
-      {:ok, app} = insert_application(tenant.id, job.id, candidate.id)
-
-      {:ok, token} =
-        Interviews.generate_booking_token(%{
-          application_id: app.id,
-          interviewer_id: interviewer.id,
-          tenant_id: tenant.id
-        })
-
-      assert {:ok, used} = Interviews.use_booking_token(token)
-      assert used.used_at != nil
     end
   end
 

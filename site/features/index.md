@@ -4,6 +4,9 @@ Treby packs everything a small hiring team needs — in a clean, fast, open-sour
 
 ---
 
+## [Dashboard](/features/dashboard)
+See your outstanding scorecards, upcoming interviews, stale candidates, and hiring progress at a glance — with a direct "My Actions" panel that tells you exactly what needs doing.
+
 ## [Kanban Pipeline](/features/pipeline)
 Drag-and-drop candidates through customizable pipeline stages with role-based access, scorecard gating, and rejection workflows.
 

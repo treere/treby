@@ -1,7 +1,7 @@
 defmodule TrebyWeb.DashboardLive do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Dashboard, Jobs, Candidates, Careers}
+  alias Treby.{Accounts, Tenants, Dashboard, Jobs, Candidates, Careers, Scorecards}
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -22,7 +22,9 @@ defmodule TrebyWeb.DashboardLive do
      |> assign(
        onboarding_steps: steps,
        show_onboarding: !all_done && !user.onboarding_checklist_dismissed
-     )}
+     )
+     |> assign(show_scorecard_form: false, scorecard_event_id: nil, scorecard_form: to_form(%{}))
+     |> assign(scorecard_criteria: [])}
   end
 
   def handle_event("dismiss-onboarding", %{"dismiss" => "permanent"}, socket) do
@@ -32,6 +34,76 @@ defmodule TrebyWeb.DashboardLive do
 
   def handle_event("dismiss-onboarding", _, socket) do
     {:noreply, assign(socket, show_onboarding: false)}
+  end
+
+  def handle_event("open_scorecard", %{"event_id" => event_id}, socket) do
+    template = Scorecards.get_active_template(socket.assigns.current_tenant.id)
+
+    existing_scorecard =
+      Scorecards.get_scorecard_for_interview(event_id, socket.assigns.current_user.id)
+
+    criteria = (template && template.criteria) || []
+
+    scores = (existing_scorecard && existing_scorecard.scores) || %{}
+
+    form_data = %{
+      "recommendation" => (existing_scorecard && existing_scorecard.recommendation) || "",
+      "notes" => (existing_scorecard && existing_scorecard.notes) || ""
+    }
+
+    form_data =
+      Enum.reduce(criteria, form_data, fn c, acc ->
+        key = c["name"]
+        Map.put(acc, key, scores[key] || "")
+      end)
+
+    {:noreply,
+     socket
+     |> assign(show_scorecard_form: true, scorecard_event_id: event_id)
+     |> assign(scorecard_template: template)
+     |> assign(scorecard_criteria: criteria)
+     |> assign(scorecard_form: to_form(form_data))}
+  end
+
+  def handle_event("close_scorecard", _, socket) do
+    {:noreply,
+     socket
+     |> assign(show_scorecard_form: false, scorecard_event_id: nil)}
+  end
+
+  def handle_event("submit_scorecard", params, socket) do
+    event_id = socket.assigns.scorecard_event_id
+    criteria = socket.assigns.scorecard_criteria
+
+    scores =
+      criteria
+      |> Enum.map(fn c -> {c["name"], Map.get(params, c["name"], "")} end)
+      |> Map.new()
+
+    attrs = %{
+      "scores" => scores,
+      "recommendation" => Map.get(params, "recommendation", ""),
+      "notes" => Map.get(params, "notes", ""),
+      "tenant_id" => socket.assigns.current_tenant.id
+    }
+
+    case Scorecards.submit_scorecard(event_id, socket.assigns.current_user.id, attrs) do
+      {:ok, _scorecard} ->
+        data =
+          Dashboard.get_dashboard_data(
+            socket.assigns.current_tenant.id,
+            socket.assigns.current_user.id
+          )
+
+        {:noreply,
+         socket
+         |> assign(data)
+         |> assign(show_scorecard_form: false, scorecard_event_id: nil)
+         |> put_flash(:info, "Scorecard submitted")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to submit scorecard")}
+    end
   end
 
   defp onboarding_steps(tenant, user) do
@@ -96,6 +168,68 @@ defmodule TrebyWeb.DashboardLive do
           </div>
         </div>
 
+        <%!-- My Actions --%>
+        <div class="mb-8 bg-base-100 rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">My Actions</h2>
+
+          <%!-- Pending scorecards --%>
+          <%= if @my_actions.pending_scorecards == [] and @my_actions.waiting_on_others == [] do %>
+            <.empty_state
+              icon="hero-check-circle"
+              title="All caught up"
+              description="You have no outstanding scorecards right now. Anything you need to do will appear here."
+            />
+          <% else %>
+            <%= if @my_actions.pending_scorecards != [] do %>
+              <h3 class="text-sm font-medium text-base-content/70 mb-2">Scorecards to fill</h3>
+              <div class="space-y-2 mb-4">
+                <div
+                  :for={action <- @my_actions.pending_scorecards}
+                  class="flex items-center justify-between gap-3 border border-base-300 rounded-lg px-4 py-3"
+                >
+                  <div>
+                    <p class="font-medium text-base-content">{action.candidate_name}</p>
+                    <p class="text-sm text-base-content/50">{action.job_title}</p>
+                    <p class="text-xs text-base-content/40">
+                      Interview {Elixir.Calendar.strftime(action.start_at, "%b %d at %H:%M")}
+                    </p>
+                  </div>
+                  <button
+                    phx-click="open_scorecard"
+                    phx-value-event_id={action.event_id}
+                    class="flex-shrink-0 px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
+                  >
+                    Fill scorecard
+                  </button>
+                </div>
+              </div>
+            <% end %>
+
+            <%= if @my_actions.waiting_on_others != [] do %>
+              <h3 class="text-sm font-medium text-base-content/70 mb-2">
+                Waiting on others
+              </h3>
+              <div class="space-y-2">
+                <div
+                  :for={waiting <- @my_actions.waiting_on_others}
+                  class="border border-base-300 rounded-lg px-4 py-3"
+                >
+                  <p class="font-medium text-base-content">{waiting.candidate_name}</p>
+                  <p class="text-sm text-base-content/50">{waiting.job_title}</p>
+                  <ul class="mt-1 space-y-0.5">
+                    <li
+                      :for={blocker <- waiting.blockers}
+                      class="text-xs text-amber-700 dark:text-amber-300"
+                    >
+                      {blocker}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
         <div class="grid grid-cols-2 gap-8">
           <%!-- Upcoming Interviews --%>
           <div class="bg-base-100 rounded-lg shadow p-6">
@@ -129,7 +263,7 @@ defmodule TrebyWeb.DashboardLive do
                 </div>
               </div>
               <p class="text-xs text-base-content/40 mt-1">
-                with {interview.interviewer.name}
+                with {interviewer_name(interview)}
               </p>
             </div>
           </div>
@@ -216,6 +350,11 @@ defmodule TrebyWeb.DashboardLive do
           </ul>
         </div>
       </div>
+      <.scorecard_form
+        show={@show_scorecard_form}
+        criteria={@scorecard_criteria}
+        form={@scorecard_form}
+      />
     </Layouts.app>
     """
   end
@@ -228,4 +367,10 @@ defmodule TrebyWeb.DashboardLive do
 
   defp activity_label(activity),
     do: activity.action |> String.replace("_", " ") |> String.capitalize()
+
+  defp interviewer_name(%{event_examiners: [%{user: user} | _]}) when not is_nil(user) do
+    user.name
+  end
+
+  defp interviewer_name(_), do: "To be determined"
 end

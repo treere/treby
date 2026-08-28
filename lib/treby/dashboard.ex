@@ -11,8 +11,106 @@ defmodule Treby.Dashboard do
       upcoming_interviews: upcoming_interviews(tenant_id, user_id),
       stale_candidates: stale_candidates(tenant_id),
       pipeline_snapshot: pipeline_snapshot(tenant_id),
-      weekly_stats: weekly_stats(tenant_id)
+      weekly_stats: weekly_stats(tenant_id),
+      my_actions: my_actions(tenant_id, user_id)
     }
+  end
+
+  @doc """
+  Aggregates the current user's outstanding hiring actions for the dashboard.
+
+  Returns a map with:
+    - `:pending_scorecards` — interview events where the user is an examiner and
+      their scorecard has not been submitted yet.
+    - `:waiting_on_others` — applications at an interview stage that are blocked
+      by other people's outstanding work (other examiners' missing scorecards or
+      an interview not yet completed).
+  """
+  def my_actions(tenant_id, user_id) do
+    %{
+      pending_scorecards: pending_scorecards(tenant_id, user_id),
+      waiting_on_others: waiting_on_others(tenant_id, user_id)
+    }
+  end
+
+  defp pending_scorecards(tenant_id, user_id) do
+    events =
+      Treby.Interviews.InterviewEvent
+      |> join(:inner, [e], ee in Treby.Interviews.EventExaminer,
+        on: ee.interview_event_id == e.id
+      )
+      |> where([e, ee], e.tenant_id == ^tenant_id and ee.user_id == ^user_id)
+      |> preload([e, ee], event_examiners: [:user], application: [:candidate, :job])
+      |> order_by([e], asc: e.start_at_utc)
+      |> Repo.all()
+
+    event_ids = Enum.map(events, & &1.id)
+
+    submitted_ids =
+      if event_ids == [] do
+        MapSet.new()
+      else
+        Treby.Scorecards.Scorecard
+        |> where([s], s.interview_event_id in ^event_ids and s.interviewer_id == ^user_id)
+        |> select([s], s.interview_event_id)
+        |> Repo.all()
+        |> MapSet.new()
+      end
+
+    events
+    |> Enum.reject(fn e -> MapSet.member?(submitted_ids, e.id) end)
+    |> Enum.map(fn e ->
+      application = e.application
+
+      %{
+        event_id: e.id,
+        candidate_id: application && application.candidate_id,
+        candidate_name: application && application.candidate && application.candidate.name,
+        job_title: application && application.job && application.job.title,
+        start_at: e.start_at_utc
+      }
+    end)
+  end
+
+  defp waiting_on_others(tenant_id, user_id) do
+    Treby.Pipeline.Application
+    |> where([a], a.tenant_id == ^tenant_id)
+    |> preload([:pipeline_stage, :candidate, :job])
+    |> Repo.all()
+    |> Enum.flat_map(fn app ->
+      if app.pipeline_stage && app.pipeline_stage.stage_type == "interview" do
+        blockers = Treby.Pipeline.current_state(app).blockers
+
+        relevant =
+          Enum.filter(blockers, fn b ->
+            case b.kind do
+              :interview_not_completed ->
+                true
+
+              :scorecard_pending ->
+                b.assignee != nil and b.assignee.user_id != user_id
+
+              _ ->
+                false
+            end
+          end)
+
+        if relevant == [] do
+          []
+        else
+          [
+            %{
+              application_id: app.id,
+              candidate_name: app.candidate && app.candidate.name,
+              job_title: app.job && app.job.title,
+              blockers: Enum.map(relevant, & &1.label)
+            }
+          ]
+        end
+      else
+        []
+      end
+    end)
   end
 
   def upcoming_interviews(tenant_id, user_id, days \\ 7) do
@@ -30,7 +128,7 @@ defmodule Treby.Dashboard do
       e.status == "scheduled" and e.start_at_utc > ^DateTime.utc_now() and
         e.start_at_utc <= ^cutoff
     )
-    |> preload([e, a, ee], event_examiners: [:user], application: [])
+    |> preload([e, a, ee], event_examiners: [:user], application: [:candidate, :job])
     |> order_by([e], asc: e.start_at_utc)
     |> Repo.all()
   end

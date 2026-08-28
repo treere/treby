@@ -2,6 +2,7 @@ defmodule TrebyWeb.DashboardLiveTest do
   use TrebyWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
+  import Ecto.Query
 
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
@@ -283,5 +284,187 @@ defmodule TrebyWeb.DashboardLiveTest do
       # Sections without data still show their empty states
       assert html =~ "No upcoming interviews"
     end
+  end
+
+  describe "my actions panel" do
+    test "shows empty state when there is nothing to do", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app")
+
+      html = render(view)
+      assert html =~ "My Actions"
+      assert html =~ "All caught up"
+    end
+
+    test "shows a pending scorecard for the current user", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, app, _event} = setup_interview_application(tenant, user.id)
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app")
+
+      html = render(view)
+      assert html =~ "My Actions"
+      assert html =~ "Scorecards to fill"
+      assert html =~ app.candidate.name
+      assert html =~ "Fill scorecard"
+    end
+
+    test "does not show the pending scorecard once submitted", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, _app, event} = setup_interview_application(tenant, user.id)
+
+      Treby.Scorecards.submit_scorecard(event.id, user.id, %{
+        "scores" => %{"Communication" => 4},
+        "recommendation" => "hire",
+        "notes" => "Great",
+        "tenant_id" => tenant.id
+      })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app")
+
+      html = render(view)
+      assert html =~ "My Actions"
+      refute html =~ "Scorecards to fill"
+    end
+
+    test "opens scorecard form and submits it, removing the pending item", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      {:ok, _app, _event} = setup_interview_application(tenant, user.id)
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app")
+
+      view
+      |> element("button", "Fill scorecard")
+      |> render_click()
+
+      html = render(view)
+      assert html =~ "Scorecard"
+      assert html =~ "Submit Scorecard"
+
+      view
+      |> form("#scorecard-form",
+        recommendation: "hire",
+        notes: "Great"
+      )
+      |> render_submit()
+
+      html = render(view)
+      assert html =~ "Scorecard submitted"
+      refute html =~ "Scorecards to fill"
+    end
+
+    test "shows waiting on others section for blocked applications", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, other_user} =
+        tenant
+        |> Ecto.build_assoc(:users)
+        |> User.changeset(%{
+          email: "other-#{System.unique_integer([:positive])}@test.com",
+          password: "password123",
+          name: "Other Examiner",
+          role: "member"
+        })
+        |> Repo.insert()
+
+      {:ok, _app, event} = setup_interview_application(tenant, user.id, other_user.id)
+
+      # user submits; other_user still missing -> blocked by other
+      Treby.Scorecards.submit_scorecard(event.id, user.id, %{
+        "scores" => %{"Communication" => 4},
+        "recommendation" => "hire",
+        "notes" => "Great",
+        "tenant_id" => tenant.id
+      })
+
+      Treby.Interviews.complete_interview(event)
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app")
+
+      html = render(view)
+      assert html =~ "Waiting on others"
+    end
+  end
+
+  defp setup_interview_application(tenant, examiner_ids) when is_list(examiner_ids) do
+    pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+    {:ok, job} =
+      tenant
+      |> Ecto.build_assoc(:jobs)
+      |> Job.changeset(%{
+        title: "Software Engineer",
+        description: "Build things",
+        pipeline_id: pipeline_id
+      })
+      |> Repo.insert()
+
+    {:ok, candidate} =
+      tenant
+      |> Ecto.build_assoc(:candidates)
+      |> Candidate.changeset(%{
+        name: "Jane Smith",
+        email: "jane-#{System.unique_integer([:positive])}@example.com"
+      })
+      |> Repo.insert()
+
+    stage =
+      Repo.one!(
+        from s in PipelineStage,
+          where: s.stage_type == "interview" and s.pipeline_id == ^pipeline_id
+      )
+
+    {:ok, app} =
+      tenant
+      |> Ecto.build_assoc(:applications)
+      |> Ecto.Changeset.change(%{
+        job_id: job.id,
+        candidate_id: candidate.id,
+        pipeline_stage_id: stage.id,
+        applied_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+      |> Repo.insert()
+
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    {:ok, event} =
+      %Treby.Interviews.InterviewEvent{}
+      |> Ecto.Changeset.change(%{
+        start_at_utc: DateTime.add(now, 1, :day),
+        end_at_utc: DateTime.add(now, 1, :day) |> DateTime.add(1800, :second),
+        duration_minutes: 30,
+        status: "scheduled",
+        application_id: app.id,
+        tenant_id: tenant.id
+      })
+      |> Repo.insert()
+
+    examiner_ids
+    |> List.wrap()
+    |> Enum.each(fn uid ->
+      Repo.insert!(%Treby.Interviews.EventExaminer{
+        interview_event_id: event.id,
+        user_id: uid
+      })
+    end)
+
+    {:ok, app, event}
+  end
+
+  defp setup_interview_application(tenant, examiner_id) do
+    {:ok, app, event} = setup_interview_application(tenant, [examiner_id])
+    {:ok, Repo.preload(app, :candidate), event}
+  end
+
+  defp setup_interview_application(tenant, examiner_id, other_examiner_id) do
+    setup_interview_application(tenant, [examiner_id, other_examiner_id])
   end
 end

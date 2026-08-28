@@ -1,3 +1,11 @@
+# Delete Confirmations
+
+## Purpose
+
+Ensure destructive operations require explicit user confirmation so data cannot be permanently removed by accident.
+
+## Requirements
+
 ### Requirement: Confirmation modal component
 The system SHALL provide a `<.confirm_modal>` function component in core_components.ex that renders a centered overlay dialog with a title, message, cancel button, and confirm button.
 

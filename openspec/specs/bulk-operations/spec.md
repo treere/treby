@@ -30,12 +30,25 @@ The system SHALL allow selecting multiple candidates or applications via checkbo
 - **THEN** a floating action bar shows the count of selected items (e.g., "5 selected")
 
 ### Requirement: Bulk move to stage
-The system SHALL allow moving multiple selected applications to a specific pipeline stage.
+The system SHALL allow moving multiple selected applications to a specific pipeline stage. The stages offered SHALL come from the job's effective pipeline (explicit pipeline if assigned, otherwise the tenant's default pipeline). The bulk action bar controls SHALL be rendered inside a form so change/submit events reach the server without client-side errors.
 
 #### Scenario: Bulk move via action bar
 - **WHEN** a user selects applications and clicks "Move to Stage"
 - **THEN** a dropdown shows available stages in the pipeline
 - **AND** selecting a stage and confirming moves all selected applications
+
+#### Scenario: Bulk move controls inside a form
+- **WHEN** a user selects candidates on the pipeline board and opens the bulk action bar
+- **THEN** the stage selector and move button are rendered inside a form element with `phx-change` / `phx-submit` wiring
+- **AND** no "form events require the input to be inside a form" error is raised in the browser console
+
+#### Scenario: Bulk move stage list uses effective pipeline
+- **WHEN** a user opens the bulk action bar on a pipeline board for a job
+- **THEN** the dropdown lists the stages of the job's effective pipeline, including a job with no explicit pipeline (falling back to the tenant's default pipeline)
+
+#### Scenario: Bulk move with no stages available
+- **WHEN** the effective pipeline has no stages
+- **THEN** the "Move to Stage" action is disabled instead of showing an empty dropdown
 
 #### Scenario: Bulk move with message templates
 - **WHEN** the target stage has a message template configured

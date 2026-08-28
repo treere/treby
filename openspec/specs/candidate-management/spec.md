@@ -93,3 +93,35 @@ The system SHALL support custom fields on candidates.
 #### Scenario: Candidate with custom fields
 - **WHEN** custom fields are defined for candidates
 - **THEN** they appear on the candidate profile and application form
+
+### Requirement: Reject candidate from profile
+The system SHALL allow rejecting a candidate from the candidate profile page by moving their application to the stage with `stage_type = "rejected"` in the application's effective pipeline.
+
+#### Scenario: Reject candidate with application
+- **WHEN** a user clicks "Reject" on a candidate profile with at least one application and confirms with a motivation
+- **THEN** the application is moved to the stage with `stage_type = "rejected"` in the application's effective pipeline
+- **AND** a rejection conversation message is created
+
+#### Scenario: Reject candidate without application
+- **WHEN** a user confirms rejection on a candidate profile with no applications
+- **THEN** the page does not crash
+- **AND** the system displays an error message explaining the candidate has no application to reject
+
+### Requirement: Profile portal actions without applications
+The system SHALL allow using the candidate profile's portal actions (send message, request info, reject) for candidates with no applications without crashing the page.
+
+#### Scenario: Request info for candidate without applications
+- **WHEN** a user clicks "Request Info" and confirms on a candidate profile with no applications
+- **THEN** the page does not crash
+- **AND** a clear error message is displayed explaining the candidate has no application
+- **AND** no conversation is created
+
+#### Scenario: Reject candidate without applications
+- **WHEN** a user confirms rejection on a candidate profile with no applications
+- **THEN** the page does not crash
+- **AND** a clear error message is displayed explaining the candidate has no application
+
+#### Scenario: New message for candidate without applications
+- **WHEN** a user sends a new portal message to a candidate with no applications
+- **THEN** the message is created without an application reference
+- **AND** no error is raised

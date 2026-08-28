@@ -20,6 +20,8 @@ defmodule Treby.Tenants do
   def get_tenant_by_slug(slug), do: Repo.get_by(Tenant, slug: slug)
 
   def create_tenant(attrs \\ %{}) do
+    attrs = ensure_slug(attrs)
+
     %Tenant{}
     |> Tenant.changeset(attrs)
     |> Repo.insert()
@@ -57,5 +59,40 @@ defmodule Treby.Tenants do
 
   def change_tenant(%Tenant{} = tenant, attrs \\ %{}) do
     Tenant.changeset(tenant, attrs)
+  end
+
+  defp ensure_slug(attrs) do
+    if Map.has_key?(attrs, :slug) || Map.has_key?(attrs, "slug") do
+      attrs
+    else
+      name = Map.get(attrs, :name) || Map.get(attrs, "name") || ""
+
+      if name == "" do
+        attrs
+      else
+        Map.put(attrs, :slug, generate_unique_slug(name))
+      end
+    end
+  end
+
+  def generate_unique_slug(name) do
+    base =
+      name
+      |> String.downcase()
+      |> String.replace(~r/[^a-z0-9]+/, "-")
+      |> String.trim("-")
+
+    base = if base == "", do: "company", else: base
+    find_unique_slug(base, 1)
+  end
+
+  defp find_unique_slug(base, attempt) do
+    candidate = if attempt == 1, do: base, else: "#{base}-#{attempt}"
+
+    if Repo.get_by(Tenant, slug: candidate) do
+      find_unique_slug(base, attempt + 1)
+    else
+      candidate
+    end
   end
 end

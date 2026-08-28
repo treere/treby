@@ -10,7 +10,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     tenant = Tenants.get_tenant!(session["tenant_id"])
     job = Jobs.get_job!(tenant.id, job_id)
     applications_by_stage = Pipeline.list_applications_by_stage(job_id)
-    stages = Pipeline.list_pipeline_stages(tenant.id)
+    stages = Pipeline.list_pipeline_stages_for_job(job.id)
 
     candidate_ids =
       applications_by_stage
@@ -56,6 +56,7 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(selected_ids: [])
      |> assign(bulk_action: nil)
      |> assign(bulk_stage_id: nil)
+     |> assign(bulk_form: to_form(%{}))
      |> assign(confirm_delete: nil)
      |> assign(show_schedule_picker: false)
      |> assign(schedule_datetime: nil)
@@ -70,6 +71,10 @@ defmodule TrebyWeb.PipelineLive.Index do
      |> assign(scorecard_criteria: [])
      |> assign(scorecard_template: nil)
      |> assign(scorecard_form: to_form(%{}))}
+  end
+
+  def handle_info({:email, _email}, socket) do
+    {:noreply, socket}
   end
 
   def handle_info({:pipeline_updated, job_id}, socket) do
@@ -542,21 +547,21 @@ defmodule TrebyWeb.PipelineLive.Index do
         <div class="bg-gray-900 text-white rounded-lg shadow-2xl p-4 flex items-center gap-4">
           <span class="text-sm">{length(@selected_ids)} selected</span>
 
-          <div class="flex items-center gap-2">
+          <.form for={@bulk_form} id="bulk-action-form" class="flex items-center gap-2">
             <select
               phx-change="bulk_select_action"
               name="bulk_action"
               class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
             >
               <option value="">Actions...</option>
-              <option value="move_stage">Move to Stage</option>
+              <option value="move_stage" disabled={@stages == []}>Move to Stage</option>
               <option value="mark_reviewed">Mark as Reviewed</option>
               <option value="mark_unreviewed">Mark as New</option>
               <option value="delete">Delete</option>
             </select>
 
             <select
-              :if={@bulk_action == "move_stage"}
+              :if={@bulk_action == "move_stage" && @stages != []}
               phx-change="bulk_select_stage"
               name="bulk_stage_id"
               class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
@@ -564,7 +569,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               <option value="">Select stage...</option>
               <option :for={stage <- @stages} value={stage.id}>{stage.name}</option>
             </select>
-          </div>
+          </.form>
 
           <button
             :if={@bulk_action == "move_stage" && @bulk_stage_id != nil}
@@ -909,7 +914,7 @@ defmodule TrebyWeb.PipelineLive.Index do
 
       # Find the "rejected" stage for this pipeline
       job = Jobs.get_job!(socket.assigns.current_tenant.id, application.job_id)
-      stages = Pipeline.list_pipeline_stages(job.pipeline_id)
+      stages = Pipeline.list_pipeline_stages_for_job(job.id)
       rejected_stage = Enum.find(stages, &(&1.stage_type == "rejected"))
 
       if rejected_stage do

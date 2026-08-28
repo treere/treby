@@ -15,6 +15,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
       |> assign(page_title: "Interviews")
       |> assign(view: "all")
       |> assign(filter_interviewer_id: nil)
+      |> assign(filter_form: to_form(%{}))
       |> assign(users: users)
       |> assign(show_scorecard_form: false)
       |> assign(scorecard_event_id: nil)
@@ -204,21 +205,23 @@ defmodule TrebyWeb.InterviewsLive.Index do
             </div>
 
             <%= if @view == "all" do %>
-              <select
-                phx-change="filter_interviewer"
-                name="interviewer_id"
-                class="select"
-              >
-                <option value="">All Examiners</option>
-                <%= for user <- @users do %>
-                  <option
-                    value={user.id}
-                    selected={@filter_interviewer_id == user.id}
-                  >
-                    {user.name}
-                  </option>
-                <% end %>
-              </select>
+              <.form for={@filter_form} id="interviews-filter-form">
+                <select
+                  phx-change="filter_interviewer"
+                  name="interviewer_id"
+                  class="select"
+                >
+                  <option value="">All Examiners</option>
+                  <%= for user <- @users do %>
+                    <option
+                      value={user.id}
+                      selected={@filter_interviewer_id == user.id}
+                    >
+                      {user.name}
+                    </option>
+                  <% end %>
+                </select>
+              </.form>
             <% end %>
           </div>
         </div>

@@ -38,7 +38,7 @@ The system SHALL allow admins to create, read, update, and delete pipeline defin
 - **THEN** the delete action is disabled with a tooltip explaining at least one pipeline is required
 
 ### Requirement: Default pipeline
-The system SHALL designate exactly one pipeline as the default per tenant.
+The system SHALL designate exactly one pipeline as the default per tenant. The default pipeline SHALL include a terminal stage with `stage_type = "rejected"`.
 
 #### Scenario: Set default pipeline
 - **WHEN** an admin sets a pipeline as default
@@ -48,6 +48,10 @@ The system SHALL designate exactly one pipeline as the default per tenant.
 #### Scenario: New jobs use default pipeline
 - **WHEN** a job is created without specifying a pipeline
 - **THEN** the job uses the tenant's default pipeline
+
+#### Scenario: Rejected stage in default pipeline
+- **WHEN** a tenant is created or an existing default pipeline lacks a rejected-type stage
+- **THEN** the default pipeline includes a terminal stage with `stage_type = "rejected"`
 
 ### Requirement: Duplicate pipeline
 The system SHALL allow admins to duplicate an existing pipeline, including role assignments.

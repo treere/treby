@@ -18,6 +18,12 @@ defmodule Treby.Accounts do
 
   def get_user_by_email(email), do: Repo.get_by(User, email: email)
 
+  def email_registered?(email) when is_binary(email) do
+    Repo.exists?(from(u in User, where: u.email == ^email))
+  end
+
+  def email_registered?(_email), do: false
+
   def create_user(attrs \\ %{}) do
     %User{}
     |> User.changeset(attrs)

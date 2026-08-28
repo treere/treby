@@ -21,16 +21,18 @@ defmodule TrebyWeb.CareersLive.Index do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-base-200">
-      <div :if={@career_page} class="max-w-4xl mx-auto py-12 px-4">
+      <div class="max-w-4xl mx-auto py-12 px-4">
         <div class="text-center mb-12">
           <img
-            :if={@career_page.logo_url}
+            :if={@career_page && @career_page.logo_url}
             src={@career_page.logo_url}
             class="h-16 mx-auto mb-4"
             alt={@tenant.name}
           />
-          <h1 class="text-4xl font-bold text-base-content">{@career_page.title}</h1>
-          <p :if={@career_page.description} class="mt-4 text-lg text-base-content/70">
+          <h1 class="text-4xl font-bold text-base-content">
+            {(@career_page && @career_page.title) || @tenant.name}
+          </h1>
+          <p :if={@career_page && @career_page.description} class="mt-4 text-lg text-base-content/70">
             {@career_page.description}
           </p>
         </div>
@@ -68,11 +70,6 @@ defmodule TrebyWeb.CareersLive.Index do
             <p :if={job.salary_range} class="mt-2 text-base-content/70">{job.salary_range}</p>
           </.link>
         </div>
-      </div>
-
-      <div :if={!@career_page} class="max-w-4xl mx-auto py-12 px-4 text-center">
-        <h1 class="text-4xl font-bold text-base-content">{@tenant.name}</h1>
-        <p class="mt-4 text-lg text-base-content/70">Career page coming soon.</p>
       </div>
     </div>
     """

@@ -1,6 +1,8 @@
 defmodule TrebyWeb.RegistrationTest do
   use TrebyWeb.ConnCase, async: true
 
+  alias Treby.Accounts.User
+
   describe "registration form" do
     test "shows registration form on GET /register", %{conn: conn} do
       conn = get(conn, ~p"/register")
@@ -21,14 +23,13 @@ defmodule TrebyWeb.RegistrationTest do
   end
 
   describe "registration validation" do
-    test "mismatched passwords shows error", %{conn: conn} do
+    test "mismatched passwords shows inline error", %{conn: conn} do
       unique = System.unique_integer([:positive])
 
       conn =
         post(conn, ~p"/register", %{
           "user" => %{
             "company_name" => "Test Corp",
-            "company_slug" => "test-#{unique}",
             "name" => "Test User",
             "email" => "test-#{unique}@example.com",
             "password" => "password123",
@@ -37,18 +38,16 @@ defmodule TrebyWeb.RegistrationTest do
           }
         })
 
-      assert redirected_to(conn) == "/register"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Passwords do not match"
+      assert html_response(conn, 422) =~ "does not match password"
     end
 
-    test "missing ToS acceptance shows error", %{conn: conn} do
+    test "missing ToS acceptance shows inline error", %{conn: conn} do
       unique = System.unique_integer([:positive])
 
       conn =
         post(conn, ~p"/register", %{
           "user" => %{
             "company_name" => "Test Corp",
-            "company_slug" => "test-#{unique}",
             "name" => "Test User",
             "email" => "test-#{unique}@example.com",
             "password" => "password123",
@@ -57,10 +56,7 @@ defmodule TrebyWeb.RegistrationTest do
           }
         })
 
-      assert redirected_to(conn) == "/register"
-
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
-               "You must accept the Terms of Service"
+      assert html_response(conn, 422) =~ "must be accepted"
     end
 
     test "successful registration with all fields", %{conn: conn} do
@@ -70,7 +66,6 @@ defmodule TrebyWeb.RegistrationTest do
         post(conn, ~p"/register", %{
           "user" => %{
             "company_name" => "Test Corp",
-            "company_slug" => "test-#{unique}",
             "name" => "Test User",
             "email" => "test-#{unique}@example.com",
             "password" => "password123",
@@ -81,6 +76,63 @@ defmodule TrebyWeb.RegistrationTest do
 
       assert redirected_to(conn) == "/app"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Welcome to Treby!"
+    end
+
+    test "registration without a slug derives a unique slug from the company name", %{conn: conn} do
+      unique = System.unique_integer([:positive])
+      name = "Tech Corp #{unique}"
+
+      conn =
+        post(conn, ~p"/register", %{
+          "user" => %{
+            "company_name" => name,
+            "name" => "Test User",
+            "email" => "test-#{unique}@example.com",
+            "password" => "password123",
+            "password_confirmation" => "password123",
+            "tos_accepted" => "true"
+          }
+        })
+
+      assert redirected_to(conn) == "/app"
+
+      tenant = Treby.Tenants.get_tenant_by_slug!("tech-corp-#{unique}")
+      assert tenant.name == name
+
+      conn = get(conn, ~p"/#{tenant.slug}/careers")
+      assert html_response(conn, 200) =~ "Open Positions"
+    end
+
+    test "registration with an already registered email shows a field-level error", %{conn: conn} do
+      unique = System.unique_integer([:positive])
+      email = "dup-#{unique}@example.com"
+
+      {:ok, existing_tenant} = Treby.Tenants.create_tenant(%{name: "First Corp #{unique}"})
+
+      existing_tenant
+      |> Ecto.build_assoc(:users)
+      |> User.changeset(%{
+        email: email,
+        password: "password123",
+        name: "Existing User",
+        role: "admin"
+      })
+      |> Treby.Repo.insert!()
+
+      conn =
+        post(conn, ~p"/register", %{
+          "user" => %{
+            "company_name" => "Second Corp #{unique}",
+            "name" => "Test User",
+            "email" => email,
+            "password" => "password123",
+            "password_confirmation" => "password123",
+            "tos_accepted" => "true"
+          }
+        })
+
+      assert html_response(conn, 422) =~ "has already been taken"
+      assert html_response(conn, 422) =~ "user_email"
     end
   end
 

@@ -160,6 +160,39 @@ defmodule Treby.DashboardTest do
     end
   end
 
+  describe "pipeline_snapshot/1" do
+    test "includes open jobs without an explicit pipeline using default pipeline stages", %{
+      tenant: tenant
+    } do
+      {:ok, job} = insert_job(tenant.id, explicit_pipeline: false)
+
+      {:ok, candidate} = insert_candidate(tenant.id)
+
+      insert_application(tenant.id, job.id, candidate.id)
+
+      [snapshot] = Dashboard.pipeline_snapshot(tenant.id)
+
+      assert snapshot.job.id == job.id
+      refute snapshot.stages == []
+      assert Enum.any?(snapshot.stages, &(&1.count == 1))
+    end
+
+    test "excludes jobs with a non-open status", %{tenant: tenant} do
+      {:ok, _job} =
+        %Treby.Jobs.Job{}
+        |> Ecto.Changeset.change(%{
+          title: "Closed Job",
+          description: "A closed job posting",
+          tenant_id: tenant.id,
+          pipeline_id: Treby.Pipeline.default_pipeline_id(tenant.id),
+          status: "closed"
+        })
+        |> Repo.insert()
+
+      assert Dashboard.pipeline_snapshot(tenant.id) == []
+    end
+  end
+
   defp setup_interview_application(tenant, examiner_ids) do
     {:ok, job} = insert_job(tenant.id)
     {:ok, candidate} = insert_candidate(tenant.id)
@@ -219,8 +252,11 @@ defmodule Treby.DashboardTest do
     |> then(&{:ok, &1})
   end
 
-  defp insert_job(tenant_id) do
-    pipeline_id = Treby.Pipeline.default_pipeline_id(tenant_id)
+  defp insert_job(tenant_id, opts \\ []) do
+    explicit_pipeline = Keyword.get(opts, :explicit_pipeline, true)
+
+    pipeline_id =
+      if explicit_pipeline, do: Treby.Pipeline.default_pipeline_id(tenant_id)
 
     {:ok, job} =
       %Treby.Jobs.Job{}

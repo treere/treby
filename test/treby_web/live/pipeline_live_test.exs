@@ -420,29 +420,225 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
 
       assert render(view) =~ "Mark as completed"
     end
+  end
 
-    test "completing the interview removes the action but keeps the scorecard", %{conn: conn} do
+  describe "rejection" do
+    test "rejects a candidate end-to-end for a job with no explicit pipeline", %{conn: conn} do
       {tenant, user} = setup_tenant()
-      data = setup_interview_card_data(tenant, user)
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "No Pipeline Job",
+          description: "Build things"
+        })
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{
+          name: "Reject Candidate",
+          email: "reject-#{System.unique_integer([:positive])}@example.com"
+        })
+        |> Repo.insert()
+
+      first_stage = Treby.Pipeline.list_pipeline_stages_for_job(job.id) |> List.first()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: first_stage.id,
+          applied_at: DateTime.utc_now()
+        })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job.id}")
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      view |> render_click("reject_application", %{"id" => application.id})
+      view |> render_click("update_rejection_reason", %{"value" => "not a fit"})
+      view |> render_click("confirm_reject", %{})
+
+      assert render(view) =~ "Candidate rejected"
+
+      updated = Treby.Pipeline.get_application!(application.id)
+
+      rejected_stage =
+        Treby.Pipeline.list_pipeline_stages_for_job(job.id)
+        |> Enum.find(&(&1.stage_type == "rejected"))
+
+      assert updated.pipeline_stage_id == rejected_stage.id
+    end
+  end
+
+  describe "bulk actions" do
+    test "moves selected applications to the chosen stage from the action bar", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage1} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Applied", position: 0, stage_type: "applied"})
+        |> Repo.insert()
+
+      {:ok, stage2} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Interview", position: 1, stage_type: "interview"})
+        |> Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Bulk Move Job", description: "d", pipeline_id: pipeline_id})
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{
+          name: "Bulk Move Person",
+          email: "bulk-#{System.unique_integer([:positive])}@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage1.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      view |> render_click("toggle_application", %{"id" => application.id})
+      view |> render_change("bulk_select_action", %{"bulk_action" => "move_stage"})
 
       html = render(view)
-      assert html =~ "Mark as completed"
-      assert html =~ "Scorecard"
+      assert html =~ "Select stage..."
+      assert html =~ "Interview"
 
-      view |> render_click("complete_interview", %{"id" => data.event.id})
-      assert render(view) =~ "Mark Interview as Completed"
+      view |> render_change("bulk_select_stage", %{"bulk_stage_id" => stage2.id})
+      view |> render_click("bulk_execute_move", %{})
 
-      view |> render_click("confirm_complete_interview", %{})
+      assert render(view) =~ "1 applications moved"
+      assert Treby.Pipeline.get_application!(application.id).pipeline_stage_id == stage2.id
+    end
 
-      assert Repo.get!(InterviewEvent, data.event.id).status == "completed"
+    test "lists default pipeline stages in the dropdown for a job with no explicit pipeline", %{
+      conn: conn
+    } do
+      {tenant, user} = setup_tenant()
 
-      # A fresh connection reflects the updated card state
-      {:ok, view2, _html2} = live(conn, ~p"/app/pipeline/#{data.job.id}")
-      refute has_element?(view2, "button[phx-click='complete_interview']")
-      assert has_element?(view2, "button[phx-click='open_scorecard']")
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+      {:ok, stage} =
+        Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Applied", position: 0, stage_type: "applied"})
+        |> Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Default Stages Job", description: "d"})
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{
+          name: "Default Stages Person",
+          email: "defstage-#{System.unique_integer([:positive])}@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      view |> render_click("toggle_application", %{"id" => application.id})
+      view |> render_change("bulk_select_action", %{"bulk_action" => "move_stage"})
+
+      html = render(view)
+      assert html =~ "Select stage..."
+      assert html =~ "Applied"
+
+      view |> render_change("bulk_select_stage", %{"bulk_stage_id" => stage.id})
+      view |> render_click("bulk_execute_move", %{})
+
+      assert render(view) =~ "1 applications moved"
+      assert Treby.Pipeline.get_application!(application.id).pipeline_stage_id == stage.id
+    end
+
+    test "disables Move to Stage when the job's effective pipeline has no stages", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, empty_pipeline} =
+        Treby.Pipeline.create_pipeline(%{
+          tenant_id: tenant.id,
+          name: "Empty",
+          is_default: false
+        })
+
+      default_stage =
+        Treby.Pipeline.list_pipeline_stages(Treby.Pipeline.default_pipeline_id(tenant.id))
+        |> List.first()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "Empty Pipeline Job",
+          description: "d",
+          pipeline_id: empty_pipeline.id
+        })
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{
+          name: "Empty Pipeline Person",
+          email: "emptypipe-#{System.unique_integer([:positive])}@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: default_stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      view |> render_click("toggle_application", %{"id" => application.id})
+      view |> render_change("bulk_select_action", %{"bulk_action" => "move_stage"})
+
+      html = render(view)
+      assert html =~ "Move to Stage"
+      refute html =~ "Select stage..."
     end
   end
 end

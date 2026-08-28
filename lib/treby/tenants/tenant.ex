@@ -23,7 +23,7 @@ defmodule Treby.Tenants.Tenant do
   def changeset(tenant, attrs) do
     tenant
     |> cast(attrs, [:name, :slug, :settings])
-    |> validate_required([:name, :slug])
+    |> validate_required([:name])
     |> unique_constraint(:slug)
     |> validate_format(:slug, ~r/^[a-z0-9-]+$/,
       message: "must contain only lowercase letters, numbers, and hyphens"

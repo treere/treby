@@ -166,18 +166,11 @@ defmodule Treby.Dashboard do
   def pipeline_snapshot(tenant_id) do
     jobs =
       Treby.Jobs.Job
-      |> where(
-        [j],
-        j.tenant_id == ^tenant_id and j.status == "open" and not is_nil(j.pipeline_id)
-      )
+      |> where([j], j.tenant_id == ^tenant_id and j.status == "open")
       |> Repo.all()
 
     Enum.map(jobs, fn job ->
-      stages =
-        Treby.Pipeline.PipelineStage
-        |> where([ps], ps.pipeline_id == ^job.pipeline_id)
-        |> order_by([ps], ps.position)
-        |> Repo.all()
+      stages = Treby.Pipeline.list_pipeline_stages_for_job(job.id)
 
       stage_counts =
         Enum.map(stages, fn stage ->

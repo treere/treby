@@ -955,6 +955,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
     """
   end
 
+  def handle_info({:email, _email}, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("toggle_note_form", %{"application_id" => app_id}, socket) do
     show = if socket.assigns.show_note_form == app_id, do: nil, else: app_id
     {:noreply, assign(socket, show_note_form: show)}
@@ -1162,52 +1166,60 @@ defmodule TrebyWeb.CandidatesLive.Show do
     template = Map.get(params, "template", "custom")
     message = Map.get(params, "message", "") |> String.trim()
 
-    if message == "" do
-      {:noreply, put_flash(socket, :error, "Message cannot be empty")}
-    else
-      # Create a conversation with request_info type
-      {:ok, conversation} =
-        CandidatePortal.create_conversation(%{
-          candidate_id: socket.assigns.candidate.id,
-          tenant_id: socket.assigns.current_tenant.id,
-          subject: "Information Request",
-          context: "info_request",
-          application_id: List.first(socket.assigns.applications).id
+    application = List.first(socket.assigns.applications)
+
+    cond do
+      message == "" ->
+        {:noreply, put_flash(socket, :error, "Message cannot be empty")}
+
+      is_nil(application) ->
+        {:noreply,
+         socket
+         |> assign(:show_request_info_form, true)
+         |> put_flash(:error, "This candidate has no applications to request information for")}
+
+      true ->
+        # Create a conversation with request_info type
+        {:ok, conversation} =
+          CandidatePortal.create_conversation(%{
+            candidate_id: socket.assigns.candidate.id,
+            tenant_id: socket.assigns.current_tenant.id,
+            subject: "Information Request",
+            context: "info_request",
+            application_id: application.id
+          })
+
+        CandidatePortal.send_message(%{
+          sender_id: socket.assigns.current_user.id,
+          sender_type: "recruiter",
+          conversation_id: conversation.id,
+          body: message,
+          message_type: "request_info",
+          metadata: %{"template" => template}
         })
 
-      CandidatePortal.send_message(%{
-        sender_id: socket.assigns.current_user.id,
-        sender_type: "recruiter",
-        conversation_id: conversation.id,
-        body: message,
-        message_type: "request_info",
-        metadata: %{"template" => template}
-      })
-
-      application = List.first(socket.assigns.applications)
-
-      CandidatePortal.notify_new_message(
-        socket.assigns.candidate,
-        socket.assigns.current_tenant,
-        "info_request",
-        %{
-          conversation_id: conversation.id,
-          job_title: application && application.job && application.job.title
-        }
-      )
-
-      conversations =
-        CandidatePortal.list_conversations_for_candidate(
-          socket.assigns.candidate.id,
-          socket.assigns.current_tenant.id
+        CandidatePortal.notify_new_message(
+          socket.assigns.candidate,
+          socket.assigns.current_tenant,
+          "info_request",
+          %{
+            conversation_id: conversation.id,
+            job_title: application && application.job && application.job.title
+          }
         )
 
-      {:noreply,
-       socket
-       |> assign(conversations: conversations)
-       |> assign(:show_request_info_form, false)
-       |> assign(:request_info_form, to_form(%{}, as: :request_info))
-       |> put_flash(:info, "Information request sent")}
+        conversations =
+          CandidatePortal.list_conversations_for_candidate(
+            socket.assigns.candidate.id,
+            socket.assigns.current_tenant.id
+          )
+
+        {:noreply,
+         socket
+         |> assign(conversations: conversations)
+         |> assign(:show_request_info_form, false)
+         |> assign(:request_info_form, to_form(%{}, as: :request_info))
+         |> put_flash(:info, "Information request sent")}
     end
   end
 
@@ -1229,67 +1241,82 @@ defmodule TrebyWeb.CandidatesLive.Show do
     reason = Map.get(params, "reason", "other")
     feedback = Map.get(params, "feedback", "") |> String.trim()
 
-    # Create a conversation with rejection
-    {:ok, conversation} =
-      CandidatePortal.create_conversation(%{
-        candidate_id: socket.assigns.candidate.id,
-        tenant_id: socket.assigns.current_tenant.id,
-        subject: "Application Update",
-        context: "rejection",
-        application_id: List.first(socket.assigns.applications).id
-      })
-
-    CandidatePortal.send_message(%{
-      sender_id: socket.assigns.current_user.id,
-      sender_type: "recruiter",
-      conversation_id: conversation.id,
-      body: "We've decided to move forward with other candidates. #{feedback}",
-      message_type: "rejection",
-      metadata: %{"rejection_reason" => reason, "feedback" => feedback}
-    })
-
-    # Update application status to rejected
     application = List.first(socket.assigns.applications)
-    # Find the rejected stage for this job
-    job = application.job
-    rejected_stage = Enum.find(job.pipeline_stages, &(&1.name == "Rejected"))
 
-    if rejected_stage do
-      Pipeline.move_application(application, rejected_stage.id, %{
-        rejection_reason: reason
-      })
+    if application do
+      job = application.job
+
+      rejected_stage =
+        Pipeline.list_pipeline_stages_for_job(job.id)
+        |> Enum.find(&(&1.stage_type == "rejected"))
+
+      if rejected_stage do
+        # Create a conversation with rejection
+        {:ok, conversation} =
+          CandidatePortal.create_conversation(%{
+            candidate_id: socket.assigns.candidate.id,
+            tenant_id: socket.assigns.current_tenant.id,
+            subject: "Application Update",
+            context: "rejection",
+            application_id: application.id
+          })
+
+        CandidatePortal.send_message(%{
+          sender_id: socket.assigns.current_user.id,
+          sender_type: "recruiter",
+          conversation_id: conversation.id,
+          body: "We've decided to move forward with other candidates. #{feedback}",
+          message_type: "rejection",
+          metadata: %{"rejection_reason" => reason, "feedback" => feedback}
+        })
+
+        # Update application status to rejected
+        Pipeline.move_application(application, rejected_stage.id, %{
+          rejection_reason: reason
+        })
+
+        # Send rejection notification email
+        try do
+          email =
+            NotificationEmail.notification_ping(
+              socket.assigns.candidate,
+              socket.assigns.current_tenant,
+              conversation.id,
+              "rejection",
+              %{"job_title" => job.title}
+            )
+
+          Treby.Mailer.deliver(email)
+        rescue
+          _ -> :ok
+        catch
+          _ -> :ok
+        end
+
+        conversations =
+          CandidatePortal.list_conversations_for_candidate(
+            socket.assigns.candidate.id,
+            socket.assigns.current_tenant.id
+          )
+
+        {:noreply,
+         socket
+         |> assign(conversations: conversations)
+         |> assign(:show_reject_form, false)
+         |> assign(:reject_form, to_form(%{}, as: :reject))
+         |> put_flash(:info, "Candidate rejected")}
+      else
+        {:noreply,
+         socket
+         |> assign(:show_reject_form, true)
+         |> put_flash(:error, "No rejected stage found in this pipeline")}
+      end
+    else
+      {:noreply,
+       socket
+       |> assign(:show_reject_form, true)
+       |> put_flash(:error, "This candidate has no applications to reject")}
     end
-
-    # Send rejection notification email
-    try do
-      email =
-        NotificationEmail.notification_ping(
-          socket.assigns.candidate,
-          socket.assigns.current_tenant,
-          conversation.id,
-          "rejection",
-          %{"job_title" => job.title}
-        )
-
-      Treby.Mailer.deliver(email)
-    rescue
-      _ -> :ok
-    catch
-      _ -> :ok
-    end
-
-    conversations =
-      CandidatePortal.list_conversations_for_candidate(
-        socket.assigns.candidate.id,
-        socket.assigns.current_tenant.id
-      )
-
-    {:noreply,
-     socket
-     |> assign(conversations: conversations)
-     |> assign(:show_reject_form, false)
-     |> assign(:reject_form, to_form(%{}, as: :reject))
-     |> put_flash(:info, "Candidate rejected")}
   end
 
   def handle_event("complete_interview", %{"id" => interview_id}, socket) do

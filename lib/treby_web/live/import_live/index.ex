@@ -25,6 +25,7 @@ defmodule TrebyWeb.ImportLive.Index do
      |> assign(selected_job_id: nil)
      |> assign(selected_stage_id: nil)
      |> assign(selected_source: nil)
+     |> assign(import_form: to_form(%{}))
      |> assign(import_results: nil)
      |> assign(import_log: nil)
      |> allow_upload(:csv,
@@ -232,45 +233,47 @@ defmodule TrebyWeb.ImportLive.Index do
 
           <div :if={@jobs != []} class="mt-8 bg-base-200 rounded-lg p-6">
             <h3 class="font-medium">{gettext("Add to Job (Optional)")}</h3>
-            <div class="mt-4 grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm text-base-content/70">{gettext("Job")}</label>
+            <.form for={@import_form} id="import-options-form">
+              <div class="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm text-base-content/70">{gettext("Job")}</label>
+                  <select
+                    phx-change="select_job"
+                    class="select w-full mt-1"
+                  >
+                    <option value="">{gettext("None")}</option>
+                    <option :for={job <- @jobs} value={job.id}>{job.title}</option>
+                  </select>
+                </div>
+
+                <div :if={@selected_job_id} class="space-y-3">
+                  <label class="block text-sm text-base-content/70">{gettext("Stage")}</label>
+                  <select
+                    phx-change="select_stage"
+                    class="select w-full mt-1"
+                  >
+                    <option value="">{gettext("First stage")}</option>
+                    <option
+                      :for={stage <- get_stages_for_job(@selected_job_id)}
+                      value={stage.id}
+                    >
+                      {stage.name}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <label class="block text-sm text-base-content/70">{gettext("Source")}</label>
                 <select
-                  phx-change="select_job"
+                  phx-change="select_source"
                   class="select w-full mt-1"
                 >
                   <option value="">{gettext("None")}</option>
-                  <option :for={job <- @jobs} value={job.id}>{job.title}</option>
+                  <option :for={source <- @sources} value={source.name}>{source.name}</option>
                 </select>
               </div>
-
-              <div :if={@selected_job_id} class="space-y-3">
-                <label class="block text-sm text-base-content/70">{gettext("Stage")}</label>
-                <select
-                  phx-change="select_stage"
-                  class="select w-full mt-1"
-                >
-                  <option value="">{gettext("First stage")}</option>
-                  <option
-                    :for={stage <- get_stages_for_job(@selected_job_id)}
-                    value={stage.id}
-                  >
-                    {stage.name}
-                  </option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mt-4">
-              <label class="block text-sm text-base-content/70">{gettext("Source")}</label>
-              <select
-                phx-change="select_source"
-                class="select w-full mt-1"
-              >
-                <option value="">{gettext("None")}</option>
-                <option :for={source <- @sources} value={source.name}>{source.name}</option>
-              </select>
-            </div>
+            </.form>
           </div>
 
           <div class="mt-8 flex gap-4">
@@ -414,11 +417,17 @@ defmodule TrebyWeb.ImportLive.Index do
     # Get the first pipeline stage if no job selected
     pipeline_stage_id =
       socket.assigns.selected_stage_id ||
-        (socket.assigns.selected_job_id &&
-           case Pipeline.list_pipeline_stages(tenant_id) do
-             [first | _] -> first.id
-             [] -> nil
-           end)
+        if job_id = socket.assigns.selected_job_id do
+          case Pipeline.list_pipeline_stages_for_job(job_id) do
+            [first | _] -> first.id
+            [] -> nil
+          end
+        else
+          case Pipeline.list_pipeline_stages(Pipeline.default_pipeline_id(tenant_id)) do
+            [first | _] -> first.id
+            [] -> nil
+          end
+        end
 
     case CsvImport.execute_import(rows, mapping, tenant_id,
            job_id: socket.assigns.selected_job_id,
@@ -450,7 +459,7 @@ defmodule TrebyWeb.ImportLive.Index do
 
   defp get_stages_for_job(job_id) do
     job_id
-    |> Pipeline.list_pipeline_stages()
+    |> Pipeline.list_pipeline_stages_for_job()
     |> Enum.sort_by(& &1.position)
   end
 end

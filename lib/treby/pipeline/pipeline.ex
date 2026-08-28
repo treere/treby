@@ -679,7 +679,8 @@ defmodule Treby.Pipeline do
       %{name: "Phone Screen", position: 2, color: "#8b5cf6"},
       %{name: "Interview", position: 3, color: "#f59e0b", stage_type: "interview"},
       %{name: "Offer", position: 4, color: "#ec4899", stage_type: "offer"},
-      %{name: "Hired", position: 5, color: "#22c55e", stage_type: "hired"}
+      %{name: "Hired", position: 5, color: "#22c55e", stage_type: "hired"},
+      %{name: "Rejected", position: 6, color: "#ef4444", stage_type: "rejected"}
     ]
 
     Enum.each(default_stages, fn stage_attrs ->

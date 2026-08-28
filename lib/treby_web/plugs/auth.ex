@@ -28,7 +28,7 @@ defmodule TrebyWeb.Plugs.Auth do
           user ->
             conn
             |> assign(:current_user, user)
-            |> assign(:current_tenant, user.tenant)
+            |> assign(:current_tenant, Treby.Repo.preload(user, :tenant).tenant)
         end
     end
   end

@@ -7,6 +7,16 @@
 # General application configuration
 import Config
 
+# Helper to read env vars, treating empty strings as unset (so the
+# default fallback is used). Use `env/1` when no default is wanted.
+defmodule Treby.ConfigHelpers do
+  @moduledoc false
+
+  def env(var, default), do: if(present?(var), do: System.get_env(var), else: default)
+  def env(var), do: if(present?(var), do: System.get_env(var), else: nil)
+  def present?(var), do: match?(v when is_binary(v) and v != "", System.get_env(var))
+end
+
 config :treby,
   ecto_repos: [Treby.Repo],
   generators: [timestamp_type: :utc_datetime]
@@ -90,8 +100,8 @@ config :ex_aws, :s3,
 
 # Google Calendar OAuth
 config :treby,
-  google_client_id: System.get_env("GOOGLE_CLIENT_ID"),
-  google_client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+  google_client_id: Treby.ConfigHelpers.env("GOOGLE_CLIENT_ID"),
+  google_client_secret: Treby.ConfigHelpers.env("GOOGLE_CLIENT_SECRET")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

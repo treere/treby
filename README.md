@@ -37,6 +37,24 @@ Visit [`http://localhost:4000`](http://localhost:4000).
 
 Pre-loaded: 3 jobs, 10 candidates, 6 pipeline stages, published career page.
 
+### Environment variables & secrets
+
+Treby reads its configuration from environment variables (see `config/runtime.exs`
+and `config/config.exs`). A `.env.example` file lists every available variable with
+sensible dev defaults (including the local MinIO credentials).
+
+```bash
+cp .env.example .env   # then fill in your values
+```
+
+How you inject the variables into the environment (shell exports, a process
+manager, etc.) is up to you.
+
+> `.env` is git-ignored; `.env.example` is committed so the setup is reproducible.
+> The most important variables are `SECRET_KEY_BASE` and `DATABASE_URL`
+> (both required in production) and `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` for
+> [Google Calendar integration](https://console.cloud.google.com/).
+
 ---
 
 ## Tech Stack

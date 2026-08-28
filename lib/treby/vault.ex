@@ -14,14 +14,9 @@ defmodule Treby.Vault do
 
   defp decode_env!(var) do
     key =
-      case System.get_env(var) do
-        nil ->
-          Application.get_env(:treby, :cloak_key) ||
-            raise "Missing encryption key: set the #{var} environment variable or configure :cloak_key"
-
-        val ->
-          val
-      end
+      Treby.ConfigHelpers.env(var) ||
+        Application.get_env(:treby, :cloak_key) ||
+        raise "Missing encryption key: set the #{var} environment variable or configure :cloak_key"
 
     Base.decode64!(key)
   end

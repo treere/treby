@@ -43,3 +43,6 @@ npm-debug.log
 # Serena
 /.serena/
 
+# Local environment secrets (never commit these; keep .env.example tracked)
+.env
+.envrc

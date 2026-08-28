@@ -7,6 +7,7 @@ defmodule TrebyWeb.GoogleAuthController do
   @google_token_url "https://oauth2.googleapis.com/token"
   @google_userinfo_url "https://www.googleapis.com/oauth2/v2/userinfo"
   @calendar_scope "https://www.googleapis.com/auth/calendar"
+  @openid_scopes "openid email profile"
 
   def new(conn, _params) do
     client_id = Application.get_env(:treby, :google_client_id)
@@ -17,7 +18,7 @@ defmodule TrebyWeb.GoogleAuthController do
         client_id: client_id,
         redirect_uri: redirect_uri,
         response_type: "code",
-        scope: @calendar_scope,
+        scope: @openid_scopes <> " " <> @calendar_scope,
         access_type: "offline",
         prompt: "consent"
       })

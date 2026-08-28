@@ -11,11 +11,12 @@ The system SHALL allow team members to connect their Google Calendar account via
 
 #### Scenario: Initiate Google Calendar connection
 - **WHEN** a user clicks "Connect Google Calendar" in settings
-- **THEN** the system redirects to Google OAuth consent screen requesting `calendar` scope
+- **THEN** the system redirects to Google OAuth consent screen requesting `openid`, `email`, `profile`, and `calendar` scopes
 
 #### Scenario: Successful OAuth callback
 - **WHEN** a user authorizes the Google OAuth application
-- **THEN** the system stores the access token, refresh token, and token expiry encrypted in `calendar_connections`
+- **THEN** the system resolves the user's email from Google's userinfo endpoint
+- **AND** the system stores the access token, refresh token, and token expiry encrypted in `calendar_connections`
 - **AND** the system stores the user's Google email and primary calendar ID
 - **AND** the settings page shows "Connected as user@gmail.com"
 

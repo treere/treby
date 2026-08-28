@@ -23,7 +23,11 @@ config :treby, TrebyWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "GJ/jN5Cfmi2lkFd8stz0oq3Dz5Ck78qojUy/hXnandfKeda4TeFVpTNckUYGRos9",
+  secret_key_base:
+    Treby.ConfigHelpers.env(
+      "SECRET_KEY_BASE",
+      "GJ/jN5Cfmi2lkFd8stz0oq3Dz5Ck78qojUy/hXnandfKeda4TeFVpTNckUYGRos9"
+    ),
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:treby, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:treby, ~w(--watch)]}
@@ -92,13 +96,15 @@ config :phoenix_live_view,
 config :swoosh, :api_client, false
 
 # Configure MinIO for development
+# Override with env vars when needed.
 config :ex_aws, :s3,
-  scheme: "http://",
-  host: "localhost",
-  port: 9000,
-  access_key_id: "treby",
-  secret_access_key: "treby_password"
+  scheme: Treby.ConfigHelpers.env("S3_SCHEME", "http://"),
+  host: Treby.ConfigHelpers.env("S3_HOST", "localhost"),
+  port: String.to_integer(Treby.ConfigHelpers.env("S3_PORT", "9000")),
+  access_key_id: Treby.ConfigHelpers.env("S3_ACCESS_KEY_ID", "treby"),
+  secret_access_key: Treby.ConfigHelpers.env("S3_SECRET_ACCESS_KEY", "treby_password")
 
-# Dev encryption key (32-byte key, base64-encoded)
+# Dev encryption key (32-byte key, base64-encoded).
+# Override with CLOAK_KEY when needed.
 config :treby,
-  cloak_key: "dGVzdGtleWZvcmRldnRlc3RrZXlmb3JkZXZ0ZXN0a2V5MTIzNA=="
+  cloak_key: Treby.ConfigHelpers.env("CLOAK_KEY", "8TW7yfP2gTtJTBA6N2J7XEMzdeD6egoftgnnGzxISSk=")

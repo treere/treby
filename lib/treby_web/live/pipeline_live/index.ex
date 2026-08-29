@@ -8,69 +8,75 @@ defmodule TrebyWeb.PipelineLive.Index do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
-    job = Jobs.get_job!(tenant.id, job_id)
-    applications_by_stage = Pipeline.list_applications_by_stage(job_id)
-    stages = Pipeline.list_pipeline_stages_for_job(job.id)
 
-    candidate_ids =
-      applications_by_stage
-      |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.candidate_id) end)
-      |> Enum.uniq()
+    case Jobs.get_job(tenant.id, job_id) do
+      nil ->
+        {:ok, redirect(socket, to: ~p"/404")}
 
-    application_counts =
-      Pipeline.candidate_application_counts(tenant.id, candidate_ids)
+      job ->
+        applications_by_stage = Pipeline.list_applications_by_stage(job_id)
+        stages = Pipeline.list_pipeline_stages_for_job(job.id)
 
-    # Load upcoming interviews for this job's applications
-    application_ids =
-      applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
+        candidate_ids =
+          applications_by_stage
+          |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.candidate_id) end)
+          |> Enum.uniq()
 
-    upcoming_interviews =
-      if application_ids != [] do
-        import Ecto.Query
+        application_counts =
+          Pipeline.candidate_application_counts(tenant.id, candidate_ids)
 
-        Treby.Interviews.InterviewEvent
-        |> where(
-          [e],
-          e.application_id in ^application_ids and e.status == "scheduled" and
-            e.start_at_utc > ^DateTime.utc_now()
-        )
-        |> order_by([e], asc: e.start_at_utc)
-        |> Treby.Repo.all()
-        |> Enum.group_by(& &1.application_id)
-      else
-        []
-      end
+        # Load upcoming interviews for this job's applications
+        application_ids =
+          applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
 
-    {:ok,
-     socket
-     |> assign(current_user: user, current_tenant: tenant)
-     |> assign(job: job)
-     |> assign(applications_by_stage: applications_by_stage)
-     |> assign(stages: stages)
-     |> assign(application_counts: application_counts)
-     |> assign(upcoming_interviews: upcoming_interviews)
-     |> assign(review_filter: "all")
-     |> assign(show_email_dialog: false)
-     |> assign(pending_stage_move: nil)
-     |> assign(email_preview: nil)
-     |> assign(selected_ids: [])
-     |> assign(bulk_action: nil)
-     |> assign(bulk_stage_id: nil)
-     |> assign(bulk_form: to_form(%{}))
-     |> assign(confirm_delete: nil)
-     |> assign(show_schedule_picker: false)
-     |> assign(schedule_datetime: nil)
-     |> assign(schedule_date: Calendar.strftime(DateTime.utc_now(), "%Y-%m-%d"))
-     |> assign(schedule_time: "09:00")
-     |> assign(schedule_jitter: 5)
-     |> assign(rejecting_application: nil)
-     |> assign(rejection_reason: "")
-     |> assign(completing_interview: nil)
-     |> assign(show_scorecard_form: false)
-     |> assign(scorecard_event_id: nil)
-     |> assign(scorecard_criteria: [])
-     |> assign(scorecard_template: nil)
-     |> assign(scorecard_form: to_form(%{}))}
+        upcoming_interviews =
+          if application_ids != [] do
+            import Ecto.Query
+
+            Treby.Interviews.InterviewEvent
+            |> where(
+              [e],
+              e.application_id in ^application_ids and e.status == "scheduled" and
+                e.start_at_utc > ^DateTime.utc_now()
+            )
+            |> order_by([e], asc: e.start_at_utc)
+            |> Treby.Repo.all()
+            |> Enum.group_by(& &1.application_id)
+          else
+            []
+          end
+
+        {:ok,
+         socket
+         |> assign(current_user: user, current_tenant: tenant)
+         |> assign(job: job)
+         |> assign(applications_by_stage: applications_by_stage)
+         |> assign(stages: stages)
+         |> assign(application_counts: application_counts)
+         |> assign(upcoming_interviews: upcoming_interviews)
+         |> assign(review_filter: "all")
+         |> assign(show_email_dialog: false)
+         |> assign(pending_stage_move: nil)
+         |> assign(email_preview: nil)
+         |> assign(selected_ids: [])
+         |> assign(bulk_action: nil)
+         |> assign(bulk_stage_id: nil)
+         |> assign(bulk_form: to_form(%{}))
+         |> assign(confirm_delete: nil)
+         |> assign(show_schedule_picker: false)
+         |> assign(schedule_datetime: nil)
+         |> assign(schedule_date: Calendar.strftime(DateTime.utc_now(), "%Y-%m-%d"))
+         |> assign(schedule_time: "09:00")
+         |> assign(schedule_jitter: 5)
+         |> assign(rejecting_application: nil)
+         |> assign(rejection_reason: "")
+         |> assign(completing_interview: nil)
+         |> assign(show_scorecard_form: false)
+         |> assign(scorecard_event_id: nil)
+         |> assign(scorecard_criteria: [])
+         |> assign(scorecard_template: nil)
+         |> assign(scorecard_form: to_form(%{}))}
+    end
   end
 
   def handle_info({:email, _email}, socket) do

@@ -7,20 +7,19 @@ defmodule TrebyWeb.CareersLive.Show do
     socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
 
-    job =
-      try do
-        Jobs.get_job!(tenant.id, job_id)
-      rescue
-        Ecto.NoResultsError -> nil
-      end
+    case Jobs.get_job(tenant.id, job_id) do
+      nil ->
+        {:ok, redirect(socket, to: ~p"/404")}
 
-    career_page = Careers.get_published_career_page_by_tenant(tenant.id)
+      job ->
+        career_page = Careers.get_published_career_page_by_tenant(tenant.id)
 
-    {:ok,
-     socket
-     |> assign(tenant: tenant)
-     |> assign(job: job)
-     |> assign(career_page: career_page)}
+        {:ok,
+         socket
+         |> assign(tenant: tenant)
+         |> assign(job: job)
+         |> assign(career_page: career_page)}
+    end
   end
 
   def render(assigns) do

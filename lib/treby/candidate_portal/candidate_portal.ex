@@ -272,6 +272,12 @@ defmodule Treby.CandidatePortal do
     |> Repo.preload(messages: @messages_query)
   end
 
+  def get_conversation(id) do
+    Conversation
+    |> Repo.get(id)
+    |> Repo.preload(messages: @messages_query)
+  end
+
   @doc """
   Closes a conversation.
   """

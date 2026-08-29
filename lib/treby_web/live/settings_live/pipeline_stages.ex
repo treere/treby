@@ -8,33 +8,39 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
-    pipeline = Pipeline.get_pipeline!(pipeline_id)
-    stages = Pipeline.list_pipeline_stages(pipeline_id)
-    users = Accounts.list_users(tenant.id)
 
-    stages_with_counts =
-      Enum.map(stages, fn stage ->
-        examiner_count = length(Pipeline.list_examiner_ids(stage))
-        reviewer_count = length(Pipeline.list_reviewer_ids(stage))
-        advancer_count = length(Pipeline.list_advancer_ids(stage))
+    case Pipeline.get_pipeline(pipeline_id) do
+      nil ->
+        {:ok, redirect(socket, to: ~p"/404")}
 
-        Map.merge(stage, %{
-          examiner_count: examiner_count,
-          reviewer_count: reviewer_count,
-          advancer_count: advancer_count
-        })
-      end)
+      pipeline ->
+        stages = Pipeline.list_pipeline_stages(pipeline_id)
+        users = Accounts.list_users(tenant.id)
 
-    {:ok,
-     socket
-     |> assign(current_user: user, current_tenant: tenant)
-     |> assign(pipeline: pipeline)
-     |> assign(stages: stages_with_counts)
-     |> assign(users: users)
-     |> assign(show_form: false)
-     |> assign(editing_stage: nil)
-     |> assign(deleting_stage: nil)
-     |> assign(form: to_form(new_stage_changeset(pipeline_id)))}
+        stages_with_counts =
+          Enum.map(stages, fn stage ->
+            examiner_count = length(Pipeline.list_examiner_ids(stage))
+            reviewer_count = length(Pipeline.list_reviewer_ids(stage))
+            advancer_count = length(Pipeline.list_advancer_ids(stage))
+
+            Map.merge(stage, %{
+              examiner_count: examiner_count,
+              reviewer_count: reviewer_count,
+              advancer_count: advancer_count
+            })
+          end)
+
+        {:ok,
+         socket
+         |> assign(current_user: user, current_tenant: tenant)
+         |> assign(pipeline: pipeline)
+         |> assign(stages: stages_with_counts)
+         |> assign(users: users)
+         |> assign(show_form: false)
+         |> assign(editing_stage: nil)
+         |> assign(deleting_stage: nil)
+         |> assign(form: to_form(new_stage_changeset(pipeline_id)))}
+    end
   end
 
   def render(assigns) do

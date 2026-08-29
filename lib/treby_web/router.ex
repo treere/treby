@@ -90,6 +90,7 @@ defmodule TrebyWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive
+    live "/404", ErrorLive.NotFound
     live "/careers", CareersLive.GlobalIndex
     live "/:tenant_slug/careers", CareersLive.Index
     live "/:tenant_slug/careers/:job_id", CareersLive.Show

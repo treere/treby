@@ -73,6 +73,12 @@ defmodule Treby.Jobs do
     |> Repo.one!()
   end
 
+  def get_job(tenant_id, id) do
+    Job
+    |> where([j], j.tenant_id == ^tenant_id and j.id == ^id)
+    |> Repo.one()
+  end
+
   def create_job(attrs \\ %{}) do
     tenant_id = attrs["tenant_id"] || attrs[:tenant_id]
 

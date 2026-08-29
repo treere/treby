@@ -8,27 +8,29 @@ defmodule TrebyWeb.ScheduleLive.Index do
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
 
-    application =
-      Pipeline.get_application!(application_id)
-      |> Treby.Repo.preload([:candidate, :job])
+    case Pipeline.get_application(application_id) do
+      nil ->
+        {:ok, redirect(socket, to: ~p"/404")}
 
-    connected_users = Calendar.list_connected_users(tenant.id)
-    interviewer_ids = Enum.map(connected_users, & &1.user_id)
+      application ->
+        connected_users = Calendar.list_connected_users(tenant.id)
+        interviewer_ids = Enum.map(connected_users, & &1.user_id)
 
-    users =
-      Enum.map(interviewer_ids, fn uid ->
-        Accounts.get_user!(uid)
-      end)
+        users =
+          Enum.map(interviewer_ids, fn uid ->
+            Accounts.get_user!(uid)
+          end)
 
-    {:ok,
-     socket
-     |> assign(current_user: user, current_tenant: tenant)
-     |> assign(application: application)
-     |> assign(users: users)
-     |> assign(selected_user: nil)
-     |> assign(slots: [])
-     |> assign(selected_slot: nil)
-     |> assign(selected_date: Date.utc_today())}
+        {:ok,
+         socket
+         |> assign(current_user: user, current_tenant: tenant)
+         |> assign(application: application)
+         |> assign(users: users)
+         |> assign(selected_user: nil)
+         |> assign(slots: [])
+         |> assign(selected_slot: nil)
+         |> assign(selected_date: Date.utc_today())}
+    end
   end
 
   def render(assigns) do

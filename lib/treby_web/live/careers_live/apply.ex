@@ -15,29 +15,35 @@ defmodule TrebyWeb.CareersLive.Apply do
   def mount(%{"tenant_slug" => tenant_slug, "job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
-    job = Jobs.get_job!(tenant.id, job_id)
-    career_page = Careers.get_published_career_page_by_tenant(tenant.id)
-    pipeline_id = Pipeline.default_pipeline_id(tenant.id)
-    stages = Pipeline.list_pipeline_stages(pipeline_id)
-    first_stage = List.first(stages)
-    application_fields = Customization.list_custom_fields_for(tenant.id, "application")
-    sources = Sources.list_sources(tenant.id)
 
-    {:ok,
-     socket
-     |> assign(tenant: tenant)
-     |> assign(job: job)
-     |> assign(career_page: career_page)
-     |> assign(first_stage: first_stage)
-     |> assign(application_fields: application_fields)
-     |> assign(sources: sources)
-     |> assign(form: to_form(%{}, as: :application))
-     |> assign(submitted: false)
-     |> allow_upload(:resume,
-       accept: ~w(.pdf .doc .docx),
-       max_entries: 1,
-       max_file_size: 10_000_000
-     )}
+    case Jobs.get_job(tenant.id, job_id) do
+      nil ->
+        {:ok, redirect(socket, to: ~p"/404")}
+
+      job ->
+        career_page = Careers.get_published_career_page_by_tenant(tenant.id)
+        pipeline_id = Pipeline.default_pipeline_id(tenant.id)
+        stages = Pipeline.list_pipeline_stages(pipeline_id)
+        first_stage = List.first(stages)
+        application_fields = Customization.list_custom_fields_for(tenant.id, "application")
+        sources = Sources.list_sources(tenant.id)
+
+        {:ok,
+         socket
+         |> assign(tenant: tenant)
+         |> assign(job: job)
+         |> assign(career_page: career_page)
+         |> assign(first_stage: first_stage)
+         |> assign(application_fields: application_fields)
+         |> assign(sources: sources)
+         |> assign(form: to_form(%{}, as: :application))
+         |> assign(submitted: false)
+         |> allow_upload(:resume,
+           accept: ~w(.pdf .doc .docx),
+           max_entries: 1,
+           max_file_size: 10_000_000
+         )}
+    end
   end
 
   def render(assigns) do

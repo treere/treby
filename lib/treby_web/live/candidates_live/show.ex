@@ -22,19 +22,19 @@ defmodule TrebyWeb.CandidatesLive.Show do
     candidate = Candidates.get_candidate(tenant.id, id)
 
     if is_nil(candidate) do
-      raise Ecto.NoResultsError, queryable: Candidates.Candidate
-    end
-
-    if candidate.merged_into_id do
-      primary_id = candidate.merged_into_id
-
-      {:ok,
-       socket
-       |> assign(current_user: user, current_tenant: tenant)
-       |> put_flash(:info, "This candidate was merged into another profile.")
-       |> push_navigate(to: ~p"/app/candidates/#{primary_id}")}
+      {:ok, redirect(socket, to: ~p"/404")}
     else
-      mount_active(socket, candidate, tenant, user)
+      if candidate.merged_into_id do
+        primary_id = candidate.merged_into_id
+
+        {:ok,
+         socket
+         |> assign(current_user: user, current_tenant: tenant)
+         |> put_flash(:info, "This candidate was merged into another profile.")
+         |> push_navigate(to: ~p"/app/candidates/#{primary_id}")}
+      else
+        mount_active(socket, candidate, tenant, user)
+      end
     end
   end
 

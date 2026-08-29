@@ -5,17 +5,22 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
 
   @impl true
   def mount(%{"id" => conversation_id, "tenant_slug" => slug}, session, socket) do
-    conversation = CandidatePortal.get_conversation!(conversation_id)
-    tenant = Treby.Tenants.get_tenant_by_slug!(slug)
-    candidate = Treby.Repo.get!(Treby.Candidates.Candidate, session["candidate_id"])
+    case CandidatePortal.get_conversation(conversation_id) do
+      nil ->
+        {:ok, redirect(socket, to: ~p"/404")}
 
-    {:ok,
-     socket
-     |> assign(:conversation, conversation)
-     |> assign(:current_tenant, tenant)
-     |> assign(:current_candidate, candidate)
-     |> assign(:page_title, "Conversation")
-     |> assign(:new_message, "")}
+      conversation ->
+        tenant = Treby.Tenants.get_tenant_by_slug!(slug)
+        candidate = Treby.Repo.get!(Treby.Candidates.Candidate, session["candidate_id"])
+
+        {:ok,
+         socket
+         |> assign(:conversation, conversation)
+         |> assign(:current_tenant, tenant)
+         |> assign(:current_candidate, candidate)
+         |> assign(:page_title, "Conversation")
+         |> assign(:new_message, "")}
+    end
   end
 
   @impl true

@@ -33,6 +33,8 @@ defmodule Treby.Pipeline do
 
   def get_pipeline!(id), do: PipelineDef |> Repo.get!(id) |> Repo.preload(:pipeline_stages)
 
+  def get_pipeline(id), do: PipelineDef |> Repo.get(id) |> Repo.preload(:pipeline_stages)
+
   def create_pipeline(attrs \\ %{}) do
     %PipelineDef{}
     |> PipelineDef.changeset(attrs)
@@ -740,6 +742,9 @@ defmodule Treby.Pipeline do
 
   def get_application!(id),
     do: Repo.get!(Application, id) |> Repo.preload([:candidate, :pipeline_stage, :job])
+
+  def get_application(id),
+    do: Repo.get(Application, id) |> Repo.preload([:candidate, :pipeline_stage, :job])
 
   def get_application!(tenant_id, id) do
     Application

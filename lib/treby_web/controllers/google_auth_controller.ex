@@ -57,24 +57,24 @@ defmodule TrebyWeb.GoogleAuthController do
             case Calendar.connect_google_user(user.id, tenant.id, token_data) do
               {:ok, _} ->
                 conn
-                |> put_flash(:info, "Google Calendar connected successfully")
+                |> put_flash(:info, gettext("Google Calendar connected successfully"))
                 |> redirect(to: ~p"/app/settings/calendar")
 
               {:error, _} ->
                 conn
-                |> put_flash(:error, "Failed to save calendar connection")
+                |> put_flash(:error, gettext("Failed to save calendar connection"))
                 |> redirect(to: ~p"/app/settings/calendar")
             end
 
           _ ->
             conn
-            |> put_flash(:error, "Failed to get user info from Google")
+            |> put_flash(:error, gettext("Failed to get user info from Google"))
             |> redirect(to: ~p"/app/settings/calendar")
         end
 
       _ ->
         conn
-        |> put_flash(:error, "Failed to exchange authorization code")
+        |> put_flash(:error, gettext("Failed to exchange authorization code"))
         |> redirect(to: ~p"/app/settings/calendar")
     end
   end

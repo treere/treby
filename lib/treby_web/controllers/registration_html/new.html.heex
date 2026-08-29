@@ -3,18 +3,18 @@
   <div class="max-w-md w-full space-y-8">
     <div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-base-content">
-        Create your account
+        {gettext("Create your account")}
       </h2>
       <p class="mt-2 text-center text-sm text-base-content/70">
-        Or
+        {gettext("Or")}
         <a href="/login" class="font-medium text-blue-600 hover:text-blue-500">
-          sign in to your existing account
+          {gettext("sign in to your existing account")}
         </a>
       </p>
     </div>
 
     <p class="text-center text-sm text-base-content/70">
-      First, verify your email address. We'll send you a one-time code.
+      {gettext("First, verify your email address. We'll send you a one-time code.")}
     </p>
 
     <.form
@@ -28,8 +28,8 @@
         <.input
           field={@form[:email]}
           type="email"
-          label="Email address"
-          placeholder="you@company.com"
+          label={gettext("Email address")}
+          placeholder={gettext("you@company.com")}
           required
           autocomplete="email"
         />
@@ -37,7 +37,7 @@
 
       <div>
         <.button type="submit" class="group relative w-full justify-center py-2">
-          Send verification code
+          {gettext("Send verification code")}
         </.button>
       </div>
     </.form>

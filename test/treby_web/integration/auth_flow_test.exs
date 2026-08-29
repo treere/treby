@@ -104,4 +104,104 @@ defmodule TrebyWeb.AuthFlowTest do
       assert redirected_to(conn) == "/app"
     end
   end
+
+  describe "localization" do
+    test "register page renders in Italian when locale is Italian", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(%{"locale" => "it"})
+        |> get(~p"/register")
+
+      html = html_response(conn, 200)
+      assert html =~ "Crea il tuo account"
+      assert html =~ "Invia codice di verifica"
+      assert html =~ "Indirizzo email"
+    end
+
+    test "register page renders in English by default", %{conn: conn} do
+      conn = get(conn, ~p"/register")
+      html = html_response(conn, 200)
+      assert html =~ "Create your account"
+      assert html =~ "Send verification code"
+      assert html =~ "Email address"
+    end
+
+    test "login page renders in Italian when locale is Italian", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(%{"locale" => "it"})
+        |> get(~p"/login")
+
+      html = html_response(conn, 200)
+      assert html =~ "Accedi al tuo account"
+      assert html =~ "Password dimenticata?"
+    end
+
+    test "password reset page renders in Italian when locale is Italian", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(%{"locale" => "it"})
+        |> get(~p"/reset-password")
+
+      html = html_response(conn, 200)
+      assert html =~ "Reimposta la tua password"
+      assert html =~ "Invia link di reimpostazione"
+    end
+
+    test "invalid login shows Italian error flash when locale is Italian", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(%{"locale" => "it"})
+        |> post(~p"/session", %{
+          "user" => %{"email" => "nonexistent@test.com", "password" => "password123"}
+        })
+
+      assert redirected_to(conn) == "/login"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Email o password non validi"
+    end
+
+    test "logout shows Italian confirmation flash when locale is Italian", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+
+      conn =
+        conn
+        |> init_test_session(%{
+          "locale" => "it",
+          "user_id" => user.id,
+          "tenant_id" => user.tenant_id
+        })
+        |> delete(~p"/session")
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Disconnessione riuscita"
+    end
+
+    test "verification code flash preserves email in Italian", %{conn: conn} do
+      email = "it-#{System.unique_integer([:positive])}@test.com"
+
+      conn =
+        conn
+        |> init_test_session(%{"locale" => "it"})
+        |> post(~p"/register", %{"user" => %{"email" => email}})
+
+      assert redirected_to(conn) == "/register/verify"
+
+      assert_receive {:email, _sent}
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
+               "Abbiamo inviato un codice di verifica a #{email}"
+    end
+
+    test "invalid verification code shows Italian error flash", %{conn: conn} do
+      conn =
+        conn
+        |> init_test_session(%{"locale" => "it", "registration_email" => "it-code@test.com"})
+        |> post(~p"/register/verify", %{"code" => "000000"})
+
+      assert redirected_to(conn) == "/register/verify"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
+               "Codice non valido o scaduto. Riprova."
+    end
+  end
 end

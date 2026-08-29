@@ -8,7 +8,7 @@ defmodule TrebyWeb.InviteController do
     case Invites.get_invite_by_token(token) do
       nil ->
         conn
-        |> put_flash(:error, "Invalid or expired invite link")
+        |> put_flash(:error, gettext("Invalid or expired invite link"))
         |> redirect(to: ~p"/login")
 
       invite ->
@@ -25,7 +25,7 @@ defmodule TrebyWeb.InviteController do
     case Invites.get_invite_by_token(token) do
       nil ->
         conn
-        |> put_flash(:error, "Invalid or expired invite link")
+        |> put_flash(:error, gettext("Invalid or expired invite link"))
         |> redirect(to: ~p"/login")
 
       invite ->
@@ -49,7 +49,7 @@ defmodule TrebyWeb.InviteController do
             conn
             |> put_session("user_id", user.id)
             |> put_session("tenant_id", tenant.id)
-            |> put_flash(:info, "Welcome to #{tenant.name}!")
+            |> put_flash(:info, gettext("Welcome to %{name}!", name: tenant.name))
             |> redirect(to: ~p"/app")
 
           {:error, _changeset} ->
@@ -58,7 +58,10 @@ defmodule TrebyWeb.InviteController do
             conn
             |> assign(:invite, invite)
             |> assign(:tenant, tenant)
-            |> put_flash(:error, "Could not create account. Email may already be registered.")
+            |> put_flash(
+              :error,
+              gettext("Could not create account. Email may already be registered.")
+            )
             |> render("show.html")
         end
     end

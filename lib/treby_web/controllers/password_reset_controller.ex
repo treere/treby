@@ -11,7 +11,7 @@ defmodule TrebyWeb.PasswordResetController do
 
   def create(conn, %{"email" => email}) do
     # Always show the same message to prevent user enumeration
-    message = "If an account exists with that email, you'll receive a reset link shortly"
+    message = gettext("If an account exists with that email, you'll receive a reset link shortly")
 
     case Accounts.get_user_by_email(email) do
       nil ->
@@ -37,7 +37,7 @@ defmodule TrebyWeb.PasswordResetController do
     case Accounts.get_user_by_reset_token(token) do
       {:error, :invalid_token} ->
         conn
-        |> put_flash(:error, "Invalid or expired reset link")
+        |> put_flash(:error, gettext("Invalid or expired reset link"))
         |> redirect(to: ~p"/reset-password")
 
       {:ok, _user, token_record} ->
@@ -52,24 +52,24 @@ defmodule TrebyWeb.PasswordResetController do
     case Accounts.get_user_by_reset_token(token) do
       {:error, :invalid_token} ->
         conn
-        |> put_flash(:error, "Invalid or expired reset link")
+        |> put_flash(:error, gettext("Invalid or expired reset link"))
         |> redirect(to: ~p"/reset-password")
 
       {:ok, user, token_record} ->
         if String.length(password) < 6 do
           conn
-          |> put_flash(:error, "Password must be at least 6 characters")
+          |> put_flash(:error, gettext("Password must be at least 6 characters"))
           |> redirect(to: ~p"/reset-password/#{token}")
         else
           case Accounts.reset_password(user, token_record, password) do
             {:ok, _updated_user} ->
               conn
-              |> put_flash(:info, "Password has been reset. Please sign in.")
+              |> put_flash(:info, gettext("Password has been reset. Please sign in."))
               |> redirect(to: ~p"/login")
 
             {:error, _changeset} ->
               conn
-              |> put_flash(:error, "Could not reset password. Please try again.")
+              |> put_flash(:error, gettext("Could not reset password. Please try again."))
               |> redirect(to: ~p"/reset-password")
           end
         end

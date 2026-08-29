@@ -3,10 +3,11 @@
   <div class="max-w-md w-full space-y-8">
     <div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-base-content">
-        Check your email
+        {gettext("Check your email")}
       </h2>
       <p class="mt-2 text-center text-sm text-base-content/70">
-        We sent a 6-digit code to <span class="font-medium text-base-content">{@email}</span>
+        {gettext("We sent a 6-digit code to")}
+        <span class="font-medium text-base-content">{@email}</span>
       </p>
     </div>
 
@@ -21,7 +22,7 @@
         <.input
           field={@form[:code]}
           type="text"
-          label="Verification code"
+          label={gettext("Verification code")}
           placeholder="123456"
           inputmode="numeric"
           autocomplete="one-time-code"
@@ -32,7 +33,7 @@
 
       <div>
         <.button type="submit" class="group relative w-full justify-center py-2">
-          Verify email
+          {gettext("Verify email")}
         </.button>
       </div>
     </.form>
@@ -46,12 +47,12 @@
       >
         <.input type="hidden" field={@resend_form[:email]} />
         <button type="submit" class="text-sm font-medium text-blue-600 hover:text-blue-500">
-          Didn't receive it? Resend code
+          {gettext("Didn't receive it? Resend code")}
         </button>
       </.form>
       <div>
         <a href="/register" class="text-sm text-base-content/70 hover:text-base-content">
-          Use a different email
+          {gettext("Use a different email")}
         </a>
       </div>
     </div>

@@ -13,12 +13,12 @@ defmodule TrebyWeb.SessionController do
         conn
         |> put_session("user_id", user.id)
         |> put_session("tenant_id", user.tenant_id)
-        |> put_flash(:info, "Welcome back!")
+        |> put_flash(:info, gettext("Welcome back!"))
         |> redirect(to: ~p"/app")
 
       {:error, :invalid_credentials} ->
         conn
-        |> put_flash(:error, "Invalid email or password")
+        |> put_flash(:error, gettext("Invalid email or password"))
         |> redirect(to: ~p"/login")
     end
   end
@@ -26,7 +26,7 @@ defmodule TrebyWeb.SessionController do
   def delete(conn, _params) do
     conn
     |> configure_session(drop: true)
-    |> put_flash(:info, "Logged out successfully")
+    |> put_flash(:info, gettext("Logged out successfully"))
     |> redirect(to: ~p"/")
   end
 end

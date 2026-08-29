@@ -3,12 +3,12 @@
   <div class="max-w-md w-full space-y-8">
     <div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-base-content">
-        Sign in to your account
+        {gettext("Sign in to your account")}
       </h2>
       <p class="mt-2 text-center text-sm text-base-content/70">
-        Or
+        {gettext("Or")}
         <a href="/register" class="font-medium text-blue-600 hover:text-blue-500">
-          create a new account
+          {gettext("create a new account")}
         </a>
       </p>
     </div>
@@ -16,25 +16,25 @@
       <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
       <div class="rounded-md shadow-sm -space-y-px">
         <div>
-          <label for="user_email" class="sr-only">Email address</label>
+          <label for="user_email" class="sr-only">{gettext("Email address")}</label>
           <input
             id="user_email"
             name="user[email]"
             type="email"
             required
             class="appearance-none rounded-none relative block w-full px-3 py-2 border border-base-300 placeholder-base-content/50 text-base-content rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-            placeholder="Email address"
+            placeholder={gettext("Email address")}
           />
         </div>
         <div>
-          <label for="user_password" class="sr-only">Password</label>
+          <label for="user_password" class="sr-only">{gettext("Password")}</label>
           <input
             id="user_password"
             name="user[password]"
             type="password"
             required
             class="appearance-none rounded-none relative block w-full px-3 py-2 border border-base-300 placeholder-base-content/50 text-base-content rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-            placeholder="Password"
+            placeholder={gettext("Password")}
           />
         </div>
       </div>
@@ -42,7 +42,7 @@
       <div class="flex items-center justify-end">
         <div class="text-sm">
           <a href="/reset-password" class="font-medium text-blue-600 hover:text-blue-500">
-            Forgot your password?
+            {gettext("Forgot your password?")}
           </a>
         </div>
       </div>
@@ -52,7 +52,7 @@
           type="submit"
           class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-base-200 focus:ring-blue-500"
         >
-          Sign in
+          {gettext("Sign in")}
         </button>
       </div>
     </.form>

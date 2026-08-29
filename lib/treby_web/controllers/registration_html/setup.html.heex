@@ -3,10 +3,11 @@
   <div class="max-w-md w-full space-y-8">
     <div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-base-content">
-        Create your account
+        {gettext("Create your account")}
       </h2>
       <p class="mt-2 text-center text-sm text-base-content/70">
-        Email verified: <span class="font-medium text-base-content">{@verified_email}</span>
+        {gettext("Email verified:")}
+        <span class="font-medium text-base-content">{@verified_email}</span>
       </p>
     </div>
 
@@ -21,36 +22,36 @@
         <.input
           field={@form[:email]}
           type="email"
-          label="Email address"
+          label={gettext("Email address")}
           readonly
         />
         <.input
           field={@form[:company_name]}
           type="text"
-          label="Company name"
-          placeholder="e.g. Acme Inc."
+          label={gettext("Company name")}
+          placeholder={gettext("e.g. Acme Inc.")}
           required
         />
         <.input
           field={@form[:name]}
           type="text"
-          label="Your name"
-          placeholder="e.g. Ada Lovelace"
+          label={gettext("Your name")}
+          placeholder={gettext("e.g. Ada Lovelace")}
           required
         />
         <.input
           field={@form[:password]}
           type="password"
-          label="Password"
-          placeholder="At least 6 characters"
+          label={gettext("Password")}
+          placeholder={gettext("At least 6 characters")}
           required
           autocomplete="new-password"
         />
         <.input
           field={@form[:password_confirmation]}
           type="password"
-          label="Confirm password"
-          placeholder="Repeat your password"
+          label={gettext("Confirm password")}
+          placeholder={gettext("Repeat your password")}
           autocomplete="new-password"
         />
       </div>
@@ -59,17 +60,22 @@
         <.input
           field={@form[:tos_accepted]}
           type="checkbox"
-          label="I agree to the"
+          label={gettext("I agree to the")}
         />
         <p class="ml-7 -mt-4 text-sm text-base-content">
-          <a href="/terms" class="text-blue-600 hover:text-blue-500">Terms of Service</a>
-          and <a href="/privacy" class="text-blue-600 hover:text-blue-500">Privacy Policy</a>
+          <a href="/terms" class="text-blue-600 hover:text-blue-500">
+            {gettext("Terms of Service")}
+          </a>
+          {gettext("and")}
+          <a href="/privacy" class="text-blue-600 hover:text-blue-500">
+            {gettext("Privacy Policy")}
+          </a>
         </p>
       </div>
 
       <div>
         <.button type="submit" class="group relative w-full justify-center py-2">
-          Create account
+          {gettext("Create account")}
         </.button>
       </div>
     </.form>

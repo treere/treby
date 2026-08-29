@@ -32,7 +32,7 @@ defmodule TrebyWeb.CandidateOtpController do
 
     conn
     |> put_session("otp_email", email)
-    |> put_flash(:info, "Check your email for your login code")
+    |> put_flash(:info, gettext("Check your email for your login code"))
     |> redirect(to: "/#{slug}/portal/verify")
   end
 
@@ -64,13 +64,13 @@ defmodule TrebyWeb.CandidateOtpController do
             CandidatePortal.record_failed_otp_attempt(candidate, code)
 
             conn
-            |> put_flash(:error, "Invalid or expired code. Please try again.")
+            |> put_flash(:error, gettext("Invalid or expired code. Please try again."))
             |> redirect(to: "/#{slug}/portal/verify")
         end
 
       _ ->
         conn
-        |> put_flash(:error, "Invalid or expired code. Please try again.")
+        |> put_flash(:error, gettext("Invalid or expired code. Please try again."))
         |> redirect(to: "/#{slug}/portal/verify")
     end
   end

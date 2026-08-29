@@ -10,7 +10,7 @@ defmodule TrebyWeb.ResumeController do
     case application.resume_url do
       nil ->
         conn
-        |> put_flash(:error, "No resume available for this application")
+        |> put_flash(:error, gettext("No resume available for this application"))
         |> redirect(to: ~p"/app/candidates/#{application.candidate_id}")
 
       s3_key ->

@@ -45,7 +45,7 @@ defmodule TrebyWeb.RegistrationController do
     case get_session(conn, "registration_email") do
       nil ->
         conn
-        |> put_flash(:error, "Start by entering your email address")
+        |> put_flash(:error, gettext("Start by entering your email address"))
         |> redirect(to: ~p"/register")
 
       email ->
@@ -63,7 +63,7 @@ defmodule TrebyWeb.RegistrationController do
     case get_session(conn, "registration_email") do
       nil ->
         conn
-        |> put_flash(:error, "Start by entering your email address")
+        |> put_flash(:error, gettext("Start by entering your email address"))
         |> redirect(to: ~p"/register")
 
       email ->
@@ -72,14 +72,14 @@ defmodule TrebyWeb.RegistrationController do
             conn
             |> put_session("verified_email", email)
             |> delete_session("registration_email")
-            |> put_flash(:info, "Email verified!")
+            |> put_flash(:info, gettext("Email verified!"))
             |> redirect(to: ~p"/register")
 
           {:error, _reason} ->
             RegistrationVerification.record_failed_attempt(email)
 
             conn
-            |> put_flash(:error, "Invalid or expired code. Please try again.")
+            |> put_flash(:error, gettext("Invalid or expired code. Please try again."))
             |> redirect(to: ~p"/register/verify")
         end
     end
@@ -87,7 +87,7 @@ defmodule TrebyWeb.RegistrationController do
 
   def verify_code(conn, _params) do
     conn
-    |> put_flash(:error, "Enter the code you received by email")
+    |> put_flash(:error, gettext("Enter the code you received by email"))
     |> redirect(to: ~p"/register/verify")
   end
 
@@ -117,17 +117,17 @@ defmodule TrebyWeb.RegistrationController do
 
             conn
             |> put_session("registration_email", email)
-            |> put_flash(:info, "We sent a verification code to #{email}")
+            |> put_flash(:info, gettext("We sent a verification code to %{email}", email: email))
             |> redirect(to: ~p"/register/verify")
 
           {:error, :rate_limited} ->
             conn
-            |> put_flash(:error, "Please wait a moment before requesting another code")
+            |> put_flash(:error, gettext("Please wait a moment before requesting another code"))
             |> redirect(to: ~p"/register/verify")
 
           {:error, _} ->
             conn
-            |> put_flash(:error, "Something went wrong. Please try again.")
+            |> put_flash(:error, gettext("Something went wrong. Please try again."))
             |> redirect(to: ~p"/register")
         end
     end
@@ -173,18 +173,18 @@ defmodule TrebyWeb.RegistrationController do
                 |> put_session("user_id", user.id)
                 |> put_session("tenant_id", tenant.id)
                 |> delete_session("verified_email")
-                |> put_flash(:info, "Welcome to Treby!")
+                |> put_flash(:info, gettext("Welcome to Treby!"))
                 |> redirect(to: ~p"/app")
 
               {:error, _changeset} ->
                 conn
-                |> put_flash(:error, "Could not create your account")
+                |> put_flash(:error, gettext("Could not create your account"))
                 |> redirect(to: ~p"/register")
             end
 
           {:error, _changeset} ->
             conn
-            |> put_flash(:error, "Could not create company")
+            |> put_flash(:error, gettext("Could not create company"))
             |> redirect(to: ~p"/register")
         end
     end

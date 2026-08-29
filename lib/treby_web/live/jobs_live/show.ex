@@ -1307,17 +1307,13 @@ defmodule TrebyWeb.JobsLive.Show do
   end
 
   defp detach_pipeline(socket) do
-    case Pipeline.detach_job_pipeline(socket.assigns.job) do
-      {:ok, updated_job, _pipeline} ->
-        socket
-        |> assign(job: updated_job)
-        |> assign(pipelines: Pipeline.list_pipelines(socket.assigns.current_tenant.id))
-        |> assign(stages: stages_with_counts(pipeline_id_for(updated_job)))
-        |> refresh_overview()
+    {:ok, updated_job, _pipeline} = Pipeline.detach_job_pipeline(socket.assigns.job)
 
-      _ ->
-        socket
-    end
+    socket
+    |> assign(job: updated_job)
+    |> assign(pipelines: Pipeline.list_pipelines(socket.assigns.current_tenant.id))
+    |> assign(stages: stages_with_counts(pipeline_id_for(updated_job)))
+    |> refresh_overview()
   end
 
   defp detach_and_map_stage(socket, stale_stage_id) do

@@ -1,4 +1,4 @@
-FROM elixir:1.18-alpine AS builder
+FROM elixir:1.20.3-alpine AS builder
 
 RUN apk add --no-cache build-base git
 
@@ -20,7 +20,7 @@ COPY assets assets
 
 RUN mix assets.deploy
 
-FROM elixir:1.18-alpine
+FROM elixir:1.20.3-alpine
 
 RUN apk add --no-cache libstdc++ openssl libgcc
 

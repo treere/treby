@@ -429,24 +429,21 @@ defmodule TrebyWeb.ImportLive.Index do
           end
         end
 
-    case CsvImport.execute_import(rows, mapping, tenant_id,
-           job_id: socket.assigns.selected_job_id,
-           pipeline_stage_id: pipeline_stage_id,
-           source: socket.assigns.selected_source
-         ) do
-      {:ok, results} ->
-        # Log the import
-        {:ok, log} =
-          CsvImport.log_import("import.csv", tenant_id, results)
+    {:ok, results} =
+      CsvImport.execute_import(rows, mapping, tenant_id,
+        job_id: socket.assigns.selected_job_id,
+        pipeline_stage_id: pipeline_stage_id,
+        source: socket.assigns.selected_source
+      )
 
-        {:noreply,
-         socket
-         |> assign(step: 4, import_results: results, import_log: log)
-         |> put_flash(:info, gettext("Import complete"))}
+    # Log the import
+    {:ok, log} =
+      CsvImport.log_import("import.csv", tenant_id, results)
 
-      _ ->
-        {:noreply, put_flash(socket, :error, "Import failed")}
-    end
+    {:noreply,
+     socket
+     |> assign(step: 4, import_results: results, import_log: log)
+     |> put_flash(:info, gettext("Import complete"))}
   end
 
   defp upload_error_to_string(:too_large), do: gettext("File is too large (max 10MB)")

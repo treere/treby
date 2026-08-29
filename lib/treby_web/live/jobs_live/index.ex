@@ -272,10 +272,10 @@ defmodule TrebyWeb.JobsLive.Index do
           # Clone template to create a new pipeline for this job
           template = Pipeline.get_pipeline!(template_id)
 
-          case Pipeline.clone_template_to_pipeline(template, socket.assigns.current_tenant.id) do
-            {:ok, new_pipeline} -> new_pipeline.id
-            _ -> nil
-          end
+          {:ok, new_pipeline} =
+            Pipeline.clone_template_to_pipeline(template, socket.assigns.current_tenant.id)
+
+          new_pipeline.id
 
         Map.get(job_params, "pipeline_id") != "" ->
           Map.get(job_params, "pipeline_id")

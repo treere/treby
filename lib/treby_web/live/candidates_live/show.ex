@@ -1222,7 +1222,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           "info_request",
           %{
             conversation_id: conversation.id,
-            job_title: application && application.job && application.job.title
+            job_title: application.job && application.job.title
           }
         )
 

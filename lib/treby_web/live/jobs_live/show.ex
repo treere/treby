@@ -284,23 +284,41 @@ defmodule TrebyWeb.JobsLive.Show do
                     View Resume
                   </a>
                   <div class="mt-2 space-y-2">
-                    <select
-                      id={"move-select-#{application.id}"}
-                      phx-change="move_application"
-                      phx-value-application_id={application.id}
-                      disabled={
-                        not can_manage_stage?(stage, @current_user.id) or length(@stages) <= 1
-                      }
-                      class="w-full rounded-lg px-2 py-1 text-xs bg-base-200 border border-base-300 disabled:opacity-50"
+                    <label
+                      for={"move-select-#{application.id}"}
+                      class="block text-[10px] uppercase tracking-wide text-base-content/50"
                     >
-                      <option
-                        :for={stage_option <- @stages}
-                        value={stage_option.id}
-                        selected={stage_option.id == application.pipeline_stage_id}
+                      Move to stage
+                    </label>
+                    <.form
+                      for={%{}}
+                      id={"move-form-#{application.id}"}
+                      phx-change="move_application"
+                      class="flex items-center gap-1"
+                    >
+                      <input
+                        type="hidden"
+                        name="application_id"
+                        value={application.id}
+                        id={"move-application-id-#{application.id}"}
+                      />
+                      <select
+                        id={"move-select-#{application.id}"}
+                        name="stage_id"
+                        disabled={
+                          not can_manage_stage?(stage, @current_user.id) or length(@stages) <= 1
+                        }
+                        class="w-full rounded-lg px-2 py-1 text-xs bg-base-200 border border-base-300 disabled:opacity-50"
                       >
-                        {stage_option.name}
-                      </option>
-                    </select>
+                        <option
+                          :for={stage_option <- @stages}
+                          value={stage_option.id}
+                          selected={stage_option.id == application.pipeline_stage_id}
+                        >
+                          {stage_option.name}
+                        </option>
+                      </select>
+                    </.form>
                     <div class="flex items-center gap-2">
                       <button
                         phx-click="toggle_review"

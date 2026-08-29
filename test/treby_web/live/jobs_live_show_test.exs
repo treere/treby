@@ -360,6 +360,11 @@ defmodule TrebyWeb.JobsLive.ShowPipelineTest do
       conn = login_user(conn, user)
       view = job_show_live(conn, job)
 
+      # The selector must live inside a form so phx-change fires without a
+      # "form events require the input to be inside a form" console error.
+      assert has_element?(view, "#move-form-#{app.id} #move-select-#{app.id}")
+      assert has_element?(view, "#move-form-#{app.id} input[name='application_id']")
+
       view
       |> render_change("move_application", %{
         "application_id" => app.id,

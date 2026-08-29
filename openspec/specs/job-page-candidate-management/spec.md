@@ -35,12 +35,17 @@ The system SHALL link each job-page candidate card to the candidate's profile pa
 - **AND** the profile's back link returns to the originating job page
 
 ### Requirement: Inline stage change
-The system SHALL allow changing a candidate's stage directly from the job page using a per-card stage selector.
+The system SHALL allow changing a candidate's stage directly from the job page using a per-card stage selector. The selector SHALL be wired through a form so the change is dispatched without client-side errors.
 
 #### Scenario: Move candidate to another stage
 - **WHEN** a user selects a different stage in a candidate card's selector
 - **THEN** the application is moved to the selected stage
 - **AND** the card appears in the new stage's column
+
+#### Scenario: Selector wired through a form
+- **WHEN** a user opens the job detail page
+- **THEN** each candidate card's stage selector is inside a form element
+- **AND** no "form events require the input to be inside a form" error is raised in the browser console when changing the stage
 
 #### Scenario: Move requires advancer for interview stages
 - **WHEN** a user who is not an advancer for an interview stage attempts to move a candidate

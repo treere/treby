@@ -7,17 +7,21 @@ Enable recruiters and candidates to schedule interviews with availability comput
 ## Requirements
 
 ### Requirement: Compute available interview slots
-The system SHALL compute available time slots by combining availability rules with Google Calendar free/busy data. For interview-type stages with multiple examiners, the system SHALL compute overlapping availability across eligible examiners.
+The system SHALL compute available time slots by combining availability rules with busy periods from the internal calendar and every connected external calendar provider. For interview-type stages with multiple examiners, the system SHALL compute overlapping availability across eligible examiners. When a connected external provider returns an error, slot computation SHALL fail closed.
 
 #### Scenario: Available slots with no conflicts (single examiner)
 - **WHEN** a user requests available slots for an interviewer on a day they have 09:00-17:00 availability
-- **AND** the interviewer's Google Calendar shows no busy periods
+- **AND** neither the internal calendar nor any connected provider reports busy periods
 - **THEN** the system returns 30-minute slots from 09:00 to 17:00 (minus buffer times)
 
 #### Scenario: Available slots with calendar conflicts (single examiner)
 - **WHEN** a user requests available slots for an interviewer on a day they have 09:00-17:00 availability
-- **AND** the interviewer's Google Calendar shows a busy period from 10:00-11:00
+- **AND** the internal calendar or a connected provider reports a busy period from 10:00-11:00
 - **THEN** the system returns slots that do not overlap with the busy period or its buffer zones
+
+#### Scenario: Existing interview blocks a slot
+- **WHEN** the interviewer already has a scheduled interview at 10:00-10:30 on Treby and availability is requested for that day
+- **THEN** the 10:00-10:30 slot is not returned, regardless of external calendar connections
 
 #### Scenario: Available slots across multiple days
 - **WHEN** a user requests available slots for a date range spanning multiple days
@@ -29,14 +33,18 @@ The system SHALL compute available time slots by combining availability rules wi
 
 #### Scenario: Overlapping availability for multi-examiner stage
 - **WHEN** a user requests available slots for an interview-type stage with `min_examiners = 3` and 4 eligible examiners
-- **THEN** the system queries Google Calendar free/busy for all 4 examiners
-- **AND** computes time slots where at least 3 examiners have overlapping availability
-- **AND** returns only those overlapping slots
+- **THEN** the system computes busy periods from the internal calendar and all connected providers for all 4 examiners
+- **AND** returns time slots where at least 3 examiners have overlapping availability
 
 #### Scenario: No overlapping slots available
 - **WHEN** the system computes overlapping availability for a multi-examiner stage and finds no slots where `min_examiners` examiners are simultaneously available
 - **THEN** the system returns an empty slot list
 - **AND** displays a message indicating no common availability was found
+
+#### Scenario: Connected provider errors
+- **WHEN** a connected external provider returns an error during busy aggregation
+- **THEN** the slot computation returns an error
+- **AND** no slots are displayed
 
 ### Requirement: Reach scheduling from candidate page
 The system SHALL allow recruiters to open the scheduling page for an application from the candidate detail page.
@@ -56,11 +64,12 @@ The system SHALL allow recruiters to schedule interviews from the application pa
 
 #### Scenario: Select slot and confirm (multi-examiner)
 - **WHEN** a recruiter selects an available slot for a multi-examiner stage and confirms
-- **THEN** the system creates a single Google Calendar event with a Google Meet link
-- **AND** creates an `interview_event` record with status "scheduled"
+- **THEN** the system resolves the meeting provider (Google Meet if a required examiner is connected, otherwise Jitsi)
+- **AND** if Google, creates a single Google Calendar event with all examiners plus the candidate as attendees
+- **AND** creates an `interview_event` record with status "scheduled" and the resolved meeting link
 - **AND** links all eligible examiners for that slot to the event
 - **AND** notifies all examiners in-app (activity log)
-- **AND** posts an interview message in the candidate's portal conversation with the date, time, interviewer, and Meet link
+- **AND** posts an interview message in the candidate's portal conversation with the date, time, interviewer, and meeting link
 - **AND** moves the application to the interview pipeline stage
 
 #### Scenario: Slot no longer available
@@ -68,32 +77,17 @@ The system SHALL allow recruiters to schedule interviews from the application pa
 - **THEN** the system returns an error indicating the slot is no longer available
 - **AND** refreshes the available slots list
 
-### Requirement: Google Meet event creation
-The system SHALL create Google Calendar events with auto-generated Google Meet links.
-
-#### Scenario: Event with Meet link
-- **WHEN** an interview is scheduled
-- **THEN** the system creates a Google Calendar event using the `conferenceData.createRequest` parameter
-- **AND** the event includes a Google Meet video conference link
-- **AND** the Meet link is stored in the `interview_events.video_conf_url` field
-
-#### Scenario: Event creation failure
-- **WHEN** the Google Calendar API fails to create an event
-- **THEN** the system displays an error to the user
-- **AND** does not create an `interview_event` record
-- **AND** does not move the application to a new stage
-
 ### Requirement: Interview notifications
 The system SHALL notify candidates and examiners about scheduled interviews without sending full-content emails to the candidate.
 
 #### Scenario: Candidate notification
 - **WHEN** an interview is scheduled for a candidate
-- **THEN** the system posts a message in the candidate's portal conversation with the interview date/time, Google Meet link, and interviewer name
+- **THEN** the system posts a message in the candidate's portal conversation with the interview date/time, meeting link, and interviewer name
 - **AND** if the candidate's `interview_update` preference is enabled, sends a short ping email: "There's an update regarding your interview for {job_title}" with a "View in Portal" button linking to `/:tenant_slug/portal`
 
 #### Scenario: Interviewer notification
 - **WHEN** an interview is scheduled with an interviewer
-- **THEN** the system logs an in-app activity event with the interview date/time, candidate name, and Google Meet link
+- **THEN** the system logs an in-app activity event with the interview date/time, candidate name, and meeting link
 - **AND** no email is sent to the interviewer
 
 ### Requirement: Cancel interview
@@ -102,7 +96,7 @@ The system SHALL allow cancelling scheduled interviews. When a multi-examiner ev
 #### Scenario: Cancel interview
 - **WHEN** a user cancels a scheduled interview
 - **THEN** the system updates the `interview_event` status to "cancelled"
-- **AND** deletes the Google Calendar event
+- **AND** if an external calendar event exists, deletes it using the calendar owner's connection and `provider_event_id`
 - **AND** sends cancellation notifications to all linked examiners
 - **AND** the application remains in its current pipeline stage (does not move back)
 
@@ -112,7 +106,7 @@ The system SHALL display upcoming interviews, showing all examiners for multi-ex
 #### Scenario: View upcoming interviews
 - **WHEN** a user navigates to the interviews page
 - **THEN** a list of upcoming interviews (status "scheduled") is displayed sorted by date
-- **AND** each entry shows candidate name, job title, all examiner names, date/time, and Meet link
+- **AND** each entry shows candidate name, job title, all examiner names, date/time, and meeting link
 
 #### Scenario: Filter by interviewer
 - **WHEN** a user filters interviews by a specific interviewer

@@ -10,7 +10,9 @@ defmodule Treby.Interviews.InterviewEvent do
     field :end_at_utc, :utc_datetime
     field :duration_minutes, :integer
     field :video_conf_url, :string
-    field :google_event_id, :string
+    field :provider_event_id, :string
+    field :calendar_provider, :string
+    field :calendar_owner_id, :binary_id
     field :status, :string, default: "scheduled"
     field :notes, :string
 
@@ -32,7 +34,9 @@ defmodule Treby.Interviews.InterviewEvent do
       :end_at_utc,
       :duration_minutes,
       :video_conf_url,
-      :google_event_id,
+      :provider_event_id,
+      :calendar_provider,
+      :calendar_owner_id,
       :status,
       :notes,
       :scheduled_by_id,

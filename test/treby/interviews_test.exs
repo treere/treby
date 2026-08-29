@@ -3,6 +3,7 @@ defmodule Treby.InterviewsTest do
 
   import Swoosh.TestAssertions
 
+  alias Plug.Conn
   alias Treby.Interviews
   alias Treby.Interviews.InterviewEvent
 
@@ -70,6 +71,39 @@ defmodule Treby.InterviewsTest do
 
       assert {:ok, cancelled} = Interviews.cancel_interview(event)
       assert cancelled.status == "cancelled"
+    end
+
+    test "deletes the external event using the calendar owner's connection", %{
+      user: user,
+      interviewer: interviewer,
+      tenant: tenant
+    } do
+      # The scheduler (user) is NOT connected; only the owner (interviewer) is.
+      {:ok, _} =
+        Treby.Calendar.connect_google_user(interviewer.id, tenant.id, %{
+          access_token: "access",
+          refresh_token: "refresh",
+          expires_at: DateTime.utc_now() |> DateTime.add(1, :hour),
+          email: "interviewer@gmail.com"
+        })
+
+      attrs =
+        valid_interview_attrs(user.id, interviewer.id, tenant.id)
+        |> Map.put(:provider_event_id, "evt-123")
+        |> Map.put(:calendar_provider, "google")
+        |> Map.put(:calendar_owner_id, interviewer.id)
+
+      {:ok, event} = Interviews.schedule_interview(attrs)
+
+      Req.Test.stub(Treby.GoogleApiMock, fn conn ->
+        assert conn.request_path == "/calendar/v3/calendars/primary/events/evt-123"
+        send(self(), {:delete_called, conn.request_path})
+        Conn.send_resp(conn, 204, "")
+      end)
+
+      assert {:ok, cancelled} = Interviews.cancel_interview(event)
+      assert cancelled.status == "cancelled"
+      assert_receive {:delete_called, "/calendar/v3/calendars/primary/events/evt-123"}
     end
   end
 

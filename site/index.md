@@ -20,7 +20,7 @@ Manage job postings, track candidates through customizable hiring pipelines, rev
 - **Customizable pipeline** — drag-and-drop Kanban board with configurable stages
 - **Real-time collaboration** — pipeline moves update instantly via Phoenix PubSub
 - **Public career pages** — publish branded career pages for external applicants
-- **Self-scheduling** — candidates book interviews with Google Calendar sync
+- **Self-scheduling** — candidates book interviews with internal + optional Google calendar sync
 - **Open source** — MIT license, self-hosted, full control
 
 Treby is designed for small businesses and startups (5–50 people, hiring 1–10 roles at a time).
@@ -45,7 +45,7 @@ Central candidate database with application history, notes, interview feedback, 
 [Explore Candidate Management →](/features/candidate-management)
 
 ### Interview Scheduling
-Let candidates self-schedule interviews via Google Calendar. Automatic timezone handling, availability rules, and Google Meet links.
+Let candidates self-schedule interviews with an always-active internal calendar and optional Google Calendar sync. Automatic timezone handling, availability rules, and automatic meeting links (Google Meet or Jitsi).
 
 [See Interview Scheduling →](/features/interview-scheduling)
 

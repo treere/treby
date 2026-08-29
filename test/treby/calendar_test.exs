@@ -3,7 +3,11 @@ defmodule Treby.CalendarTest do
 
   alias Treby.Calendar
   alias Treby.Calendar.CalendarConnection
+  alias Treby.Calendar.Providers.Jitsi
   alias Treby.GoogleApiMock
+
+  import Req.Test
+  alias Plug.Conn
 
   setup do
     {:ok, tenant} = insert_tenant()
@@ -24,7 +28,7 @@ defmodule Treby.CalendarTest do
                Calendar.connect_google_user(user.id, tenant.id, token_data)
 
       assert conn.provider == "google"
-      assert conn.google_email == "user@gmail.com"
+      assert conn.provider_email == "user@gmail.com"
       assert conn.calendar_id == "primary"
       assert conn.user_id == user.id
       assert conn.tenant_id == tenant.id
@@ -60,11 +64,11 @@ defmodule Treby.CalendarTest do
 
       {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
 
-      assert %CalendarConnection{} = Calendar.get_connection(user.id)
+      assert %CalendarConnection{} = Calendar.get_connection(user.id, "google")
     end
 
     test "returns nil when no connection", %{user: user} do
-      assert Calendar.get_connection(user.id) == nil
+      assert Calendar.get_connection(user.id, "google") == nil
     end
   end
 
@@ -106,6 +110,7 @@ defmodule Treby.CalendarTest do
     test "returns error when not connected", %{user: user} do
       assert Calendar.get_free_busy(
                user.id,
+               "google",
                DateTime.utc_now(),
                DateTime.add(DateTime.utc_now(), 1, :hour)
              ) ==
@@ -122,13 +127,15 @@ defmodule Treby.CalendarTest do
         timezone: "UTC"
       }
 
-      assert Calendar.create_event_with_meet(user.id, params) == {:error, :not_connected}
+      assert Calendar.create_event_with_meet(user.id, "google", params) ==
+               {:error, :not_connected}
     end
   end
 
-  describe "delete_event/2" do
+  describe "delete_event/3" do
     test "returns error when not connected", %{user: user} do
-      assert Calendar.delete_event(user.id, "some-event-id") == {:error, :not_connected}
+      assert Calendar.delete_event(user.id, "google", "some-event-id") ==
+               {:error, :not_connected}
     end
   end
 
@@ -142,7 +149,7 @@ defmodule Treby.CalendarTest do
       }
 
       {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
-      conn = Calendar.get_connection(user.id)
+      conn = Calendar.get_connection(user.id, "google")
 
       assert {:ok, "valid-token"} = Calendar.Google.get_valid_token(conn)
     end
@@ -166,12 +173,12 @@ defmodule Treby.CalendarTest do
       }
 
       {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
-      conn = Calendar.get_connection(user.id)
+      conn = Calendar.get_connection(user.id, "google")
       GoogleApiMock.stub_token_refresh("refreshed-token")
 
       assert {:ok, "refreshed-token"} = Calendar.Google.get_valid_token(conn)
 
-      updated = Calendar.get_connection(user.id)
+      updated = Calendar.get_connection(user.id, "google")
       assert updated.access_token == "refreshed-token"
       assert DateTime.compare(updated.token_expires_at, DateTime.utc_now()) == :gt
     end
@@ -185,7 +192,7 @@ defmodule Treby.CalendarTest do
       }
 
       {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
-      conn = Calendar.get_connection(user.id)
+      conn = Calendar.get_connection(user.id, "google")
       GoogleApiMock.stub_token_refresh("refreshed-token")
 
       assert {:ok, "refreshed-token"} = Calendar.Google.get_valid_token(conn)
@@ -200,11 +207,111 @@ defmodule Treby.CalendarTest do
       }
 
       {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
-      conn = Calendar.get_connection(user.id)
+      conn = Calendar.get_connection(user.id, "google")
       GoogleApiMock.stub_token_error(400, %{"error" => "invalid_grant"})
 
       assert {:error, {:refresh_failed, resp}} = Calendar.Google.get_valid_token(conn)
       assert resp["error"] == "invalid_grant"
+    end
+  end
+
+  describe "resolve_meeting/1" do
+    test "returns calendar_event with owner when an examiner is Google-connected", %{
+      user: user,
+      tenant: tenant
+    } do
+      {:ok, other} = insert_user(tenant.id)
+      {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, valid_token_data())
+
+      assert Calendar.resolve_meeting([other.id, user.id]) ==
+               {:calendar_event, user.id, :google_meet}
+    end
+
+    test "returns jitsi when no examiner is Google-connected", %{
+      user: user,
+      tenant: tenant
+    } do
+      {:ok, other} = insert_user(tenant.id)
+
+      assert Calendar.resolve_meeting([user.id, other.id]) == {:meeting_url, :jitsi}
+    end
+  end
+
+  describe "Providers.Jitsi" do
+    test "generates a meet.jit.si link with tenant slug and uuid", %{} do
+      assert {:ok, url} = Jitsi.create_meeting_link(%{tenant_slug: "acme"})
+
+      assert url =~ ~r|^https://meet\.jit\.si/treby-acme-[0-9a-f-]{36}$|
+    end
+  end
+
+  describe "create_event_with_meet/4" do
+    test "creates a single event with all examiners and the candidate as attendees", %{
+      user: user,
+      tenant: tenant
+    } do
+      {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, valid_token_data())
+
+      GoogleApiMock.stub_event_create("evt-123", "https://meet.google.com/xyz")
+
+      params = %{
+        summary: "Interview",
+        description: "",
+        start_at: DateTime.utc_now(),
+        end_at: DateTime.add(DateTime.utc_now(), 1800, :second),
+        timezone: "UTC"
+      }
+
+      assert {:ok, result} =
+               Calendar.create_event_with_meet(
+                 user.id,
+                 "google",
+                 params,
+                 ["examiner@example.com", "candidate@example.com"]
+               )
+
+      assert result.provider_event_id == "evt-123"
+      assert result.video_link == "https://meet.google.com/xyz"
+    end
+
+    test "sendUpdates is none so no attendee emails are sent", %{
+      user: user,
+      tenant: tenant
+    } do
+      {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, valid_token_data())
+
+      Req.Test.stub(Treby.GoogleApiMock, fn conn ->
+        assert conn.request_path == "/calendar/v3/calendars/primary/events"
+        assert conn.query_params["sendUpdates"] == "none"
+
+        attendees = conn.body_params["attendees"]
+        send(self(), {:attendees, attendees})
+
+        conn
+        |> Conn.put_status(200)
+        |> json(%{"id" => "evt-1", "hangoutLink" => "https://meet.google.com/abc"})
+      end)
+
+      params = %{
+        summary: "Interview",
+        description: "",
+        start_at: DateTime.utc_now(),
+        end_at: DateTime.add(DateTime.utc_now(), 1800, :second),
+        timezone: "UTC"
+      }
+
+      {:ok, _result} =
+        Calendar.create_event_with_meet(
+          user.id,
+          "google",
+          params,
+          ["examiner@example.com", "candidate@example.com"]
+        )
+
+      assert_receive {:attendees, attendees}
+
+      assert Enum.map(attendees, & &1["email"]) ==
+               ["examiner@example.com", "candidate@example.com"]
     end
   end
 

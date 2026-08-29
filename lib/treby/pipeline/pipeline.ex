@@ -653,15 +653,15 @@ defmodule Treby.Pipeline do
     if examiner_ids == [] do
       []
     else
-      connected_ids =
-        Treby.Calendar.CalendarConnection
-        |> where([cc], cc.user_id in ^examiner_ids)
-        |> select([cc], cc.user_id)
+      rule_ids =
+        Treby.Availability.AvailabilityRule
+        |> where([r], r.user_id in ^examiner_ids)
+        |> select([r], r.user_id)
         |> Repo.all()
         |> MapSet.new()
 
       list_examiners(stage)
-      |> Enum.filter(fn se -> MapSet.member?(connected_ids, se.user_id) end)
+      |> Enum.filter(fn se -> MapSet.member?(rule_ids, se.user_id) end)
     end
   end
 

@@ -3,6 +3,8 @@ defmodule Treby.AvailabilityTest do
 
   alias Treby.Availability
   alias Treby.Availability.AvailabilityRule
+  alias Treby.Calendar.Providers.Treby, as: InternalCalendar
+  alias Treby.GoogleApiMock
 
   setup do
     {:ok, tenant} = insert_tenant()
@@ -171,6 +173,140 @@ defmodule Treby.AvailabilityTest do
     end
   end
 
+  describe "internal calendar provider" do
+    test "existing interviews are reported as busy", %{user: user, tenant: tenant} do
+      start_at = DateTime.new!(~D[2024-01-15], ~T[10:00:00], "Etc/UTC")
+      end_at = DateTime.new!(~D[2024-01-15], ~T[10:30:00], "Etc/UTC")
+      insert_interview_event(tenant, user.id, start_at, end_at)
+
+      {:ok, busy} =
+        InternalCalendar.fetch_busy(
+          user.id,
+          DateTime.new!(~D[2024-01-15], ~T[00:00:00], "UTC"),
+          DateTime.new!(~D[2024-01-16], ~T[00:00:00], "UTC")
+        )
+
+      assert busy == [%{start: start_at, end: end_at}]
+    end
+
+    test "cancelled interviews are not busy", %{user: user, tenant: tenant} do
+      start_at = DateTime.new!(~D[2024-01-15], ~T[10:00:00], "Etc/UTC")
+      end_at = DateTime.new!(~D[2024-01-15], ~T[10:30:00], "Etc/UTC")
+      event = insert_interview_event(tenant, user.id, start_at, end_at)
+
+      Treby.Repo.update!(Ecto.Changeset.change(event, %{status: "cancelled"}))
+
+      {:ok, busy} =
+        InternalCalendar.fetch_busy(
+          user.id,
+          DateTime.new!(~D[2024-01-15], ~T[00:00:00], "UTC"),
+          DateTime.new!(~D[2024-01-16], ~T[00:00:00], "UTC")
+        )
+
+      assert busy == []
+    end
+
+    test "existing interview blocks the slot without external connection", %{
+      user: user,
+      tenant: tenant
+    } do
+      create_rule(user.id, tenant.id,
+        day_of_week: Date.day_of_week(~D[2024-01-15]),
+        start_time: ~T[09:00:00],
+        end_time: ~T[11:00:00],
+        timezone: "UTC",
+        buffer_before: 0,
+        buffer_after: 0
+      )
+
+      insert_interview_event(
+        tenant,
+        user.id,
+        DateTime.new!(~D[2024-01-15], ~T[10:00:00], "Etc/UTC"),
+        DateTime.new!(~D[2024-01-15], ~T[10:30:00], "Etc/UTC")
+      )
+
+      slots = Availability.compute_slots(user.id, %{from: ~D[2024-01-15], to: ~D[2024-01-15]})
+
+      slot_starts = Enum.map(slots, & &1.start)
+
+      refute DateTime.new!(~D[2024-01-15], ~T[10:00:00], "Etc/UTC") in slot_starts
+      assert DateTime.new!(~D[2024-01-15], ~T[09:00:00], "UTC") in slot_starts
+    end
+  end
+
+  describe "external provider aggregation" do
+    test "busy from internal and external providers is all excluded", %{
+      user: user,
+      tenant: tenant
+    } do
+      create_rule(user.id, tenant.id,
+        day_of_week: Date.day_of_week(~D[2024-01-15]),
+        start_time: ~T[09:00:00],
+        end_time: ~T[15:00:00],
+        timezone: "UTC",
+        buffer_before: 0,
+        buffer_after: 0
+      )
+
+      insert_interview_event(
+        tenant,
+        user.id,
+        DateTime.new!(~D[2024-01-15], ~T[10:00:00], "Etc/UTC"),
+        DateTime.new!(~D[2024-01-15], ~T[10:30:00], "Etc/UTC")
+      )
+
+      {:ok, _} =
+        Treby.Calendar.connect_google_user(user.id, tenant.id, %{
+          access_token: "access",
+          refresh_token: "refresh",
+          expires_at: DateTime.utc_now() |> DateTime.add(1, :hour),
+          email: "user@gmail.com"
+        })
+
+      GoogleApiMock.stub_free_busy([
+        %{
+          "start" => "2024-01-15T14:00:00Z",
+          "end" => "2024-01-15T14:30:00Z"
+        }
+      ])
+
+      slots = Availability.compute_slots(user.id, %{from: ~D[2024-01-15], to: ~D[2024-01-15]})
+
+      slot_starts = Enum.map(slots, & &1.start)
+
+      refute DateTime.new!(~D[2024-01-15], ~T[10:00:00], "Etc/UTC") in slot_starts
+      refute DateTime.new!(~D[2024-01-15], ~T[14:00:00], "UTC") in slot_starts
+      assert DateTime.new!(~D[2024-01-15], ~T[09:00:00], "UTC") in slot_starts
+    end
+
+    test "provider error blocks slot computation", %{user: user, tenant: tenant} do
+      create_rule(user.id, tenant.id,
+        day_of_week: Date.day_of_week(~D[2024-01-15]),
+        start_time: ~T[09:00:00],
+        end_time: ~T[11:00:00],
+        timezone: "UTC",
+        buffer_before: 0,
+        buffer_after: 0
+      )
+
+      {:ok, _} =
+        Treby.Calendar.connect_google_user(user.id, tenant.id, %{
+          access_token: "access",
+          refresh_token: "refresh",
+          expires_at: DateTime.utc_now() |> DateTime.add(-1, :hour),
+          email: "user@gmail.com"
+        })
+
+      GoogleApiMock.stub_token_error(500, %{"error" => "boom"})
+
+      assert {:error, {:calendar_error, {"google", {:refresh_failed, resp}}}} =
+               Availability.compute_slots(user.id, %{from: ~D[2024-01-15], to: ~D[2024-01-15]})
+
+      assert resp["error"] == "boom"
+    end
+  end
+
   defp insert_tenant do
     Treby.Repo.insert!(%Treby.Tenants.Tenant{
       name: "Test Tenant",
@@ -199,5 +335,72 @@ defmodule Treby.AvailabilityTest do
     }
 
     Availability.create_rule(Map.merge(default_attrs, Map.new(attrs)))
+  end
+
+  defp insert_interview_event(tenant, examiner_id, start_at, end_at) do
+    pipeline_id =
+      case Treby.Pipeline.default_pipeline_id(tenant.id) do
+        nil ->
+          Treby.Pipeline.create_default_pipeline_stages(tenant)
+          Treby.Pipeline.default_pipeline_id(tenant.id)
+
+        id ->
+          id
+      end
+
+    stage =
+      Treby.Repo.one!(
+        from s in Treby.Pipeline.PipelineStage,
+          where: s.pipeline_id == ^pipeline_id,
+          limit: 1
+      )
+
+    {:ok, job} =
+      %Treby.Jobs.Job{}
+      |> Ecto.Changeset.change(%{
+        title: "Test Job",
+        description: "A test job",
+        tenant_id: tenant.id,
+        pipeline_id: pipeline_id
+      })
+      |> Treby.Repo.insert()
+
+    {:ok, candidate} =
+      %Treby.Candidates.Candidate{}
+      |> Ecto.Changeset.change(%{
+        name: "Test Candidate",
+        email: "candidate-#{System.unique_integer([:positive])}@example.com",
+        tenant_id: tenant.id
+      })
+      |> Treby.Repo.insert()
+
+    {:ok, app} =
+      %Treby.Pipeline.Application{}
+      |> Ecto.Changeset.change(%{
+        job_id: job.id,
+        candidate_id: candidate.id,
+        pipeline_stage_id: stage.id,
+        tenant_id: tenant.id,
+        applied_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+      |> Treby.Repo.insert()
+
+    {:ok, event} =
+      %Treby.Interviews.InterviewEvent{}
+      |> Ecto.Changeset.change(%{
+        start_at_utc: start_at,
+        end_at_utc: end_at,
+        duration_minutes: 30,
+        application_id: app.id,
+        tenant_id: tenant.id
+      })
+      |> Treby.Repo.insert()
+
+    Treby.Repo.insert!(%Treby.Interviews.EventExaminer{
+      interview_event_id: event.id,
+      user_id: examiner_id
+    })
+
+    event
   end
 end

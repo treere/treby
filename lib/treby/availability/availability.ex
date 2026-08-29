@@ -6,6 +6,8 @@ defmodule Treby.Availability do
   import Ecto.Query
   alias Treby.Repo
   alias Treby.Availability.AvailabilityRule
+  alias Treby.Availability.ProviderCache
+  alias Treby.Calendar.Providers.Treby, as: InternalCalendar
 
   @slot_duration_minutes 30
 
@@ -109,11 +111,25 @@ defmodule Treby.Availability do
       |> Date.add(1)
       |> DateTime.new!(~T[00:00:00], "Etc/UTC")
 
-    case Treby.Calendar.get_free_busy(user_id, time_min, time_max) do
-      {:ok, periods} -> {:ok, periods}
-      {:error, :not_connected} -> {:ok, []}
-      {:error, reason} -> {:error, {:calendar_error, reason}}
+    with {:ok, internal} <- InternalCalendar.fetch_busy(user_id, time_min, time_max),
+         {:ok, external} <- fetch_external_busy(user_id, time_min, time_max) do
+      {:ok, internal ++ external}
     end
+  end
+
+  defp fetch_external_busy(user_id, time_min, time_max) do
+    user_id
+    |> Treby.Calendar.list_connections_for_user()
+    |> Enum.reduce_while({:ok, []}, fn conn, {:ok, acc} ->
+      key = {conn.provider, conn.user_id, time_min, time_max}
+
+      case ProviderCache.fetch(key, fn ->
+             Treby.Calendar.fetch_provider_busy(conn, time_min, time_max)
+           end) do
+        {:ok, periods} -> {:cont, {:ok, acc ++ periods}}
+        {:error, reason} -> {:halt, {:error, {:calendar_error, {conn.provider, reason}}}}
+      end
+    end)
   end
 
   defp generate_slots_for_day(date, rule, busy_periods, duration_minutes, _timezone) do
@@ -177,19 +193,7 @@ defmodule Treby.Availability do
         duration_minutes \\ @slot_duration_minutes,
         _timezone \\ "UTC"
       ) do
-    alias Treby.Availability.SlotCache
-
-    case SlotCache.get(examiner_ids, date_range) do
-      nil ->
-        slots =
-          do_compute_overlapping_slots(examiner_ids, min_examiners, date_range, duration_minutes)
-
-        SlotCache.put(examiner_ids, date_range, slots)
-        slots
-
-      cached ->
-        cached
-    end
+    do_compute_overlapping_slots(examiner_ids, min_examiners, date_range, duration_minutes)
   end
 
   defp do_compute_overlapping_slots(examiner_ids, min_examiners, date_range, duration_minutes) do
@@ -205,99 +209,100 @@ defmodule Treby.Availability do
       end)
       |> Map.new()
 
-    # Get busy periods for all examiners
-    busy_map =
-      examiner_ids
-      |> Enum.map(fn user_id ->
-        case get_busy_periods(user_id, dates) do
-          {:ok, periods} -> {user_id, periods}
-          {:error, _} -> {user_id, []}
+    # Get busy periods for all examiners (internal + connected external providers)
+    with {:ok, busy_map} <- build_busy_map(examiner_ids, dates) do
+      # For each date, compute overlapping slots
+      dates
+      |> Enum.flat_map(fn date ->
+        day_of_week = Date.day_of_week(date)
+
+        # Get rules for this day for each examiner
+        rules_for_day =
+          examiner_ids
+          |> Enum.map(fn user_id ->
+            {user_id, Map.get(rules_map, {user_id, day_of_week})}
+          end)
+
+        # Find the intersection of availability windows
+        # Only consider examiners that have a rule for this day
+        available_examiners =
+          rules_for_day
+          |> Enum.filter(fn {_uid, rule} -> rule != nil end)
+          |> Enum.map(fn {uid, _rule} -> uid end)
+
+        if length(available_examiners) < min_examiners do
+          []
+        else
+          # Find the common time window (latest start, earliest end) across all available examiners
+          latest_start =
+            rules_for_day
+            |> Enum.filter(fn {_uid, rule} -> rule != nil end)
+            |> Enum.map(fn {_uid, rule} -> rule.start_time end)
+            |> Enum.max(Time)
+
+          earliest_end =
+            rules_for_day
+            |> Enum.filter(fn {_uid, rule} -> rule != nil end)
+            |> Enum.map(fn {_uid, rule} -> rule.end_time end)
+            |> Enum.min(Time)
+
+          # Use the timezone from the first available rule
+          first_rule =
+            rules_for_day
+            |> Enum.find(fn {_uid, rule} -> rule != nil end)
+            |> elem(1)
+
+          tz = first_rule.timezone
+          buffer_before = first_rule.buffer_before * 60
+          buffer_after = first_rule.buffer_after * 60
+
+          day_start = DateTime.new!(date, latest_start, tz)
+          day_end = DateTime.new!(date, earliest_end, tz)
+
+          # Generate candidate slots from the common window
+          candidate_slots =
+            day_start
+            |> Stream.unfold(fn current ->
+              slot_end = DateTime.add(current, duration_minutes, :minute)
+
+              if DateTime.compare(slot_end, day_end) != :gt do
+                {current, slot_end}
+              else
+                nil
+              end
+            end)
+            |> Enum.to_list()
+
+          # For each candidate slot, count how many examiners are free
+          candidate_slots
+          |> Enum.map(fn slot_start ->
+            slot_end = DateTime.add(slot_start, duration_minutes, :minute)
+            buffered_start = DateTime.add(slot_start, -buffer_before, :second)
+            buffered_end = DateTime.add(slot_end, buffer_after, :second)
+
+            free_examiners =
+              available_examiners
+              |> Enum.filter(fn user_id ->
+                busy = Map.get(busy_map, user_id, [])
+                not overlaps_any?(buffered_start, buffered_end, busy)
+              end)
+
+            {slot_start, slot_end, free_examiners}
+          end)
+          |> Enum.filter(fn {_start, _end, free} -> length(free) >= min_examiners end)
+          |> Enum.map(fn {start, end_dt, free} ->
+            %{start: start, end: end_dt, available_examiners: free}
+          end)
         end
       end)
-      |> Map.new()
+    end
+  end
 
-    # For each date, compute overlapping slots
-    dates
-    |> Enum.flat_map(fn date ->
-      day_of_week = Date.day_of_week(date)
-
-      # Get rules for this day for each examiner
-      rules_for_day =
-        examiner_ids
-        |> Enum.map(fn user_id ->
-          {user_id, Map.get(rules_map, {user_id, day_of_week})}
-        end)
-
-      # Find the intersection of availability windows
-      # Only consider examiners that have a rule for this day
-      available_examiners =
-        rules_for_day
-        |> Enum.filter(fn {_uid, rule} -> rule != nil end)
-        |> Enum.map(fn {uid, _rule} -> uid end)
-
-      if length(available_examiners) < min_examiners do
-        []
-      else
-        # Find the common time window (latest start, earliest end) across all available examiners
-        latest_start =
-          rules_for_day
-          |> Enum.filter(fn {_uid, rule} -> rule != nil end)
-          |> Enum.map(fn {_uid, rule} -> rule.start_time end)
-          |> Enum.max(Time)
-
-        earliest_end =
-          rules_for_day
-          |> Enum.filter(fn {_uid, rule} -> rule != nil end)
-          |> Enum.map(fn {_uid, rule} -> rule.end_time end)
-          |> Enum.min(Time)
-
-        # Use the timezone from the first available rule
-        first_rule =
-          rules_for_day
-          |> Enum.find(fn {_uid, rule} -> rule != nil end)
-          |> elem(1)
-
-        tz = first_rule.timezone
-        buffer_before = first_rule.buffer_before * 60
-        buffer_after = first_rule.buffer_after * 60
-
-        day_start = DateTime.new!(date, latest_start, tz)
-        day_end = DateTime.new!(date, earliest_end, tz)
-
-        # Generate candidate slots from the common window
-        candidate_slots =
-          day_start
-          |> Stream.unfold(fn current ->
-            slot_end = DateTime.add(current, duration_minutes, :minute)
-
-            if DateTime.compare(slot_end, day_end) != :gt do
-              {current, slot_end}
-            else
-              nil
-            end
-          end)
-          |> Enum.to_list()
-
-        # For each candidate slot, count how many examiners are free
-        candidate_slots
-        |> Enum.map(fn slot_start ->
-          slot_end = DateTime.add(slot_start, duration_minutes, :minute)
-          buffered_start = DateTime.add(slot_start, -buffer_before, :second)
-          buffered_end = DateTime.add(slot_end, buffer_after, :second)
-
-          free_examiners =
-            available_examiners
-            |> Enum.filter(fn user_id ->
-              busy = Map.get(busy_map, user_id, [])
-              not overlaps_any?(buffered_start, buffered_end, busy)
-            end)
-
-          {slot_start, slot_end, free_examiners}
-        end)
-        |> Enum.filter(fn {_start, _end, free} -> length(free) >= min_examiners end)
-        |> Enum.map(fn {start, end_dt, free} ->
-          %{start: start, end: end_dt, available_examiners: free}
-        end)
+  defp build_busy_map(examiner_ids, dates) do
+    Enum.reduce_while(examiner_ids, {:ok, %{}}, fn user_id, {:ok, acc} ->
+      case get_busy_periods(user_id, dates) do
+        {:ok, periods} -> {:cont, {:ok, Map.put(acc, user_id, periods)}}
+        {:error, reason} -> {:halt, {:error, reason}}
       end
     end)
   end

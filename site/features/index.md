@@ -15,9 +15,9 @@ Publish branded career pages for external applicants with resume upload.
 
 ## [Candidate Management](/features/candidate-management)
 Central candidate database with notes, ratings, custom fields, and full history.
-
 ## [Interview Scheduling](/features/interview-scheduling)
-Self-scheduling inside the candidate portal, integrated with Google Calendar, with multi-examiner overlapping availability and automatic Google Meet links.
+
+Self-scheduling inside the candidate portal with an always-active internal calendar, optional Google Calendar sync, multi-examiner overlapping availability, and automatic meeting links (Google Meet or Jitsi).
 
 ## [Analytics Dashboard](/features/analytics)
 Hiring metrics, conversion rates, and pipeline overview.

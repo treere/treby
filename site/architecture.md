@@ -25,7 +25,7 @@ Treby is a standard Phoenix LiveView application with a multi-tenant PostgreSQL 
 │              (multi-tenant, scoped queries)             │
 ├────────────────────────────────────────────────────────┤
 │             External Services                           │
-│  S3 (resumes) │ Google Calendar │ SMTP (OTP + pings)     │
+│  S3 (resumes) │ Calendar/Meeting providers │ SMTP (OTP + pings) │
 └────────────────────────────────────────────────────────┘
 ```
 

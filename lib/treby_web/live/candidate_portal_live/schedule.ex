@@ -2,6 +2,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
   use TrebyWeb, :live_view
 
   alias Treby.{Availability, Interviews, Pipeline, Calendar, Repo}
+  alias Treby.Calendar.Providers.Jitsi
 
   @impl true
   def mount(%{"tenant_slug" => _slug}, session, socket) do
@@ -45,7 +46,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
   @impl true
   def handle_event("select_slot", %{"start" => start_iso}, socket) do
     {:ok, start_dt, _} = DateTime.from_iso8601(start_iso)
-    slot = Enum.find(socket.assigns.slots, &(&1.start == start_dt))
+    slot = Enum.find(socket.assigns.slots, &(DateTime.compare(&1.start, start_dt) == :eq))
 
     {:noreply, assign(socket, selected_slot: slot)}
   end
@@ -90,57 +91,88 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
           Enum.map(eligible, & &1.user_id)
         end
 
-      primary_examiner_id = List.first(examiner_ids)
+      event_params = %{
+        summary: "Interview with #{app.candidate.name} - #{app.job.title}",
+        description: "Scheduled via candidate portal self-scheduling",
+        start_at: slot.start,
+        end_at: slot.end,
+        timezone: "UTC"
+      }
 
-      case Calendar.create_event_with_meet(
-             primary_examiner_id,
-             %{
-               summary: "Interview with #{app.candidate.name} - #{app.job.title}",
-               description: "Scheduled via candidate portal self-scheduling",
-               start_at: slot.start,
-               end_at: slot.end,
-               timezone: "UTC"
-             },
-             [app.candidate.email]
-           ) do
-        {:ok, event_result} ->
-          attrs = %{
-            start_at_utc: slot.start,
-            end_at_utc: slot.end,
-            duration_minutes: 30,
-            examiner_ids: examiner_ids,
-            application_id: app.id,
-            tenant_id: app.tenant_id,
-            video_conf_url: event_result.meet_link,
-            google_event_id: event_result.event_id
-          }
+      base_attrs = %{
+        start_at_utc: slot.start,
+        end_at_utc: slot.end,
+        duration_minutes: 30,
+        examiner_ids: examiner_ids,
+        application_id: app.id,
+        tenant_id: app.tenant_id
+      }
 
-          case Interviews.schedule_interview(attrs) do
-            {:ok, _event} ->
+      case Calendar.resolve_meeting(examiner_ids) do
+        {:calendar_event, owner_id, :google_meet} ->
+          attendee_emails = examiner_emails(socket, examiner_ids) ++ [app.candidate.email]
+
+          case Calendar.create_event_with_meet(
+                 owner_id,
+                 "google",
+                 event_params,
+                 attendee_emails
+               ) do
+            {:ok, event_result} ->
+              attrs =
+                base_attrs
+                |> Map.put(:video_conf_url, event_result.video_link)
+                |> Map.put(:provider_event_id, event_result.provider_event_id)
+                |> Map.put(:calendar_provider, "google")
+                |> Map.put(:calendar_owner_id, owner_id)
+
+              schedule_booking(socket, attrs, event_result.video_link)
+
+            {:error, _reason} ->
               {:noreply,
                socket
-               |> assign(confirmed: true, meet_link: event_result.meet_link)
-               |> put_flash(:info, "Interview scheduled!")}
-
-            {:error, _changeset} ->
-              {slots, _examiners} = recompute_slots(socket, socket.assigns.selected_date)
-
-              {:noreply,
-               socket
-               |> assign(slots: slots, selected_slot: nil)
-               |> put_flash(
-                 :error,
-                 "That time slot is no longer available. Please choose another."
-               )}
+               |> assign(selected_slot: nil)
+               |> put_flash(:error, "Failed to create calendar event. Please try again.")}
           end
 
-        {:error, _reason} ->
-          {:noreply,
-           socket
-           |> assign(selected_slot: nil)
-           |> put_flash(:error, "Failed to create calendar event. Please try again.")}
+        {:meeting_url, :jitsi} ->
+          {:ok, meet_url} =
+            Jitsi.create_meeting_link(%{tenant_slug: socket.assigns.current_tenant.slug})
+
+          attrs = base_attrs |> Map.put(:video_conf_url, meet_url)
+          schedule_booking(socket, attrs, meet_url)
       end
     end
+  end
+
+  defp schedule_booking(socket, attrs, meet_link) do
+    case Interviews.schedule_interview(attrs) do
+      {:ok, _event} ->
+        {:noreply,
+         socket
+         |> assign(confirmed: true, meet_link: meet_link)
+         |> put_flash(:info, "Interview scheduled!")}
+
+      {:error, _changeset} ->
+        {slots, _examiners} = recompute_slots(socket, socket.assigns.selected_date)
+
+        {:noreply,
+         socket
+         |> assign(slots: slots, selected_slot: nil)
+         |> put_flash(
+           :error,
+           "That time slot is no longer available. Please choose another."
+         )}
+    end
+  end
+
+  defp examiner_emails(socket, examiner_ids) do
+    examiner_ids
+    |> Enum.flat_map(fn user_id ->
+      Enum.filter(socket.assigns.examiners, &(&1.user_id == user_id))
+    end)
+    |> Enum.map(& &1.user.email)
+    |> Enum.reject(&is_nil/1)
   end
 
   @impl true
@@ -168,7 +200,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
-                <.icon name="hero-video-camera" class="h-5 w-5" /> Join Google Meet
+                <.icon name="hero-video-camera" class="h-5 w-5" /> {meeting_label(@meet_link)}
               </a>
             </div>
           </div>
@@ -266,6 +298,12 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
     </Layouts.candidate_portal>
     """
   end
+
+  defp meeting_label(link) when is_binary(link) do
+    if String.contains?(link, "meet.jit.si"), do: "Join Jitsi Meeting", else: "Join Meeting"
+  end
+
+  defp meeting_label(_), do: "Join Meeting"
 
   defp schedulable_application(candidate_id) do
     import Ecto.Query

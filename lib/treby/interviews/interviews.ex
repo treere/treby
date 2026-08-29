@@ -135,9 +135,13 @@ defmodule Treby.Interviews do
   def cancel_interview(%InterviewEvent{} = event) do
     event = Repo.preload(event, [:event_examiners, :application])
 
-    # Delete Google Calendar event if we have the event ID
-    if event.google_event_id do
-      Treby.Calendar.delete_event(event.scheduled_by_id, event.google_event_id)
+    # Delete the external calendar event using the calendar owner's connection
+    if event.provider_event_id && event.calendar_provider && event.calendar_owner_id do
+      Treby.Calendar.delete_event(
+        event.calendar_owner_id,
+        event.calendar_provider,
+        event.provider_event_id
+      )
     end
 
     # Update all event examiner statuses to cancelled
@@ -347,14 +351,20 @@ defmodule Treby.Interviews do
           )
 
         # Return examiners who are available for this specific slot
-        available
-        |> Enum.flat_map(& &1.available_examiners)
-        |> Enum.uniq()
-        |> Enum.reject(&(&1 in current_examiner_ids))
-        |> Enum.map(fn user_id ->
-          Enum.find(eligible_examiners, &(&1.user_id == user_id))
-        end)
-        |> Enum.reject(&is_nil/1)
+        case available do
+          slots when is_list(slots) ->
+            slots
+            |> Enum.flat_map(& &1.available_examiners)
+            |> Enum.uniq()
+            |> Enum.reject(&(&1 in current_examiner_ids))
+            |> Enum.map(fn user_id ->
+              Enum.find(eligible_examiners, &(&1.user_id == user_id))
+            end)
+            |> Enum.reject(&is_nil/1)
+
+          {:error, _reason} ->
+            []
+        end
       else
         []
       end

@@ -2,6 +2,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
   use TrebyWeb, :live_view
 
   alias Treby.{Accounts, Tenants, Calendar, Availability, Interviews, Pipeline}
+  alias Treby.Calendar.Providers.Jitsi
 
   def mount(%{"application_id" => application_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -13,19 +14,31 @@ defmodule TrebyWeb.ScheduleLive.Index do
         {:ok, redirect(socket, to: ~p"/404")}
 
       application ->
-        connected_users = Calendar.list_connected_users(tenant.id)
-        interviewer_ids = Enum.map(connected_users, & &1.user_id)
+        interview_stage =
+          Pipeline.list_pipeline_stages_for_job(application.job.id)
+          |> Enum.find(&(&1.stage_type == "interview"))
 
         users =
-          Enum.map(interviewer_ids, fn uid ->
-            Accounts.get_user!(uid)
-          end)
+          if interview_stage do
+            Pipeline.list_eligible_examiners(interview_stage)
+            |> Enum.map(& &1.user)
+            |> Enum.reject(&is_nil/1)
+          else
+            []
+          end
+
+        connected_ids =
+          tenant.id
+          |> Calendar.list_connected_users()
+          |> Enum.map(& &1.user_id)
+          |> MapSet.new()
 
         {:ok,
          socket
          |> assign(current_user: user, current_tenant: tenant)
          |> assign(application: application)
          |> assign(users: users)
+         |> assign(connected_ids: connected_ids)
          |> assign(selected_user: nil)
          |> assign(slots: [])
          |> assign(selected_slot: nil)
@@ -56,13 +69,13 @@ defmodule TrebyWeb.ScheduleLive.Index do
               <h2 class="text-lg font-semibold mb-4">Select Interviewer</h2>
               <div :if={@users == []} class="text-center py-8">
                 <p class="text-base-content/50 text-sm">
-                  No team members have connected their Google Calendar yet.
+                  No team members have set their availability yet.
                 </p>
                 <.link
-                  navigate={~p"/app/settings/calendar"}
+                  navigate={~p"/app/settings/availability"}
                   class="mt-2 text-blue-600 hover:text-blue-800 text-sm"
                 >
-                  Connect Calendar
+                  Set Availability
                 </.link>
               </div>
 
@@ -81,6 +94,11 @@ defmodule TrebyWeb.ScheduleLive.Index do
                   >
                     <span class="font-medium">{user.name}</span>
                     <span class="text-sm text-base-content/50 ml-2">{user.email}</span>
+                    <%= if MapSet.member?(@connected_ids, user.id) do %>
+                      <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Google connected
+                      </span>
+                    <% end %>
                   </button>
                 <% end %>
               </div>
@@ -151,7 +169,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                 </div>
                 <div>
                   <dt class="text-base-content/50">Interview Type</dt>
-                  <dd class="font-medium">Video (Google Meet)</dd>
+                  <dd class="font-medium">Video</dd>
                 </div>
                 <div :if={@selected_slot}>
                   <dt class="text-base-content/50">Selected Time</dt>
@@ -209,7 +227,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
 
   def handle_event("select_slot", %{"start" => start_iso}, socket) do
     {:ok, start_dt, _} = DateTime.from_iso8601(start_iso)
-    slot = Enum.find(socket.assigns.slots, &(&1.start == start_dt))
+    slot = Enum.find(socket.assigns.slots, &(DateTime.compare(&1.start, start_dt) == :eq))
 
     {:noreply, assign(socket, selected_slot: slot)}
   end
@@ -234,51 +252,73 @@ defmodule TrebyWeb.ScheduleLive.Index do
     unless slot && interviewer do
       {:noreply, put_flash(socket, :error, "Please select an interviewer and time slot")}
     else
-      attrs = %{
+      examiner_ids = [interviewer.id]
+
+      event_params = %{
+        summary: "Interview with #{app.candidate.name} - #{app.job.title}",
+        description: "Scheduled via Treby",
+        start_at: slot.start,
+        end_at: slot.end,
+        timezone: "UTC"
+      }
+
+      base_attrs = %{
         start_at_utc: slot.start,
         end_at_utc: slot.end,
         duration_minutes: 30,
-        examiner_ids: [interviewer.id],
+        examiner_ids: examiner_ids,
         scheduled_by_id: socket.assigns.current_user.id,
         application_id: app.id,
         tenant_id: socket.assigns.current_tenant.id
       }
 
-      # Create Google Calendar event with Meet link
-      case Calendar.create_event_with_meet(
-             interviewer.id,
-             %{
-               summary: "Interview with #{app.candidate.name} - #{app.job.title}",
-               description: "Scheduled via Treby",
-               start_at: slot.start,
-               end_at: slot.end,
-               timezone: "UTC"
-             },
-             [app.candidate.email]
-           ) do
-        {:ok, event_result} ->
-          attrs =
-            attrs
-            |> Map.put(:video_conf_url, event_result.meet_link)
-            |> Map.put(:google_event_id, event_result.event_id)
+      case Calendar.resolve_meeting(examiner_ids) do
+        {:calendar_event, owner_id, :google_meet} ->
+          attendee_emails = [interviewer.email, app.candidate.email]
 
-          case Interviews.schedule_interview(attrs) do
-            {:ok, _event} ->
+          case Calendar.create_event_with_meet(
+                 owner_id,
+                 "google",
+                 event_params,
+                 attendee_emails
+               ) do
+            {:ok, event_result} ->
+              attrs =
+                base_attrs
+                |> Map.put(:video_conf_url, event_result.video_link)
+                |> Map.put(:provider_event_id, event_result.provider_event_id)
+                |> Map.put(:calendar_provider, "google")
+                |> Map.put(:calendar_owner_id, owner_id)
+
+              book_interview(socket, attrs, app.candidate_id)
+
+            {:error, _reason} ->
               {:noreply,
                socket
-               |> put_flash(:info, "Interview scheduled successfully!")
-               |> push_navigate(to: ~p"/app/candidates/#{app.candidate_id}")}
-
-            {:error, _changeset} ->
-              {:noreply, put_flash(socket, :error, "Failed to schedule interview")}
+               |> assign(selected_slot: nil)
+               |> put_flash(:error, "Failed to create calendar event. Please try again.")}
           end
 
-        {:error, _reason} ->
-          {:noreply,
-           socket
-           |> assign(selected_slot: nil)
-           |> put_flash(:error, "Failed to create calendar event. Please try again.")}
+        {:meeting_url, :jitsi} ->
+          {:ok, meet_url} =
+            Jitsi.create_meeting_link(%{tenant_slug: socket.assigns.current_tenant.slug})
+
+          attrs = base_attrs |> Map.put(:video_conf_url, meet_url)
+          book_interview(socket, attrs, app.candidate_id)
       end
+    end
+  end
+
+  defp book_interview(socket, attrs, candidate_id) do
+    case Interviews.schedule_interview(attrs) do
+      {:ok, _event} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Interview scheduled successfully!")
+         |> push_navigate(to: ~p"/app/candidates/#{candidate_id}")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to schedule interview")}
     end
   end
 

@@ -11,8 +11,8 @@
 | Multi-tenant architecture | ✅ Complete |
 | Kanban pipeline (drag-and-drop, real-time) | ✅ Complete |
 | Public career page (branded, per tenant) | ✅ Complete |
-| Candidate self-scheduling (in-portal) with Google Meet | ✅ Complete |
-| Google Calendar integration | ✅ Complete |
+| Candidate self-scheduling (in-portal) with automatic meeting links (Google Meet / Jitsi) | ✅ Complete |
+| Google Calendar integration (optional; internal calendar always active) | ✅ Complete |
 | Custom fields (dynamic, per-entity) | ✅ Complete |
 | Notes with star ratings | ✅ Complete |
 | Resume uploads (S3) | ✅ Complete |
@@ -76,7 +76,7 @@ Goal: Single source of truth.
 ## What NOT to Build
 
 - AI-powered candidate scoring
-- Video interviews (use Google Meet — already integrated)
+- Video interviews (automatic meeting links — Google Meet or Jitsi)
 - Offer letter management
 - Onboarding workflows
 - Complex approval chains

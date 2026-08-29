@@ -10,7 +10,7 @@ defmodule Treby.Calendar.CalendarConnection do
     field :access_token, Treby.Encrypted.Binary
     field :refresh_token, Treby.Encrypted.Binary
     field :token_expires_at, :utc_datetime
-    field :google_email, :string
+    field :provider_email, :string
     field :calendar_id, :string
     field :connected_at, :utc_datetime
 
@@ -27,13 +27,13 @@ defmodule Treby.Calendar.CalendarConnection do
       :access_token,
       :refresh_token,
       :token_expires_at,
-      :google_email,
+      :provider_email,
       :calendar_id,
       :connected_at,
       :user_id,
       :tenant_id
     ])
     |> validate_required([:provider, :user_id, :tenant_id])
-    |> unique_constraint([:tenant_id, :user_id])
+    |> unique_constraint([:tenant_id, :user_id, :provider])
   end
 end

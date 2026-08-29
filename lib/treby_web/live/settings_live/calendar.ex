@@ -7,7 +7,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
-    connection = Calendar.get_connection(user.id)
+    connection = Calendar.get_connection(user.id, "google")
 
     {:ok,
      socket
@@ -25,7 +25,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
           </.link>
           <h1 class="text-2xl font-bold mt-2">Calendar Integration</h1>
           <p class="mt-1 text-base-content/70">
-            Connect your Google Calendar for interview scheduling
+            Connect your Google Calendar to check availability and create interview events
           </p>
         </div>
 
@@ -39,7 +39,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
                   </span>
                 </div>
                 <p class="mt-2 text-sm text-base-content/70">
-                  Connected as <strong>{@connection.google_email}</strong>
+                  Connected as <strong>{@connection.provider_email}</strong>
                 </p>
                 <p class="mt-1 text-xs text-base-content/40">
                   Connected {Elixir.Calendar.strftime(@connection.connected_at, "%B %d, %Y")}
@@ -68,7 +68,8 @@ defmodule TrebyWeb.SettingsLive.Calendar do
               <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-base-content/40" />
               <h3 class="mt-2 text-sm font-medium text-base-content">No calendar connected</h3>
               <p class="mt-1 text-sm text-base-content/50">
-                Connect your Google Calendar to enable interview scheduling
+                Connect your Google Calendar to check availability against your calendar. Interview
+                scheduling works even without it.
               </p>
               <div class="mt-6">
                 <.link

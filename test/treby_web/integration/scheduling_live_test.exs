@@ -30,6 +30,23 @@ defmodule TrebyWeb.SchedulingLiveTest do
         email: user.email
       })
 
+    # Give the user availability and assign them to the interview stage
+    Treby.Availability.create_rule(%{
+      user_id: user.id,
+      tenant_id: tenant.id,
+      day_of_week: Date.day_of_week(Date.utc_today()),
+      start_time: ~T[09:00:00],
+      end_time: ~T[17:00:00],
+      timezone: "UTC",
+      buffer_before: 0,
+      buffer_after: 0
+    })
+
+    interview_stage =
+      Repo.one!(from s in Pipeline.PipelineStage, where: s.stage_type == "interview", limit: 1)
+
+    Pipeline.assign_examiner(interview_stage, user.id)
+
     user
   end
 
@@ -178,7 +195,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
       assert html =~ "Test Engineer"
     end
 
-    test "shows message when no connected users", %{conn: conn} do
+    test "shows message when no examiners have set availability", %{conn: conn} do
       {tenant, user} = setup_tenant_and_user()
       {_job, _candidate, app} = setup_candidate_and_app(tenant)
 
@@ -188,10 +205,10 @@ defmodule TrebyWeb.SchedulingLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/app/schedule/#{app.id}")
 
-      assert has_element?(view, "p", "No team members have connected their Google Calendar yet.")
+      assert has_element?(view, "p", "No team members have set their availability yet.")
     end
 
-    test "shows connected users for interviewer selection", %{conn: conn} do
+    test "shows examiners with availability for interviewer selection", %{conn: conn} do
       {tenant, user} = setup_tenant_and_user()
       _interviewer = setup_interviewer(tenant)
       {_job, _candidate, app} = setup_candidate_and_app(tenant)

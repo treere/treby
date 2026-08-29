@@ -17,7 +17,8 @@ The system SHALL allow team members to connect their Google Calendar account via
 - **WHEN** a user authorizes the Google OAuth application
 - **THEN** the system resolves the user's email from Google's userinfo endpoint
 - **AND** the system stores the access token, refresh token, and token expiry encrypted in `calendar_connections`
-- **AND** the system stores the user's Google email and primary calendar ID
+- **AND** the system stores the user's email as `provider_email` and the primary calendar ID
+- **AND** the connection is recorded with provider `"google"`
 - **AND** the settings page shows "Connected as user@gmail.com"
 
 #### Scenario: OAuth denied
@@ -29,8 +30,9 @@ The system SHALL allow users to disconnect their Google Calendar account.
 
 #### Scenario: Disconnect calendar
 - **WHEN** a user clicks "Disconnect" on the calendar settings page
-- **THEN** the system deletes the `calendar_connection` record for that user
-- **AND** the user can no longer use scheduling features until they reconnect
+- **THEN** the system deletes the Google `calendar_connection` record for that user
+- **AND** Google busy periods and Google events are no longer used for that user
+- **AND** scheduling continues to work using the internal calendar (and any other connected providers)
 
 ### Requirement: Lazy token refresh
 The system SHALL refresh expired Google OAuth tokens transparently before API calls.

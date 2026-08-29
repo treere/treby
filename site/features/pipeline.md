@@ -71,18 +71,19 @@ Use the **Rejected** filter button to view only rejected candidates.
 
 ## Pipeline Stages
 
-The default pipeline has 6 stages:
+The default pipeline has 7 stages (`lib/treby/pipeline/pipeline.ex:678`):
 
-| Stage | Purpose |
-|---|---|
-| New | Fresh applications from career page or manual add |
-| Screen | Quick review of qualifications |
-| Phone Screen | Initial phone conversation |
-| Interview | In-depth technical/cultural interviews |
-| Offer | Offer negotiation stage |
-| Hired | Successfully hired |
+| Stage | Color | Type | Purpose |
+|---|---|---|---|
+| New | `#10b981` | `new` | Fresh applications from career page, manual add, or CSV import |
+| Screen | `#3b82f6` | — | Quick review of qualifications |
+| Phone Screen | `#8b5cf6` | — | Initial phone conversation |
+| Interview | `#f59e0b` | `interview` | In-depth interviews — gating + scorecards apply |
+| Offer | `#ec4899` | `offer` | Offer negotiation |
+| Hired | `#22c55e` | `hired` | Successfully hired — used for time-to-hire metrics |
+| Rejected | `#ef4444` | `rejected` | Rejected candidates (requires motivation) |
 
-You can customize these in **Settings → Pipeline Stages**: change names, colors, or create entirely new stages.
+You can customize these in **Settings → Pipeline** / **Settings → Pipeline Stages**: rename, recolor, reorder, change `stage_type` / `min_examiners` / linked scorecard template, or manage multiple pipelines per tenant (`lib/treby/pipeline/pipeline.ex:18`).
 
 ## Pipeline Templates
 

@@ -1,4 +1,3 @@
-
 # Treby
 
 **Open-source Applicant Tracking System** built with [Phoenix LiveView](https://www.phoenixframework.org/).
@@ -16,12 +15,14 @@ Manage job postings, track candidates through customizable hiring pipelines, rev
 
 ## Why Treby?
 
-- **Multi-tenant** — each company gets isolated data
-- **Customizable pipeline** — drag-and-drop Kanban board with configurable stages
-- **Real-time collaboration** — pipeline moves update instantly via Phoenix PubSub
-- **Public career pages** — publish branded career pages for external applicants
-- **Self-scheduling** — candidates book interviews with internal + optional Google calendar sync
-- **Open source** — MIT license, self-hosted, full control
+- **Multi-tenant** — each company gets isolated data (scoped `tenant_id`)
+- **Customizable pipelines** — multiple pipelines per tenant, drag-and-drop Kanban, stage types & colors
+- **Real-time collaboration** — pipeline moves broadcast via Phoenix PubSub
+- **Public career pages** — publish branded career pages per tenant
+- **Candidate portal** — OTP login, self-scheduling, threaded conversations, notification prefs
+- **Self-scheduling** — internal weekly availability + optional Google Calendar sync, Jitsi/Google Meet links
+- **Team workflows** — examiner/reviewer/advancer roles, scorecard gating, bulk ops, CSV import
+- **Open source** — MIT, self-hosted, full control
 
 Treby is designed for small businesses and startups (5–50 people, hiring 1–10 roles at a time).
 
@@ -30,7 +31,7 @@ Treby is designed for small businesses and startups (5–50 people, hiring 1–1
 ## Key Capabilities
 
 ### Kanban Pipeline
-Drag-and-drop candidates through pipeline stages with real-time updates. Configure stages, colors, and order to match your hiring process.
+Drag-and-drop candidates through pipeline stages with role-based access, scorecard gating, and rejection workflows.
 
 [Dive into the Pipeline →](/features/pipeline)
 
@@ -40,24 +41,39 @@ Publish branded career pages for each tenant. Customize colors, logo, and descri
 [Learn about Career Pages →](/features/career-pages)
 
 ### Candidate Management
-Central candidate database with application history, notes, interview feedback, star ratings, and custom fields.
+Central candidate database with application history, notes, interview feedback, star ratings, custom fields, duplicate merging, and comparison.
 
 [Explore Candidate Management →](/features/candidate-management)
 
+### Candidate Portal
+Self-service portal where candidates track status, book interviews, converse with recruiters, and manage notification preferences — OTP-secured.
+
+[Explore the Portal →](/features/candidate-portal)
+
 ### Interview Scheduling
-Let candidates self-schedule interviews with an always-active internal calendar and optional Google Calendar sync. Automatic timezone handling, availability rules, and automatic meeting links (Google Meet or Jitsi).
+Let candidates self-schedule interviews with an always-active internal calendar and optional Google Calendar sync. Overlapping availability for multiple examiners, automatic timezone handling, and automatic meeting links (Google Meet or Jitsi).
 
 [See Interview Scheduling →](/features/interview-scheduling)
 
+### Scorecards
+Structured evaluation per interview with configurable templates and criteria, completion gating for advancement.
+
+[See Scorecards →](/features/scorecards)
+
 ### Analytics Dashboard
-Pipeline overview, conversion rates, and hiring metrics. Track time-to-hire and candidate distribution across stages.
+Pipeline overview, conversion rates, time-in-stage, and source breakdown — with per-pipeline selector.
 
 [View Analytics →](/features/analytics)
 
-### Email Notifications
-Automated email notifications for pipeline events. Stage-based templates, interview confirmations, and team invitations via Swoosh.
+### Email & Portal Messages
+Email is OTP + notification pings only; all content lives in the portal with per-stage message templates and a scheduled queue.
 
-[See Email Notifications →](/features/email-notifications)
+[See Email →](/features/email-notifications) · [See Message Scheduler →](/features/message-scheduler)
+
+### Import & Bulk Ops
+CSV import with column mapping and source tagging, bulk move/review/delete, and side-by-side candidate comparison.
+
+[CSV Import →](/features/csv-import) · [Bulk Ops →](/features/bulk-operations) · [Comparison →](/features/comparison)
 
 ---
 
@@ -65,16 +81,21 @@ Automated email notifications for pipeline events. Stage-based templates, interv
 
 | Layer | Technology |
 |---|---|
-| Framework | [Phoenix 1.8](https://www.phoenixframework.org/) with LiveView |
-| Language | [Elixir](https://elixir-lang.org/) |
-| Database | PostgreSQL (via Ecto) |
-| Authentication | Session-based with BCrypt |
-| File Storage | S3-compatible (MinIO) via ExAWS |
-| Styling | [Tailwind CSS](https://tailwindcss.com/) |
+| Framework | [Phoenix 1.8](https://www.phoenixframework.org/) with LiveView 1.1, Bandit |
+| Language | [Elixir 1.19](https://elixir-lang.org/) / Erlang 28 |
+| Database | PostgreSQL (via Ecto) — `binary_id` PKs |
+| Authentication | Session + BCrypt (recruiters); OTP (candidates, registration); Cloak for Google tokens |
+| File Storage | S3-compatible (MinIO) via ExAWS + Finch |
+| Styling | [Tailwind CSS 4](https://tailwindcss.com/) + esbuild |
 | Drag & Drop | [Sortable.js](https://sortablejs.github.io/Sortable/) via LiveView hook |
 | Email | [Swoosh](https://hexdocs.pm/swoosh) |
 | Real-time | Phoenix PubSub |
+| Background Jobs | [Oban](https://hexdocs.pm/oban) |
 | HTTP Client | [Req](https://hexdocs.pm/req) |
+| i18n | Gettext (EN, IT) |
+| CSV | NimbleCSV |
+
+See [Architecture →](/architecture) for the full diagram and data model.
 
 ---
 

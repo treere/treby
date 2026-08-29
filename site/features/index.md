@@ -14,22 +14,40 @@ Drag-and-drop candidates through customizable pipeline stages with role-based ac
 Publish branded career pages for external applicants with resume upload.
 
 ## [Candidate Management](/features/candidate-management)
-Central candidate database with notes, ratings, custom fields, and full history.
-## [Interview Scheduling](/features/interview-scheduling)
+Central candidate database with notes, ratings, custom fields, full history, duplicate detection and merge.
 
+## [Candidate Portal](/features/candidate-portal)
+Self-service portal where candidates track application status, book interviews, converse with recruiters, and manage notification preferences — secured with email login codes (OTP) and a limited-lifetime session.
+
+## [Interview Scheduling](/features/interview-scheduling)
 Self-scheduling inside the candidate portal with an always-active internal calendar, optional Google Calendar sync, multi-examiner overlapping availability, and automatic meeting links (Google Meet or Jitsi).
 
+## [Scorecards](/features/scorecards)
+Structured evaluation templates with criteria, per-examiner submission, and advancement gating for interview stages.
+
 ## [Analytics Dashboard](/features/analytics)
-Hiring metrics, conversion rates, and pipeline overview.
+Hiring metrics, conversion rates, time-in-stage, and source breakdown — with a per-pipeline selector.
 
 ## [Email Notifications](/features/email-notifications)
 Email is used for login codes (OTP) and short notification pings only — all communication content lives in the candidate portal, with message templates per stage.
 
-## [Candidate Portal](/features/candidate-management#candidate-portal)
-A self-service portal where candidates can track application status, book interviews, converse with recruiters, and manage notification preferences — secured with email login codes (OTP) and a limited-lifetime session.
-
 ## [Message Scheduler](/features/message-scheduler)
-Schedule portal messages for later with jitter, retries, and a full queue manager.
+Schedule portal messages for later with jitter, retries, and a full queue manager (Oban).
+
+## [CSV Import](/features/csv-import)
+Migrate from spreadsheets: upload CSV, auto-detected column mapping, job/stage/source assignment, duplicate handling.
+
+## [Bulk Operations](/features/bulk-operations)
+Select many applications at once to move stages, mark reviewed/unreviewed, or delete.
+
+## [Candidate Comparison](/features/comparison)
+Side-by-side evaluation of 2–3 candidates with their applications, notes and scorecards.
+
+## [Source Tracking](/features/source-tracking)
+Tag and analyse where candidates come from — per-source breakdown in Analytics.
+
+## [Custom Fields](/features/custom-fields)
+Dynamic per-entity fields (candidate / application / job) configured in Settings.
 
 ## [Dark Mode](/features/dark-mode)
 Full dark theme with a light/dark/system toggle in the navigation.

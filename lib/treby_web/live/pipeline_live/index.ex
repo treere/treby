@@ -1,6 +1,8 @@
 defmodule TrebyWeb.PipelineLive.Index do
   use TrebyWeb, :live_view
 
+  import TrebyWeb.ScorecardForm, only: [scorecard_form: 1]
+
   alias Treby.{Accounts, Tenants, Jobs, Pipeline, EmailTemplates, BulkOperations, CandidatePortal}
   alias Treby.Notifications.Email, as: NotificationEmail
 

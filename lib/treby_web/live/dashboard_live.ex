@@ -1,6 +1,8 @@
 defmodule TrebyWeb.DashboardLive do
   use TrebyWeb, :live_view
 
+  import TrebyWeb.ScorecardForm, only: [scorecard_form: 1]
+
   alias Treby.{Accounts, Tenants, Dashboard, Jobs, Candidates, Careers, Scorecards}
 
   def mount(_params, session, socket) do

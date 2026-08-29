@@ -61,7 +61,7 @@ Candidates never create passwords. They request a login code by email (6-digit O
 
 ### S3 for file storage
 
-Resumes and brand logos are stored in S3-compatible storage (MinIO in dev, any S3 provider in production). Uploads go through `ExAWS` + `Finch` with pre-signed URLs (`lib/treby/uploads.ex`). Limits: resume 10 MB (PDF/DOC/DOCX), logo 5 MB (PNG/JPG/SVG) — enforced via `allow_upload` in the respective LiveViews.
+Resumes and brand logos are stored in S3-compatible storage (RustFS in dev, any S3 provider in production). Uploads go through `ExAWS` + `Req` with pre-signed URLs (`lib/treby/uploads.ex`). Limits: resume 10 MB (PDF/DOC/DOCX), logo 5 MB (PNG/JPG/SVG) — enforced via `allow_upload` in the respective LiveViews.
 
 ### Background jobs
 
@@ -76,7 +76,7 @@ Scheduled portal messages are delivered via **Oban** (`lib/treby/workers/send_sc
 | Database | PostgreSQL (via Ecto 3.13) | `binary_id` PKs, `utc_datetime` |
 | HTTP Server | [Bandit 1.5](https://hexdocs.pm/bandit) | `mix.exs:68` |
 | Authentication | Session + BCrypt | `bcrypt_elixir`, `lib/treby_web/plugs/auth.ex` |
-| File Storage | S3-compatible via ExAWS + Finch | `ex_aws_s3`, MinIO in dev |
+| File Storage | S3-compatible via ExAWS + Req | `ex_aws_s3`, RustFS in dev |
 | Styling | [Tailwind CSS 4](https://tailwindcss.com/) | `@import "tailwindcss" source(none)` in `app.css` |
 | Drag & Drop | [Sortable.js](https://sortablejs.github.io/Sortable/) via LiveView hook | `assets/js/` |
 | Email | [Swoosh 1.16](https://hexdocs.pm/swoosh) | Mailbox preview at `/dev/mailbox` |

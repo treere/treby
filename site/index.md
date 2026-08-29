@@ -85,7 +85,7 @@ CSV import with column mapping and source tagging, bulk move/review/delete, and 
 | Language | [Elixir 1.19](https://elixir-lang.org/) / Erlang 28 |
 | Database | PostgreSQL (via Ecto) — `binary_id` PKs |
 | Authentication | Session + BCrypt (recruiters); OTP (candidates, registration); Cloak for Google tokens |
-| File Storage | S3-compatible (MinIO) via ExAWS + Finch |
+| File Storage | S3-compatible (RustFS) via ExAWS + Req |
 | Styling | [Tailwind CSS 4](https://tailwindcss.com/) + esbuild |
 | Drag & Drop | [Sortable.js](https://sortablejs.github.io/Sortable/) via LiveView hook |
 | Email | [Swoosh](https://hexdocs.pm/swoosh) |

@@ -4,7 +4,7 @@
 
 - **Elixir** 1.19+ / **Erlang** 28+ (see `.tool-versions` for the pinned versions)
 - **PostgreSQL** 14+
-- **S3-compatible storage** — MinIO in development (provided by `docker-compose.yml`)
+- **S3-compatible storage** — RustFS in development (provided by `docker-compose.yml`)
 - **Node.js** 18+ (for `assets` via esbuild + Tailwind, and for the VitePress site in `site/`)
 
 ## Setup
@@ -54,7 +54,7 @@ Pre-loaded content:
 
 ## Docker Development
 
-`docker-compose.yml` provides PostgreSQL + MinIO:
+`docker-compose.yml` provides PostgreSQL + RustFS (S3):
 
 ```bash
 docker compose up -d
@@ -62,7 +62,7 @@ mix setup
 mix phx.server
 ```
 
-MinIO console: `http://localhost:9001` (credentials from `.env.example` — `treby` / `treby_password`).
+RustFS console: `http://localhost:9001` (credentials from `.env.example` — `treby` / `treby_password`).
 
 ## Environment Variables
 
@@ -123,7 +123,7 @@ treby/
 ├── test/                           # ExUnit + Phoenix.LiveViewTest
 ├── site/                           # VitePress docs (this site) + screenshots
 ├── scripts/screenshots.mjs         # Playwright screenshot generator
-├── docker-compose.yml              # Postgres + MinIO for dev
+├── docker-compose.yml              # Postgres + RustFS (S3) for dev
 └── config/                         # config.exs / dev.exs / runtime.exs ...
 ```
 

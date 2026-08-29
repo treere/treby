@@ -15,23 +15,26 @@ services:
       timeout: 5s
       retries: 5
 
-  minio:
-    image: quay.io/minio/aistor/minio:RELEASE.2026-08-07T18-34-35Z
-    command: server /data --console-address ":9001"
+  rustfs:
+    image: rustfs/rustfs:latest
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: treby
-      MINIO_ROOT_PASSWORD: treby_password
+      RUSTFS_ACCESS_KEY: treby
+      RUSTFS_SECRET_KEY: treby_password
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_CONSOLE_ENABLE: "true"
     volumes:
-      - minio_data:/data
+      - rustfs_data:/data
+    command: /data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres_data:
-  minio_data:
+  rustfs_data:

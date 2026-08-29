@@ -1,7 +1,7 @@
 defmodule Treby.Uploads do
   @moduledoc """
   S3 client wrapper for file uploads (resumes, logos).
-  Uses ExAWS with S3 adapter (MinIO in dev, S3 in prod).
+  Uses ExAWS with S3 adapter (RustFS in dev, S3 in prod).
   """
 
   @bucket "treby-uploads"

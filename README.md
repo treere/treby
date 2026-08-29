@@ -15,7 +15,7 @@ Treby helps companies manage job postings, track candidates through customizable
 
 - Elixir 1.19+ / Erlang 28+ (see `.tool-versions`)
 - PostgreSQL 14+
-- S3-compatible storage — MinIO for development (via `docker-compose.yml`)
+- S3-compatible storage — RustFS for development (via `docker-compose.yml`)
 - Node.js 18+ (assets + docs site)
 
 ### Setup
@@ -27,7 +27,7 @@ mix phx.server
 
 Visit [`http://localhost:4000`](http://localhost:4000).
 
-With Docker for Postgres + MinIO:
+With Docker for Postgres + RustFS (S3):
 
 ```bash
 docker compose up -d
@@ -50,7 +50,7 @@ Pre-loaded: 3 jobs, 10 candidates + 6 duplicate-profile fixtures for the merge c
 
 Treby reads its configuration from environment variables (see `config/runtime.exs`
 and `config/config.exs`). A `.env.example` file lists every available variable with
-sensible dev defaults (including the local MinIO credentials).
+sensible dev defaults (including the local RustFS credentials).
 
 ```bash
 cp .env.example .env   # then fill in your values
@@ -74,7 +74,7 @@ manager, etc.) is up to you.
 | Language | [Elixir 1.19](https://elixir-lang.org/) |
 | Database | PostgreSQL (via Ecto) |
 | Authentication | Session + BCrypt (team), OTP (candidate portal + registration) |
-| File Storage | S3-compatible (MinIO) via ExAWS + Finch |
+| File Storage | S3-compatible (RustFS) via ExAWS + Req |
 | Styling | [Tailwind CSS 4](https://tailwindcss.com/) + esbuild |
 | Drag & Drop | [Sortable.js](https://sortablejs.github.io/Sortable/) via LiveView hook |
 | Email | [Swoosh](https://hexdocs.pm/swoosh) |

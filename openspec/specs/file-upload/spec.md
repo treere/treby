@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Handle secure file uploads for resumes and logos with S3/MinIO-compatible storage.
+Handle secure file uploads for resumes and logos with S3-compatible storage (RustFS in dev).
 
 ## Requirements
 
@@ -27,16 +27,16 @@ The system SHALL allow admins to upload a company logo.
 - **AND** uploaded to S3 under `/{tenant_id}/logos/{filename}`
 - **AND** the tenant settings are updated with the logo URL
 
-### Requirement: S3/MinIO storage
+### Requirement: S3 storage
 The system SHALL store files in S3-compatible storage.
 
-#### Scenario: MinIO configuration
+#### Scenario: S3 configuration
 - **WHEN** the application starts
-- **THEN** it connects to S3/MinIO using configured credentials
+- **THEN** it connects to S3 using configured credentials
 
-#### Scenario: Self-hosted MinIO
+#### Scenario: Self-hosted S3 (RustFS)
 - **WHEN** the application is deployed self-hosted
-- **THEN** MinIO runs as a Docker Compose service alongside PostgreSQL
+- **THEN** RustFS runs as a Docker Compose service alongside PostgreSQL
 
 ### Requirement: Resume access
 The system SHALL provide secure access to uploaded resumes.

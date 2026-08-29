@@ -88,10 +88,10 @@ config :phoenix, :json_library, Jason
 # Configure Gettext default locale
 config :treby, TrebyWeb.Gettext, default_locale: "en"
 
-# Configure S3/MinIO
+# Configure S3 (RustFS in dev, any S3 provider in prod)
 config :ex_aws,
   json_codec: Jason,
-  http_client: ExAws.Request.Finch
+  http_client: ExAws.Request.Req
 
 config :ex_aws, :s3,
   scheme: "http://",

@@ -74,16 +74,30 @@ defmodule TrebyWeb.AuthFlowTest do
     test "registered user can log in", %{conn: conn} do
       email = "reg-#{System.unique_integer([:positive])}@test.com"
 
+      conn = post(conn, ~p"/register", %{"user" => %{"email" => email}})
+      assert redirected_to(conn) == "/register/verify"
+
+      assert_receive {:email, sent}
+
+      body =
+        case sent.text_body do
+          %{data: data} -> data
+          body when is_binary(body) -> body
+        end
+
+      [code] = Regex.run(~r/\b(\d{6})\b/, body, capture: :all_but_first)
+
+      conn = post(conn, ~p"/register/verify", %{"code" => code})
+      assert redirected_to(conn) == "/register"
+
       conn =
         post(conn, ~p"/register", %{
           "user" => %{
-            "email" => email,
             "password" => "password123",
             "password_confirmation" => "password123",
             "tos_accepted" => "true",
             "name" => "Reg User",
-            "company_name" => "Reg Corp",
-            "company_slug" => "reg-corp-#{System.unique_integer([:positive])}"
+            "company_name" => "Reg Corp"
           }
         })
 

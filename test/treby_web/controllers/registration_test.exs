@@ -1,115 +1,75 @@
 defmodule TrebyWeb.RegistrationTest do
   use TrebyWeb.ConnCase, async: true
 
+  alias Treby.Accounts
   alias Treby.Accounts.User
 
-  describe "registration form" do
-    test "shows registration form on GET /register", %{conn: conn} do
-      conn = get(conn, ~p"/register")
-      assert html_response(conn, 200) =~ "Create your account"
-      assert html_response(conn, 200) =~ "Confirm password"
-      assert html_response(conn, 200) =~ "Terms of Service"
-    end
-
-    test "registration form has password confirmation field", %{conn: conn} do
-      conn = get(conn, ~p"/register")
-      assert html_response(conn, 200) =~ "user_password_confirmation"
-    end
-
-    test "registration form has ToS checkbox", %{conn: conn} do
-      conn = get(conn, ~p"/register")
-      assert html_response(conn, 200) =~ "user_tos_accepted"
-    end
+  defp unique_email do
+    "test-#{System.unique_integer([:positive])}@example.com"
   end
 
-  describe "registration validation" do
-    test "mismatched passwords shows inline error", %{conn: conn} do
-      unique = System.unique_integer([:positive])
+  defp extract_code(email) do
+    body =
+      case email.text_body do
+        %{data: data} -> data
+        body when is_binary(body) -> body
+      end
 
-      conn =
-        post(conn, ~p"/register", %{
-          "user" => %{
-            "company_name" => "Test Corp",
-            "name" => "Test User",
-            "email" => "test-#{unique}@example.com",
-            "password" => "password123",
-            "password_confirmation" => "different_password",
-            "tos_accepted" => "true"
-          }
-        })
+    [code] = Regex.run(~r/\b(\d{6})\b/, body, capture: :all_but_first)
+    code
+  end
 
-      assert html_response(conn, 422) =~ "does not match password"
+  defp send_code(conn, email) do
+    conn = post(conn, ~p"/register", %{"user" => %{"email" => email}})
+    assert redirected_to(conn) == "/register/verify"
+
+    assert_receive {:email, sent}
+    assert sent.subject == "Verify your email address"
+    {conn, extract_code(sent)}
+  end
+
+  defp verify_email(conn, code) do
+    post(conn, ~p"/register/verify", %{"code" => code})
+  end
+
+  defp submit_full_form(conn, attrs) do
+    base = %{
+      "company_name" => "Test Corp",
+      "name" => "Test User",
+      "password" => "password123",
+      "password_confirmation" => "password123",
+      "tos_accepted" => "true"
+    }
+
+    post(conn, ~p"/register", %{"user" => Map.merge(base, attrs)})
+  end
+
+  describe "email step" do
+    test "shows the email step on GET /register", %{conn: conn} do
+      conn = get(conn, ~p"/register")
+      html = html_response(conn, 200)
+      assert html =~ "Send verification code"
+      assert html =~ "user_email"
     end
 
-    test "missing ToS acceptance shows inline error", %{conn: conn} do
-      unique = System.unique_integer([:positive])
-
-      conn =
-        post(conn, ~p"/register", %{
-          "user" => %{
-            "company_name" => "Test Corp",
-            "name" => "Test User",
-            "email" => "test-#{unique}@example.com",
-            "password" => "password123",
-            "password_confirmation" => "password123",
-            "tos_accepted" => "false"
-          }
-        })
-
-      assert html_response(conn, 422) =~ "must be accepted"
+    test "sends a verification code and redirects to the verify page", %{conn: conn} do
+      email = unique_email()
+      {conn, code} = send_code(conn, email)
+      assert String.length(code) == 6
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "verification code to #{email}"
     end
 
-    test "successful registration with all fields", %{conn: conn} do
-      unique = System.unique_integer([:positive])
-
-      conn =
-        post(conn, ~p"/register", %{
-          "user" => %{
-            "company_name" => "Test Corp",
-            "name" => "Test User",
-            "email" => "test-#{unique}@example.com",
-            "password" => "password123",
-            "password_confirmation" => "password123",
-            "tos_accepted" => "true"
-          }
-        })
-
-      assert redirected_to(conn) == "/app"
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Welcome to Treby!"
+    test "invalid email format shows an inline error", %{conn: conn} do
+      conn = post(conn, ~p"/register", %{"user" => %{"email" => "not-an-email"}})
+      assert html_response(conn, 422) =~ "must have the @ sign and no spaces"
     end
 
-    test "registration without a slug derives a unique slug from the company name", %{conn: conn} do
-      unique = System.unique_integer([:positive])
-      name = "Tech Corp #{unique}"
+    test "already registered email shows a field error and sends no code", %{conn: conn} do
+      email = unique_email()
 
-      conn =
-        post(conn, ~p"/register", %{
-          "user" => %{
-            "company_name" => name,
-            "name" => "Test User",
-            "email" => "test-#{unique}@example.com",
-            "password" => "password123",
-            "password_confirmation" => "password123",
-            "tos_accepted" => "true"
-          }
-        })
+      {:ok, tenant} = Treby.Tenants.create_tenant(%{name: "First Corp #{unique_email()}"})
 
-      assert redirected_to(conn) == "/app"
-
-      tenant = Treby.Tenants.get_tenant_by_slug!("tech-corp-#{unique}")
-      assert tenant.name == name
-
-      conn = get(conn, ~p"/#{tenant.slug}/careers")
-      assert html_response(conn, 200) =~ "Open Positions"
-    end
-
-    test "registration with an already registered email shows a field-level error", %{conn: conn} do
-      unique = System.unique_integer([:positive])
-      email = "dup-#{unique}@example.com"
-
-      {:ok, existing_tenant} = Treby.Tenants.create_tenant(%{name: "First Corp #{unique}"})
-
-      existing_tenant
+      tenant
       |> Ecto.build_assoc(:users)
       |> User.changeset(%{
         email: email,
@@ -119,34 +79,123 @@ defmodule TrebyWeb.RegistrationTest do
       })
       |> Treby.Repo.insert!()
 
-      conn =
-        post(conn, ~p"/register", %{
-          "user" => %{
-            "company_name" => "Second Corp #{unique}",
-            "name" => "Test User",
-            "email" => email,
-            "password" => "password123",
-            "password_confirmation" => "password123",
-            "tos_accepted" => "true"
-          }
-        })
-
+      conn = post(conn, ~p"/register", %{"user" => %{"email" => email}})
       assert html_response(conn, 422) =~ "has already been taken"
-      assert html_response(conn, 422) =~ "user_email"
+    end
+
+    test "rate limits repeated code requests for the same email", %{conn: conn} do
+      email = unique_email()
+      {conn, _} = send_code(conn, email)
+
+      conn = post(conn, ~p"/register", %{"user" => %{"email" => email}})
+      assert redirected_to(conn) == "/register/verify"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "wait a moment"
     end
   end
 
-  describe "static pages" do
-    test "terms page loads", %{conn: conn} do
-      conn = get(conn, ~p"/terms")
-      assert html_response(conn, 200) =~ "Terms of Service"
-      assert html_response(conn, 200) =~ "Coming Soon"
+  describe "code verification" do
+    test "redirects to the email step when no code was requested", %{conn: conn} do
+      conn = get(conn, ~p"/register/verify")
+      assert redirected_to(conn) == "/register"
     end
 
-    test "privacy page loads", %{conn: conn} do
-      conn = get(conn, ~p"/privacy")
-      assert html_response(conn, 200) =~ "Privacy Policy"
-      assert html_response(conn, 200) =~ "Coming Soon"
+    test "verifies a correct code and unlocks the full form", %{conn: conn} do
+      email = unique_email()
+      {conn, code} = send_code(conn, email)
+
+      conn = verify_email(conn, code)
+      assert redirected_to(conn) == "/register"
+
+      conn = get(conn, ~p"/register")
+      html = html_response(conn, 200)
+      assert html =~ "Create account"
+      assert html =~ "readonly"
+      assert html =~ email
+    end
+
+    test "rejects an incorrect code", %{conn: conn} do
+      email = unique_email()
+      {conn, _} = send_code(conn, email)
+
+      conn = verify_email(conn, "000000")
+      assert redirected_to(conn) == "/register/verify"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Invalid or expired"
+    end
+
+    test "locks the code after too many attempts", %{conn: conn} do
+      email = unique_email()
+      {conn, _} = send_code(conn, email)
+
+      conn =
+        Enum.reduce(1..6, conn, fn _, conn ->
+          verify_email(conn, "000000")
+        end)
+
+      assert redirected_to(conn) == "/register/verify"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Invalid or expired"
+    end
+  end
+
+  describe "full registration" do
+    test "creates an account with the verified email and logs in", %{conn: conn} do
+      email = unique_email()
+      {conn, code} = send_code(conn, email)
+      conn = verify_email(conn, code)
+
+      conn = submit_full_form(conn, %{})
+      assert redirected_to(conn) == "/app"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Welcome to Treby!"
+      assert get_session(conn, "user_id")
+      assert is_nil(get_session(conn, "verified_email"))
+    end
+
+    test "uses the verified email from the session, ignoring client-supplied email", %{conn: conn} do
+      email = unique_email()
+      other = unique_email()
+      {conn, code} = send_code(conn, email)
+      conn = verify_email(conn, code)
+
+      conn = submit_full_form(conn, %{"email" => other})
+      assert redirected_to(conn) == "/app"
+
+      user = Accounts.get_user!(get_session(conn, "user_id"))
+      assert user.email == email
+    end
+
+    test "mismatched passwords show an inline error", %{conn: conn} do
+      email = unique_email()
+      {conn, code} = send_code(conn, email)
+      conn = verify_email(conn, code)
+
+      conn = submit_full_form(conn, %{"password_confirmation" => "different_password"})
+      assert html_response(conn, 422) =~ "does not match password"
+    end
+
+    test "missing ToS acceptance shows an inline error", %{conn: conn} do
+      email = unique_email()
+      {conn, code} = send_code(conn, email)
+      conn = verify_email(conn, code)
+
+      conn = submit_full_form(conn, %{"tos_accepted" => "false"})
+      assert html_response(conn, 422) =~ "must be accepted"
+    end
+
+    test "derives a unique slug from the company name", %{conn: conn} do
+      email = unique_email()
+      {conn, code} = send_code(conn, email)
+      conn = verify_email(conn, code)
+
+      unique = System.unique_integer([:positive])
+      conn = submit_full_form(conn, %{"company_name" => "Tech Corp #{unique}"})
+      assert redirected_to(conn) == "/app"
+
+      tenant = Treby.Tenants.get_tenant_by_slug!("tech-corp-#{unique}")
+      assert tenant.name == "Tech Corp #{unique}"
+    end
+
+    test "a full form without a verified email is treated as the email step", %{conn: conn} do
+      conn = submit_full_form(conn, %{"email" => unique_email()})
+      assert redirected_to(conn) == "/register/verify"
     end
   end
 end

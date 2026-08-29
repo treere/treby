@@ -12,28 +12,19 @@
         </a>
       </p>
     </div>
+
+    <p class="text-center text-sm text-base-content/70">
+      First, verify your email address. We'll send you a one-time code.
+    </p>
+
     <.form
       for={@form}
-      id="registration-form"
+      id="registration-email-form"
       action={~p"/register"}
       method="post"
-      class="mt-8 space-y-6"
+      class="mt-6 space-y-6"
     >
       <div class="space-y-4">
-        <.input
-          field={@form[:company_name]}
-          type="text"
-          label="Company name"
-          placeholder="e.g. Acme Inc."
-          required
-        />
-        <.input
-          field={@form[:name]}
-          type="text"
-          label="Your name"
-          placeholder="e.g. Ada Lovelace"
-          required
-        />
         <.input
           field={@form[:email]}
           type="email"
@@ -42,38 +33,11 @@
           required
           autocomplete="email"
         />
-        <.input
-          field={@form[:password]}
-          type="password"
-          label="Password"
-          placeholder="At least 6 characters"
-          required
-          autocomplete="new-password"
-        />
-        <.input
-          field={@form[:password_confirmation]}
-          type="password"
-          label="Confirm password"
-          placeholder="Repeat your password"
-          autocomplete="new-password"
-        />
-      </div>
-
-      <div>
-        <.input
-          field={@form[:tos_accepted]}
-          type="checkbox"
-          label="I agree to the"
-        />
-        <p class="ml-7 -mt-4 text-sm text-base-content">
-          <a href="/terms" class="text-blue-600 hover:text-blue-500">Terms of Service</a>
-          and <a href="/privacy" class="text-blue-600 hover:text-blue-500">Privacy Policy</a>
-        </p>
       </div>
 
       <div>
         <.button type="submit" class="group relative w-full justify-center py-2">
-          Create account
+          Send verification code
         </.button>
       </div>
     </.form>

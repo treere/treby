@@ -79,6 +79,8 @@ defmodule TrebyWeb.Router do
     delete "/session", SessionController, :delete
     get "/register", RegistrationController, :new
     post "/register", RegistrationController, :create
+    get "/register/verify", RegistrationController, :verify
+    post "/register/verify", RegistrationController, :verify_code
     get "/reset-password", PasswordResetController, :new
     post "/reset-password", PasswordResetController, :create
     get "/reset-password/:token", PasswordResetController, :edit

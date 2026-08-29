@@ -12,6 +12,16 @@ defmodule TrebyWeb.Registration do
     field :tos_accepted, :boolean, default: false
   end
 
+  @doc """
+  Validates the email before a verification code is sent.
+  """
+  def email_changeset(registration, attrs) do
+    registration
+    |> cast(attrs, [:email])
+    |> validate_required([:email])
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+  end
+
   def changeset(registration, attrs) do
     registration
     |> cast(attrs, [

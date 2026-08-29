@@ -3,6 +3,7 @@ defmodule Treby.CalendarTest do
 
   alias Treby.Calendar
   alias Treby.Calendar.CalendarConnection
+  alias Treby.GoogleApiMock
 
   setup do
     {:ok, tenant} = insert_tenant()
@@ -156,28 +157,54 @@ defmodule Treby.CalendarTest do
       assert {:error, :no_refresh_token} = Calendar.Google.get_valid_token(conn)
     end
 
-    test "returns error when token_expires_at is nil" do
-      conn = %CalendarConnection{
-        access_token: "some-token",
+    test "refreshes token when token_expires_at is nil", %{user: user, tenant: tenant} do
+      token_data = %{
+        access_token: "expired-token",
         refresh_token: "refresh",
-        token_expires_at: nil
+        expires_at: nil,
+        email: "user@gmail.com"
       }
 
-      assert_raise RuntimeError, fn ->
-        Calendar.Google.get_valid_token(conn)
-      end
+      {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
+      conn = Calendar.get_connection(user.id)
+      GoogleApiMock.stub_token_refresh("refreshed-token")
+
+      assert {:ok, "refreshed-token"} = Calendar.Google.get_valid_token(conn)
+
+      updated = Calendar.get_connection(user.id)
+      assert updated.access_token == "refreshed-token"
+      assert DateTime.compare(updated.token_expires_at, DateTime.utc_now()) == :gt
     end
 
-    test "returns error when access_token is nil" do
-      conn = %CalendarConnection{
+    test "refreshes token when access_token is nil", %{user: user, tenant: tenant} do
+      token_data = %{
         access_token: nil,
         refresh_token: "refresh",
-        token_expires_at: DateTime.utc_now() |> DateTime.add(1, :hour)
+        expires_at: DateTime.utc_now() |> DateTime.add(1, :hour),
+        email: "user@gmail.com"
       }
 
-      assert_raise RuntimeError, fn ->
-        Calendar.Google.get_valid_token(conn)
-      end
+      {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
+      conn = Calendar.get_connection(user.id)
+      GoogleApiMock.stub_token_refresh("refreshed-token")
+
+      assert {:ok, "refreshed-token"} = Calendar.Google.get_valid_token(conn)
+    end
+
+    test "returns refresh_failed when token refresh is rejected", %{user: user, tenant: tenant} do
+      token_data = %{
+        access_token: "expired-token",
+        refresh_token: "refresh",
+        expires_at: DateTime.utc_now() |> DateTime.add(-1, :hour),
+        email: "user@gmail.com"
+      }
+
+      {:ok, _} = Calendar.connect_google_user(user.id, tenant.id, token_data)
+      conn = Calendar.get_connection(user.id)
+      GoogleApiMock.stub_token_error(400, %{"error" => "invalid_grant"})
+
+      assert {:error, {:refresh_failed, resp}} = Calendar.Google.get_valid_token(conn)
+      assert resp["error"] == "invalid_grant"
     end
   end
 

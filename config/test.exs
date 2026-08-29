@@ -47,3 +47,12 @@ config :phoenix,
 # Generated with: Base.encode64(:crypto.strong_rand_bytes(32))
 config :treby,
   cloak_key: "UQVYmhYYQXaLkfBpEaH2DgjLKOncqb/helAShHEZJo8="
+
+# Deterministic dummy Google credentials so fetch_config!/1 never raises in tests
+config :treby,
+  google_client_id: "test-client-id",
+  google_client_secret: "test-client-secret"
+
+# Route every Req request in tests through a Req.Test stub, never the real network
+config :req,
+  default_options: [plug: {Req.Test, Treby.GoogleApiMock}]

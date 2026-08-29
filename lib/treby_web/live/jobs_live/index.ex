@@ -214,8 +214,17 @@ defmodule TrebyWeb.JobsLive.Index do
             icon="hero-briefcase"
             title="No job postings yet"
             description="Job postings let candidates apply through your career page and help you track applicants through each stage of your hiring pipeline."
-            action={%{href: "#", label: "Create your first job"}}
-          />
+          >
+            <:cta>
+              <button
+                type="button"
+                phx-click="show_create_form"
+                class="btn btn-primary"
+              >
+                {gettext("Create your first job")}
+              </button>
+            </:cta>
+          </.empty_state>
         </div>
       </div>
     </Layouts.app>

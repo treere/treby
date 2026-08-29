@@ -46,6 +46,20 @@ defmodule TrebyWeb.JobsLive.IndexTest do
       html = render(view)
       assert html =~ "No job postings yet"
       assert html =~ "Create your first job"
+      refute has_element?(view, "#job-form")
+    end
+
+    test "reveals the inline create form when clicking the empty state button", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/jobs")
+
+      view
+      |> element("button", "Create your first job")
+      |> render_click()
+
+      assert has_element?(view, "#job-form")
     end
 
     test "hides empty state when jobs exist", %{conn: conn} do

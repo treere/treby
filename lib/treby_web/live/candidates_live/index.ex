@@ -544,7 +544,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
     </Layouts.app>
     <.confirm_modal
       confirm_delete={@confirm_delete}
-      on_confirm={if @confirm_delete, do: @confirm_delete.on_confirm, else: "confirm_delete"}
+      on_confirm="do_delete_candidate"
     />
     """
   end
@@ -631,32 +631,16 @@ defmodule TrebyWeb.CandidatesLive.Index do
      )}
   end
 
+  def handle_event("confirm_delete", %{"id" => candidate_id}, socket) do
+    delete_candidate(socket, candidate_id)
+  end
+
   def handle_event("cancel_delete", _params, socket) do
     {:noreply, assign(socket, confirm_delete: nil)}
   end
 
   def handle_event("do_delete_candidate", %{"id" => candidate_id}, socket) do
-    candidate = Candidates.get_candidate!(socket.assigns.current_tenant.id, candidate_id)
-
-    case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
-      :ok ->
-        candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
-
-        {:noreply,
-         socket
-         |> assign(candidates: candidates, confirm_delete: nil)
-         |> put_flash(:info, "Candidate deleted")}
-
-      {:error, :unauthorized} ->
-        {:noreply,
-         socket
-         |> assign(confirm_delete: nil)
-         |> put_flash(:error, "Only admins can delete candidates")}
-
-      {:error, _} ->
-        {:noreply,
-         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete candidate")}
-    end
+    delete_candidate(socket, candidate_id)
   end
 
   def handle_event("do_bulk_execute_delete", _params, socket) do
@@ -977,6 +961,30 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
       Map.put(candidate, :application_count, length(applications))
     end)
+  end
+
+  defp delete_candidate(socket, candidate_id) do
+    candidate = Candidates.get_candidate!(socket.assigns.current_tenant.id, candidate_id)
+
+    case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
+      {:ok, _candidate} ->
+        candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
+
+        {:noreply,
+         socket
+         |> assign(candidates: candidates, confirm_delete: nil)
+         |> put_flash(:info, "Candidate deleted")}
+
+      {:error, :unauthorized} ->
+        {:noreply,
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, "Only admins can delete candidates")}
+
+      {:error, _} ->
+        {:noreply,
+         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete candidate")}
+    end
   end
 
   defp list_all_stages(tenant_id) do

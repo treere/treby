@@ -440,7 +440,7 @@ defmodule TrebyWeb.CoreComponents do
 
     modal_assigns =
       %{
-        __changed__: %{},
+        __changed__: nil,
         id: "confirm-modal-backdrop",
         show: cd != nil,
         title: cd && cd.title,

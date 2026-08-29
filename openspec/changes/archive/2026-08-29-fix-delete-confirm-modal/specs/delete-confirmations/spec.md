@@ -1,10 +1,4 @@
-# Delete Confirmations
-
-## Purpose
-
-Ensure destructive operations require explicit user confirmation so data cannot be permanently removed by accident.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Confirmation modal component
 The system SHALL provide a `<.confirm_modal>` function component in core_components.ex that renders a centered overlay dialog with a title, message, cancel button, and confirm button. When the `confirm_delete` assign changes, the dialog's message and confirm-button wiring SHALL be re-rendered to reflect the current state (no stale mount-time content).
@@ -52,19 +46,3 @@ All delete actions that permanently remove data SHALL require user confirmation 
 #### Scenario: Cancelled deletion does nothing
 - **WHEN** user cancels the confirmation modal
 - **THEN** no deletion occurs and the UI returns to its previous state
-
-### Requirement: Confirmation modal is accessible
-The confirmation modal SHALL be keyboard accessible and follow accessibility best practices.
-
-#### Scenario: Escape key closes modal
-- **WHEN** the confirmation modal is open and user presses Escape
-- **THEN** the modal closes without executing the deletion
-
-#### Scenario: Backdrop click closes modal
-- **WHEN** the confirmation modal is open and user clicks the dark backdrop overlay
-- **THEN** the modal closes without executing the deletion
-
-#### Scenario: Focus management
-- **WHEN** the confirmation modal opens
-- **THEN** keyboard focus moves to the confirm button
-- **AND** Tab key cycles focus within the modal (trap focus)

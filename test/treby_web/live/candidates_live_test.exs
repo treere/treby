@@ -38,6 +38,13 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
     })
   end
 
+  defp create_candidate(tenant, name, email) do
+    tenant
+    |> Ecto.build_assoc(:candidates)
+    |> Candidate.changeset(%{name: name, email: email})
+    |> Repo.insert!()
+  end
+
   describe "empty state" do
     test "shows empty state with CTAs when no candidates exist", %{conn: conn} do
       {_tenant, user} = setup_tenant()
@@ -98,13 +105,6 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
   end
 
   describe "search" do
-    defp create_candidate(tenant, name, email) do
-      tenant
-      |> Ecto.build_assoc(:candidates)
-      |> Candidate.changeset(%{name: name, email: email})
-      |> Repo.insert!()
-    end
-
     test "search submit filters candidates in place", %{conn: conn} do
       {tenant, user} = setup_tenant()
       create_candidate(tenant, "Carol Williams", "carol@example.com")
@@ -440,6 +440,49 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
       expected = ~p"/app/candidates/compare?ids=#{Enum.join([bob.id, alice.id], ",")}"
       assert_redirect(view, expected)
+    end
+  end
+
+  describe "delete" do
+    test "deletes a candidate via the confirm modal", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Delete Me", "delete@example.com")
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      assert render(view) =~ "Delete Me"
+
+      view
+      |> element(~s{button[phx-click="confirm_delete"][phx-value-id="#{candidate.id}"]})
+      |> render_click()
+
+      html = render(view)
+      assert html =~ "Are you sure you want to delete Delete Me? This action cannot be undone."
+      assert has_element?(view, ~s{button[phx-click="do_delete_candidate"]})
+
+      html =
+        view
+        |> element(~s{button[phx-click="do_delete_candidate"]})
+        |> render_click()
+
+      assert html =~ "Candidate deleted"
+      refute render(view) =~ "Delete Me"
+      refute Repo.get(Candidate, candidate.id)
+    end
+
+    test "an id-only confirm_delete payload deletes the candidate without crashing", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Legacy Delete", "legacy@example.com")
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      html = render_click(view, "confirm_delete", %{"id" => candidate.id})
+
+      assert html =~ "Candidate deleted"
+      refute render(view) =~ "Legacy Delete"
+      refute Repo.get(Candidate, candidate.id)
     end
   end
 end

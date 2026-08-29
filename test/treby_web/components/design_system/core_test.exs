@@ -2,6 +2,7 @@ defmodule TrebyWeb.DesignSystem.CoreTest do
   use TrebyWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
+  import TrebyWeb.CoreComponents
   import TrebyWeb.DesignSystem.Card
   import TrebyWeb.DesignSystem.Modal
   import TrebyWeb.DesignSystem.Tabs
@@ -53,6 +54,25 @@ defmodule TrebyWeb.DesignSystem.CoreTest do
     test "renders with initials" do
       html = render_component(&avatar/1, %{initials: "JD"})
       assert html =~ "JD"
+    end
+  end
+
+  describe "confirm_modal" do
+    test "renders the current message and wires the confirm button to on_confirm" do
+      html =
+        render_component(&confirm_modal/1, %{
+          confirm_delete: %{
+            id: "cand-1",
+            title: "Delete candidate",
+            message: "Are you sure you want to delete Alice?"
+          },
+          on_confirm: "do_delete_candidate",
+          on_cancel: "cancel_delete"
+        })
+
+      assert html =~ "Are you sure you want to delete Alice?"
+      assert html =~ ~s{phx-click="do_delete_candidate"}
+      assert html =~ ~s{phx-value-id="cand-1"}
     end
   end
 end

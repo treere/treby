@@ -12,12 +12,25 @@ defmodule TrebyWeb.CandidatePortalLive.Messages do
 
     conversations = CandidatePortal.list_conversations_for_candidate(candidate_id, tenant_id)
 
+    CandidatePortal.subscribe_to_candidate_conversations(candidate_id)
+
     {:ok,
      socket
      |> assign(:conversations, conversations)
      |> assign(:current_tenant, tenant)
      |> assign(:current_candidate, candidate)
      |> assign(:page_title, "Messages")}
+  end
+
+  @impl true
+  def handle_info({:conversation_updated, _conversation_id}, socket) do
+    conversations =
+      CandidatePortal.list_conversations_for_candidate(
+        socket.assigns.current_candidate.id,
+        socket.assigns.current_tenant.id
+      )
+
+    {:noreply, assign(socket, :conversations, conversations)}
   end
 
   @impl true

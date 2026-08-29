@@ -197,6 +197,8 @@ defmodule Treby.CandidatePortal do
           })
         end
 
+        broadcast_conversation_updated(conversation)
+
         {:ok, conversation}
 
       error ->
@@ -233,6 +235,8 @@ defmodule Treby.CandidatePortal do
         conversation
         |> Conversation.changeset(%{last_message_at: now, status: status})
         |> Repo.update()
+
+        broadcast_conversation_updated(message)
 
         {:ok, message}
 
@@ -285,6 +289,35 @@ defmodule Treby.CandidatePortal do
     conversation
     |> Conversation.changeset(%{status: "closed"})
     |> Repo.update()
+    |> case do
+      {:ok, conversation} ->
+        broadcast_conversation_updated(conversation)
+        {:ok, conversation}
+
+      error ->
+        error
+    end
+  end
+
+  # --- Realtime (PubSub) ---
+
+  @doc """
+  Subscribes the caller to realtime updates for a single conversation.
+
+  Messages and status changes in the conversation are delivered as
+  `{:conversation_updated, conversation_id}` messages.
+  """
+  def subscribe_to_conversation(conversation_id) do
+    Phoenix.PubSub.subscribe(Treby.PubSub, "conversation:#{conversation_id}")
+  end
+
+  @doc """
+  Subscribes the caller to realtime updates for all conversations of a candidate.
+
+  Events are delivered as `{:conversation_updated, conversation_id}` messages.
+  """
+  def subscribe_to_candidate_conversations(candidate_id) do
+    Phoenix.PubSub.subscribe(Treby.PubSub, "candidate_conversations:#{candidate_id}")
   end
 
   # --- System Message Helpers ---
@@ -406,5 +439,34 @@ defmodule Treby.CandidatePortal do
     %Message{}
     |> Message.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, message} ->
+        broadcast_conversation_updated(message)
+        {:ok, message}
+
+      error ->
+        error
+    end
+  end
+
+  defp broadcast_conversation_updated(%Message{} = message) do
+    conversation = Repo.get!(Conversation, message.conversation_id)
+    broadcast_conversation_updated(conversation)
+  end
+
+  defp broadcast_conversation_updated(%Conversation{} = conversation) do
+    Phoenix.PubSub.broadcast(
+      Treby.PubSub,
+      "conversation:#{conversation.id}",
+      {:conversation_updated, conversation.id}
+    )
+
+    Phoenix.PubSub.broadcast(
+      Treby.PubSub,
+      "candidate_conversations:#{conversation.candidate_id}",
+      {:conversation_updated, conversation.id}
+    )
+
+    :ok
   end
 end

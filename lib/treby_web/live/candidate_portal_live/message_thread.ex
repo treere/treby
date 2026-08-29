@@ -13,6 +13,8 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
         tenant = Treby.Tenants.get_tenant_by_slug!(slug)
         candidate = Treby.Repo.get!(Treby.Candidates.Candidate, session["candidate_id"])
 
+        CandidatePortal.subscribe_to_conversation(conversation.id)
+
         {:ok,
          socket
          |> assign(:conversation, conversation)
@@ -21,6 +23,12 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
          |> assign(:page_title, "Conversation")
          |> assign(:new_message, "")}
     end
+  end
+
+  @impl true
+  def handle_info({:conversation_updated, _conversation_id}, socket) do
+    conversation = CandidatePortal.get_conversation!(socket.assigns.conversation.id)
+    {:noreply, assign(socket, :conversation, conversation)}
   end
 
   @impl true

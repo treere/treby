@@ -260,6 +260,36 @@ defmodule TrebyWeb.CandidatePortalLiveTest do
 
       assert html =~ "Hello from candidate"
     end
+
+    test "shows recruiter messages in realtime without reload", %{conn: conn} do
+      {tenant, candidate, application} = setup_tenant_and_candidate()
+
+      {:ok, conversation} =
+        CandidatePortal.create_conversation(
+          %{
+            candidate_id: candidate.id,
+            tenant_id: tenant.id,
+            subject: "Realtime Thread",
+            context: "application",
+            application_id: application.id
+          },
+          "Welcome"
+        )
+
+      conn = login_candidate_via_session(conn, candidate, tenant)
+      {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/portal/messages/#{conversation.id}")
+
+      refute render(view) =~ "Realtime hello"
+
+      CandidatePortal.send_message(%{
+        sender_type: "recruiter",
+        body: "Realtime hello",
+        message_type: "text",
+        conversation_id: conversation.id
+      })
+
+      assert render(view) =~ "Realtime hello"
+    end
   end
 
   describe "portal settings" do

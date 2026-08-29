@@ -12,6 +12,8 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
 
     applications = Pipeline.list_applications_for_candidate(tenant_id, candidate_id)
 
+    Treby.CandidatePortal.subscribe_to_candidate_conversations(candidate_id)
+
     {:ok,
      socket
      |> assign(:applications, applications)
@@ -90,6 +92,28 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
        selected_action: candidate_pending_action(application, socket.assigns.current_tenant.slug),
        selected_draft: ""
      )}
+  end
+
+  @impl true
+  def handle_info({:conversation_updated, _conversation_id}, socket) do
+    socket =
+      case socket.assigns.selected_application do
+        nil ->
+          socket
+
+        application ->
+          tenant_id = socket.assigns.current_tenant.id
+
+          conversations =
+            Treby.CandidatePortal.list_conversations_for_application(application.id, tenant_id)
+
+          assign(socket,
+            selected_conversations: conversations,
+            selected_timeline: status_timeline(conversations)
+          )
+      end
+
+    {:noreply, socket}
   end
 
   @impl true

@@ -5,6 +5,21 @@ The pipeline is the heart of Treby. It's a drag-and-drop Kanban board where you 
 
 ![Pipeline Kanban](/screenshots/07-pipeline-kanban.png)
 
+## Job Page Workspace
+
+The job detail page is the primary daily workspace for a position. Instead of a flat, read-only list, candidates are **grouped by pipeline stage** in columns, so you can see exactly who is where at a glance.
+
+- **Inline stage changes** — each candidate card has a "Move to…" dropdown to change their stage without leaving the page
+- **Review toggle** — mark applications as reviewed (NEW badge) directly from the card
+- **Reject** — reject candidates with a motivation straight from the job page
+- **Contextual cards** — DUPLICATE and "Also in N other positions" badges, upcoming interview chips, and resume links
+- **Search** — filter the job's candidates by name or email
+- **Candidate profiles** — clicking a candidate opens their profile, and the back link returns you to the job (context is preserved)
+
+### Read-only Pipeline Overview
+
+The pipeline section on the job page is **read-only by default**: it lists the stages in order with their color, type, candidate count, and the names of the assigned examiners, reviewers, and advancers. Admins can open the editor with the **Manage Pipeline** button, keeping configuration out of the daily view.
+
 ## How it works
 
 - **Stages** are configurable: add, remove, reorder, and color-code
@@ -16,7 +31,7 @@ The pipeline is the heart of Treby. It's a drag-and-drop Kanban board where you 
 ## Card Indicators
 
 - **"Also in N other positions"** — shown when a candidate has applications in other pipelines, so you can spot candidates interviewing for multiple roles
-- **DUPLICATE APP** badge — shown when the same candidate has a second application to this job
+- **DUPLICATE** badge — shown when the same candidate has a second application to this job
 - **NEW** badge — shown until an application has been reviewed
 - **Actionable blockers** — on interview-type stages, cards show exactly what stands between the candidate and the next stage, naming the pending examiners ("Scorecard missing: Caio") or an un-completed interview, instead of an opaque count
 - **Ready to advance** — a green indicator replaces the blockers once the interview is completed and all scorecards are in
@@ -80,7 +95,8 @@ Create reusable pipeline configurations to avoid repetitive setup for similar po
 
 ## Usage
 
-1. Open any job from the **Jobs** page and click the pipeline link — there is no separate top-level Pipeline page
-2. Click and drag a candidate card to a new stage (or use the Advance button on interview stages)
-3. All team members see the update in real time
-4. Click a candidate's name on a card to open their full profile
+1. Open any job from the **Jobs** page — the job detail page is your workspace: candidates grouped by stage, inline moves, review, and reject. There is no separate top-level Pipeline page.
+2. Click the **View Pipeline** link on the job page for the advanced board (drag-and-drop, bulk actions, scheduling, scorecards)
+3. Click and drag a candidate card to a new stage (or use the Advance button on interview stages)
+4. All team members see the update in real time
+5. Click a candidate's name on a card to open their full profile

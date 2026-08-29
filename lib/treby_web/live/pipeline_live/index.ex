@@ -16,6 +16,7 @@ defmodule TrebyWeb.PipelineLive.Index do
       job ->
         applications_by_stage = Pipeline.list_applications_by_stage(job_id)
         stages = Pipeline.list_pipeline_stages_for_job(job.id)
+        Pipeline.subscribe_to_pipeline(job.id)
 
         candidate_ids =
           applications_by_stage
@@ -216,43 +217,19 @@ defmodule TrebyWeb.PipelineLive.Index do
                     class="checkbox checkbox-sm"
                   />
                 </div>
-                <div class="flex items-center gap-2">
-                  <.link
-                    navigate={~p"/app/candidates/#{application.candidate_id}"}
-                    class="font-medium text-base-content hover:text-blue-600"
-                  >
-                    {application.candidate.name}
-                  </.link>
-                  <span
-                    :if={not application.reviewed}
-                    class="text-xs bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium"
-                  >
-                    NEW
-                  </span>
-                  <span
-                    :if={application.is_duplicate}
-                    class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium"
-                  >
-                    DUPLICATE APP
-                  </span>
-                </div>
-                <p class="text-sm text-base-content/50">{application.candidate.email}</p>
-                <p
-                  :if={other_positions_text(@application_counts, application.candidate_id)}
-                  class="mt-1 text-xs text-blue-700"
-                >
-                  {other_positions_text(@application_counts, application.candidate_id)}
-                </p>
-                <%= case Map.get(@upcoming_interviews, application.id) do %>
-                  <% [next_interview | _] -> %>
-                    <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
-                      <.icon name="hero-video-camera" class="w-3 h-3" />
-                      <span>
-                        {Elixir.Calendar.strftime(next_interview.start_at_utc, "%b %d %H:%M")}
-                      </span>
-                    </div>
-                  <% _ -> %>
-                <% end %>
+                <.candidate_card_info
+                  profile_link={
+                    ~p"/app/candidates/#{application.candidate_id}?return_to=/app/pipeline/#{@job.id}"
+                  }
+                  name={application.candidate.name}
+                  email={application.candidate.email}
+                  reviewed={application.reviewed}
+                  is_duplicate={application.is_duplicate}
+                  other_positions={
+                    Pipeline.other_positions_text(@application_counts, application.candidate_id)
+                  }
+                  upcoming_interview={Map.get(@upcoming_interviews, application.id)}
+                />
                 <%= if stage.stage_type == "interview" do %>
                   <% state = Pipeline.current_state(application) %>
                   <%= if state.blockers != [] do %>
@@ -281,6 +258,19 @@ defmodule TrebyWeb.PipelineLive.Index do
                   View Resume
                 </a>
                 <div class="flex items-center gap-3 mt-1">
+                  <button
+                    phx-click="toggle_review"
+                    phx-value-application_id={application.id}
+                    class={[
+                      "text-xs mt-1",
+                      if(application.reviewed,
+                        do: "text-green-600 hover:text-green-900",
+                        else: "text-base-content/60 hover:text-base-content"
+                      )
+                    ]}
+                  >
+                    {if application.reviewed, do: "Reviewed", else: "Mark reviewed"}
+                  </button>
                   <%= if stage.stage_type == "interview" do %>
                     <% my_interview = examiner_interview_for_card(application, @current_user.id) %>
                     <% pending_interview = pending_interview_for_card(application) %>
@@ -1232,16 +1222,6 @@ defmodule TrebyWeb.PipelineLive.Index do
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to move candidate")}
-    end
-  end
-
-  def other_positions_text(counts, candidate_id) do
-    total = Map.get(counts, candidate_id, 1) || 1
-    other = total - 1
-
-    if other > 0 do
-      label = if other == 1, do: "position", else: "positions"
-      "Also in #{other} other #{label}"
     end
   end
 

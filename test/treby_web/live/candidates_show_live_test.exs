@@ -113,4 +113,84 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       assert html =~ "Hello"
     end
   end
+
+  describe "candidate conversations realtime" do
+    test "shows candidate messages in realtime without reload", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Realtime Candidate")
+
+      {:ok, conversation} =
+        Treby.CandidatePortal.create_conversation(%{
+          candidate_id: candidate.id,
+          tenant_id: tenant.id,
+          subject: "Realtime Conversation"
+        })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      refute render(view) =~ "Realtime from candidate"
+
+      Treby.CandidatePortal.send_message(%{
+        sender_type: "candidate",
+        body: "Realtime from candidate",
+        message_type: "text",
+        conversation_id: conversation.id
+      })
+
+      assert render(view) =~ "Realtime from candidate"
+    end
+  end
+
+  describe "contextual back navigation" do
+    test "back link returns to the originating job page", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Back Nav Candidate")
+
+      conn = login_user(conn, user)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/app/candidates/#{candidate.id}?return_to=/app/jobs/job-123")
+
+      assert html =~ "Back to Job"
+      assert html =~ ~p"/app/jobs/job-123"
+    end
+
+    test "back link returns to the pipeline board", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Back Nav Pipeline")
+
+      conn = login_user(conn, user)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/app/candidates/#{candidate.id}?return_to=/app/pipeline/job-123")
+
+      assert html =~ "Back to Pipeline"
+      assert html =~ ~p"/app/pipeline/job-123"
+    end
+
+    test "back link falls back to candidates for direct visits", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Back Nav Direct")
+
+      conn = login_user(conn, user)
+      {:ok, _view, html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      assert html =~ "Back to Candidates"
+      assert html =~ ~p"/app/candidates"
+    end
+
+    test "back link falls back to candidates for invalid return paths", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Back Nav Invalid")
+
+      conn = login_user(conn, user)
+
+      {:ok, _view, html} =
+        live(conn, ~p"/app/candidates/#{candidate.id}?return_to=https://evil.com")
+
+      assert html =~ "Back to Candidates"
+      assert html =~ ~p"/app/candidates"
+    end
+  end
 end

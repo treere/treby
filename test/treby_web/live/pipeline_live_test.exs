@@ -347,7 +347,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       conn = login_user(conn, user)
       {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job1.id}")
 
-      assert render(view) =~ "DUPLICATE APP"
+      assert render(view) =~ "DUPLICATE"
     end
   end
 
@@ -639,6 +639,112 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       html = render(view)
       assert html =~ "Move to Stage"
       refute html =~ "Select stage..."
+    end
+  end
+
+  describe "review toggle on kanban cards" do
+    test "marks an application reviewed with a single click", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Treby.Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Applied", position: 0, stage_type: "applied"})
+        |> Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "Software Engineer",
+          description: "Build things",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{name: "Review Toggle", email: "rtoggle@example.com"})
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      assert render(view) =~ "Mark reviewed"
+
+      view |> render_click("toggle_review", %{"application_id" => application.id})
+
+      assert Repo.get!(Treby.Pipeline.Application, application.id).reviewed == true
+      assert render(view) =~ "Reviewed"
+    end
+  end
+
+  describe "real-time pipeline updates" do
+    test "reflects a stage move broadcast from another surface", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Treby.Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage_a} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Applied", position: 0, stage_type: "applied"})
+        |> Repo.insert()
+
+      {:ok, stage_b} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Screening", position: 1, stage_type: "screen"})
+        |> Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "Software Engineer",
+          description: "Build things",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{name: "Realtime Candidate", email: "rt@example.com"})
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage_a.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      assert has_element?(view, "#stage-#{stage_a.id} #application-#{application.id}")
+      refute has_element?(view, "#stage-#{stage_b.id} #application-#{application.id}")
+
+      # Simulate a move made from another surface (e.g. the job page workspace)
+      {:ok, _} = Treby.Pipeline.move_application(application, stage_b.id)
+
+      assert has_element?(view, "#stage-#{stage_b.id} #application-#{application.id}")
+      refute has_element?(view, "#stage-#{stage_a.id} #application-#{application.id}")
     end
   end
 end

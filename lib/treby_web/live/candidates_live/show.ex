@@ -15,11 +15,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
   alias Treby.Notifications.Email, as: NotificationEmail
 
-  def mount(%{"id" => id}, session, socket) do
+  def mount(%{"id" => id} = params, session, socket) do
     socket = set_locale_from_session(socket, session)
     user = Accounts.get_user!(session["user_id"])
     tenant = Tenants.get_tenant!(session["tenant_id"])
     candidate = Candidates.get_candidate(tenant.id, id)
+
+    return_path = safe_return_path(params["return_to"])
+    return_label = return_label(return_path)
 
     if is_nil(candidate) do
       {:ok, redirect(socket, to: ~p"/404")}
@@ -31,14 +34,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
          socket
          |> assign(current_user: user, current_tenant: tenant)
          |> put_flash(:info, "This candidate was merged into another profile.")
-         |> push_navigate(to: ~p"/app/candidates/#{primary_id}")}
+         |> push_navigate(to: merged_redirect(primary_id, return_path))}
       else
-        mount_active(socket, candidate, tenant, user)
+        mount_active(socket, candidate, tenant, user, return_path, return_label)
       end
     end
   end
 
-  defp mount_active(socket, candidate, tenant, user) do
+  defp mount_active(socket, candidate, tenant, user, return_path, return_label) do
     applications = Pipeline.list_applications_for_candidate(tenant.id, candidate.id)
 
     applications_with_notes =
@@ -79,9 +82,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
     # Load conversations for the candidate
     conversations = CandidatePortal.list_conversations_for_candidate(candidate.id, tenant.id)
 
+    Enum.each(conversations, &CandidatePortal.subscribe_to_conversation(&1.id))
+
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
+     |> assign(return_path: return_path, return_label: return_label)
      |> assign(candidate: candidate)
      |> assign(applications: applications_with_notes)
      |> assign(candidate_fields: candidate_fields)
@@ -117,8 +123,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <.link navigate={~p"/app/candidates"} class="text-blue-600 hover:text-blue-900 text-sm">
-          &larr; Back to Candidates
+        <.link navigate={@return_path} class="text-blue-600 hover:text-blue-900 text-sm">
+          &larr; Back to {@return_label}
         </.link>
 
         <div class="mt-6 bg-base-100 rounded-lg shadow p-8">
@@ -959,6 +965,16 @@ defmodule TrebyWeb.CandidatesLive.Show do
     {:noreply, socket}
   end
 
+  def handle_info({:conversation_updated, _conversation_id}, socket) do
+    conversations =
+      CandidatePortal.list_conversations_for_candidate(
+        socket.assigns.candidate.id,
+        socket.assigns.current_tenant.id
+      )
+
+    {:noreply, assign(socket, :conversations, conversations)}
+  end
+
   def handle_event("toggle_note_form", %{"application_id" => app_id}, socket) do
     show = if socket.assigns.show_note_form == app_id, do: nil, else: app_id
     {:noreply, assign(socket, show_note_form: show)}
@@ -1462,6 +1478,33 @@ defmodule TrebyWeb.CandidatesLive.Show do
        |> assign(:replying_to_conversation, nil)
        |> assign(:conversation_reply_form, to_form(%{}, as: :reply))
        |> put_flash(:info, "Message sent")}
+    end
+  end
+
+  defp safe_return_path(nil), do: "/app/candidates"
+
+  defp safe_return_path(return_to) when is_binary(return_to) do
+    if String.starts_with?(return_to, "/app/jobs/") or
+         String.starts_with?(return_to, "/app/pipeline/") do
+      return_to
+    else
+      "/app/candidates"
+    end
+  end
+
+  defp safe_return_path(_), do: "/app/candidates"
+
+  defp merged_redirect(primary_id, "/app/candidates"), do: ~p"/app/candidates/#{primary_id}"
+
+  defp merged_redirect(primary_id, return_path) do
+    ~p"/app/candidates/#{primary_id}?return_to=#{return_path}"
+  end
+
+  defp return_label(path) do
+    cond do
+      String.starts_with?(path, "/app/pipeline/") -> "Pipeline"
+      String.starts_with?(path, "/app/jobs/") -> "Job"
+      true -> "Candidates"
     end
   end
 

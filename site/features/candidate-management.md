@@ -39,6 +39,13 @@ Each candidate detail page shows:
 - Custom fields
 - **Undo merge** action when the profile was merged into another
 
+### Contextual Back Navigation
+
+The back link at the top of the profile returns you to **where you came from** instead of always dropping you into the full candidate list:
+- Arriving from a **job page** → "Back to Job" returns to that position
+- Arriving from the **pipeline board** → "Back to Pipeline" returns to that job's Kanban
+- Direct visits or invalid origins → "Back to Candidates"
+
 ## Duplicate Detection & Merging
 
 ![Merge Center](/screenshots/24-merge-center.png)

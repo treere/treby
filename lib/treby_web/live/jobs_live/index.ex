@@ -3,6 +3,7 @@ defmodule TrebyWeb.JobsLive.Index do
 
   alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline}
   alias Treby.Jobs.Job
+  alias Treby.Repo
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -13,11 +14,13 @@ defmodule TrebyWeb.JobsLive.Index do
     pipelines = Pipeline.list_pipelines(tenant.id)
     templates = Pipeline.list_templates(tenant.id)
     default_pipeline_id = Pipeline.default_pipeline_id(tenant.id)
+    candidate_counts = application_counts_by_job(tenant.id)
 
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(jobs: jobs)
+     |> assign(candidate_counts: candidate_counts)
      |> assign(job_fields: job_fields)
      |> assign(pipelines: pipelines)
      |> assign(templates: templates)
@@ -151,6 +154,9 @@ defmodule TrebyWeb.JobsLive.Index do
                   Public
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                  Candidates
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -186,6 +192,9 @@ defmodule TrebyWeb.JobsLive.Index do
                     />
                     {if job.visible, do: "Public", else: "Private"}
                   </button>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/70">
+                  {Map.get(@candidate_counts, job.id, 0)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <.link
@@ -342,5 +351,16 @@ defmodule TrebyWeb.JobsLive.Index do
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to update visibility")}
     end
+  end
+
+  defp application_counts_by_job(tenant_id) do
+    import Ecto.Query
+
+    Treby.Pipeline.Application
+    |> where([a], a.tenant_id == ^tenant_id)
+    |> group_by([a], a.job_id)
+    |> select([a], %{job_id: a.job_id, count: count(a.id)})
+    |> Repo.all()
+    |> Map.new(fn %{job_id: jid, count: n} -> {jid, n} end)
   end
 end

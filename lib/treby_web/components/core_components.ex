@@ -565,6 +565,45 @@ defmodule TrebyWeb.CoreComponents do
     """
   end
 
+  def candidate_card_info(assigns) do
+    ~H"""
+    <div>
+      <div class="flex items-center justify-between gap-2">
+        <.link
+          navigate={@profile_link}
+          class="font-medium text-sm text-base-content hover:text-blue-600 truncate"
+        >
+          {@name}
+        </.link>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <span
+            :if={not @reviewed}
+            class="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium"
+          >
+            NEW
+          </span>
+          <span
+            :if={@is_duplicate}
+            class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium"
+          >
+            DUPLICATE
+          </span>
+        </div>
+      </div>
+      <p class="text-xs text-base-content/50 truncate">{@email}</p>
+      <p :if={@other_positions} class="mt-1 text-[11px] text-blue-700">{@other_positions}</p>
+      <%= case @upcoming_interview do %>
+        <% [next_interview | _] -> %>
+          <div class="mt-1 flex items-center gap-1 text-[11px] text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
+            <.icon name="hero-video-camera" class="w-3 h-3" />
+            <span>{Elixir.Calendar.strftime(next_interview.start_at_utc, "%b %d %H:%M")}</span>
+          </div>
+        <% _ -> %>
+      <% end %>
+    </div>
+    """
+  end
+
   defp event_color("application_stage_changed"), do: "bg-blue-500"
   defp event_color("note_created"), do: "bg-yellow-500"
   defp event_color("interview_scheduled"), do: "bg-purple-500"

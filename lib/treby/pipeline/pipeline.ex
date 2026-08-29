@@ -740,6 +740,16 @@ defmodule Treby.Pipeline do
     end
   end
 
+  def other_positions_text(counts, candidate_id) do
+    total = Map.get(counts, candidate_id, 1) || 1
+    other = total - 1
+
+    if other > 0 do
+      label = if other == 1, do: "position", else: "positions"
+      "Also in #{other} other #{label}"
+    end
+  end
+
   def get_application!(id),
     do: Repo.get!(Application, id) |> Repo.preload([:candidate, :pipeline_stage, :job])
 

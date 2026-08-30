@@ -1192,4 +1192,125 @@ defmodule Treby.Pipeline do
     |> order_by([a], desc: count(a.id))
     |> Repo.all()
   end
+
+  # Tenant-scoped analytics (all pipelines for a tenant)
+
+  def pipeline_counts_per_stage(tenant_id, nil) do
+    tenant_pipeline_ids =
+      PipelineDef
+      |> where([p], p.tenant_id == ^tenant_id)
+      |> select([p], p.id)
+      |> Repo.all()
+
+    PipelineStage
+    |> where([ps], ps.pipeline_id in ^tenant_pipeline_ids)
+    |> order_by([ps], ps.position)
+    |> Repo.all()
+    |> Enum.group_by(& &1.name)
+    |> Enum.map(fn {_name, stages} ->
+      count =
+        Enum.reduce(stages, 0, fn stage, acc ->
+          stage_count =
+            Application
+            |> where([a], a.pipeline_stage_id == ^stage.id)
+            |> where([a], a.tenant_id == ^tenant_id)
+            |> select([a], count(a.id))
+            |> Repo.one()
+
+          acc + stage_count
+        end)
+
+      %{stage: List.first(stages), count: count}
+    end)
+    |> Enum.sort_by(& &1.stage.position)
+  end
+
+  def pipeline_counts_per_stage(_tenant_id, pipeline_id) when not is_nil(pipeline_id) do
+    pipeline_counts_per_stage(pipeline_id)
+  end
+
+  def average_time_to_hire(tenant_id, nil) do
+    hired_stages =
+      PipelineStage
+      |> join(:inner, [ps], p in PipelineDef, on: ps.pipeline_id == p.id)
+      |> where([ps, p], p.tenant_id == ^tenant_id and ps.stage_type == "hired")
+      |> select([ps, _p], ps.id)
+      |> Repo.all()
+
+    case hired_stages do
+      [] ->
+        nil
+
+      stage_ids ->
+        Application
+        |> where([a], a.pipeline_stage_id in ^stage_ids and a.tenant_id == ^tenant_id)
+        |> select([a], avg(fragment("EXTRACT(DAY FROM (? - ?))", a.updated_at, a.inserted_at)))
+        |> Repo.one()
+    end
+  end
+
+  def average_time_to_hire(_tenant_id, pipeline_id) when not is_nil(pipeline_id) do
+    average_time_to_hire(pipeline_id)
+  end
+
+  def stage_conversion_rates(tenant_id, nil) do
+    stage_type_order = ["new", "interview", "offer", "hired"]
+
+    stages_by_type =
+      PipelineStage
+      |> join(:inner, [ps], p in PipelineDef, on: ps.pipeline_id == p.id)
+      |> where([ps, p], p.tenant_id == ^tenant_id and not is_nil(ps.stage_type))
+      |> Repo.all()
+      |> Enum.group_by(& &1.stage_type)
+
+    stage_type_order
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.flat_map(fn [from_type, to_type] ->
+      from_stage_ids = stages_by_type |> Map.get(from_type, []) |> Enum.map(& &1.id)
+      to_stage_ids = stages_by_type |> Map.get(to_type, []) |> Enum.map(& &1.id)
+
+      from_count =
+        if from_stage_ids == [] do
+          0
+        else
+          Application
+          |> where([a], a.pipeline_stage_id in ^from_stage_ids and a.tenant_id == ^tenant_id)
+          |> select([a], count(a.id))
+          |> Repo.one()
+        end
+
+      to_count =
+        if to_stage_ids == [] do
+          0
+        else
+          Application
+          |> where([a], a.pipeline_stage_id in ^to_stage_ids and a.tenant_id == ^tenant_id)
+          |> select([a], count(a.id))
+          |> Repo.one()
+        end
+
+      from_stage = %{name: String.capitalize(from_type), color: "#6B7280", id: from_type}
+      to_stage = %{name: String.capitalize(to_type), color: "#6B7280", id: to_type}
+      rate = if from_count > 0, do: round(to_count / from_count * 100), else: 0
+
+      [%{from: from_stage, to: to_stage, rate: rate}]
+    end)
+  end
+
+  def stage_conversion_rates(_tenant_id, pipeline_id) when not is_nil(pipeline_id) do
+    stage_conversion_rates(pipeline_id)
+  end
+
+  def source_breakdown(tenant_id, nil) do
+    Application
+    |> where([a], a.tenant_id == ^tenant_id)
+    |> select([a], %{source: fragment("COALESCE(?, 'Unknown')", a.source), count: count(a.id)})
+    |> group_by([a], fragment("COALESCE(?, 'Unknown')", a.source))
+    |> order_by([a], desc: count(a.id))
+    |> Repo.all()
+  end
+
+  def source_breakdown(_tenant_id, pipeline_id) when not is_nil(pipeline_id) do
+    source_breakdown(pipeline_id)
+  end
 end

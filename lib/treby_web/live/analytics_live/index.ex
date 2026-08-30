@@ -220,13 +220,13 @@ defmodule TrebyWeb.AnalyticsLive.Index do
 
   defp load_analytics(socket, pipeline_id) do
     tenant_id = socket.assigns.current_tenant.id
-    pipeline_counts = Pipeline.pipeline_counts_per_stage(pipeline_id)
-    avg_hire_days = Pipeline.average_time_to_hire(pipeline_id)
+    pipeline_counts = Pipeline.pipeline_counts_per_stage(tenant_id, pipeline_id)
+    avg_hire_days = Pipeline.average_time_to_hire(tenant_id, pipeline_id)
     time_in_stage = Pipeline.time_in_stage_metrics(tenant_id, pipeline_id)
-    conversion_rates = Pipeline.stage_conversion_rates(pipeline_id)
+    conversion_rates = Pipeline.stage_conversion_rates(tenant_id, pipeline_id)
 
     # Source breakdown
-    source_breakdown = Pipeline.source_breakdown(pipeline_id)
+    source_breakdown = Pipeline.source_breakdown(tenant_id, pipeline_id)
     total_candidates = Enum.reduce(source_breakdown, 0, fn %{count: c}, acc -> acc + c end)
 
     avg_time =

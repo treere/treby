@@ -1,20 +1,25 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Project: Treby — Multi-tenant Applicant Tracking System (ATS), self-hostable.
+  Stack: Elixir 1.20 / Erlang 29, Phoenix 1.8 + LiveView 1.1 (Bandit), Ecto + PostgreSQL 14, Tailwind CSS 4 + esbuild, Swoosh (email), ExAWS + S3 (RustFS locally), Req for HTTP (do not use httpoison/tesla/httpc), Sortable.js for drag-and-drop, VitePress for docs site (site/).
+  Multi-tenancy: every table scoped by tenant_id; slug-based public career pages (e.g. /acme/careers); all queries must enforce tenant isolation.
+  Auth: team via session + BCrypt; candidates and registration verification via OTP / magic link.
+  Domain: jobs, candidates, applications, pipeline stages (Kanban), notes/ratings, interviews & scheduling (calendar + meeting providers), career pages, candidate portal, email notifications & scheduler.
+  Conventions: see AGENTS.md — always wrap LiveViews with <Layouts.app flash={@flash} current_scope={@current_scope}>, use <.icon> and <.input> from core_components, use LiveView streams (phx-update="stream") for collections, derive forms via to_form/2 (never pass changeset to template), add unique DOM IDs, keep Tailwind import as @import "tailwindcss" source(none); @source "../css"; @source "../js"; @source "../../lib/treby_web";, never use @apply or daisyUI, never inline <script> in templates (use ColocatedHook with "." prefix or assets/js hooks).
+  Docs: site/ is a user manual, not developer docs — no file paths (lib/...), module names (Treby.*), or implementation details (schemas, DB columns, PubSub, Oban). Prefer UI labels and menu paths. Regenerate screenshots with node scripts/screenshots.mjs after every feature change.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - Always include Why / What Changes / Capabilities (New vs Modified, kebab-case matching openspec/specs/) / Impact (deps, migrations, modules under lib/treby/)
+    - For schema-breaking changes, document the migration (via mix ecto.gen.migration) and column renames
+    - Keep proposals concise and task-oriented; avoid architecture digressions that belong in design.md
+  design:
+    - Describe contracts (behaviours/resolvers) when introducing provider abstractions
+    - Specify multi-tenant isolation and authorization (role-based where applicable)
+    - Define caching and error handling strategy (e.g. fail-closed for external providers, parallel aggregation)
+  tasks:
+    - Order tasks as: migration -> context/schema -> LiveView/UI -> tests -> specs + docs
+    - Keep tasks atomic (<2h each) with a verifiable exit criterion (e.g. mix test <path>, mix precommit)
+    - Always include: update spec at openspec/specs/<capability>/spec.md with Purpose/Requirements and Scenario WHEN/THEN; sync site/features/*.md and sidebar in site/.vitepress/config.ts plus site/features/index.md if new feature; regenerate screenshots
+    - Last task must be: run mix precommit and openspec validate --strict and fix issues

@@ -39,7 +39,7 @@ The system SHALL allow users to navigate from a pipeline candidate card to the c
 - **THEN** the click navigation does not interfere with the drag-and-drop interaction
 
 ### Requirement: Drag-and-drop stage transition
-The system SHALL allow dragging candidate cards between stages. For interview-type stages, advancement is restricted to assigned advancers and requires all examiners to have submitted scorecards.
+The system SHALL allow dragging candidate cards between stages. For interview-type stages, advancement is restricted to assigned advancers and requires all examiners to have submitted scorecards. For offer-type stages, the Advance action SHALL be available when the current state is not blocked.
 
 #### Scenario: Move candidate to new stage
 - **WHEN** a user drags a candidate card from one stage column to another
@@ -64,6 +64,16 @@ The system SHALL allow dragging candidate cards between stages. For interview-ty
 #### Scenario: Only advancers can advance from stage
 - **WHEN** a user who is not an advancer for the current stage attempts to advance a candidate
 - **THEN** the system prevents the action with a permission error
+
+#### Scenario: Advance from offer stage when not blocked
+- **WHEN** a candidate is in an offer-type stage
+- **AND** `Pipeline.current_state` reports `blocked?: false`
+- **THEN** the card shows an enabled `Advance` button
+- **AND** clicking `Advance` moves the candidate to the next stage (Hired)
+
+#### Scenario: Offer stage blocked shows disabled Advance
+- **WHEN** a candidate is in an offer-type stage and blocked
+- **THEN** the card shows `Advance` disabled with tooltip explaining blockers
 
 ### Requirement: Pipeline stages management
 The system SHALL allow admins to customize pipeline stages.

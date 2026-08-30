@@ -244,7 +244,27 @@ defmodule TrebyWeb.PipelineLive.Index do
                       <% end %>
                     </div>
                   <% else %>
-                    <%= if Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                    <%= if @current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                      <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
+                        <.icon name="hero-check-circle" class="w-3 h-3" />
+                        <span>Ready to advance</span>
+                      </div>
+                    <% end %>
+                  <% end %>
+                <% end %>
+                <%= if stage.stage_type == "offer" do %>
+                  <% state = Pipeline.current_state(application) %>
+                  <%= if state.blockers != [] do %>
+                    <div class="mt-2 space-y-1">
+                      <%= for blocker <- state.blockers do %>
+                        <div class="flex items-center gap-1 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950 rounded px-2 py-1">
+                          <.icon name="hero-exclamation-triangle" class="w-3 h-3" />
+                          <span>{blocker.label}</span>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <%= if @current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
                       <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
                         <.icon name="hero-check-circle" class="w-3 h-3" />
                         <span>Ready to advance</span>
@@ -312,12 +332,13 @@ defmodule TrebyWeb.PipelineLive.Index do
                       </button>
                     <% end %>
                   <% end %>
-                  <%= if stage.stage_type == "interview" and Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                  <%= if stage.stage_type in ["interview", "offer"] and (@current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id)) do %>
                     <% ready = Pipeline.ready_to_advance?(application) %>
                     <button
                       phx-click="advance_application"
                       phx-value-id={application.id}
                       disabled={not ready}
+                      title={if not ready, do: "Complete required steps before advancing"}
                       class={[
                         "text-xs mt-1",
                         if(ready,
@@ -329,7 +350,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       Advance
                     </button>
                   <% end %>
-                  <%= if Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                  <%= if @current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
                     <button
                       phx-click="reject_application"
                       phx-value-id={application.id}
@@ -1109,7 +1130,8 @@ defmodule TrebyWeb.PipelineLive.Index do
     stage = application.pipeline_stage
 
     cond do
-      not Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) ->
+      socket.assigns.current_user.role != "admin" and
+          not Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) ->
         {:noreply,
          put_flash(socket, :error, "You are not authorized to advance candidates from this stage")}
 

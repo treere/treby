@@ -34,6 +34,8 @@ Tutte le pagine sono interattive e si aggiornano senza ricaricare il browser. Qu
 
 Ogni azienda registrata ha uno spazio separato. I dati di Acme non sono mai visibili a un'altra azienda e viceversa. L'isolamento avviene a livello di database.
 
+Una stessa persona può appartenere a più aziende con un'unica email e password: ogni appartenenza ha il suo ruolo (Admin in una, Membro in un'altra) e l'app mostra solo i dati dell'azienda selezionata.
+
 È possibile creare più pipeline per la stessa azienda: ogni posizione può usare la pipeline predefinita o una pipeline dedicata con fasi diverse.
 
 ### Pipeline e fasi
@@ -54,7 +56,7 @@ Solo gli avanzatori possono far avanzare o rifiutare candidati. Questa distinzio
 
 ### Autenticazione
 
-- **Team interno** (admin e membri): accesso con email e password. Gli admin gestiscono impostazioni, pipeline e inviti; i membri usano la pipeline e i colloqui secondo i permessi assegnati.
+- **Team interno** (admin e membri): accesso con email e password. Una stessa email può appartenere a più aziende con ruoli diversi; al login, chi ha più spazi vede **Scegli spazio di lavoro** e può cambiare azienda dall'header senza uscire. Gli admin gestiscono impostazioni, pipeline e inviti; i membri usano la pipeline e i colloqui secondo i permessi assegnati.
 - **Candidati**: nessun account con password. Il candidato inserisce la propria email, riceve un codice a 6 cifre via email valido 10 minuti e usa quel codice per entrare nel portale. La sessione dura poche ore e può essere chiusa esplicitamente.
 
 ### Portale candidati
@@ -101,6 +103,7 @@ Aziende
 ## Flusso di navigazione
 
 1. Pagine pubbliche: home, carriere (`/careers` e `/:azienda/careers`), login e registrazione.
-2. Area riservata team (`/app/*`): dashboard, posizioni, candidati, pipeline, analytics, colloqui — richiede login.
-3. Impostazioni (`/app/settings/*`): riservate agli admin per pipeline, branding, team, campi, sorgenti, modelli.
-4. Portale candidati (`/:azienda/portal/*`): login con codice via email, poi messaggi, programmazione colloqui e impostazioni notifiche. Separato dall'autenticazione del team.
+2. Scelta spazio (`/choose-tenant`): dopo il login, chi ha più aziende sceglie lo spazio; chi ne ha una sola va diretto a `/:azienda/app`.
+3. Area riservata team (`/:azienda/app/*`): dashboard, posizioni, candidati, pipeline, analytics, colloqui — richiede login e appartenenza allo spazio. L'header mostra il menu di cambio spazio quando hai più aziende. I vecchi link `/app/*` continuano a funzionare.
+4. Impostazioni (`/:azienda/app/settings/*`): riservate agli admin dello spazio per pipeline, branding, team, campi, sorgenti, modelli.
+5. Portale candidati (`/:azienda/portal/*`): login con codice via email, poi messaggi, programmazione colloqui e impostazioni notifiche. Separato dall'autenticazione del team.

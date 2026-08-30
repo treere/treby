@@ -1,35 +1,58 @@
-# Workspace Switching
+# Cambio Spazio di Lavoro
 
-Use one email and password across several companies. Each company is a separate workspace with its own jobs, candidates, and settings — your role can be different in each.
+Un'unica email e password per tutte le tue aziende. Ogni azienda è uno spazio separato con le sue posizioni, candidati e impostazioni — puoi essere Admin in una e Membro in un'altra.
 
-## Where to find it
+![Scegli spazio di lavoro](/screenshots/27-workspace-picker.png)
 
-* **At login** — after entering email and password you see **Choose workspace** if you belong to more than one company. Pick one to continue.
-* **In the app header** — when you have more than one workspace, a dropdown next to the Treby logo shows the current company. Open it to switch.
-* **Create new company** — inside the picker or the header dropdown choose **Create new company**, enter a name, and you become admin of the new workspace at `your-company/app`.
+*Scegli spazio di lavoro — dopo il login chi ha più aziende vede l'elenco con ruolo. Sotto, **Crea nuova azienda**.*
 
-## How to use
+![Menu cambio spazio nell'header](/screenshots/28-header-switcher.png)
 
-1. **Log in** with email and password.
-   * One workspace → you go straight to `your-company/app`.
-   * Several workspaces → you land on **Choose workspace** with each company and your role (Admin/Member).
-2. **Pick a workspace** — you are taken to `company/app` where all data is scoped to that company (jobs, candidates, pipeline).
-3. **Switch while working** — open the header dropdown, select another company. The URL changes to `other-company/app` and the whole app reloads in that context. Bookmarks keep their workspace (`company/app/jobs/123`).
-4. **Create another business** — from the switcher or the picker, **Create new company** → name it → you are redirected to the new workspace as admin. No new password is needed; one password works everywhere.
-5. **Backwards compatibility** — old bookmarks like `/app/jobs` still work and land in your first workspace or the picker if you have several.
+*Menu nell'header (visibile con più di uno spazio) — mostra l'azienda attuale con spunta e ruolo, più **Crea nuova azienda**.*
 
-## Permissions
+## Dove si trova
 
-* Role is **per workspace**. You can be **Admin** in your own company and **Member** in another — settings and team management are only available where you are Admin.
-* You only see workspaces you have been invited to.
+* **Al login** — dopo email e password, se appartieni a più aziende vedi **Scegli spazio di lavoro**. Scegli l'azienda e prosegui.
+* **Nell'header** — quando hai più di uno spazio, accanto al logo Treby c'è un menu con il nome dell'azienda attuale. Aprilo per cambiare al volo.
+* **Crea nuova azienda** — nel selettore o nel menu dell'header scegli **Crea nuova azienda**, inserisci il nome e diventi Admin del nuovo spazio.
 
-## Invites
+## Come si usa
 
-* **Admin → Settings → Team → Invite** sends an invite for the current workspace.
-* If the email already belongs to an existing Treby user, the invite adds them to the new workspace instead of creating a duplicate — they keep their existing password.
+1. **Accedi** con email e password.
+   * Un solo spazio → vai direttamente a `tua-azienda/app`.
+   * Più spazi → atterri su **Scegli spazio di lavoro** con l'elenco delle aziende e il tuo ruolo (Admin / Membro).
 
-## Tips
+2. **Scegli lo spazio** — clic sull'azienda. Tutto l'app si carica in quel contesto: posizioni, candidati, pipeline e analytics sono solo di quell'azienda.
 
-* The header switcher is hidden when you only have one workspace.
-* Company URLs are based on the company name (slug, e.g. `acme-corp`). The slug does not change after creation.
-* Password reset is global — changing it updates your password for all workspaces.
+3. **Cambia al volo** — apri il menu dell'azienda nell'header e seleziona un'altra azienda. L'indirizzo diventa `altra-azienda/app` e l'app si ricarica. I preferiti mantengono lo spazio (`azienda/app/posizioni/123`).
+
+4. **Crea un'altra azienda** — dal selettore o dal menu, **Crea nuova azienda** → inserisci il nome → vieni reindirizzato al nuovo spazio come Admin. Non serve una nuova password: la stessa vale ovunque.
+
+5. **Compatibilità** — i vecchi preferiti come `/app/posizioni` continuano a funzionare e ti portano al primo spazio o al selettore se ne hai più d'uno.
+
+## Ruoli per spazio
+
+Il ruolo è **per azienda**, non globale.
+
+| Tu sei | In quell'azienda puoi |
+|---|---|
+| **Admin** | Gestire **Impostazioni → Pipeline**, **Team**, **Campi**, **Sorgenti**, branding, inviti |
+| **Membro** | Usare posizioni, candidati, candidature, note, colloqui e valutazioni secondo i permessi delle fasi |
+
+Vedi solo gli spazi in cui sei stato invitato.
+
+## Inviti
+
+* **Admin → Impostazioni → Team → Invita** — invita per email nello spazio attuale. L'invitato riceve un link.
+* **Se l'email esiste già** — Treby non crea un duplicato: aggiunge la persona allo spazio con la password che già usa.
+  * Non sei entrato → vedi **Accedi come nome@email per accettare l'invito**.
+  * Sei già entrato con la stessa email → **Unisciti a Nome Azienda** (un clic, senza nuova registrazione).
+  * Sei entrato con un'altra email → **Sei entrato come altro@azienda.com ma l'invito è per nome@email — Esci e continua come nome@email**.
+
+L'invito scade dopo 7 giorni.
+
+## Consigli
+
+* Il menu di cambio spazio è nascosto se hai un solo spazio.
+* L'indirizzo dell'azienda deriva dal nome (es. `acme-corp`) e non cambia dopo la creazione.
+* **Reimposta password** è globale: la nuova password vale per tutti i tuoi spazi.

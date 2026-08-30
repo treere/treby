@@ -10,6 +10,7 @@ Treby è completo come sostituto di un ATS per una singola azienda. Le funzional
 | Funzionalità | Stato |
 |---|---|
 | Architettura multi-azienda | ✅ Completa |
+| Cambio spazio con un'unica email (picker al login + menu header) | ✅ Completa |
 | Pipeline multiple per azienda + modelli | ✅ Completa |
 | Pipeline Kanban (drag & drop, tempo reale) | ✅ Completa |
 | Pagina carriere pubblica con branding | ✅ Completa |

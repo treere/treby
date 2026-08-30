@@ -33,16 +33,22 @@ defmodule TrebyWeb.ScheduleLive.Index do
           |> Enum.map(& &1.user_id)
           |> MapSet.new()
 
+        fallback_users = Accounts.list_users(tenant.id)
+
         {:ok,
          socket
          |> assign(current_user: user, current_tenant: tenant)
          |> assign(application: application)
          |> assign(users: users)
          |> assign(connected_ids: connected_ids)
+         |> assign(fallback_users: fallback_users)
          |> assign(selected_user: nil)
          |> assign(slots: [])
          |> assign(selected_slot: nil)
-         |> assign(selected_date: Date.utc_today())}
+         |> assign(selected_date: Date.utc_today())
+         |> assign(ad_hoc_date: Date.to_iso8601(Date.utc_today()))
+         |> assign(ad_hoc_time: "09:00")
+         |> assign(ad_hoc_user_id: nil)}
     end
   end
 
@@ -67,16 +73,67 @@ defmodule TrebyWeb.ScheduleLive.Index do
           <div class="lg:col-span-2">
             <div class="bg-base-100 rounded-lg shadow p-6">
               <h2 class="text-lg font-semibold mb-4">Select Interviewer</h2>
-              <div :if={@users == []} class="text-center py-8">
-                <p class="text-base-content/50 text-sm">
-                  No team members have set their availability yet.
-                </p>
-                <.link
-                  navigate={~p"/app/settings/availability"}
-                  class="mt-2 text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  Set Availability
-                </.link>
+              <div :if={@users == []} class="space-y-4">
+                <div class="text-center py-4">
+                  <p class="text-base-content/50 text-sm">
+                    No team members have set their availability yet.
+                  </p>
+                  <p class="text-xs text-base-content/40 mt-1">
+                    Schedule ad-hoc without weekly rules — or
+                    <.link
+                      navigate={~p"/app/settings/availability"}
+                      class="text-blue-600 hover:text-blue-800"
+                    >
+                      Set weekly availability → Settings → Availability
+                    </.link>
+                  </p>
+                </div>
+                <div class="border rounded-lg p-4 bg-base-200/50 space-y-3">
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-medium text-base-content/70 mb-1">Date</label>
+                      <input
+                        type="date"
+                        value={@ad_hoc_date}
+                        phx-change="ad_hoc_date"
+                        class="input w-full"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-base-content/70 mb-1">
+                        Time (UTC)
+                      </label>
+                      <input
+                        type="time"
+                        value={@ad_hoc_time}
+                        phx-change="ad_hoc_time"
+                        class="input w-full"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                      Interviewer
+                    </label>
+                    <select phx-change="ad_hoc_user" class="select w-full">
+                      <option value="">Select interviewer</option>
+                      <option
+                        :for={u <- @fallback_users}
+                        value={u.id}
+                        selected={@ad_hoc_user_id == u.id}
+                      >
+                        {u.name} — {u.email}
+                      </option>
+                    </select>
+                  </div>
+                  <button
+                    phx-click="book_ad_hoc"
+                    disabled={is_nil(@ad_hoc_user_id) or @ad_hoc_date == "" or @ad_hoc_time == ""}
+                    class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Book Interview
+                  </button>
+                </div>
               </div>
 
               <div :if={@users != []} class="space-y-2">
@@ -201,6 +258,95 @@ defmodule TrebyWeb.ScheduleLive.Index do
       </div>
     </Layouts.app>
     """
+  end
+
+  def handle_event("ad_hoc_date", %{"value" => date}, socket) do
+    {:noreply, assign(socket, ad_hoc_date: date)}
+  end
+
+  def handle_event("ad_hoc_time", %{"value" => time}, socket) do
+    {:noreply, assign(socket, ad_hoc_time: time)}
+  end
+
+  def handle_event("ad_hoc_user", %{"value" => user_id}, socket) do
+    {:noreply, assign(socket, ad_hoc_user_id: user_id)}
+  end
+
+  def handle_event("book_ad_hoc", _params, socket) do
+    %{ad_hoc_date: date_str, ad_hoc_time: time_str, ad_hoc_user_id: user_id, application: app} =
+      socket.assigns
+
+    cond do
+      is_nil(user_id) or user_id == "" ->
+        {:noreply, put_flash(socket, :error, "Select an interviewer")}
+
+      date_str == "" or time_str == "" ->
+        {:noreply, put_flash(socket, :error, "Select date and time")}
+
+      true ->
+        with {:ok, date} <- Date.from_iso8601(date_str),
+             {:ok, time} <- Time.from_iso8601(time_str),
+             {:ok, start_at} <- DateTime.new(date, time, "Etc/UTC") do
+          end_at = DateTime.add(start_at, 30, :minute)
+          interviewer = Enum.find(socket.assigns.fallback_users, &(&1.id == user_id))
+
+          base_attrs = %{
+            start_at_utc: start_at,
+            end_at_utc: end_at,
+            duration_minutes: 30,
+            examiner_ids: [user_id],
+            scheduled_by_id: socket.assigns.current_user.id,
+            application_id: app.id,
+            tenant_id: socket.assigns.current_tenant.id
+          }
+
+          examiner_emails = if interviewer, do: [interviewer.email], else: []
+
+          event_params = %{
+            summary: "Interview with #{app.candidate.name} - #{app.job.title}",
+            description: "Scheduled via Treby",
+            start_at: start_at,
+            end_at: end_at,
+            timezone: "UTC"
+          }
+
+          case Calendar.resolve_meeting([user_id]) do
+            {:calendar_event, owner_id, :google_meet} ->
+              attendee_emails = examiner_emails ++ [app.candidate.email]
+
+              case Calendar.create_event_with_meet(
+                     owner_id,
+                     "google",
+                     event_params,
+                     attendee_emails
+                   ) do
+                {:ok, event_result} ->
+                  attrs =
+                    base_attrs
+                    |> Map.put(:video_conf_url, event_result.video_link)
+                    |> Map.put(:provider_event_id, event_result.provider_event_id)
+                    |> Map.put(:calendar_provider, "google")
+                    |> Map.put(:calendar_owner_id, owner_id)
+
+                  book_interview(socket, attrs, app.candidate_id)
+
+                {:error, _} ->
+                  {:noreply,
+                   socket
+                   |> put_flash(:error, "Failed to create calendar event. Please try again.")}
+              end
+
+            {:meeting_url, :jitsi} ->
+              {:ok, meet_url} =
+                Jitsi.create_meeting_link(%{tenant_slug: socket.assigns.current_tenant.slug})
+
+              attrs = base_attrs |> Map.put(:video_conf_url, meet_url)
+              book_interview(socket, attrs, app.candidate_id)
+          end
+        else
+          _ -> {:noreply, put_flash(socket, :error, "Invalid date or time")}
+        end
+    end
   end
 
   def handle_event("select_user", %{"user_id" => user_id}, socket) do

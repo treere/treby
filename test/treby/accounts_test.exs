@@ -22,6 +22,13 @@ defmodule Treby.AccountsTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
     {tenant, user}
   end
 
@@ -44,6 +51,13 @@ defmodule Treby.AccountsTest do
           role: "member"
         })
         |> Repo.insert()
+
+      {:ok, _} =
+        Treby.Memberships.create_membership(%{
+          user_id: _member.id,
+          tenant_id: tenant.id,
+          role: _member.role
+        })
 
       assert Accounts.has_members_besides?(tenant.id, user.id)
     end

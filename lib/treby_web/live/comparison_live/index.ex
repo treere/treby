@@ -3,10 +3,28 @@ defmodule TrebyWeb.ComparisonLive.Index do
 
   alias Treby.{Accounts, Tenants, Comparison}
 
-  def mount(%{"ids" => ids} = _params, session, socket) do
+  def mount(%{"ids" => ids} = params, session, socket) do
     socket = set_locale_from_session(socket, session)
-    user = Accounts.get_user!(session["user_id"])
-    tenant = Tenants.get_tenant!(session["tenant_id"])
+
+    {user, tenant} =
+      cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant}
+
+        session["user_id"] && session["tenant_id"] ->
+          {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
+
+        session["user_id"] ->
+          u = Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(u.id) do
+            [%{tenant: t} | _] -> {u, t}
+            [] -> {u, nil}
+          end
+
+        true ->
+          {nil, nil}
+      end
 
     selected_ids = ids |> String.split(",", trim: true) |> Enum.map(&String.trim/1)
 
@@ -24,10 +42,28 @@ defmodule TrebyWeb.ComparisonLive.Index do
      |> assign(error: error)}
   end
 
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
     socket = set_locale_from_session(socket, session)
-    user = Accounts.get_user!(session["user_id"])
-    tenant = Tenants.get_tenant!(session["tenant_id"])
+
+    {user, tenant} =
+      cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant}
+
+        session["user_id"] && session["tenant_id"] ->
+          {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
+
+        session["user_id"] ->
+          u = Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(u.id) do
+            [%{tenant: t} | _] -> {u, t}
+            [] -> {u, nil}
+          end
+
+        true ->
+          {nil, nil}
+      end
 
     {:ok,
      socket

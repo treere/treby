@@ -9,17 +9,26 @@ defmodule Treby.Accounts do
   alias Treby.Accounts.PasswordResetToken
 
   def list_users(tenant_id) do
-    User
-    |> where([u], u.tenant_id == ^tenant_id)
+    from(u in User,
+      join: m in Treby.Memberships.Membership,
+      on: m.user_id == u.id,
+      where: m.tenant_id == ^tenant_id
+    )
     |> Repo.all()
   end
 
   def get_user!(id), do: Repo.get!(User, id)
 
-  def get_user_by_email(email), do: Repo.get_by(User, email: email)
+  def get_user_by_email(email) when is_binary(email) do
+    normalized = String.downcase(email)
+    Repo.one(from u in User, where: fragment("lower(?)", u.email) == ^normalized)
+  end
+
+  def get_user_by_email(_email), do: nil
 
   def email_registered?(email) when is_binary(email) do
-    Repo.exists?(from(u in User, where: u.email == ^email))
+    normalized = String.downcase(email)
+    Repo.exists?(from(u in User, where: fragment("lower(?)", u.email) == ^normalized))
   end
 
   def email_registered?(_email), do: false
@@ -56,10 +65,20 @@ defmodule Treby.Accounts do
   end
 
   def remove_user_from_tenant(%User{} = user, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor && Map.get(actor, :role) && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      Repo.delete(user)
+      from(m in Treby.Memberships.Membership, where: m.user_id == ^user.id)
+      |> Repo.delete_all()
+
+      if Repo.exists?(from m in Treby.Memberships.Membership, where: m.user_id == ^user.id) do
+        {:ok, user}
+      else
+        case Repo.delete(user) do
+          {:ok, _} = ok -> ok
+          error -> error
+        end
+      end
     end
   end
 
@@ -179,8 +198,9 @@ defmodule Treby.Accounts do
   end
 
   def has_members_besides?(tenant_id, user_id) do
-    User
-    |> where([u], u.tenant_id == ^tenant_id and u.id != ^user_id)
+    from(m in Treby.Memberships.Membership,
+      where: m.tenant_id == ^tenant_id and m.user_id != ^user_id
+    )
     |> Repo.exists?()
   end
 

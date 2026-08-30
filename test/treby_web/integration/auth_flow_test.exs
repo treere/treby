@@ -22,19 +22,26 @@ defmodule TrebyWeb.AuthFlowTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
     {tenant, user}
   end
 
   describe "authentication flow" do
     test "user can log in with valid credentials", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
 
       conn =
         post(conn, ~p"/session", %{
           "user" => %{"email" => user.email, "password" => "password123"}
         })
 
-      assert redirected_to(conn) == "/app"
+      assert redirected_to(conn) == "/#{tenant.slug}/app"
     end
 
     test "user cannot log in with invalid password", %{conn: conn} do
@@ -101,7 +108,7 @@ defmodule TrebyWeb.AuthFlowTest do
           }
         })
 
-      assert redirected_to(conn) == "/app"
+      assert redirected_to(conn) =~ ~r"/reg-corp.*\/app"
     end
   end
 

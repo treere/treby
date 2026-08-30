@@ -16,6 +16,7 @@ defmodule Treby.Accounts.User do
     field :onboarding_checklist_dismissed, :boolean, default: false
 
     belongs_to :tenant, Treby.Tenants.Tenant
+    has_many :memberships, Treby.Memberships.Membership
 
     timestamps(type: :utc_datetime)
   end
@@ -25,10 +26,19 @@ defmodule Treby.Accounts.User do
     user
     |> cast(attrs, [:email, :password, :name, :role])
     |> validate_required([:email, :password, :name])
+    |> normalize_email()
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(:password, min: 6, message: "must be at least 6 characters")
     |> unique_constraint([:tenant_id, :email])
+    |> unique_constraint(:email, name: :users_email_unique_lower_index)
     |> hash_password()
+  end
+
+  defp normalize_email(changeset) do
+    case get_change(changeset, :email) do
+      nil -> changeset
+      email -> put_change(changeset, :email, String.downcase(email))
+    end
   end
 
   defp hash_password(changeset) do

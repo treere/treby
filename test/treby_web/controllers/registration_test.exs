@@ -143,7 +143,7 @@ defmodule TrebyWeb.RegistrationTest do
       conn = verify_email(conn, code)
 
       conn = submit_full_form(conn, %{})
-      assert redirected_to(conn) == "/app"
+      assert redirected_to(conn) =~ ~r"/.+/app"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Welcome to Treby!"
       assert get_session(conn, "user_id")
       assert is_nil(get_session(conn, "verified_email"))
@@ -156,7 +156,7 @@ defmodule TrebyWeb.RegistrationTest do
       conn = verify_email(conn, code)
 
       conn = submit_full_form(conn, %{"email" => other})
-      assert redirected_to(conn) == "/app"
+      assert redirected_to(conn) =~ ~r"/.+/app"
 
       user = Accounts.get_user!(get_session(conn, "user_id"))
       assert user.email == email
@@ -187,7 +187,7 @@ defmodule TrebyWeb.RegistrationTest do
 
       unique = System.unique_integer([:positive])
       conn = submit_full_form(conn, %{"company_name" => "Tech Corp #{unique}"})
-      assert redirected_to(conn) == "/app"
+      assert redirected_to(conn) =~ ~r"/.+/app"
 
       tenant = Treby.Tenants.get_tenant_by_slug!("tech-corp-#{unique}")
       assert tenant.name == "Tech Corp #{unique}"

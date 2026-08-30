@@ -17,7 +17,7 @@ defmodule TrebyWeb.Plugs.Auth do
         |> halt()
 
       user_id ->
-        case Accounts.get_user!(user_id) do
+        case Treby.Repo.get(Treby.Accounts.User, user_id) do
           nil ->
             conn
             |> delete_session("user_id")
@@ -28,7 +28,6 @@ defmodule TrebyWeb.Plugs.Auth do
           user ->
             conn
             |> assign(:current_user, user)
-            |> assign(:current_tenant, Treby.Repo.preload(user, :tenant).tenant)
         end
     end
   end

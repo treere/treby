@@ -3,17 +3,34 @@ defmodule TrebyWeb.SettingsLive.Team do
 
   alias Treby.{Accounts, Tenants, Invites}
 
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
     socket = set_locale_from_session(socket, session)
-    user = Accounts.get_user!(session["user_id"])
-    tenant = Tenants.get_tenant!(session["tenant_id"])
-    users = Accounts.list_users(tenant.id)
+    # Support both slug and legacy session
+    {user, tenant, membership} =
+      cond do
+        params["tenant_slug"] ->
+          slug = params["tenant_slug"]
+          tenant = Treby.Tenants.get_tenant_by_slug(slug)
+          user = Accounts.get_user!(session["user_id"])
+          membership = Treby.Memberships.get_membership(user.id, tenant.id)
+          {user, tenant, membership}
+
+        true ->
+          user = Accounts.get_user!(session["user_id"])
+          tenant = Treby.Tenants.get_tenant!(session["tenant_id"])
+          {user, tenant, nil}
+      end
+
+    # Prefer memberships list with roles
+    memberships = Treby.Memberships.list_members_for_tenant(tenant.id)
+    # Keep users assign for backwards compat, but also memberships
+    users = Enum.map(memberships, & &1.user)
     invites = Invites.list_invites(tenant.id)
 
     {:ok,
      socket
-     |> assign(current_user: user, current_tenant: tenant)
-     |> assign(users: users)
+     |> assign(current_user: user, current_tenant: tenant, current_membership: membership)
+     |> assign(memberships: memberships, users: users)
      |> assign(invites: invites)
      |> assign(show_invite_form: false)
      |> assign(invite_form: to_form(%{"email" => "", "role" => "member"}))
@@ -23,11 +40,21 @@ defmodule TrebyWeb.SettingsLive.Team do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={@current_tenant}
+      current_membership={@current_membership}
+      available_tenants={assigns[:available_tenants] || []}
+    >
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+            <.link
+              navigate={"/#{@current_tenant.slug}/app/settings"}
+              class="text-blue-600 hover:text-blue-900 text-sm"
+            >
               &larr; Back to Settings
             </.link>
             <h1 class="text-2xl font-bold mt-2">Team Management</h1>
@@ -94,8 +121,9 @@ defmodule TrebyWeb.SettingsLive.Team do
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">{user.name}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{user.email}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if user.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-base-200 text-base-content/90"}"}>
-                    {user.role}
+                  <% member = Enum.find(@memberships, &(&1.user_id == user.id)) %>
+                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if member && member.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-base-200 text-base-content/90"}"}>
+                    {member && member.role}
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">

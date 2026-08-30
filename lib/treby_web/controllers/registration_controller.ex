@@ -3,7 +3,7 @@ defmodule TrebyWeb.RegistrationController do
 
   import Phoenix.Component, only: [to_form: 1, to_form: 2]
 
-  alias Treby.{Tenants, Repo}
+  alias Treby.{Tenants, Repo, Memberships}
   alias Treby.Accounts
   alias Treby.Accounts.User
   alias Treby.RegistrationVerification
@@ -147,14 +147,9 @@ defmodule TrebyWeb.RegistrationController do
         )
 
       Accounts.email_registered?(verified_email) ->
-        changeset = Ecto.Changeset.add_error(changeset, :email, "has already been taken")
-
         conn
-        |> put_status(422)
-        |> render("setup.html",
-          form: to_form(changeset, as: :user, action: :insert),
-          verified_email: verified_email
-        )
+        |> put_flash(:error, gettext("You already have an account — log in, then Create company"))
+        |> redirect(to: ~p"/login")
 
       true ->
         case Tenants.create_tenant(%{name: Ecto.Changeset.get_field(changeset, :company_name)}) do
@@ -169,12 +164,20 @@ defmodule TrebyWeb.RegistrationController do
                  })
                  |> Repo.insert() do
               {:ok, user} ->
+                # Create membership for new identity (backwards compat + new)
+                {:ok, _membership} =
+                  Memberships.create_membership(%{
+                    user_id: user.id,
+                    tenant_id: tenant.id,
+                    role: "admin"
+                  })
+
                 conn
                 |> put_session("user_id", user.id)
-                |> put_session("tenant_id", tenant.id)
+                |> delete_session("tenant_id")
                 |> delete_session("verified_email")
                 |> put_flash(:info, gettext("Welcome to Treby!"))
-                |> redirect(to: ~p"/app")
+                |> redirect(to: ~p"/#{tenant.slug}/app")
 
               {:error, _changeset} ->
                 conn

@@ -28,6 +28,13 @@ defmodule Treby.BulkOperationsTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
     {:ok, job} =
       Treby.Jobs.create_job(%{
         tenant_id: tenant.id,

@@ -32,6 +32,13 @@ defmodule TrebyWeb.BookingFlowTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: admin.id,
+        tenant_id: tenant.id,
+        role: admin.role
+      })
+
     {tenant, admin}
   end
 
@@ -45,6 +52,13 @@ defmodule TrebyWeb.BookingFlowTest do
         name: "Examiner User"
       })
       |> Repo.insert()
+
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: examiner.id,
+        tenant_id: tenant.id,
+        role: examiner.role
+      })
 
     day_of_week = Date.day_of_week(Date.utc_today())
     day_of_week = if day_of_week == 7, do: 0, else: day_of_week

@@ -8,8 +8,26 @@ defmodule TrebyWeb.PipelineLive.Index do
 
   def mount(%{"job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
-    user = Accounts.get_user!(session["user_id"])
-    tenant = Tenants.get_tenant!(session["tenant_id"])
+
+    {user, tenant} =
+      cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant}
+
+        session["user_id"] && session["tenant_id"] ->
+          {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
+
+        session["user_id"] ->
+          u = Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(u.id) do
+            [%{tenant: t} | _] -> {u, t}
+            [] -> {u, nil}
+          end
+
+        true ->
+          {nil, nil}
+      end
 
     case Jobs.get_job(tenant.id, job_id) do
       nil ->
@@ -194,14 +212,14 @@ defmodule TrebyWeb.PipelineLive.Index do
               id={"stage-cards-#{stage.id}"}
               class={[
                 "space-y-3 min-h-[100px]",
-                (@current_user.role != "admin" and
+                (@current_membership.role != "admin" and
                    not Pipeline.user_is_advancer?(stage, @current_user.id)) &&
                   "opacity-60"
               ]}
               phx-hook="Sortable"
               data-stage-id={stage.id}
               title={
-                if @current_user.role != "admin" and
+                if @current_membership.role != "admin" and
                      not Pipeline.user_is_advancer?(stage, @current_user.id),
                    do: "Only stage advancers can move",
                    else: nil
@@ -218,7 +236,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 class={[
                   "bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow relative",
                   if(
-                    @current_user.role == "admin" or
+                    @current_membership.role == "admin" or
                       Pipeline.user_is_advancer?(stage, @current_user.id),
                     do: "cursor-move",
                     else: "cursor-not-allowed opacity-80"
@@ -226,7 +244,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                   application.id in @selected_ids && "ring-2 ring-blue-500"
                 ]}
                 title={
-                  if @current_user.role != "admin" and
+                  if @current_membership.role != "admin" and
                        not Pipeline.user_is_advancer?(stage, @current_user.id),
                      do: "Only stage advancers can move",
                      else: nil
@@ -267,7 +285,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       <% end %>
                     </div>
                   <% else %>
-                    <%= if @current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                    <%= if @current_membership.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
                       <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
                         <.icon name="hero-check-circle" class="w-3 h-3" />
                         <span>Ready to advance</span>
@@ -287,7 +305,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       <% end %>
                     </div>
                   <% else %>
-                    <%= if @current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                    <%= if @current_membership.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
                       <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
                         <.icon name="hero-check-circle" class="w-3 h-3" />
                         <span>Ready to advance</span>
@@ -320,7 +338,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     <% my_interview = examiner_interview_for_card(application, @current_user.id) %>
                     <% pending_interview = pending_interview_for_card(application) %>
                     <% can_complete? =
-                      @current_user.role == "admin" or
+                      @current_membership.role == "admin" or
                         Pipeline.user_is_advancer?(stage, @current_user.id) or
                         my_interview != nil or
                         (pending_interview != nil and
@@ -355,7 +373,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       </button>
                     <% end %>
                   <% end %>
-                  <%= if stage.stage_type in ["interview", "offer"] and (@current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id)) do %>
+                  <%= if stage.stage_type in ["interview", "offer"] and (@current_membership.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id)) do %>
                     <% ready = Pipeline.ready_to_advance?(application) %>
                     <button
                       phx-click="advance_application"
@@ -373,7 +391,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       Advance
                     </button>
                   <% end %>
-                  <%= if @current_user.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
+                  <%= if @current_membership.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
                     <button
                       phx-click="reject_application"
                       phx-value-id={application.id}
@@ -684,7 +702,7 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     # Check advancer permission for the target stage (admins always allowed)
     is_advancer? =
-      socket.assigns.current_user.role == "admin" or
+      socket.assigns.current_membership.role == "admin" or
         Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id)
 
     if is_advancer? do
@@ -1153,7 +1171,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     stage = application.pipeline_stage
 
     cond do
-      socket.assigns.current_user.role != "admin" and
+      socket.assigns.current_membership.role != "admin" and
           not Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) ->
         {:noreply,
          put_flash(socket, :error, "You are not authorized to advance candidates from this stage")}

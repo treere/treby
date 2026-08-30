@@ -35,6 +35,10 @@ defmodule TrebyWeb.Layouts do
     default: "en",
     doc: "the current locale"
 
+  attr :current_tenant, :map, default: nil
+  attr :available_tenants, :list, default: []
+  attr :current_membership, :map, default: nil
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -44,55 +48,126 @@ defmodule TrebyWeb.Layouts do
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
             <div class="flex items-center">
-              <.link navigate={~p"/app"} class="flex-shrink-0 flex items-center">
+              <.link
+                navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app", else: ~p"/app"}
+                class="flex-shrink-0 flex items-center"
+              >
                 <span class="text-xl font-bold text-blue-600">Treby</span>
               </.link>
+              <div
+                :if={@available_tenants && length(@available_tenants) > 1}
+                class="ml-4 relative"
+                id="workspace-switcher"
+              >
+                <button
+                  type="button"
+                  class="flex items-center gap-1 text-sm font-medium text-base-content/80 hover:text-blue-600"
+                  phx-click={Phoenix.LiveView.JS.toggle(to: "#workspace-switcher-dropdown")}
+                >
+                  <span>{(@current_tenant && @current_tenant.name) || gettext("Workspaces")}</span>
+                  <.icon name="hero-chevron-down" class="w-4 h-4" />
+                </button>
+                <div
+                  id="workspace-switcher-dropdown"
+                  class="hidden absolute left-0 mt-2 w-64 bg-base-100 rounded-md shadow-lg py-1 z-50 border"
+                >
+                  <div :for={%{tenant: t, role: r} <- @available_tenants} class="px-2">
+                    <.link
+                      navigate={"/#{t.slug}/app"}
+                      class={[
+                        "flex justify-between items-center px-3 py-2 text-sm rounded hover:bg-base-200",
+                        @current_tenant && @current_tenant.id == t.id && "bg-base-200 font-medium"
+                      ]}
+                    >
+                      <span>{t.name}</span>
+                      <span class="badge badge-xs">{r}</span>
+                    </.link>
+                  </div>
+                  <div class="border-t mt-1 pt-1 px-2">
+                    <.link
+                      navigate={~p"/choose-tenant"}
+                      class="block px-3 py-2 text-sm text-blue-600 hover:bg-base-200 rounded"
+                    >
+                      {gettext("Create new company")}
+                    </.link>
+                  </div>
+                </div>
+              </div>
               <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <.link
-                  navigate={~p"/app/jobs"}
+                  navigate={
+                    if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
+                  }
                   data-nav="/app/jobs"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Jobs")}
                 </.link>
                 <.link
-                  navigate={~p"/app/candidates"}
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/candidates",
+                      else: ~p"/app/candidates"
+                  }
                   data-nav="/app/candidates"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Candidates")}
                 </.link>
                 <.link
-                  navigate={~p"/app/import"}
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/import",
+                      else: ~p"/app/import"
+                  }
                   data-nav="/app/import"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Import")}
                 </.link>
                 <.link
-                  navigate={~p"/app/interviews"}
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/interviews",
+                      else: ~p"/app/interviews"
+                  }
                   data-nav="/app/interviews"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Interviews")}
                 </.link>
                 <.link
-                  navigate={~p"/app/analytics"}
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/analytics",
+                      else: ~p"/app/analytics"
+                  }
                   data-nav="/app/analytics"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Analytics")}
                 </.link>
                 <.link
-                  navigate={~p"/app/messages-queue"}
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/messages-queue",
+                      else: ~p"/app/messages-queue"
+                  }
                   data-nav="/app/messages-queue"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
                   {gettext("Message Queue")}
                 </.link>
                 <.link
-                  :if={@current_scope && @current_scope.role == "admin"}
-                  navigate={~p"/app/settings"}
+                  :if={
+                    (@current_membership && @current_membership.role == "admin") ||
+                      (@current_scope && Map.get(@current_scope, :role) == "admin")
+                  }
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/settings",
+                      else: ~p"/app/settings"
+                  }
                   data-nav="/app/settings"
                   class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-blue-500"
                 >
@@ -151,50 +226,77 @@ defmodule TrebyWeb.Layouts do
           </div>
           <div class="space-y-1">
             <.link
-              navigate={~p"/app/jobs"}
+              navigate={
+                if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
+              }
               data-nav="/app/jobs"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Jobs")}
             </.link>
             <.link
-              navigate={~p"/app/candidates"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+              }
               data-nav="/app/candidates"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Candidates")}
             </.link>
             <.link
-              navigate={~p"/app/import"}
+              navigate={
+                if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
+              }
               data-nav="/app/import"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Import")}
             </.link>
             <.link
-              navigate={~p"/app/interviews"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/interviews",
+                  else: ~p"/app/interviews"
+              }
               data-nav="/app/interviews"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Interviews")}
             </.link>
             <.link
-              navigate={~p"/app/analytics"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/analytics",
+                  else: ~p"/app/analytics"
+              }
               data-nav="/app/analytics"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Analytics")}
             </.link>
             <.link
-              navigate={~p"/app/messages-queue"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/messages-queue",
+                  else: ~p"/app/messages-queue"
+              }
               data-nav="/app/messages-queue"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >
               {gettext("Message Queue")}
             </.link>
             <.link
-              :if={@current_scope && @current_scope.role == "admin"}
-              navigate={~p"/app/settings"}
+              :if={
+                (@current_membership && @current_membership.role == "admin") ||
+                  (@current_scope && Map.get(@current_scope, :role) == "admin")
+              }
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/settings",
+                  else: ~p"/app/settings"
+              }
               data-nav="/app/settings"
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
             >

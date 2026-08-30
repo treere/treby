@@ -19,8 +19,27 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
   def mount(%{"id" => id} = params, session, socket) do
     socket = set_locale_from_session(socket, session)
-    user = Accounts.get_user!(session["user_id"])
-    tenant = Tenants.get_tenant!(session["tenant_id"])
+
+    {user, tenant} =
+      cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant}
+
+        session["user_id"] && session["tenant_id"] ->
+          {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
+
+        session["user_id"] ->
+          u = Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(u.id) do
+            [%{tenant: t} | _] -> {u, t}
+            [] -> {u, nil}
+          end
+
+        true ->
+          {nil, nil}
+      end
+
     candidate = Candidates.get_candidate(tenant.id, id)
 
     return_path = safe_return_path(params["return_to"])

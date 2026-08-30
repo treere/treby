@@ -26,6 +26,13 @@ defmodule TrebyWeb.PipelineDragDropTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: _user.id,
+        tenant_id: tenant.id,
+        role: _user.role
+      })
+
     {:ok, job} =
       tenant
       |> Ecto.build_assoc(:jobs)

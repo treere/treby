@@ -21,6 +21,13 @@ defmodule TrebyWeb.SchedulingLiveTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
     # Create a calendar connection for the user
     {:ok, _} =
       Calendar.connect_google_user(user.id, tenant.id, %{
@@ -114,6 +121,13 @@ defmodule TrebyWeb.SchedulingLiveTest do
         role: "admin"
       })
       |> Repo.insert()
+
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
 
     {tenant, user}
   end

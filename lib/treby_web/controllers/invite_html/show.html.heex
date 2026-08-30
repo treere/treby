@@ -10,62 +10,125 @@
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-base-100 py-8 px-4 shadow sm:rounded-lg sm:px-10">
-      <.form
-        for={%{}}
-        id="invite-accept-form"
-        action={~p"/invite/#{@invite.token}"}
-        method="post"
-        class="space-y-6"
-      >
-        <div>
-          <label for="user_name" class="block text-sm font-medium text-base-content/80">
-            {gettext("Full Name")}
-          </label>
-          <input
-            id="user_name"
-            name="user[name]"
-            type="text"
-            required
-            class="mt-1 block w-full rounded-md border-base-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-          />
-        </div>
-
-        <div>
-          <label for="user_email" class="block text-sm font-medium text-base-content/80">
-            {gettext("Email")}
-          </label>
-          <input
-            id="user_email"
-            name="user[email]"
-            type="email"
-            value={@invite.email}
-            disabled
-            class="mt-1 block w-full rounded-md border-base-300 shadow-sm bg-base-200 sm:text-sm"
-          />
-        </div>
-
-        <div>
-          <label for="user_password" class="block text-sm font-medium text-base-content/80">
-            {gettext("Password")}
-          </label>
-          <input
-            id="user_password"
-            name="user[password]"
-            type="password"
-            required
-            class="mt-1 block w-full rounded-md border-base-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-          />
-        </div>
-
-        <div>
-          <button
-            type="submit"
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-base-200 focus:ring-blue-500"
+      <%= cond do %>
+        <% @mismatch -> %>
+          <div class="space-y-4 text-center">
+            <p class="text-sm text-base-content/70">
+              {gettext("You are logged in as %{current} but this invite is for %{existing}",
+                current: @current_user.email,
+                existing: @existing_user.email
+              )}
+            </p>
+            <div class="flex gap-2 justify-center">
+              <.link
+                href={~p"/session"}
+                method="delete"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              >
+                {gettext("Log out and continue as %{email}", email: @existing_user.email)}
+              </.link>
+            </div>
+            <p class="text-xs text-base-content/50">
+              {gettext("Or log out and log in as the invited email")}
+            </p>
+          </div>
+        <% @needs_login -> %>
+          <div class="space-y-4 text-center">
+            <p class="text-sm text-base-content/70">
+              {gettext("Please log in as %{email} to accept this invite",
+                email: @existing_user.email
+              )}
+            </p>
+            <.link
+              navigate={~p"/login"}
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            >
+              {gettext("Log in")}
+            </.link>
+          </div>
+        <% @needs_accept -> %>
+          <.form
+            for={%{}}
+            id="invite-accept-existing-form"
+            action={~p"/invite/#{@invite.token}"}
+            method="post"
+            class="space-y-6"
           >
-            {gettext("Accept Invite & Create Account")}
-          </button>
-        </div>
-      </.form>
+            <div class="text-center">
+              <p class="text-sm text-base-content/70">
+                {gettext("You are logged in as %{email}", email: @existing_user.email)}
+              </p>
+              <p class="text-sm text-base-content/70">
+                {gettext("Click below to join %{tenant}", tenant: @tenant.name)}
+              </p>
+            </div>
+            <div>
+              <button
+                type="submit"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              >
+                {gettext("Join %{tenant}", tenant: @tenant.name)}
+              </button>
+            </div>
+          </.form>
+        <% true -> %>
+          <.form
+            for={%{}}
+            id="invite-accept-form"
+            action={~p"/invite/#{@invite.token}"}
+            method="post"
+            class="space-y-6"
+          >
+            <div>
+              <label for="user_name" class="block text-sm font-medium text-base-content/80">
+                {gettext("Full Name")}
+              </label>
+              <input
+                id="user_name"
+                name="user[name]"
+                type="text"
+                required
+                class="mt-1 block w-full rounded-md border-base-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="user_email" class="block text-sm font-medium text-base-content/80">
+                {gettext("Email")}
+              </label>
+              <input
+                id="user_email"
+                name="user[email]"
+                type="email"
+                value={@invite.email}
+                disabled
+                class="mt-1 block w-full rounded-md border-base-300 shadow-sm bg-base-200 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="user_password" class="block text-sm font-medium text-base-content/80">
+                {gettext("Password")}
+              </label>
+              <input
+                id="user_password"
+                name="user[password]"
+                type="password"
+                required
+                class="mt-1 block w-full rounded-md border-base-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-base-200 focus:ring-blue-500"
+              >
+                {gettext("Accept Invite & Create Account")}
+              </button>
+            </div>
+          </.form>
+      <% end %>
     </div>
   </div>
 </div>

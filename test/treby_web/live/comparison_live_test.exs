@@ -25,6 +25,13 @@ defmodule TrebyWeb.ComparisonLive.IndexTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
     {tenant, user}
   end
 

@@ -59,6 +59,7 @@ export default defineConfig({
           { text: "Source Tracking", link: "/features/source-tracking" },
           { text: "Custom Fields", link: "/features/custom-fields" },
           { text: "Dark Mode", link: "/features/dark-mode" },
+          { text: "Workspace Switching", link: "/features/workspace-switching" },
         ],
       },
     ],

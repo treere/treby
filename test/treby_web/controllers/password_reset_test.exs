@@ -23,6 +23,13 @@ defmodule TrebyWeb.PasswordResetTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
     {tenant, user}
   end
 
@@ -220,7 +227,7 @@ defmodule TrebyWeb.PasswordResetTest do
           "user" => %{"email" => user.email, "password" => "newpassword456"}
         })
 
-      assert redirected_to(conn) == "/app"
+      assert redirected_to(conn) =~ ~r"/.+/app"
     end
   end
 end

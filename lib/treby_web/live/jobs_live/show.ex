@@ -6,8 +6,26 @@ defmodule TrebyWeb.JobsLive.Show do
 
   def mount(%{"id" => id}, session, socket) do
     socket = set_locale_from_session(socket, session)
-    user = Accounts.get_user!(session["user_id"])
-    tenant = Tenants.get_tenant!(session["tenant_id"])
+
+    {user, tenant} =
+      cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant}
+
+        session["user_id"] && session["tenant_id"] ->
+          {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
+
+        session["user_id"] ->
+          u = Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(u.id) do
+            [%{tenant: t} | _] -> {u, t}
+            [] -> {u, nil}
+          end
+
+        true ->
+          {nil, nil}
+      end
 
     case Jobs.get_job(tenant.id, id) do
       nil ->
@@ -388,7 +406,7 @@ defmodule TrebyWeb.JobsLive.Show do
               </p>
             </div>
             <button
-              :if={@current_user.role == "admin"}
+              :if={@current_membership.role == "admin"}
               phx-click="toggle_manage_pipeline"
               class={[
                 "px-4 py-2 rounded-lg inline-flex items-center gap-1",
@@ -605,7 +623,7 @@ defmodule TrebyWeb.JobsLive.Show do
                     </div>
                   </div>
                 </div>
-                <div :if={@current_user.role == "admin"} class="flex items-center gap-1 text-sm">
+                <div :if={@current_membership.role == "admin"} class="flex items-center gap-1 text-sm">
                   <button
                     :if={idx > 0}
                     phx-click="move_stage_up"

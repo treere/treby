@@ -5,10 +5,30 @@ defmodule TrebyWeb.InterviewsLive.Index do
 
   alias Treby.{Accounts, Interviews, Repo, Scorecards}
 
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
     socket = set_locale_from_session(socket, session)
-    user = Accounts.get_user!(session["user_id"])
-    tenant = Treby.Tenants.get_tenant!(session["tenant_id"])
+
+    {user, tenant} =
+      cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant}
+
+        session["user_id"] && session["tenant_id"] ->
+          {Accounts.get_user!(session["user_id"]),
+           Treby.Tenants.get_tenant!(session["tenant_id"])}
+
+        session["user_id"] ->
+          u = Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(u.id) do
+            [%{tenant: t} | _] -> {u, t}
+            [] -> {u, nil}
+          end
+
+        true ->
+          {nil, nil}
+      end
+
     users = Accounts.list_users(tenant.id)
 
     socket =

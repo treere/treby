@@ -19,17 +19,22 @@ defmodule TrebyWeb.Router do
     plug TrebyWeb.Plugs.Auth
   end
 
+  pipeline :require_membership do
+    plug TrebyWeb.Plugs.RequireMembership
+  end
+
   pipeline :candidate_auth do
     plug TrebyWeb.Plugs.CandidateAuth
   end
 
-  # Authenticated routes (before public catch-all to avoid route collisions)
-  scope "/app", TrebyWeb do
-    pipe_through [:browser, :require_auth]
+  # URL-scoped authenticated app (new)
+  scope "/:tenant_slug/app", TrebyWeb do
+    pipe_through [:browser, :require_auth, :require_membership]
 
     live_session :default,
       on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale}
+        {TrebyWeb.Hooks.SetLocale, :set_locale},
+        {TrebyWeb.Hooks.RequireMembership, :default}
       ] do
       live "/", DashboardLive
       live "/jobs", JobsLive.Index
@@ -52,6 +57,7 @@ defmodule TrebyWeb.Router do
     live_session :admin,
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
+        {TrebyWeb.Hooks.RequireMembership, :default},
         {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
       ] do
       live "/settings", SettingsLive.Index
@@ -68,6 +74,65 @@ defmodule TrebyWeb.Router do
       live "/settings/sources", SettingsLive.Sources
       live "/settings/notifications", SettingsLive.Notifications
     end
+  end
+
+  # Legacy /app (session-based, keep for one release for backward compat with existing tests/links)
+  scope "/app", TrebyWeb do
+    pipe_through [:browser, :require_auth]
+
+    live_session :legacy_default,
+      on_mount: [
+        {TrebyWeb.Hooks.SetLocale, :set_locale},
+        {TrebyWeb.Hooks.RequireMembership, :default}
+      ] do
+      live "/", DashboardLive
+      live "/jobs", JobsLive.Index
+      live "/jobs/:id/analytics", JobsLive.Analytics
+      live "/jobs/:id", JobsLive.Show
+      live "/candidates", CandidatesLive.Index
+      live "/candidates/merge", CandidatesLive.Merge
+      live "/candidates/compare", ComparisonLive.Index
+      live "/candidates/:id", CandidatesLive.Show
+      live "/pipeline/:job_id", PipelineLive.Index
+      live "/analytics", AnalyticsLive.Index
+      live "/schedule/:application_id", ScheduleLive.Index
+      live "/interviews", InterviewsLive.Index
+      live "/import", ImportLive.Index
+      live "/messages-queue", MessagesQueueLive.Index
+
+      get "/applications/:id/resume", ResumeController, :show
+    end
+
+    live_session :legacy_admin,
+      on_mount: [
+        {TrebyWeb.Hooks.SetLocale, :set_locale},
+        {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
+      ] do
+      live "/settings", SettingsLive.Index
+      live "/settings/pipeline", SettingsLive.Pipeline
+      live "/settings/pipeline/:id", SettingsLive.PipelineStages
+      live "/settings/fields", SettingsLive.Fields
+      live "/settings/team", SettingsLive.Team
+      live "/settings/branding", SettingsLive.Branding
+      live "/settings/calendar", SettingsLive.Calendar
+      live "/settings/availability", SettingsLive.Availability
+      live "/settings/language", SettingsLive.Language
+      live "/settings/scorecards", SettingsLive.Scorecards
+      live "/settings/emails", SettingsLive.EmailTemplates
+      live "/settings/sources", SettingsLive.Sources
+      live "/settings/notifications", SettingsLive.Notifications
+    end
+
+    get "/*path", LegacyAppController, :redirect_legacy
+  end
+
+  # Global authenticated (no slug) — picker and create company
+  scope "/", TrebyWeb do
+    pipe_through [:browser, :require_auth]
+    live "/choose-tenant", ChooseTenantLive
+    post "/choose-tenant", ChooseTenantController, :choose
+    post "/tenants", TenantController, :create
   end
 
   # Auth routes (no auth required)

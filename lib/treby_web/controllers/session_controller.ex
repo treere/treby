@@ -2,6 +2,7 @@ defmodule TrebyWeb.SessionController do
   use TrebyWeb, :controller
 
   alias Treby.Accounts
+  alias Treby.Memberships
 
   def new(conn, _params) do
     render(conn, "new.html")
@@ -10,11 +11,26 @@ defmodule TrebyWeb.SessionController do
   def create(conn, %{"user" => %{"email" => email, "password" => password}}) do
     case Accounts.authenticate_user(email, password) do
       {:ok, user} ->
-        conn
-        |> put_session("user_id", user.id)
-        |> put_session("tenant_id", user.tenant_id)
-        |> put_flash(:info, gettext("Welcome back!"))
-        |> redirect(to: ~p"/app")
+        tenants = Memberships.list_tenants_for_user(user.id)
+
+        conn = conn |> put_session("user_id", user.id) |> delete_session("tenant_id")
+
+        case tenants do
+          [] ->
+            conn
+            |> put_flash(:info, gettext("Welcome back!"))
+            |> redirect(to: ~p"/choose-tenant")
+
+          [%{tenant: tenant}] ->
+            conn
+            |> put_flash(:info, gettext("Welcome back!"))
+            |> redirect(to: ~p"/#{tenant.slug}/app")
+
+          _ ->
+            conn
+            |> put_flash(:info, gettext("Welcome back!"))
+            |> redirect(to: ~p"/choose-tenant")
+        end
 
       {:error, :invalid_credentials} ->
         conn

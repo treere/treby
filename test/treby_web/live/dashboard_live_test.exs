@@ -29,6 +29,13 @@ defmodule TrebyWeb.DashboardLiveTest do
       })
       |> Repo.insert()
 
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
     {tenant, user}
   end
 
@@ -137,6 +144,13 @@ defmodule TrebyWeb.DashboardLiveTest do
           role: "member"
         })
         |> Repo.insert()
+
+      {:ok, _} =
+        Treby.Memberships.create_membership(%{
+          user_id: _member.id,
+          tenant_id: tenant.id,
+          role: _member.role
+        })
 
       conn = login_user(conn, user)
       {:ok, view, _html} = live(conn, ~p"/app")
@@ -373,6 +387,13 @@ defmodule TrebyWeb.DashboardLiveTest do
           role: "member"
         })
         |> Repo.insert()
+
+      {:ok, _} =
+        Treby.Memberships.create_membership(%{
+          user_id: other_user.id,
+          tenant_id: tenant.id,
+          role: other_user.role
+        })
 
       {:ok, _app, event} = setup_interview_application(tenant, user.id, other_user.id)
 

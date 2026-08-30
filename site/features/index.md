@@ -54,3 +54,6 @@ Dynamic per-entity fields (candidate / application / job) configured in Settings
 
 ## [Dark Mode](/features/dark-mode)
 Full dark theme with a light/dark/system toggle in the navigation.
+
+## [Workspace Switching](/features/workspace-switching)
+One email, many companies — pick a workspace at login, switch via the header, and create new companies without a new account. Role is per workspace.

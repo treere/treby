@@ -65,7 +65,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         Treby.Interviews.InterviewEvent
         |> where([e], e.application_id in ^application_ids)
         |> order_by([e], desc: e.start_at_utc)
-        |> preload([:application, examiners: :user])
+        |> preload(application: :job, event_examiners: :user)
         |> Treby.Repo.all()
       else
         []
@@ -348,7 +348,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                         </span>
                         <span class="flex items-center gap-1">
                           <.icon name="hero-user" class="w-4 h-4" />
-                          {interview.examiners |> Enum.map(& &1.name) |> Enum.join(", ")}
+                          {interview.event_examiners |> Enum.map(& &1.user.name) |> Enum.join(", ")}
                         </span>
                       </div>
                     </div>
@@ -371,7 +371,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                           Mark as completed
                         </button>
                       <% end %>
-                      <%= if Enum.any?(interview.examiners, &(&1.id == @current_user.id)) do %>
+                      <%= if Enum.any?(interview.event_examiners, &(&1.user_id == @current_user.id)) do %>
                         <button
                           phx-click="open_scorecard"
                           phx-value-event_id={interview.id}

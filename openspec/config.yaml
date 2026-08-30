@@ -21,7 +21,7 @@ rules:
     - Specify multi-tenant isolation and authorization (role-based where applicable)
     - Define caching and error handling strategy (e.g. fail-closed for external providers, parallel aggregation)
   tasks:
-    - Order tasks as: migration -> context/schema -> LiveView/UI -> tests -> specs + docs
-    - Keep tasks atomic (<2h each) with a verifiable exit criterion (e.g. mix test <path>, mix precommit)
-    - Always include: update spec at openspec/specs/<capability>/spec.md with Purpose/Requirements and Scenario WHEN/THEN; sync site/features/*.md and sidebar in site/.vitepress/config.ts plus site/features/index.md if new feature; regenerate screenshots
-    - Last task must be: run mix precommit and openspec validate --strict and fix issues
+    - "Order tasks as: migration -> context/schema -> LiveView/UI -> tests -> specs + docs"
+    - "Keep tasks atomic (<2h each) with a verifiable exit criterion (e.g. mix test <path>, mix precommit)"
+    - "Always include: update spec at openspec/specs/<capability>/spec.md with Purpose/Requirements and Scenario WHEN/THEN; sync site/features/*.md and sidebar in site/.vitepress/config.ts plus site/features/index.md if new feature; regenerate screenshots"
+    - "Last task must be: run mix precommit and openspec validate --strict and fix issues"

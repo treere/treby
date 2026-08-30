@@ -283,13 +283,24 @@ defmodule TrebyWeb.PipelineLive.Index do
                         (pending_interview != nil and
                            pending_interview.scheduled_by_id == @current_user.id) %>
                     <%= if my_interview do %>
-                      <button
-                        phx-click="open_scorecard"
-                        phx-value-event_id={my_interview.id}
-                        class="text-xs text-blue-600 hover:text-blue-900 mt-1"
-                      >
-                        Scorecard
-                      </button>
+                      <% template = Treby.Scorecards.get_active_template(@current_tenant.id) %>
+                      <%= if template do %>
+                        <button
+                          phx-click="open_scorecard"
+                          phx-value-event_id={my_interview.id}
+                          class="text-xs text-blue-600 hover:text-blue-900 mt-1"
+                        >
+                          Scorecard
+                        </button>
+                      <% else %>
+                        <button
+                          disabled
+                          title="No template — Settings → Scorecards"
+                          class="text-xs text-base-content/30 cursor-not-allowed mt-1"
+                        >
+                          Scorecard
+                        </button>
+                      <% end %>
                     <% end %>
                     <%= if pending_interview && can_complete? do %>
                       <button
@@ -1020,30 +1031,39 @@ defmodule TrebyWeb.PipelineLive.Index do
   def handle_event("open_scorecard", %{"event_id" => event_id}, socket) do
     template = Treby.Scorecards.get_active_template(socket.assigns.current_tenant.id)
 
-    existing_scorecard =
-      Treby.Scorecards.get_scorecard_for_interview(event_id, socket.assigns.current_user.id)
+    if is_nil(template) do
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "No scorecard template configured — create one in Settings → Scorecards"
+       )}
+    else
+      existing_scorecard =
+        Treby.Scorecards.get_scorecard_for_interview(event_id, socket.assigns.current_user.id)
 
-    criteria = template.criteria || []
+      criteria = template.criteria || []
 
-    scores = (existing_scorecard && existing_scorecard.scores) || %{}
+      scores = (existing_scorecard && existing_scorecard.scores) || %{}
 
-    form_data = %{
-      "recommendation" => (existing_scorecard && existing_scorecard.recommendation) || "",
-      "notes" => (existing_scorecard && existing_scorecard.notes) || ""
-    }
+      form_data = %{
+        "recommendation" => (existing_scorecard && existing_scorecard.recommendation) || "",
+        "notes" => (existing_scorecard && existing_scorecard.notes) || ""
+      }
 
-    form_data =
-      Enum.reduce(criteria, form_data, fn c, acc ->
-        key = c["name"]
-        Map.put(acc, key, scores[key] || "")
-      end)
+      form_data =
+        Enum.reduce(criteria, form_data, fn c, acc ->
+          key = c["name"]
+          Map.put(acc, key, scores[key] || "")
+        end)
 
-    {:noreply,
-     socket
-     |> assign(show_scorecard_form: true, scorecard_event_id: event_id)
-     |> assign(scorecard_template: template)
-     |> assign(scorecard_criteria: criteria)
-     |> assign(scorecard_form: to_form(form_data))}
+      {:noreply,
+       socket
+       |> assign(show_scorecard_form: true, scorecard_event_id: event_id)
+       |> assign(scorecard_template: template)
+       |> assign(scorecard_criteria: criteria)
+       |> assign(scorecard_form: to_form(form_data))}
+    end
   end
 
   def handle_event("close_scorecard", _, socket) do
@@ -1104,7 +1124,7 @@ defmodule TrebyWeb.PipelineLive.Index do
       true ->
         # Find the next stage in the pipeline
         job = Jobs.get_job!(socket.assigns.current_tenant.id, application.job_id)
-        stages = Pipeline.list_pipeline_stages(job.pipeline_id)
+        stages = Pipeline.list_pipeline_stages_for_job(job.id)
         current_idx = Enum.find_index(stages, &(&1.id == stage.id))
 
         next_stage =

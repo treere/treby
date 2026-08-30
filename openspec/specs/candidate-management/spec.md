@@ -3,15 +3,20 @@
 ## Purpose
 
 Manage candidate profiles within a multi-tenant recruiting system.
-
 ## Requirements
-
 ### Requirement: Create candidate
 The system SHALL allow creating candidates with contact information. The system SHALL associate the candidate with the user's tenant. The system SHALL not return or list candidates that have been absorbed into another candidate by a merge.
 
 #### Scenario: Manual candidate creation
-- **WHEN** a user submits name, email, and optional phone/linkedin
-- **THEN** a new candidate is created for the tenant
+- **WHEN** a user submits name, email, and optional phone/linkedin without selecting a job
+- **THEN** a new candidate is created for the tenant with no application
+- **AND** the candidate appears in the candidates list
+
+#### Scenario: Manual candidate creation with job
+- **WHEN** a user submits name, email, and selects a job in the Add Candidate modal
+- **THEN** a new candidate is created (or reused via email dedup)
+- **AND** an application for that job is created in the first stage
+- **AND** the candidate appears in that job's pipeline
 
 #### Scenario: Duplicate email detection
 - **WHEN** a user tries to create a candidate with an existing email in the same tenant
@@ -31,7 +36,7 @@ The system SHALL display all candidates for the current tenant.
 - **THEN** all candidates for their tenant are displayed with name, email, and application count
 
 ### Requirement: View candidate profile
-The system SHALL display detailed candidate information, using the candidate's master anagrafica. The system SHALL redirect absorbed candidate profiles to their primary and SHALL show the master anagrafica on the profile.
+The system SHALL display detailed candidate information, using the candidate's master anagrafica. The system SHALL redirect absorbed candidate profiles to their primary and SHALL show the master anagrafica on the profile. The system SHALL load the candidate profile without crashing regardless of whether the candidate has interviews, and SHALL correctly preload interview examiners.
 
 #### Scenario: Candidate profile page
 - **WHEN** a user clicks on a candidate
@@ -42,6 +47,11 @@ The system SHALL display detailed candidate information, using the candidate's m
 - **THEN** the profile shows a "Scheduled Interviews" section
 - **AND** each interview shows date/time, interviewer name, status, and Google Meet link
 - **AND** cancelled interviews are shown with a strikethrough style
+
+#### Scenario: Profile with interviews does not crash
+- **WHEN** a user navigates to a candidate profile that has at least one scheduled interview with an examiner
+- **THEN** the page returns 200 without raising an Ecto association error
+- **AND** the "Scheduled Interviews" section lists the interview with the examiner name
 
 #### Scenario: Absorbed profile redirects
 - **WHEN** a user navigates to an absorbed candidate's profile URL
@@ -125,3 +135,4 @@ The system SHALL allow using the candidate profile's portal actions (send messag
 - **WHEN** a user sends a new portal message to a candidate with no applications
 - **THEN** the message is created without an application reference
 - **AND** no error is raised
+

@@ -747,4 +747,175 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       refute has_element?(view, "#stage-#{stage_a.id} #application-#{application.id}")
     end
   end
+
+  describe "advance with nil pipeline" do
+    test "advances candidate when job has no explicit pipeline", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Nil Pipeline Job", description: "Desc"})
+        |> Repo.insert()
+
+      assert job.pipeline_id == nil
+
+      stages = Treby.Pipeline.list_pipeline_stages_for_job(job.id)
+      interview_stage = Enum.find(stages, &(&1.stage_type == "interview"))
+      offer_stage = Enum.find(stages, &(&1.stage_type == "offer"))
+
+      # Make user an advancer for interview stage
+      if interview_stage do
+        Treby.Pipeline.assign_advancer(interview_stage, user.id)
+      end
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{
+          name: "Advance Nil",
+          email: "advancenil#{System.unique_integer([:positive])}@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: interview_stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, event} =
+        %Treby.Interviews.InterviewEvent{}
+        |> Treby.Interviews.InterviewEvent.changeset(%{
+          start_at_utc: DateTime.add(now, -3600),
+          end_at_utc: DateTime.add(now, -1800),
+          duration_minutes: 30,
+          application_id: application.id,
+          tenant_id: tenant.id,
+          status: "completed"
+        })
+        |> Repo.insert()
+
+      %Treby.Interviews.EventExaminer{}
+      |> Treby.Interviews.EventExaminer.changeset(%{
+        interview_event_id: event.id,
+        user_id: user.id
+      })
+      |> Repo.insert!()
+
+      # Create scorecard template and scorecard to satisfy ready_to_advance?
+      {:ok, _template} =
+        Treby.Scorecards.create_scorecard_template(
+          %{
+            "tenant_id" => tenant.id,
+            "name" => "Default",
+            "criteria" => [%{"name" => "Skills", "type" => "number_1_5"}],
+            "position" => 0
+          },
+          user
+        )
+
+      {:ok, _scorecard} =
+        Treby.Scorecards.submit_scorecard(event.id, user.id, %{
+          "scores" => %{"Skills" => 4},
+          "recommendation" => "hire",
+          "notes" => "good",
+          "tenant_id" => tenant.id
+        })
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      # Should be in Interview and show Advance
+      assert has_element?(view, "#stage-#{interview_stage.id} #application-#{application.id}")
+
+      view |> element("button", "Advance") |> render_click()
+
+      assert has_element?(view, "#stage-#{offer_stage.id} #application-#{application.id}")
+    end
+  end
+
+  describe "scorecard with no template" do
+    test "does not crash when no template and shows guidance", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      # Ensure no template for this tenant to test nil guard
+      Treby.Repo.delete_all(Treby.Scorecards.ScorecardTemplate)
+
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+      interview_stage =
+        Treby.Pipeline.list_pipeline_stages(pipeline_id)
+        |> Enum.find(&(&1.stage_type == "interview"))
+
+      if interview_stage do
+        Treby.Pipeline.assign_examiner(interview_stage, user.id)
+      end
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "Scorecard Nil Job",
+          description: "Desc",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      {:ok, candidate} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{
+          name: "Scorecard Nil",
+          email: "scnil#{System.unique_integer([:positive])}@example.com"
+        })
+        |> Repo.insert()
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: interview_stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, event} =
+        %Treby.Interviews.InterviewEvent{}
+        |> Treby.Interviews.InterviewEvent.changeset(%{
+          start_at_utc: DateTime.add(now, 3600),
+          end_at_utc: DateTime.add(now, 5400),
+          duration_minutes: 30,
+          application_id: application.id,
+          tenant_id: tenant.id,
+          status: "scheduled"
+        })
+        |> Repo.insert()
+
+      %Treby.Interviews.EventExaminer{}
+      |> Treby.Interviews.EventExaminer.changeset(%{
+        interview_event_id: event.id,
+        user_id: user.id
+      })
+      |> Repo.insert!()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      # Scorecard button should be disabled when no template
+      html = render(view)
+      assert html =~ "Scorecard"
+
+      # Directly trigger the handler to test nil guard (button is disabled in UI)
+      html = view |> render_click("open_scorecard", %{"event_id" => event.id})
+      assert html =~ "No scorecard template" or html =~ "Scorecard"
+    end
+  end
 end

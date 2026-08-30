@@ -3,9 +3,7 @@
 ## Purpose
 
 Manage job applications linking candidates to jobs through pipeline stages.
-
 ## Requirements
-
 ### Requirement: Create application
 The system SHALL create applications linking candidates to jobs. The system SHALL store an anagrafica snapshot on each application containing the contact data submitted at creation time.
 
@@ -16,9 +14,10 @@ The system SHALL create applications linking candidates to jobs. The system SHAL
 - **AND** the application stores an anagrafica snapshot of the submitted name, email, phone, and LinkedIn URL
 
 #### Scenario: Manual application creation
-- **WHEN** an authenticated user adds a candidate to a job
-- **THEN** an application is created in the "New" stage
+- **WHEN** an authenticated user adds a candidate to a job via the internal UI (Add Candidate modal with job selector, Candidate profile Add to Job, or Job/Pipeline picker)
+- **THEN** an application is created in the "New" stage for that job's effective pipeline
 - **AND** the application stores the candidate's current master data as its anagrafica snapshot
+- **AND** if the candidate already has an application for that job, the new one is flagged as duplicate
 
 #### Scenario: CSV import application creation
 - **WHEN** an application is created from a CSV import
@@ -63,3 +62,4 @@ The system SHALL display all applications for a specific job.
 #### Scenario: Job applications view
 - **WHEN** a user views a job's pipeline
 - **THEN** all applications for that job are shown with candidate name and current stage
+

@@ -294,11 +294,11 @@ defmodule TrebyWeb.JobsLive.Index do
 
           new_pipeline.id
 
-        Map.get(job_params, "pipeline_id") != "" ->
+        Map.get(job_params, "pipeline_id") not in [nil, ""] ->
           Map.get(job_params, "pipeline_id")
 
         true ->
-          nil
+          Pipeline.default_pipeline_id(socket.assigns.current_tenant.id)
       end
 
     attrs =

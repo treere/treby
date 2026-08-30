@@ -3,9 +3,7 @@
 ## Purpose
 
 Provide structured evaluation forms for interviews so teams make consistent, comparable hiring decisions instead of relying on free-text notes alone.
-
 ## Requirements
-
 ### Requirement: Define scorecard template
 The system SHALL allow admins to define scorecard templates with named criteria.
 
@@ -29,11 +27,17 @@ The system SHALL allow admins to define scorecard templates with named criteria.
 - **AND** existing filled scorecards are preserved
 
 ### Requirement: Fill out scorecard
-The system SHALL allow interviewers to fill out a scorecard after an interview. In multi-examiner events, each examiner fills out their own independent scorecard.
+The system SHALL allow interviewers to fill out a scorecard after an interview. In multi-examiner events, each examiner fills out their own independent scorecard. When no active scorecard template exists for the tenant, the system SHALL not crash and SHALL guide the user to create one.
 
 #### Scenario: Access scorecard form
 - **WHEN** an interviewer navigates to a scheduled interview's scorecard
 - **THEN** a form is displayed with all criteria from the scorecard template associated with the pipeline stage
+
+#### Scenario: Access scorecard with no template does not crash
+- **WHEN** an interviewer clicks "Scorecard" for an interview and no active scorecard template exists for the tenant
+- **THEN** the system does not raise an error
+- **AND** the system shows a message explaining that no scorecard template is configured and directs the user to Settings → Scorecards
+- **AND** the Scorecard button on the board is disabled with a tooltip indicating no template is configured
 
 #### Scenario: Submit scorecard (multi-examiner)
 - **WHEN** an examiner fills in all required criteria and submits
@@ -94,3 +98,4 @@ The system SHALL track scorecard completion status for each examiner in a multi-
 - **WHEN** all examiners for a multi-examiner event have submitted their scorecards
 - **THEN** the event is marked as fully scored
 - **AND** the advancement to the next stage becomes available (subject to advancer approval)
+

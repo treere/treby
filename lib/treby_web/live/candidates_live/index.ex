@@ -131,6 +131,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
             <.input field={@form[:email]} type="email" label="Email" />
             <.input field={@form[:phone]} type="text" label="Phone" />
             <.input field={@form[:linkedin_url]} type="text" label="LinkedIn URL" />
+            <.input
+              field={@form[:job_id]}
+              type="select"
+              label="Job (optional)"
+              options={Enum.map(@jobs, &{&1.title, &1.id})}
+              prompt="No job — just create profile"
+            />
 
             <div :if={@candidate_fields != []} class="mt-4 border-t pt-4">
               <h3 class="text-sm font-medium text-base-content/80 mb-3">Additional Information</h3>
@@ -559,6 +566,8 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("create_candidate", params, socket) do
     candidate_params = Map.get(params, "candidate", %{})
+    job_id = Map.get(candidate_params, "job_id")
+    candidate_params = Map.delete(candidate_params, "job_id")
     custom_fields_values = Map.get(params, "custom_fields", %{})
 
     attrs =
@@ -586,14 +595,54 @@ defmodule TrebyWeb.CandidatesLive.Index do
       result = Candidates.create_or_find(socket.assigns.current_tenant.id, attrs)
 
       case result do
-        {:ok, _candidate} ->
-          candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
+        {:ok, candidate} ->
+          if job_id not in [nil, ""] do
+            job = Jobs.get_job(socket.assigns.current_tenant.id, job_id)
+
+            if job do
+              stage = Pipeline.list_pipeline_stages_for_job(job.id) |> List.first()
+
+              if stage do
+                Pipeline.create_application(%{
+                  tenant_id: socket.assigns.current_tenant.id,
+                  job_id: job.id,
+                  candidate_id: candidate.id,
+                  pipeline_stage_id: stage.id,
+                  applied_at: DateTime.utc_now(),
+                  source: "manual"
+                })
+
+                Phoenix.PubSub.broadcast(
+                  Treby.PubSub,
+                  "pipeline:#{job.id}",
+                  {:pipeline_updated, job.id}
+                )
+              end
+            end
+          end
+
+          candidates =
+            Candidates.list_candidates(socket.assigns.current_tenant.id)
+            |> Enum.map(fn c ->
+              apps =
+                Pipeline.list_applications_for_candidate(socket.assigns.current_tenant.id, c.id)
+
+              Map.put(c, :application_count, length(apps))
+            end)
+
+          flash_msg =
+            if job_id not in [nil, ""] do
+              job = Jobs.get_job(socket.assigns.current_tenant.id, job_id)
+              if job, do: "Candidate added to #{job.title}", else: "Candidate added"
+            else
+              "Candidate added"
+            end
 
           {:noreply,
            socket
            |> assign(candidates: candidates, show_form: false)
            |> assign(form: to_form(Candidates.change_candidate(%Candidate{})))
-           |> put_flash(:info, "Candidate added")}
+           |> put_flash(:info, flash_msg)}
 
         {:error, changeset} ->
           {:noreply,

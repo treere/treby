@@ -40,6 +40,17 @@ defmodule Treby.Tenants do
 
         # Create default pipeline stages for the new tenant
         Treby.Pipeline.create_default_pipeline_stages(tenant)
+
+        # Create default scorecard template for the new tenant
+        if is_nil(Treby.Scorecards.get_active_template(tenant.id)) do
+          Treby.Scorecards.create_scorecard_template(%{
+            "tenant_id" => tenant.id,
+            "name" => "Default",
+            "criteria" => [%{"name" => "Overall", "type" => "number_1_5"}],
+            "position" => 0
+          })
+        end
+
         {:ok, tenant}
 
       error ->

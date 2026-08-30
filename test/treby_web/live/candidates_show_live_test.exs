@@ -193,4 +193,67 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       assert html =~ ~p"/app/candidates"
     end
   end
+
+  describe "scheduled interviews on profile" do
+    test "renders candidate profile with interviews and examiner names without crashing", %{
+      conn: conn
+    } do
+      {tenant, user} = setup_tenant()
+      candidate = create_candidate(tenant, "Interview Candidate")
+
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Treby.Jobs.Job.changeset(%{
+          title: "Interview Job",
+          description: "Desc",
+          pipeline_id: pipeline_id
+        })
+        |> Treby.Repo.insert()
+
+      stage =
+        Treby.Pipeline.list_pipeline_stages(pipeline_id)
+        |> Enum.find(&(&1.stage_type == "interview")) ||
+          List.first(Treby.Pipeline.list_pipeline_stages(pipeline_id))
+
+      {:ok, application} =
+        Treby.Pipeline.create_application(%{
+          tenant_id: tenant.id,
+          job_id: job.id,
+          candidate_id: candidate.id,
+          pipeline_stage_id: stage.id,
+          applied_at: DateTime.utc_now()
+        })
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      {:ok, event} =
+        %Treby.Interviews.InterviewEvent{}
+        |> Treby.Interviews.InterviewEvent.changeset(%{
+          start_at_utc: DateTime.add(now, 3600),
+          end_at_utc: DateTime.add(now, 5400),
+          duration_minutes: 30,
+          application_id: application.id,
+          tenant_id: tenant.id,
+          status: "scheduled"
+        })
+        |> Treby.Repo.insert()
+
+      %Treby.Interviews.EventExaminer{}
+      |> Treby.Interviews.EventExaminer.changeset(%{
+        interview_event_id: event.id,
+        user_id: user.id
+      })
+      |> Treby.Repo.insert!()
+
+      conn = login_user(conn, user)
+      {:ok, view, html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+
+      assert html =~ "Scheduled Interviews"
+      assert html =~ user.name
+      assert has_element?(view, "h1", candidate.name)
+    end
+  end
 end

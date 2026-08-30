@@ -3,9 +3,7 @@
 ## Purpose
 
 Provide a Kanban-style pipeline board for managing candidates through hiring stages with real-time collaboration.
-
 ## Requirements
-
 ### Requirement: Kanban board view
 The system SHALL display a Kanban board for each job showing candidates in pipeline stages from the job's assigned pipeline.
 
@@ -181,11 +179,16 @@ The system SHALL allow marking multiple selected applications as reviewed or unr
 - **THEN** all selected applications have `reviewed` set to `false`
 
 ### Requirement: Advance or reject candidate from stage
-The system SHALL allow assigned advancers to manually advance or reject candidates from a stage. Rejection SHALL target the stage with `stage_type = "rejected"` in the job's effective pipeline, resolved even when the job has no explicit pipeline.
+The system SHALL allow assigned advancers to manually advance or reject candidates from a stage. Rejection SHALL target the stage with `stage_type = "rejected"` in the job's effective pipeline, resolved even when the job has no explicit pipeline. Advancement SHALL resolve the job's effective pipeline (explicit or default) so that jobs without an explicit pipeline do not crash.
 
 #### Scenario: Advance candidate
 - **WHEN** an advancer clicks "Advance" on a candidate in their stage
 - **THEN** the candidate moves to the next stage in the pipeline
+
+#### Scenario: Advance candidate in default-pipeline job
+- **WHEN** an advancer clicks "Advance" on a candidate in a job that has no explicit pipeline
+- **THEN** the system resolves the tenant's default pipeline stages
+- **AND** the candidate moves to the next stage in that pipeline
 
 #### Scenario: Reject candidate with motivation
 - **WHEN** an advancer clicks "Reject" on a candidate in their stage
@@ -216,3 +219,4 @@ The system SHALL keep the per-job Kanban board accessible from the job detail pa
 #### Scenario: Secondary entry styling
 - **WHEN** a user views a job detail page
 - **THEN** the Kanban entry is styled as a secondary action, distinct from primary page actions
+

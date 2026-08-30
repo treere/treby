@@ -50,6 +50,7 @@ export default defineConfig({
           { text: "Interview Scheduling", link: "/features/interview-scheduling" },
           { text: "Scorecards", link: "/features/scorecards" },
           { text: "Analytics", link: "/features/analytics" },
+          { text: "Job Analytics", link: "/features/job-analytics" },
           { text: "Email Notifications", link: "/features/email-notifications" },
           { text: "Message Scheduler", link: "/features/message-scheduler" },
           { text: "CSV Import", link: "/features/csv-import" },

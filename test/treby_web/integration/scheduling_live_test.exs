@@ -31,10 +31,13 @@ defmodule TrebyWeb.SchedulingLiveTest do
       })
 
     # Give the user availability and assign them to the interview stage
+    dow = Date.day_of_week(Date.utc_today())
+    dow = if dow == 7, do: 0, else: dow
+
     Treby.Availability.create_rule(%{
       user_id: user.id,
       tenant_id: tenant.id,
-      day_of_week: Date.day_of_week(Date.utc_today()),
+      day_of_week: dow,
       start_time: ~T[09:00:00],
       end_time: ~T[17:00:00],
       timezone: "UTC",

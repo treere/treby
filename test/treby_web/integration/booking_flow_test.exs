@@ -46,11 +46,14 @@ defmodule TrebyWeb.BookingFlowTest do
       })
       |> Repo.insert()
 
+    day_of_week = Date.day_of_week(Date.utc_today())
+    day_of_week = if day_of_week == 7, do: 0, else: day_of_week
+
     {:ok, _} =
       AvailabilityRule.changeset(%AvailabilityRule{}, %{
         user_id: examiner.id,
         tenant_id: tenant.id,
-        day_of_week: Date.day_of_week(Date.utc_today()),
+        day_of_week: day_of_week,
         start_time: ~T[09:00:00],
         end_time: ~T[17:00:00],
         timezone: "UTC",

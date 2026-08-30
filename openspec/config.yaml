@@ -1,6 +1,7 @@
 schema: spec-driven
 
 context: |
+  Language: All openspec artifacts (proposal, design, specs, tasks) MUST be written in English. User requests may be in Italian, but always generate artifacts, code comments, and commit messages in English.
   Project: Treby — Multi-tenant Applicant Tracking System (ATS), self-hostable.
   Stack: Elixir 1.20 / Erlang 29, Phoenix 1.8 + LiveView 1.1 (Bandit), Ecto + PostgreSQL 14, Tailwind CSS 4 + esbuild, Swoosh (email), ExAWS + S3 (RustFS locally), Req for HTTP (do not use httpoison/tesla/httpc), Sortable.js for drag-and-drop, VitePress for docs site (site/).
   Multi-tenancy: every table scoped by tenant_id; slug-based public career pages (e.g. /acme/careers); all queries must enforce tenant isolation.
@@ -11,6 +12,7 @@ context: |
 
 rules:
   proposal:
+    - All openspec artifacts (proposal, design, specs, tasks) MUST be written in English
     - Always include Why / What Changes / Capabilities (New vs Modified, kebab-case matching openspec/specs/) / Impact (deps, migrations, modules under lib/treby/)
     - For schema-breaking changes, document the migration (via mix ecto.gen.migration) and column renames
     - Keep proposals concise and task-oriented; avoid architecture digressions that belong in design.md

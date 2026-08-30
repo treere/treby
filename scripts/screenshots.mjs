@@ -89,6 +89,7 @@ const screenshotDefs = [
   { name: "09-candidate-detail", url: () => `${BASE_URL}/app/candidates/${seedIds.firstCandidate}`, auth: true },
   { name: "24-merge-center", url: () => `${BASE_URL}/app/candidates/merge`, auth: true },
   { name: "10-analytics", url: () => `${BASE_URL}/app/analytics`, auth: true },
+  { name: "12-job-analytics", url: () => `${BASE_URL}/app/jobs/${seedIds.firstJob}/analytics`, auth: true },
   { name: "11-settings", url: () => `${BASE_URL}/app/settings`, auth: true },
   { name: "12-settings-pipeline", url: () => `${BASE_URL}/app/settings/pipeline`, auth: true },
   { name: "13-settings-team", url: () => `${BASE_URL}/app/settings/team`, auth: true },

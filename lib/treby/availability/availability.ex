@@ -11,6 +11,10 @@ defmodule Treby.Availability do
 
   @slot_duration_minutes 30
 
+  defp normalize_dow(7), do: 0
+  defp normalize_dow(dow) when dow in 0..6, do: dow
+  defp normalize_dow(dow) when dow in 1..6, do: dow
+
   def list_rules_for_user(user_id) do
     AvailabilityRule
     |> where([r], r.user_id == ^user_id)
@@ -72,7 +76,7 @@ defmodule Treby.Availability do
         timezone \\ "UTC"
       ) do
     dates = Date.range(date_range.from, date_range.to)
-    days = Enum.map(dates, &Date.day_of_week/1)
+    days = Enum.map(dates, &(Date.day_of_week(&1) |> normalize_dow()))
 
     rules = list_rules_for_user_on_days(user_id, days)
 
@@ -82,7 +86,7 @@ defmodule Treby.Availability do
       {:ok, busy_periods} ->
         dates
         |> Enum.flat_map(fn date ->
-          day_of_week = Date.day_of_week(date)
+          day_of_week = Date.day_of_week(date) |> normalize_dow()
 
           case Map.get(rules_by_day, day_of_week) do
             nil ->
@@ -198,7 +202,7 @@ defmodule Treby.Availability do
 
   defp do_compute_overlapping_slots(examiner_ids, min_examiners, date_range, duration_minutes) do
     dates = Date.range(date_range.from, date_range.to)
-    days = Enum.map(dates, &Date.day_of_week/1)
+    days = Enum.map(dates, &(Date.day_of_week(&1) |> normalize_dow()))
 
     # Get rules for all examiners, keyed by {user_id, day_of_week}
     rules_map =
@@ -214,7 +218,7 @@ defmodule Treby.Availability do
       # For each date, compute overlapping slots
       dates
       |> Enum.flat_map(fn date ->
-        day_of_week = Date.day_of_week(date)
+        day_of_week = Date.day_of_week(date) |> normalize_dow()
 
         # Get rules for this day for each examiner
         rules_for_day =

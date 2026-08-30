@@ -79,6 +79,11 @@ config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+# Job view deduplication window (minutes)
+config :treby,
+       :job_view_dedup_minutes,
+       String.to_integer(Treby.ConfigHelpers.env("JOB_VIEW_DEDUP_MINUTES", "60"))
+
 # Configure timezone database for availability calculations
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 

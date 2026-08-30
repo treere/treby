@@ -28,6 +28,9 @@ Structured evaluation templates with criteria, per-examiner submission, and adva
 ## [Analytics Dashboard](/features/analytics)
 Hiring metrics, conversion rates, time-in-stage, and source breakdown — with a per-pipeline selector.
 
+## [Job Analytics](/features/job-analytics)
+Per-position view tracking — total and unique views, daily (7/30/90d) and monthly (12m) trends, traffic source breakdown, and view→application funnel — reachable from each job’s detail via **Analytics**.
+
 ## [Email Notifications](/features/email-notifications)
 Email is used for login codes (OTP) and short notification pings only — all communication content lives in the candidate portal, with message templates per stage.
 

@@ -1,5 +1,9 @@
 import Config
 
+config :treby,
+       :job_view_dedup_minutes,
+       String.to_integer(Treby.ConfigHelpers.env("JOB_VIEW_DEDUP_MINUTES", "60"))
+
 # Cloak encryption key (only override if env var is set)
 if Treby.ConfigHelpers.env("CLOAK_KEY") do
   config :treby,

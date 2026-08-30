@@ -1,7 +1,7 @@
 defmodule TrebyWeb.JobsLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline}
+  alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline, JobViews}
   alias Treby.Jobs.Job
   alias Treby.Repo
 
@@ -15,12 +15,14 @@ defmodule TrebyWeb.JobsLive.Index do
     templates = Pipeline.list_templates(tenant.id)
     default_pipeline_id = Pipeline.default_pipeline_id(tenant.id)
     candidate_counts = application_counts_by_job(tenant.id)
+    view_summaries = JobViews.summaries_for_tenant(tenant.id)
 
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(jobs: jobs)
      |> assign(candidate_counts: candidate_counts)
+     |> assign(view_summaries: view_summaries)
      |> assign(job_fields: job_fields)
      |> assign(pipelines: pipelines)
      |> assign(templates: templates)
@@ -154,6 +156,9 @@ defmodule TrebyWeb.JobsLive.Index do
                   Public
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                  Views
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
                   Candidates
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
@@ -192,6 +197,18 @@ defmodule TrebyWeb.JobsLive.Index do
                     />
                     {if job.visible, do: "Public", else: "Private"}
                   </button>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/70">
+                  <% summary =
+                    Map.get(@view_summaries, job.id, %{total_views: 0, views_last_7_days: 0}) %>
+                  <%= if summary.total_views > 0 do %>
+                    <span class="inline-flex items-center gap-1 text-xs">
+                      <.icon name="hero-eye" class="w-3 h-3 text-base-content/50" />
+                      {summary.total_views} · {summary.views_last_7_days} last 7d
+                    </span>
+                  <% else %>
+                    <span class="text-xs text-base-content/40">No views yet</span>
+                  <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/70">
                   {Map.get(@candidate_counts, job.id, 0)}
@@ -309,10 +326,11 @@ defmodule TrebyWeb.JobsLive.Index do
       case Jobs.create_job(attrs) do
         {:ok, _job} ->
           jobs = Jobs.list_jobs(socket.assigns.current_tenant.id)
+          view_summaries = JobViews.summaries_for_tenant(socket.assigns.current_tenant.id)
 
           {:noreply,
            socket
-           |> assign(jobs: jobs, show_form: false)
+           |> assign(jobs: jobs, view_summaries: view_summaries, show_form: false)
            |> assign(form: to_form(Jobs.change_job(%Job{})))
            |> put_flash(:info, "Job created successfully")}
 

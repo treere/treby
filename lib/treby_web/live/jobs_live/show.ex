@@ -1,7 +1,7 @@
 defmodule TrebyWeb.JobsLive.Show do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline, CandidatePortal}
+  alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline, CandidatePortal, JobViews}
   alias Treby.Notifications.Email, as: NotificationEmail
 
   def mount(%{"id" => id}, session, socket) do
@@ -38,6 +38,7 @@ defmodule TrebyWeb.JobsLive.Show do
          |> assign(candidate_search: "")
          |> assign(rejecting_application: nil)
          |> assign(rejection_reason: "")
+         |> assign(job_view_summary: load_job_view_summary(tenant.id, job.id))
          |> refresh_workspace()
          |> assign(form: to_form(Jobs.change_job(job)))
          |> assign(stage_form: to_form(new_stage_changeset(pipeline_id_for(job))))}
@@ -65,8 +66,24 @@ defmodule TrebyWeb.JobsLive.Show do
               <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back to Jobs")}
             </.link>
             <h1 class="text-2xl font-bold mt-2">{@job.title}</h1>
+            <div id="job-view-summary" class="mt-2 flex items-center gap-2 text-sm">
+              <%= if @job_view_summary.total_views > 0 do %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs font-medium">
+                  <.icon name="hero-eye" class="w-3 h-3" /> {@job_view_summary.total_views} views · {@job_view_summary.views_last_7_days} last 7d
+                </span>
+              <% else %>
+                <span class="text-xs text-base-content/50">No views yet</span>
+              <% end %>
+            </div>
           </div>
           <div class="flex gap-2">
+            <.link
+              id="job-analytics-link"
+              navigate={~p"/app/jobs/#{@job.id}/analytics"}
+              class="bg-base-300 text-base-content px-4 py-2 rounded-lg hover:bg-base-300 inline-flex items-center gap-1"
+            >
+              <.icon name="hero-chart-bar" class="w-4 h-4" /> Analytics
+            </.link>
             <button
               id="copy-public-link"
               phx-hook=".CopyToClipboard"
@@ -1462,5 +1479,22 @@ defmodule TrebyWeb.JobsLive.Show do
     advancers = Pipeline.list_advancers(stage)
 
     %{stage | examiners: examiners, reviewers: reviewers, advancers: advancers}
+  end
+
+  defp load_job_view_summary(tenant_id, job_id) do
+    case JobViews.get_summary(tenant_id, job_id) do
+      {:ok, summary} ->
+        summary
+
+      {:error, :not_found} ->
+        %{
+          total_views: 0,
+          unique_views: 0,
+          views_last_7_days: 0,
+          views_last_30_days: 0,
+          views_last_90_days: 0,
+          avg_daily_views: 0.0
+        }
+    end
   end
 end

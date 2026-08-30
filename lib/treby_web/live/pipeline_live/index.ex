@@ -192,9 +192,20 @@ defmodule TrebyWeb.PipelineLive.Index do
 
             <div
               id={"stage-cards-#{stage.id}"}
-              class="space-y-3 min-h-[100px]"
+              class={[
+                "space-y-3 min-h-[100px]",
+                (@current_user.role != "admin" and
+                   not Pipeline.user_is_advancer?(stage, @current_user.id)) &&
+                  "opacity-60"
+              ]}
               phx-hook="Sortable"
               data-stage-id={stage.id}
+              title={
+                if @current_user.role != "admin" and
+                     not Pipeline.user_is_advancer?(stage, @current_user.id),
+                   do: "Only stage advancers can move",
+                   else: nil
+              }
             >
               <div
                 :for={application <- applications}
@@ -205,9 +216,21 @@ defmodule TrebyWeb.PipelineLive.Index do
                 }
                 id={"application-#{application.id}"}
                 class={[
-                  "bg-base-100 rounded-lg p-4 shadow-sm cursor-move hover:shadow-md transition-shadow relative",
+                  "bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow relative",
+                  if(
+                    @current_user.role == "admin" or
+                      Pipeline.user_is_advancer?(stage, @current_user.id),
+                    do: "cursor-move",
+                    else: "cursor-not-allowed opacity-80"
+                  ),
                   application.id in @selected_ids && "ring-2 ring-blue-500"
                 ]}
+                title={
+                  if @current_user.role != "admin" and
+                       not Pipeline.user_is_advancer?(stage, @current_user.id),
+                     do: "Only stage advancers can move",
+                     else: nil
+                }
                 data-application-id={application.id}
               >
                 <div class="absolute top-2 right-2">

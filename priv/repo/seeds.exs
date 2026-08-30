@@ -11,6 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 
 alias Treby.Repo
+import Ecto.Query, only: [from: 2]
 
 # Create demo tenant
 tenant =
@@ -190,7 +191,7 @@ end)
 
 IO.puts("Created career page for #{tenant.name}")
 
-# Create sample scheduled emails for the email queue
+# Create sample scheduled messages for the message queue (portal)
 later_1 = DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:second)
 later_2 = DateTime.utc_now() |> DateTime.add(7200, :second) |> DateTime.truncate(:second)
 later_3 = DateTime.utc_now() |> DateTime.add(10800, :second) |> DateTime.truncate(:second)
@@ -198,45 +199,64 @@ later_3 = DateTime.utc_now() |> DateTime.add(10800, :second) |> DateTime.truncat
 Enum.each(
   [
     %{
-      to_address: "alice@example.com",
-      subject: "Interview invitation",
+      email: "alice@example.com",
       body: "Hi Alice, we'd love to invite you to an interview.",
-      email_type: "compose",
-      scheduled_at: later_1,
-      jitter_minutes: 5
+      send_at: later_1
     },
     %{
-      to_address: "bob@example.com",
-      subject: "Follow-up on your application",
+      email: "bob@example.com",
       body: "Hi Bob, just following up on your application status.",
-      email_type: "reply",
-      scheduled_at: later_2,
-      jitter_minutes: 10
+      send_at: later_2
     },
     %{
-      to_address: "carol@example.com",
-      subject: "Upcoming stage: Phone Screen",
+      email: "carol@example.com",
       body: "Hi Carol, your application is moving forward.",
-      email_type: "bulk",
-      scheduled_at: later_3,
-      jitter_minutes: 15
+      send_at: later_3
     }
   ],
-  fn email_attrs ->
-    {:ok, scheduled_email} =
-      Treby.EmailQueue.create_scheduled_email(%{
+  fn %{email: email, body: body, send_at: send_at} ->
+    candidate = Repo.get_by!(Treby.Candidates.Candidate, tenant_id: tenant.id, email: email)
+
+    application =
+      Repo.one(
+        from a in Treby.Pipeline.Application,
+          where: a.candidate_id == ^candidate.id and a.tenant_id == ^tenant.id,
+          order_by: [asc: a.inserted_at],
+          limit: 1
+      )
+
+    conversation =
+      case Treby.CandidatePortal.list_conversations_for_application(application.id, tenant.id)
+           |> Enum.find(&(&1.context == "application")) do
+        nil ->
+          {:ok, conv} =
+            Treby.CandidatePortal.create_conversation(%{
+              candidate_id: candidate.id,
+              tenant_id: tenant.id,
+              application_id: application.id,
+              subject: String.slice(body, 0, 80),
+              context: "application"
+            })
+
+          conv
+
+        conv ->
+          conv
+      end
+
+    {:ok, scheduled_message} =
+      Treby.ScheduledMessages.create_scheduled_message(%{
         tenant_id: tenant.id,
-        created_by_id: admin.id,
-        from_address: "noreply@acme.com",
-        to_address: email_attrs.to_address,
-        subject: email_attrs.subject,
-        body: email_attrs.body,
-        email_type: email_attrs.email_type,
-        scheduled_at: email_attrs.scheduled_at,
-        jitter_minutes: email_attrs.jitter_minutes
+        sender_type: "recruiter",
+        sender_id: admin.id,
+        conversation_id: conversation.id,
+        body: body,
+        message_type: "text",
+        send_at: send_at,
+        created_by_id: admin.id
       })
 
-    IO.puts("Scheduled email: #{scheduled_email.subject}")
+    IO.puts("Scheduled message: #{scheduled_message.body}")
   end
 )
 

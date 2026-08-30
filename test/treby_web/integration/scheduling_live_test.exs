@@ -45,8 +45,14 @@ defmodule TrebyWeb.SchedulingLiveTest do
       buffer_after: 0
     })
 
+    pipeline_id = Pipeline.default_pipeline_id(tenant.id)
+
     interview_stage =
-      Repo.one!(from s in Pipeline.PipelineStage, where: s.stage_type == "interview", limit: 1)
+      Repo.one!(
+        from s in Pipeline.PipelineStage,
+          where: s.pipeline_id == ^pipeline_id and s.stage_type == "interview",
+          limit: 1
+      )
 
     Pipeline.assign_examiner(interview_stage, user.id)
 

@@ -53,6 +53,19 @@ config :treby,
   google_client_id: "test-client-id",
   google_client_secret: "test-client-secret"
 
+# Dummy S3 credentials for presigned URL generation (no real S3 needed)
+config :ex_aws,
+  access_key_id: "test",
+  secret_access_key: "test"
+
+config :ex_aws, :s3,
+  region: "us-east-1",
+  scheme: "http://",
+  host: "localhost",
+  port: 9000,
+  access_key_id: "test",
+  secret_access_key: "test"
+
 # Route every Req request in tests through a Req.Test stub, never the real network
 config :req,
   default_options: [plug: {Req.Test, Treby.GoogleApiMock}]

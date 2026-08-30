@@ -62,8 +62,14 @@ defmodule TrebyWeb.BookingFlowTest do
       })
       |> Repo.insert()
 
+    pipeline_id = Pipeline.default_pipeline_id(tenant.id)
+
     interview_stage =
-      Repo.one!(from s in PipelineStage, where: s.stage_type == "interview", limit: 1)
+      Repo.one!(
+        from s in PipelineStage,
+          where: s.pipeline_id == ^pipeline_id and s.stage_type == "interview",
+          limit: 1
+      )
 
     Pipeline.assign_examiner(interview_stage, examiner.id)
 
@@ -102,7 +108,13 @@ defmodule TrebyWeb.BookingFlowTest do
       })
       |> Repo.insert()
 
-    first_stage = Repo.one!(from s in PipelineStage, order_by: [asc: s.position], limit: 1)
+    first_stage =
+      Repo.one!(
+        from s in PipelineStage,
+          where: s.pipeline_id == ^pipeline_id,
+          order_by: [asc: s.position],
+          limit: 1
+      )
 
     {:ok, application} =
       tenant

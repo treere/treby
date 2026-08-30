@@ -1,34 +1,30 @@
-# CSV Import
+# Importazione CSV
 
-Migrate candidates from spreadsheets in three steps: upload, map, import.
+Migra candidati da un foglio di calcolo in tre passi: carica, mappa, importa.
 
-## Flow
+## Procedura
 
-Implemented in `lib/treby/csv_import/csv_import.ex` (powered by `NimbleCSV`) and `lib/treby_web/live/import_live/index.ex` (`/app/import`).
+Trovi la funzione in **Importa** dal menu principale.
 
-1. **Upload** — drag a `.csv` (max 10 MB, `text/csv`) via `allow_upload :csv`. Parsed by `CsvImport.parse_csv/1` into `{headers, rows}`.
-2. **Map** — auto-detected mapping via `CsvImport.auto_detect_mapping/1`:
+1. **Carica** — trascina un file `.csv` (max 10 MB). Il sistema legge intestazioni e righe.
+2. **Mappa** — Treby riconosce automaticamente le colonne più comuni:
 
-   | CSV header | Maps to |
+   | Intestazione nel CSV | Campo in Treby |
    |---|---|
-   | `name` / `full_name` / `candidate_name` | `name` |
-   | `email` / `e-mail` / `email_address` | `email` |
-   | `phone` / `mobile` / `phone_number` | `phone` |
-   | `linkedin` / `linkedin_url` | `linkedin_url` |
+   | `name` / `full_name` / `candidate_name` | Nome |
+   | `email` / `e-mail` / `email_address` | Email |
+   | `phone` / `mobile` / `phone_number` | Telefono |
+   | `linkedin` / `linkedin_url` | Profilo LinkedIn |
 
-   You can correct the mapping manually, choose a **job** + **stage** and an optional **source** for the import.
-3. **Import** — `CsvImport.import_rows/4` creates/finds `Candidate` records (deduplicating by email within the tenant), creates an `Application` per row in the selected stage with `source` set, and writes an `ImportLog` (`lib/treby/csv_import/import_log.ex`) with counts and per-row errors.
+   Puoi correggere la mappatura, scegliere la **posizione** e la **fase** di destinazione e indicare una **sorgente** opzionale.
+3. **Importa** — il sistema crea o riusa i profili (cercando per email all'interno della tua azienda), crea una candidatura per ogni riga nella fase scelta e mostra un riepilogo con conteggi ed eventuali errori per riga.
 
-The UI is a 4-step wizard (Upload → Map → Preview → Result) with validation and error reporting.
+L'interfaccia è una procedura guidata in 4 passi (Carica → Mappa → Anteprima → Risultato) con validazione e segnalazione errori.
 
-## Deduplication
+## Duplicati
 
-Candidates are matched by normalized email (`lib/treby/candidates/duplicates.ex`). Existing candidates are reused rather than duplicated; the application is still created (flagged `is_duplicate` if the same candidate already has an application for that job).
+Se un'email esiste già, il profilo esistente viene riutilizzato invece di crearne uno nuovo; la candidatura viene comunque creata e contrassegnata come duplicata se lo stesso candidato aveva già una candidatura per quella posizione.
 
-## Sources
+## Sorgenti
 
-If a source is selected during import, all created applications carry that `source` value, feeding the **Source Breakdown** in Analytics and the per-application source tag.
-
-## Route
-
-`/app/import` — authenticated (`:require_auth`), no extra role gate, but typically used by admins/members managing hiring.
+Se indichi una sorgente durante l'importazione, tutte le candidature create porteranno quel valore, che poi ritrovi nel breakdown per sorgente in **Analytics** e come etichetta sulla candidatura.

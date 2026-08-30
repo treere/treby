@@ -1,22 +1,22 @@
-# Custom Fields
+# Campi personalizzati
 
-Add tenant-specific fields to candidates, applications, or jobs — without code changes.
+Aggiungi campi specifici della tua azienda a candidati, candidature o posizioni — senza modifiche al codice.
 
-## Configuration
+## Configurazione
 
-Admins manage fields in **Settings → Fields** (`lib/treby_web/live/settings_live/fields.ex`, `lib/treby/customization/custom_field.ex`):
+Gli admin gestiscono i campi in **Impostazioni → Campi**:
 
-- Each `CustomField` belongs to a tenant and has an `entity_type` (`candidate`, `application`, `job`), a `key`, `label`, and `field_type` (e.g. text, select)
-- `Treby.Customization.list_fields/2` scopes by tenant + entity type; `Customization.create_field/2` enforces admin role
+- Ogni campo ha un tipo di entità (`candidato`, `candidatura`, `posizione`), un nome visualizzato e un tipo (testo, selezione, ecc.)
+- Puoi creare, modificare o rimuovere campi in qualsiasi momento
 
-## Where they appear
+## Dove compaiono
 
-- **Candidate** fields — on add-candidate and candidate detail
-- **Application** fields — on the public apply form (`/:tenant_slug/careers/:job_id/apply`) and inside the candidate/job workspace
-- **Job** fields — on job creation/edit, stored as `Job.custom_fields` (map)
+- **Campi candidato** — nel modulo di aggiunta candidato e nel profilo
+- **Campi candidatura** — nel modulo di candidatura pubblica e nelle viste interne del candidato/posizione
+- **Campi posizione** — nella creazione e modifica della posizione
 
-Field values are stored as JSON maps on the owning record (e.g. `candidate.custom_fields`) and validated against the defined `CustomField` definitions.
+I valori sono salvati insieme alla scheda e validati secondo la definizione del campo.
 
-## i18n
+## Lingue
 
-Field labels are regular strings; the surrounding UI is translated via Gettext (EN, IT) in `priv/gettext`.
+Le etichette dei campi sono testi liberi; l'interfaccia attorno è tradotta in inglese e italiano.

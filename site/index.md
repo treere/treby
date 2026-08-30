@@ -15,14 +15,14 @@ Manage job postings, track candidates through customizable hiring pipelines, rev
 
 ## Why Treby?
 
-- **Multi-tenant** — each company gets isolated data (scoped `tenant_id`)
-- **Customizable pipelines** — multiple pipelines per tenant, drag-and-drop Kanban, stage types & colors
-- **Real-time collaboration** — pipeline moves broadcast via Phoenix PubSub
-- **Public career pages** — publish branded career pages per tenant
-- **Candidate portal** — OTP login, self-scheduling, threaded conversations, notification prefs
-- **Self-scheduling** — internal weekly availability + optional Google Calendar sync, Jitsi/Google Meet links
-- **Team workflows** — examiner/reviewer/advancer roles, scorecard gating, bulk ops, CSV import
-- **Open source** — MIT, self-hosted, full control
+- **Isolato per azienda** — ogni azienda vede solo i propri dati
+- **Pipeline personalizzabili** — più pipeline per azienda, bacheca drag & drop, fasi e colori configurabili
+- **Collaborazione in tempo reale** — gli spostamenti si aggiornano subito per tutto il team
+- **Pagine carriere pubbliche** — pubblica carriere con il tuo brand
+- **Portale candidati** — accesso con codice via email, auto-prenotazione, conversazioni e preferenze notifiche
+- **Colloqui senza scambi di email** — disponibilità settimanale interna + eventuale Google Calendar, link automatici Jitsi/Google Meet
+- **Lavoro di squadra** — ruoli per fase (esaminatore/revisore/avanzatore), valutazioni con blocco, operazioni massive e importazione CSV
+- **Open source** — licenza MIT, self-hosted, controllo completo
 
 Treby is designed for small businesses and startups (5–50 people, hiring 1–10 roles at a time).
 
@@ -77,25 +77,7 @@ CSV import with column mapping and source tagging, bulk move/review/delete, and 
 
 ---
 
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Framework | [Phoenix 1.8](https://www.phoenixframework.org/) with LiveView 1.1, Bandit |
-| Language | [Elixir 1.19](https://elixir-lang.org/) / Erlang 28 |
-| Database | PostgreSQL (via Ecto) — `binary_id` PKs |
-| Authentication | Session + BCrypt (recruiters); OTP (candidates, registration); Cloak for Google tokens |
-| File Storage | S3-compatible (RustFS) via ExAWS + Req |
-| Styling | [Tailwind CSS 4](https://tailwindcss.com/) + esbuild |
-| Drag & Drop | [Sortable.js](https://sortablejs.github.io/Sortable/) via LiveView hook |
-| Email | [Swoosh](https://hexdocs.pm/swoosh) |
-| Real-time | Phoenix PubSub |
-| Background Jobs | [Oban](https://hexdocs.pm/oban) |
-| HTTP Client | [Req](https://hexdocs.pm/req) |
-| i18n | Gettext (EN, IT) |
-| CSV | NimbleCSV |
-
-See [Architecture →](/architecture) for the full diagram and data model.
+Treby è un'applicazione web moderna: gira nel browser, salva i dati in un database e si integra con storage ed email. Se vuoi approfondire il funzionamento, vedi [Come funziona Treby →](/architecture).
 
 ---
 

@@ -9,6 +9,24 @@ The project has a Vitepress documentation and showcase site in `site/`, deployed
 - **To preview locally**: `cd site && npm run dev`
 - The site is auto-deployed via `.github/workflows/deploy-pages.yml` on push to `main`
 
+### Documentation guidelines — user manual, not developer docs
+
+`site/` is a **user manual** for people who run and use Treby (hiring managers, recruiters, admins, candidates). It is **not** developer documentation.
+
+**Audience:** someone who wants to understand what Treby does, how to configure it, and how to use each feature day-to-day. Assume no Elixir/Phoenix knowledge.
+
+**Rules for every page in `site/`:**
+
+- **No code references.** Never mention file paths (`lib/...`, `priv/...`, `config/...`), module names (`Treby.*`), function names, or line numbers (e.g. `lib/treby/pipeline/pipeline.ex:678`). If a detail is only meaningful to a developer, it does not belong in `site/`.
+- **No implementation details.** Do not describe schemas, DB columns, PubSub topics, Oban workers, encryption internals, or library choices. Describe *what the user sees and does*.
+- **Explain how to configure and how to use.** Each feature page must answer: where to find it in the UI, what it does, and a short step-by-step. Prefer UI labels and menu paths (`Impostazioni → Pipeline`, `Candidati → Confronta`) over technical terms.
+- **Keep it concise and task-oriented.** Use tables and bullet lists for actions, screenshots for orientation. Avoid long architecture digressions.
+- **Language for the user.** `site/architecture.md`, `site/getting-started.md` and all `site/features/*.md` should be written for the end user. Technical setup (env vars, Docker, VitePress build) in `site/getting-started.md` is allowed but must be framed as "how to install/run Treby", not as a code tour.
+- **Keep `site/roadmap.md` user-facing.** List features and what they enable, not where they are implemented.
+- **Sync after product changes.** When you add or change a feature, update its `site/features/*.md` page (and `site/features/index.md` + sidebar in `site/.vitepress/config.ts` if it is a new feature) before considering the task done.
+
+**Where developer notes belong:** `README.md` may mention the tech stack briefly, but detailed developer conventions stay in this `AGENTS.md` and in code comments — never in `site/`.
+
 ## Project guidelines
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues

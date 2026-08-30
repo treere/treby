@@ -1,25 +1,23 @@
-# Candidate Comparison
+# Confronto candidati
 
-Side-by-side evaluation of 2–3 candidates.
+Valuta 2 o 3 candidati affiancati senza saltare tra profili diversi.
 
-## How to use
+## Come si usa
 
-From the candidates list (`/app/candidates`) select 2–3 candidates and choose **Compare** (or navigate directly to `/app/candidates/compare` with `?ids=`).
+Dall'elenco candidati seleziona 2 o 3 profili e scegli **Confronta**. Puoi anche aprire direttamente la pagina di confronto con i candidati già selezionati.
 
-Implemented in `lib/treby/comparison/comparison.ex` and `lib/treby_web/live/comparison_live/index.ex`.
+## Cosa viene confrontato
 
-## What is compared
+Per ogni candidato vedi:
 
-`Comparison.compare_candidates/1` loads for each candidate:
+- recapiti (nome, email, telefono, LinkedIn)
+- tutte le candidature con posizione e fase attuale
+- note con valutazioni a stelle e autore
+- valutazioni dei colloqui, quando presenti
 
-- contact info (name, email, phone, LinkedIn)
-- all applications with job + stage
-- notes with star ratings and authors
-- interview scorecards (where present)
+L'interfaccia mostra una colonna per candidato, così confronti punti di forza ed eventuali lacune a colpo d'occhio.
 
-The UI renders a table-like comparison with one column per candidate so you can scan strengths/deficiencies without flipping between profiles.
+## Limiti
 
-## Limits
-
-- Minimum 2, maximum 3 candidates — otherwise `{:error, "Select 2-3 candidates to compare"}`.
-- Only candidates within your tenant are visible; missing IDs simply return fewer columns.
+- Minimo 2, massimo 3 candidati alla volta
+- Vedi solo i candidati della tua azienda

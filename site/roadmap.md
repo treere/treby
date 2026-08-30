@@ -1,121 +1,87 @@
 # Roadmap
 
-> **North star**: Notion-level simplicity, purpose-built for hiring.
-> For small businesses and startups (5–50 people, hiring 1–10 roles at a time).
+> **Stella polare**: semplicità alla Notion, ma pensata per le assunzioni.
+> Per piccole aziende e startup (5–50 persone, 1–10 posizioni aperte alla volta).
 
-## Current State — November 2025
+## Stato attuale
 
-Treby is **feature-complete for a single tenant ATS replacement**. The roadmap below reflects what shipped since the initial skeleton; current gaps are polish, not core capability.
+Treby è completo come sostituto di un ATS per una singola azienda. Le funzionalità principali sono già disponibili; ciò che resta è rifinitura, non capacità di base.
 
-| Feature | Status | Location |
-|---|---|---|
-| Multi-tenant architecture | ✅ Complete | `lib/treby/tenants/`, `lib/treby_web/plugs/tenant.ex` |
-| Multi-pipeline per tenant + templates | ✅ Complete | `lib/treby/pipeline/` |
-| Kanban pipeline (drag-and-drop, real-time) | ✅ Complete | `lib/treby_web/live/pipeline_live/`, `lib/treby_web/live/jobs_live/show.ex` |
-| Public career page (branded, per tenant) | ✅ Complete | `lib/treby_web/live/careers_live/` |
-| Candidate self-scheduling (in-portal) + meeting links (Google Meet / Jitsi) | ✅ Complete | `lib/treby/calendar/`, `lib/treby_web/live/candidate_portal_live/schedule.ex` |
-| Google Calendar integration (optional; internal calendar always active) | ✅ Complete | `lib/treby/calendar/google.ex`, `lib/treby/calendar/providers/` |
-| Availability rules + overlapping multi-examiner | ✅ Complete | `lib/treby/availability/` |
-| Custom fields (dynamic, per-entity) | ✅ Complete | `lib/treby/customization/` |
-| Notes with star ratings | ✅ Complete | `lib/treby/notes/` |
-| Resume uploads (S3) + logos | ✅ Complete | `lib/treby/uploads.ex` |
-| Email (Swoosh, OTP + pings only) | ✅ Complete | `lib/treby/notifications/`, Swoosh |
-| Team invites + role gates | ✅ Complete | `lib/treby/invites/`, `lib/treby_web/hooks/require_role.ex` |
-| i18n (English/Italian) | ✅ Complete | `priv/gettext/`, `lib/treby_web/plugs/set_locale.ex` |
-| Landing page | ✅ Complete | `lib/treby_web/live/home_live.ex` |
-| **Dashboard** (My Actions, stale, upcoming, activity) | ✅ Complete | `lib/treby/dashboard.ex`, `lib/treby_web/live/dashboard_live.ex` |
-| **Candidate search & filtering** | ✅ Complete | `lib/treby/candidates/candidates.ex:12` (`ilike`) |
-| **Candidate editing** | ✅ Complete | `lib/treby_web/live/candidates_live/show.ex` |
-| **Application review state** (NEW badge, toggle) | ✅ Complete | `lib/treby/pipeline/pipeline.ex:904` |
-| **Activity timeline** | ✅ Complete | `lib/treby/activities/` |
-| **RBAC** (admin vs member + examiner/reviewer/advancer) | ✅ Complete | `lib/treby/pipeline/` role assignments |
-| **Interview scorecards + gating** | ✅ Complete | `lib/treby/scorecards/`, `lib/treby/pipeline/pipeline.ex:435` |
-| **Stage-based message templates** | ✅ Complete | `lib/treby/email_templates/` |
-| **Pipeline selector on Analytics** | ✅ Complete | `lib/treby_web/live/analytics_live/index.ex` |
-| **Time-in-stage metrics** | ✅ Complete | `lib/treby/pipeline/pipeline.ex:1091` |
-| **Source tracking** | ✅ Complete | `lib/treby/sources/`, Analytics source breakdown |
-| **CSV Import** | ✅ Complete | `lib/treby/csv_import/`, `/app/import` |
-| **Bulk operations** | ✅ Complete | `lib/treby/bulk_operations/`, candidates list & job page |
-| **Candidate comparison** (2–3 side-by-side) | ✅ Complete | `lib/treby/comparison/`, `/app/candidates/compare` |
-| **Portal-first comms** (OTP, conversations, pings) | ✅ Complete | `lib/treby/candidate_portal/`, `lib/treby_web/router.ex:95` |
-| **Message scheduler** (jitter, retries, queue) | ✅ Complete | `lib/treby/scheduled_messages/`, `lib/treby/workers/`, `/app/messages-queue` |
-| **Duplicate detection & merge** | ✅ Complete | `lib/treby/candidates/duplicates.ex`, `/app/candidates/merge` |
-| **Dark mode** (light/dark/system) | ✅ Complete | `assets/js/` + Tailwind, `site/features/dark-mode.md` |
+| Funzionalità | Stato |
+|---|---|
+| Architettura multi-azienda | ✅ Completa |
+| Pipeline multiple per azienda + modelli | ✅ Completa |
+| Pipeline Kanban (drag & drop, tempo reale) | ✅ Completa |
+| Pagina carriere pubblica con branding | ✅ Completa |
+| Auto-prenotazione colloqui nel portale + link meeting (Google Meet / Jitsi) | ✅ Completa |
+| Integrazione Google Calendar (opzionale; calendario interno sempre attivo) | ✅ Completa |
+| Regole di disponibilità + sovrapposizione multi-esaminatore | ✅ Completa |
+| Campi personalizzati per candidato/posizione/candidatura | ✅ Completa |
+| Note con valutazioni a stelle | ✅ Completa |
+| Upload CV e loghi su S3 | ✅ Completa |
+| Email (solo codici OTP e avvisi brevi) | ✅ Completa |
+| Inviti team e permessi per ruolo | ✅ Completa |
+| Traduzioni (inglese/italiano) | ✅ Completa |
+| Landing page | ✅ Completa |
+| Dashboard con "Le mie azioni", candidature ferme, prossimi colloqui, attività | ✅ Completa |
+| Ricerca e filtri candidati | ✅ Completa |
+| Modifica candidati | ✅ Completa |
+| Stato di lettura candidature (badge NUOVO) | ✅ Completa |
+| Timeline attività | ✅ Completa |
+| Controllo accessi per ruolo (admin/membro + esaminatore/revisore/avanzatore) | ✅ Completa |
+| Schede di valutazione + blocco avanzamento | ✅ Completa |
+| Modelli di messaggio per fase | ✅ Completa |
+| Selettore pipeline in Analytics | ✅ Completa |
+| Metriche di permanenza per fase | ✅ Completa |
+| Tracciamento sorgenti | ✅ Completa |
+| Importazione CSV | ✅ Completa |
+| Operazioni massive (bulk) | ✅ Completa |
+| Confronto candidati (2–3 affiancati) | ✅ Completa |
+| Comunicazioni portal-first (OTP, conversazioni, avvisi) | ✅ Completa |
+| Programmazione messaggi (jitter, ritentativi, coda) | ✅ Completa |
+| Rilevamento duplicati e unione | ✅ Completa |
+| Tema scuro (chiaro/scuro/sistema) | ✅ Completa |
 
-## What remains (polish, not core)
+## Cosa resta (rifinitura)
 
-- Screenshot regeneration for new pages (`node scripts/screenshots.mjs` — see [Getting Started](/getting-started))
-- Optional: pipeline analytics export, more granular notifications, saved filters, offer-letter workflows
+- Rigenerazione screenshot per le nuove pagine
+- Possibili migliorie future: export analytics, notifiche più granulari, filtri salvati, gestione lettere di offerta
 
-These are intentionally deferred — see "What NOT to Build" below.
+Sono volutamente rimandate — vedi "Cosa non costruiremo" sotto.
 
-## Original Phased Plan (for context — now mostly shipped)
+## Piano originale in fasi (già realizzato)
 
-### Phase 1: "I Can Actually Use This Daily" — ✅ shipped
+### Fase 1: "Posso usarlo ogni giorno" — ✅ completata
 
-- **1.1 Actionable Dashboard** — My Actions (scorecards to fill, waiting on others), upcoming interviews, stale candidates, weekly stats
-- **1.2 Candidate Search & Filtering** — `ilike` on name/email + job/stage filters
-- **1.3 Candidate Editing** — inline edit on candidate detail
-- **1.4 Application Review State** — `reviewed` flag, NEW badge, toggle from card
-- **1.5 Activity Timeline** — `ActivityLog` chronology
+- Dashboard con azioni da fare, prossimi colloqui, candidature ferme
+- Ricerca per nome/email e filtri per posizione/fase
+- Modifica diretta dei dati candidato
+- Stato letto/non letto con badge
+- Cronologia attività
 
-### Phase 2: "My Team Wants to Use This Too" — ✅ shipped
+### Fase 2: "Anche il mio team vuole usarlo" — ✅ completata
 
-- **2.1 Role-Based Access Control** — admin/member + per-stage examiner/reviewer/advancer gates
-- **2.2 Interview Scorecards** — templates, per-examiner submission, gating
-- **2.3 Stage-Based Message Templates** — portal templates with `{candidate_name}` etc.
-- **2.4 Pipeline Selector on Analytics** — per-pipeline scoping
-- **2.5 Time-in-Stage Metrics** — avg days per stage from activity events
+- Permessi admin vs membro + ruoli per fase (esaminatore/revisore/avanzatore)
+- Schede di valutazione strutturate
+- Modelli di messaggio per fase nel portale
+- Selettore pipeline in Analytics
+- Tempo medio di permanenza per fase
 
-### Phase 3: "We're Replacing Our Old ATS" — ✅ shipped
+### Fase 3: "Sostituisce il vecchio ATS" — ✅ completata
 
-- **3.1 CSV Import** — NimbleCSV, auto-mapping, `ImportLog`
-- **3.2 Bulk Operations** — move/mark/delete/message across many applications
-- **3.3 Candidate Comparison** — side-by-side for 2–3 candidates
-- **3.4 Source Tracking** — per-source breakdown in Analytics
-- **3.5 Portal-First Communications** — email is notification-only; content in portal conversations
+- Importazione CSV con mappatura colonne
+- Operazioni massive su più candidature
+- Confronto affiancato tra candidati
+- Tracciamento sorgenti con breakdown in Analytics
+- Comunicazioni portal-first (contenuti nel portale, email solo come avviso)
 
-## Priority Matrix (historical)
+## Cosa non costruiremo
 
-```
-  IMPACT
-  HIGH  │  CSV Import     Scorecards
-        │  Bulk Ops       Message Templates
-        │  Dashboard*      Search*
-        │  Edit*           Review State*
-        │  Activity Log*
-        │
-  LOW   │  Comparison     Time-in-Stage
-        │  Source Track    Pipeline Analytics
-        │  RBAC
-        │
-        └────────────────────────────────
-           LOW EFFORT          HIGH EFFORT
-```
-
-*Phase 1 priorities — all shipped.*
-
-## What NOT to Build
-
-- AI-powered candidate scoring
-- Video interviews (automatic meeting links — Google Meet or Jitsi)
-- Offer letter management
-- Onboarding workflows
-- Complex approval chains
+- Valutazione candidati con AI
+- Video-colloqui proprietari (usiamo link automatici Google Meet o Jitsi)
+- Gestione lettere di offerta
+- Workflow di onboarding
+- Catene di approvazione complesse
 - SSO/SAML
-- Mobile app (the web app is responsive)
-- Job board integrations (expensive, low ROI early)
-
-## Tech Stack Considerations
-
-| Need | Tool | Notes |
-|---|---|---|
-| Real-time updates | Phoenix PubSub | Already used for pipeline |
-| Email | Swoosh | OTP + pings only |
-| File storage | S3/ExAWS + Finch | Resumes + logos |
-| Search | Ecto + PostgreSQL `ilike` | Fine for <1k candidates |
-| Background jobs | Oban | Scheduled portal messages (`SendScheduledMessage` worker) |
-| Encryption | Cloak/Ecto (`Treby.Vault`) | Google tokens |
-| CSV | NimbleCSV | Import pipeline |
-
-No new dependencies needed for the shipped phases.
+- App mobile (l'app web è già responsive)
+- Integrazioni con job board esterne (costose e poco utili all'inizio)

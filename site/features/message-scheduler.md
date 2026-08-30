@@ -25,16 +25,15 @@ For each queued message you can:
 - **Post Now** — deliver immediately, skipping the schedule
 - **Cancel** — stop a pending message before it goes out
 
-Cancelling is transactional: the message flips to `cancelled`, and if the background job runs anyway the worker sees the new status and no-ops.
+Se annulli un messaggio, non verrà più inviato anche se la consegna era già stata programmata.
 
-## Reliability
+## Affidabilità
 
-- Delivery runs through **Oban** with exponential backoff on failure (1min, 4min, 15min, 60min)
-- After 5 failed attempts the message is marked **failed** with the error reason recorded, and you can retry it manually
-- Between attempts the message stays **scheduled**, so it can still be edited or cancelled
+- Se l'invio fallisce, Treby ritenta automaticamente con attese crescenti (circa 1, 4, 15 e 60 minuti)
+- Dopo 5 tentativi falliti il messaggio viene segnato come **non riuscito** con il motivo dell'errore e puoi ritentare manualmente
+- Finché è in attesa, il messaggio resta modificabile o annullabile
 
-## Technical Details
+## Dettagli utili
 
-- One `scheduled_messages` row per recipient conversation (bulk sends create one row per candidate, each independently manageable)
-- `send_at` is the real posting time after jitter
-- The Oban worker runs at `send_at`, not the time you originally chose
+- Negli invii massivi ogni candidato riceve un messaggio programmato indipendente — puoi modificarne uno senza toccare gli altri
+- L'orario effettivo di invio tiene conto dell'eventuale margine casuale scelto

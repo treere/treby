@@ -1,31 +1,29 @@
-# Source Tracking
+# Sorgenti candidato
 
-Track where candidates come from and slice analytics by source.
+Capisci da dove arrivano i candidati e confronta i canali.
 
-## Sources
+## Gestione sorgenti
 
-Admins manage sources in **Settings → Sources** (`lib/treby_web/live/settings_live/sources.ex`, `lib/treby/sources/source.ex`):
+Gli admin gestiscono le sorgenti in **Impostazioni → Sorgenti**:
 
-- Tenant-scoped, ordered by `position` (`Sources.list_sources/1`)
-- Created via `Sources.create_source/1`, renamed via `update_source/2` (propagates the denormalized `source` string on existing applications)
-- Typical values: "LinkedIn", "Referral", "Careers page", "Agency"
+- Ogni sorgente appartiene alla tua azienda e ha un ordine personalizzabile
+- Valori tipici: "LinkedIn", "Segnalazione", "Pagina carriere", "Agenzia"
+- Puoi rinominare una sorgente: il nuovo nome si aggiorna anche sulle candidature già create
 
-## Tagging
+## Assegnazione
 
-- Applications carry a `source` field (denormalized string, set at apply time or during CSV import)
-- The apply form, manual add, and CSV import all expose a **source** selector
-- Sources are configurable per tenant — no hardcoded enum
+- La sorgente viene scelta al momento della candidatura (modulo pubblico), dell'inserimento manuale o dell'importazione CSV
+- Ogni candidatura mostra la propria sorgente come etichetta
+- Le sorgenti sono configurabili per azienda — non c'è un elenco fisso
 
-## Analytics
+## Analisi
 
-The analytics dashboard shows a **Source Breakdown** (`lib/treby/pipeline/pipeline.ex:1179` `source_breakdown/1`) — count per source, globally or per-pipeline when a pipeline is selected:
+La dashboard **Analytics** mostra un **Dettaglio per sorgente**: numero di candidature per ogni sorgente, sia a livello globale sia filtrato per pipeline. Utile per capire quali canali portano davvero assunzioni.
 
 ```
-Source breakdown (all pipelines)
-  Careers page  ████████  42
-  LinkedIn      █████      27
-  Referral      ███        14
-  Unknown       █          3
+Dettaglio per sorgente (tutte le pipeline)
+  Pagina carriere  ████████  42
+  LinkedIn         █████      27
+  Segnalazione     ███        14
+  Non specificata  █          3
 ```
-
-Use it to answer "which channels actually hire?" without leaving Treby.

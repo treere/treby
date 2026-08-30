@@ -1,32 +1,26 @@
-# Analytics Dashboard
+# Analytics
 
-Track your hiring metrics with a clean analytics dashboard (`/app/analytics`, `lib/treby_web/live/analytics_live/index.ex`).
+Tieni sotto controllo l'avanzamento delle assunzioni con una dashboard dedicata.
 
 ![Analytics Dashboard](/screenshots/10-analytics.png)
 
-## Metrics
+## Cosa trovi
 
-- **Total Candidates** — count of all candidates in the tenant
-- **Avg. Time to Hire** — average days from first application to hired (`Pipeline.average_time_to_hire/1`)
-- **Active Jobs** — number of open job postings
-- **Pipeline Overview** — horizontal bar chart showing candidate counts per stage across all jobs (`pipeline_counts_per_stage/1`)
-- **Stage Conversion Rates** — percentage progressing from one stage to the next (`stage_conversion_rates/1`)
-- **Time-in-Stage** — average days a candidate spends in each stage, derived from `ActivityLog` stage-change events (`time_in_stage_metrics/2`)
-- **Source Breakdown** — count per source (`source_breakdown/1`) — see [Source Tracking](/features/source-tracking)
+- **Totale candidati** — quanti profili sono nel tuo spazio aziendale
+- **Tempo medio di assunzione** — giorni medi dall'application all'assunzione
+- **Posizioni attive** — numero di offerte aperte
+- **Panoramica pipeline** — barre orizzontali con il numero di candidati per fase
+- **Tassi di conversione** — percentuale di chi passa da una fase alla successiva
+- **Permanenza per fase** — giorni medi di permanenza in ciascuna fase
+- **Sorgenti** — da dove arrivano i candidati (vedi [Sorgenti](/features/source-tracking))
 
-## Pipeline Selector
+## Filtro per pipeline
 
-A **per-pipeline selector** at the top of the page lets you scope all metrics to a single pipeline:
+In alto trovi un selettore per scegliere una pipeline specifica. Se selezioni "Tutte le pipeline" vedi i dati aggregati; se scegli una pipeline, tutti i grafici si aggiornano per mostrare solo quella pipeline.
 
-- "All pipelines" aggregates across the tenant (grouped by stage name)
-- Selecting a pipeline filters to `where(pipeline_id == ^id)` and shows that pipeline's stages in order
+## Come usarla
 
-All queries live in `lib/treby/pipeline/pipeline.ex:924` and are tenant-scoped.
-
-## What you can learn
-
-- Where are candidates getting stuck? (bottleneck stages via time-in-stage)
-- Which stages have the highest drop-off? (conversion rates)
-- How long does it take to fill each role?
-- Are we interviewing enough people?
-- Which sources actually hire? (source breakdown)
+- Individua i colli di bottiglia: dove i candidati restano più a lungo?
+- Capisci dove perdi candidati: quali fasi hanno il tasso di abbandono più alto?
+- Valuta i tempi: quanto ci vuole in media per chiudere una posizione?
+- Confronta i canali: quali sorgenti portano davvero assunzioni?

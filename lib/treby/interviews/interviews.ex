@@ -125,6 +125,19 @@ defmodule Treby.Interviews do
           }
         )
 
+        # Broadcast so pipeline boards re-stream without manual reload
+        try do
+          Phoenix.PubSub.broadcast(
+            Treby.PubSub,
+            "pipeline:#{event.application.job_id}",
+            {:pipeline_updated, event.application.job_id}
+          )
+        rescue
+          _ -> :ok
+        catch
+          _ -> :ok
+        end
+
         {:ok, completed_event}
 
       error ->

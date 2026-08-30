@@ -631,11 +631,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
             end)
 
           flash_msg =
-            if job_id not in [nil, ""] do
+            if job_id in [nil, ""] do
+              "Candidate added"
+            else
               job = Jobs.get_job(socket.assigns.current_tenant.id, job_id)
               if job, do: "Candidate added to #{job.title}", else: "Candidate added"
-            else
-              "Candidate added"
             end
 
           {:noreply,

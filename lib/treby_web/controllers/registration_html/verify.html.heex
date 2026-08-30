@@ -9,6 +9,9 @@
         {gettext("We sent a 6-digit code to")}
         <span class="font-medium text-base-content">{@email}</span>
       </p>
+      <p class="mt-1 text-center text-xs text-base-content/50">
+        {gettext("Check your email (including spam)")}
+      </p>
     </div>
 
     <.form
@@ -46,10 +49,42 @@
         method="post"
       >
         <.input type="hidden" field={@resend_form[:email]} />
-        <button type="submit" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+        <button
+          type="submit"
+          id="resend-code-btn"
+          phx-hook=".ResendCountdown"
+          data-countdown="60"
+          class="text-sm font-medium text-blue-600 hover:text-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           {gettext("Didn't receive it? Resend code")}
         </button>
       </.form>
+      <script :type={Phoenix.LiveView.ColocatedHook} name=".ResendCountdown">
+        export default {
+          mounted() {
+            const btn = this.el
+            let remaining = parseInt(btn.dataset.countdown || "60", 10)
+            btn.disabled = true
+            const original = btn.textContent.trim()
+            const tick = () => {
+              if (remaining <= 0) {
+                btn.disabled = false
+                btn.textContent = original
+                clearInterval(timer)
+              } else {
+                btn.textContent = `Resend in ${remaining}s`
+                remaining -= 1
+              }
+            }
+            tick()
+            const timer = setInterval(tick, 1000)
+            this._timer = timer
+          },
+          destroyed() {
+            if (this._timer) clearInterval(this._timer)
+          }
+        }
+      </script>
       <div>
         <a href="/register" class="text-sm text-base-content/70 hover:text-base-content">
           {gettext("Use a different email")}

@@ -122,7 +122,7 @@ defmodule TrebyWeb.RegistrationController do
 
           {:error, :rate_limited} ->
             conn
-            |> put_flash(:error, gettext("Please wait a moment before requesting another code"))
+            |> put_flash(:error, gettext("Too many attempts — try again in 60 seconds"))
             |> redirect(to: ~p"/register/verify")
 
           {:error, _} ->

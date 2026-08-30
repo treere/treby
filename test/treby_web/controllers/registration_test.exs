@@ -89,7 +89,7 @@ defmodule TrebyWeb.RegistrationTest do
 
       conn = post(conn, ~p"/register", %{"user" => %{"email" => email}})
       assert redirected_to(conn) == "/register/verify"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "wait a moment"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Too many attempts"
     end
   end
 

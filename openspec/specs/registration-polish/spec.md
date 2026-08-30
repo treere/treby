@@ -3,9 +3,7 @@
 ## Purpose
 
 Enhance the registration flow with password confirmation, Terms of Service consent, and legal page stubs.
-
 ## Requirements
-
 ### Requirement: Password confirmation on registration
 The system SHALL require users to confirm their password by entering it twice during registration.
 
@@ -67,3 +65,19 @@ The system SHALL provide accessible Terms of Service and Privacy Policy pages.
 #### Scenario: User navigates to Privacy Policy
 - **WHEN** a user visits `/privacy`
 - **THEN** the system displays a Privacy Policy page with "Coming soon" content
+
+### Requirement: Registration OTP verification
+
+The system SHALL verify email via OTP with clear inline guidance and resend throttling UX.
+
+#### Scenario: OTP sent shows spam hint and countdown
+
+- **WHEN** a user requests a verification code
+- **THEN** the verify page shows `Check your email (including spam)` hint
+- **AND** the `Resend code` button is disabled for 60s with countdown `Resend in Xs`
+
+#### Scenario: Rate limited shows seconds
+
+- **WHEN** a user hits rate limit for OTP resend
+- **THEN** the flash says `Too many attempts — try again in 60 seconds`
+

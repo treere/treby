@@ -431,7 +431,9 @@ defmodule TrebyWeb.PipelineLive.Index do
           The candidate's stage will not change automatically.
         </p>
         <:footer>
-          <.button variant="ghost" size="sm" phx-click="cancel_complete_interview">{gettext("Cancel")}</.button>
+          <.button variant="ghost" size="sm" phx-click="cancel_complete_interview">
+            {gettext("Cancel")}
+          </.button>
           <.button
             variant="primary"
             size="sm"

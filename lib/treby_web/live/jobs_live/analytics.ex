@@ -143,7 +143,11 @@ defmodule TrebyWeb.JobsLive.Analytics do
           :if={@summary.total_views == 0}
           icon="hero-chart-bar"
           title={gettext("No views yet")}
-          description={gettext("When visitors view the public job page, you'll see daily and monthly trends, traffic sources, and the view→application funnel here.")}
+          description={
+            gettext(
+              "When visitors view the public job page, you'll see daily and monthly trends, traffic sources, and the view→application funnel here."
+            )
+          }
           class="mb-8"
         />
 

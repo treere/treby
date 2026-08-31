@@ -763,6 +763,26 @@ defmodule Treby.Pipeline do
     |> Repo.one!()
   end
 
+  def get_application_for_candidate!(tenant_id, candidate_id, id) do
+    Application
+    |> where(
+      [a],
+      a.tenant_id == ^tenant_id and a.candidate_id == ^candidate_id and a.id == ^id
+    )
+    |> preload([:candidate, :pipeline_stage, :job])
+    |> Repo.one!()
+  end
+
+  def get_application_for_candidate(tenant_id, candidate_id, id) do
+    Application
+    |> where(
+      [a],
+      a.tenant_id == ^tenant_id and a.candidate_id == ^candidate_id and a.id == ^id
+    )
+    |> preload([:candidate, :pipeline_stage, :job])
+    |> Repo.one()
+  end
+
   def create_application(attrs \\ %{}) do
     attrs
     |> stringify_keys()

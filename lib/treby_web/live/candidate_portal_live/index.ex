@@ -10,39 +10,57 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
     tenant = Treby.Tenants.get_tenant_by_slug!(slug)
     candidate = Treby.Repo.get!(Treby.Candidates.Candidate, candidate_id)
 
-    applications = Pipeline.list_applications_for_candidate(tenant_id, candidate_id)
+    if tenant.id != candidate.tenant_id do
+      real_tenant = Treby.Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)
 
-    Treby.CandidatePortal.subscribe_to_candidate_conversations(candidate_id)
+      {:ok,
+       socket
+       |> put_flash(:error, gettext("Wrong workspace. Redirected to your portal."))
+       |> redirect(to: "/#{real_tenant.slug}/portal")}
+    else
+      applications = Pipeline.list_applications_for_candidate(tenant_id, candidate_id)
 
-    {:ok,
-     socket
-     |> assign(:applications, applications)
-     |> assign(:current_tenant, tenant)
-     |> assign(:current_candidate, candidate)
-     |> assign(:page_title, "Dashboard")
-     |> assign(:selected_application, nil)
-     |> assign(:selected_action, nil)
-     |> assign(:selected_conversations, [])
-     |> assign(:selected_timeline, [])
-     |> assign(:selected_draft, "")}
+      Treby.CandidatePortal.subscribe_to_candidate_conversations(candidate_id)
+
+      {:ok,
+       socket
+       |> assign(:applications, applications)
+       |> assign(:current_tenant, tenant)
+       |> assign(:current_candidate, candidate)
+       |> assign(:page_title, "Dashboard")
+       |> assign(:selected_application, nil)
+       |> assign(:selected_action, nil)
+       |> assign(:selected_conversations, [])
+       |> assign(:selected_timeline, [])
+       |> assign(:selected_draft, "")}
+    end
   end
 
   @impl true
   def handle_event("select_application", %{"id" => id}, socket) do
-    application = Pipeline.get_application!(id)
     tenant_id = socket.assigns.current_tenant.id
+    candidate_id = socket.assigns.current_candidate.id
 
-    conversations =
-      Treby.CandidatePortal.list_conversations_for_application(application.id, tenant_id)
+    case Pipeline.get_application_for_candidate(tenant_id, candidate_id, id) do
+      nil ->
+        {:noreply,
+         socket
+         |> put_flash(:error, gettext("Application not found."))}
 
-    {:noreply,
-     assign(socket,
-       selected_application: application,
-       selected_action: candidate_pending_action(application, socket.assigns.current_tenant.slug),
-       selected_conversations: conversations,
-       selected_timeline: status_timeline(conversations),
-       selected_draft: ""
-     )}
+      application ->
+        conversations =
+          Treby.CandidatePortal.list_conversations_for_application(application.id, tenant_id)
+
+        {:noreply,
+         assign(socket,
+           selected_application: application,
+           selected_action:
+             candidate_pending_action(application, socket.assigns.current_tenant.slug),
+           selected_conversations: conversations,
+           selected_timeline: status_timeline(conversations),
+           selected_draft: ""
+         )}
+    end
   end
 
   @impl true

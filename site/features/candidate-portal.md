@@ -35,3 +35,4 @@ Ogni nuova candidatura crea automaticamente una conversazione di benvenuto. Spos
 - Tutti i contenuti reali vivono nel portale: l'email contiene solo un avviso breve con link, mai il testo del messaggio
 - Il candidato decide dalle **Impostazioni** del portale quali eventi generano avvisi
 - La sessione del portale è legata alla singola azienda e scade dopo poche ore
+- Ogni candidato vede solo le proprie candidature: anche provando a indovinare un link, il portale mostra solo i dati del proprio profilo e, se l'indirizzo dell'azienda nell'URL non corrisponde, reindirizza automaticamente al proprio portale

@@ -81,3 +81,25 @@ The system SHALL count a view when a visitor loads an open job's public detail p
 #### Scenario: Tracking respects visibility
 - **WHEN** a job has `visible == false` but `status == "open"` and a visitor loads it via direct link
 - **THEN** the view is still tracked (direct link is a valid discovery path)
+
+### Requirement: Public board shows structured job metadata
+The system SHALL display structured job metadata on public boards.
+
+#### Scenario: Listings show location and type badges
+- **WHEN** the global board or tenant board loads
+- **THEN** each job listing shows location and badge pills for employment/workplace type when present, alongside company and salary info
+
+### Requirement: Applied badge for multi-apply
+The system SHALL indicate on public boards which positions an authenticated candidate has already applied to.
+
+#### Scenario: Badge on global board
+- **WHEN** an authenticated candidate for tenant `acme` visits `/careers`
+- **THEN** only jobs belonging to `acme` that they have applied to show the "Applied ✓" badge; jobs from other tenants do not
+
+#### Scenario: Anonymous visitor sees no badge
+- **WHEN** an anonymous visitor views `/careers` or `/:tenant_slug/careers`
+- **THEN** no applied badges are shown
+
+#### Scenario: Prefill on global board apply
+- **WHEN** an authenticated candidate navigates from a global board listing to `/:tenant_slug/careers/:job_id/apply`
+- **THEN** the apply form is prefilled as per tenant match

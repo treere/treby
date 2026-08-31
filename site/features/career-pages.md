@@ -16,7 +16,9 @@ Career pages are live at `/:tenant_slug/careers` and show:
 
 ![Public Job Detail](/screenshots/17-public-job-detail.png)
 
-Clicking a job shows the full description, salary range, and an **Apply Now** button.
+Clicking a job shows the full description and a meta row with salary, location, employment type (Full-time/Part-time/Contract/Internship), workplace (On-site/Hybrid/Remote), and posted date, plus an **Apply Now** button. If you already applied while logged into the portal, the button becomes **Already applied — View status**.
+
+Job cards in the listings also show location and type badges, and an **Applied ✓** badge appears on positions you've already applied to when you're logged into the portal.
 
 ## Application Form
 
@@ -27,8 +29,11 @@ External candidates can apply through a clean form with:
 - Full name, email, phone number
 - Resume upload (PDF, DOC, DOCX — max 10MB)
 - Custom application fields (if configured)
+- Location and contract details shown on the job (configured in **Jobs**)
 
-Applications are automatically placed in the first pipeline stage. Duplicate candidates are deduplicated by email.
+If you're logged into the candidate portal for that company, the form is **prefilled** with your name/email/phone and shows a hint — you can still edit before submitting. Submitting again to the same position shows **You have already applied on …** instead of creating a duplicate.
+
+Applications are automatically placed in the first pipeline stage. Candidates are deduplicated by email.
 
 ## Portal-Enabled Applications
 

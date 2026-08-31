@@ -102,6 +102,38 @@ defmodule TrebyWeb.JobsLive.Index do
             />
 
             <.input
+              field={@form[:location]}
+              type="text"
+              label={gettext("Location")}
+              placeholder="e.g. Milan, Remote"
+            />
+
+            <.input
+              field={@form[:employment_type]}
+              type="select"
+              label={gettext("Employment Type")}
+              options={[
+                {gettext("Full-time"), "full_time"},
+                {gettext("Part-time"), "part_time"},
+                {gettext("Contract"), "contract"},
+                {gettext("Internship"), "internship"}
+              ]}
+              prompt="—"
+            />
+
+            <.input
+              field={@form[:workplace_type]}
+              type="select"
+              label={gettext("Workplace")}
+              options={[
+                {gettext("On-site"), "on_site"},
+                {gettext("Hybrid"), "hybrid"},
+                {gettext("Remote"), "remote"}
+              ]}
+              prompt="—"
+            />
+
+            <.input
               field={@form[:pipeline_id]}
               type="select"
               label={gettext("Pipeline")}

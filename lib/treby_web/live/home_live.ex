@@ -26,6 +26,13 @@ defmodule TrebyWeb.HomeLive do
             <Layouts.theme_toggle />
             <Layouts.locale_switcher locale={@locale} />
             <.link
+              navigate={~p"/careers"}
+              id="home-careers-link"
+              class="text-sm/6 font-semibold text-base-content hover:text-blue-600 transition-colors"
+            >
+              {gettext("Careers")}
+            </.link>
+            <.link
               navigate={~p"/login"}
               class="text-sm/6 font-semibold text-base-content hover:text-blue-600 transition-colors"
             >
@@ -155,6 +162,22 @@ defmodule TrebyWeb.HomeLive do
               <p class="mt-4 text-sm leading-6 text-base-content/70">
                 {gettext("Modern applicant tracking for growing teams.")}
               </p>
+            </div>
+            <div class="mt-10 xl:mt-0">
+              <h3 class="text-sm font-semibold leading-6 text-base-content">
+                {gettext("Discover")}
+              </h3>
+              <ul role="list" class="mt-4 space-y-3">
+                <li>
+                  <.link
+                    navigate={~p"/careers"}
+                    id="footer-careers-link"
+                    class="text-sm leading-6 text-base-content/70 hover:text-blue-600"
+                  >
+                    {gettext("Careers")}
+                  </.link>
+                </li>
+              </ul>
             </div>
           </div>
           <div class="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">

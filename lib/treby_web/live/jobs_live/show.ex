@@ -131,6 +131,30 @@ defmodule TrebyWeb.JobsLive.Show do
             <.input field={@form[:title]} type="text" label={gettext("Title")} />
             <.input field={@form[:description]} type="textarea" label={gettext("Description")} />
             <.input field={@form[:salary_range]} type="text" label={gettext("Salary Range")} />
+            <.input field={@form[:location]} type="text" label={gettext("Location")} />
+            <.input
+              field={@form[:employment_type]}
+              type="select"
+              label={gettext("Employment Type")}
+              options={[
+                {gettext("Full-time"), "full_time"},
+                {gettext("Part-time"), "part_time"},
+                {gettext("Contract"), "contract"},
+                {gettext("Internship"), "internship"}
+              ]}
+              prompt="—"
+            />
+            <.input
+              field={@form[:workplace_type]}
+              type="select"
+              label={gettext("Workplace")}
+              options={[
+                {gettext("On-site"), "on_site"},
+                {gettext("Hybrid"), "hybrid"},
+                {gettext("Remote"), "remote"}
+              ]}
+              prompt="—"
+            />
             <.input
               field={@form[:status]}
               type="select"
@@ -214,6 +238,22 @@ defmodule TrebyWeb.JobsLive.Show do
               <div>
                 <dt class="text-sm text-base-content/50">{gettext("Salary Range")}</dt>
                 <dd class="text-base-content">{@job.salary_range || gettext("Not specified")}</dd>
+              </div>
+              <div :if={@job.location}>
+                <dt class="text-sm text-base-content/50">{gettext("Location")}</dt>
+                <dd class="text-base-content">{@job.location}</dd>
+              </div>
+              <div :if={@job.employment_type}>
+                <dt class="text-sm text-base-content/50">{gettext("Employment Type")}</dt>
+                <dd class="text-base-content">
+                  {Treby.Jobs.Job.employment_type_label(@job.employment_type)}
+                </dd>
+              </div>
+              <div :if={@job.workplace_type}>
+                <dt class="text-sm text-base-content/50">{gettext("Workplace")}</dt>
+                <dd class="text-base-content">
+                  {Treby.Jobs.Job.workplace_type_label(@job.workplace_type)}
+                </dd>
               </div>
               <div>
                 <dt class="text-sm text-base-content/50">{gettext("Status")}</dt>

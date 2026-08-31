@@ -13,15 +13,30 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
         tenant = Treby.Tenants.get_tenant_by_slug!(slug)
         candidate = Treby.Repo.get!(Treby.Candidates.Candidate, session["candidate_id"])
 
-        CandidatePortal.subscribe_to_conversation(conversation.id)
+        cond do
+          tenant.id != candidate.tenant_id ->
+            real_tenant = Treby.Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)
 
-        {:ok,
-         socket
-         |> assign(:conversation, conversation)
-         |> assign(:current_tenant, tenant)
-         |> assign(:current_candidate, candidate)
-         |> assign(:page_title, "Conversation")
-         |> assign(:new_message, "")}
+            {:ok,
+             socket
+             |> put_flash(:error, gettext("Wrong workspace. Redirected to your portal."))
+             |> redirect(to: "/#{real_tenant.slug}/portal/messages")}
+
+          conversation.tenant_id != candidate.tenant_id or
+              conversation.candidate_id != candidate.id ->
+            {:ok, redirect(socket, to: ~p"/404")}
+
+          true ->
+            CandidatePortal.subscribe_to_conversation(conversation.id)
+
+            {:ok,
+             socket
+             |> assign(:conversation, conversation)
+             |> assign(:current_tenant, tenant)
+             |> assign(:current_candidate, candidate)
+             |> assign(:page_title, "Conversation")
+             |> assign(:new_message, "")}
+        end
     end
   end
 

@@ -14,16 +14,31 @@ defmodule TrebyWeb.CareersLive.Show do
 
       job ->
         career_page = Careers.get_published_career_page_by_tenant(tenant.id)
+        already_applied? = already_applied?(session, tenant.id, job.id)
 
         socket =
           socket
           |> assign(tenant: tenant)
           |> assign(job: job)
           |> assign(career_page: career_page)
+          |> assign(already_applied: already_applied?)
 
         maybe_track_view(socket, tenant, job, params, session)
 
         {:ok, socket}
+    end
+  end
+
+  defp already_applied?(session, tenant_id, job_id) do
+    with cid when is_binary(cid) <- session["candidate_id"],
+         ^tenant_id <- session["candidate_tenant_id"] do
+      import Ecto.Query
+
+      Treby.Pipeline.Application
+      |> where([a], a.candidate_id == ^cid and a.job_id == ^job_id and a.tenant_id == ^tenant_id)
+      |> Treby.Repo.exists?()
+    else
+      _ -> false
     end
   end
 
@@ -157,18 +172,43 @@ defmodule TrebyWeb.CareersLive.Show do
 
           <h1 class="text-3xl font-bold text-base-content">{@job.title}</h1>
 
-          <p :if={@job.salary_range} class="mt-2 text-base-content/70">{@job.salary_range}</p>
+          <div class="mt-3 flex flex-wrap items-center gap-3 text-sm text-base-content/70">
+            <span :if={@job.salary_range} class="inline-flex items-center gap-1">
+              <.icon name="hero-banknotes" class="w-4 h-4" /> {@job.salary_range}
+            </span>
+            <span :if={@job.location} class="inline-flex items-center gap-1">
+              <.icon name="hero-map-pin" class="w-4 h-4" /> {@job.location}
+            </span>
+            <span :if={@job.employment_type} class="badge badge-sm bg-base-200">
+              {Treby.Jobs.Job.employment_type_label(@job.employment_type)}
+            </span>
+            <span :if={@job.workplace_type} class="badge badge-sm bg-base-200">
+              {Treby.Jobs.Job.workplace_type_label(@job.workplace_type)}
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <.icon name="hero-calendar" class="w-4 h-4" />
+              {gettext("Posted")} {Calendar.strftime(@job.inserted_at, "%b %d, %Y")}
+            </span>
+          </div>
 
           <div class="mt-8 prose max-w-none">
             <p class="whitespace-pre-wrap text-base-content/80">{@job.description}</p>
           </div>
 
           <.link
+            :if={!@already_applied}
             navigate={~p"/#{@tenant.slug}/careers/#{@job.id}/apply"}
             class="mt-8 inline-block px-6 py-3 text-white font-semibold rounded-lg hover:opacity-90"
             style={"background-color: #{@career_page && @career_page.primary_color || "#3b82f6"}"}
           >
-            Apply Now
+            {gettext("Apply Now")}
+          </.link>
+          <.link
+            :if={@already_applied}
+            navigate={~p"/#{@tenant.slug}/portal"}
+            class="mt-8 inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700"
+          >
+            {gettext("Already applied — View status")}
           </.link>
         </div>
 

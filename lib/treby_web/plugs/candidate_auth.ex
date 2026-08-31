@@ -38,9 +38,36 @@ defmodule TrebyWeb.Plugs.CandidateAuth do
             candidate ->
               tenant = Repo.get!(Tenant, candidate.tenant_id)
 
-              conn
-              |> assign(:current_candidate, candidate)
-              |> assign(:current_tenant, tenant)
+              # Enforce tenant slug consistency: if URL contains a tenant_slug,
+              # it must match the candidate's actual tenant.
+              case conn.path_params do
+                %{"tenant_slug" => slug} when is_binary(slug) and slug != "" ->
+                  case Treby.Tenants.get_tenant_by_slug(slug) do
+                    nil ->
+                      conn
+                      |> assign(:current_candidate, candidate)
+                      |> assign(:current_tenant, tenant)
+
+                    %Tenant{id: slug_tenant_id} when slug_tenant_id != candidate.tenant_id ->
+                      conn
+                      |> Phoenix.Controller.put_flash(
+                        :error,
+                        gettext("Wrong workspace. Redirected to your portal.")
+                      )
+                      |> Phoenix.Controller.redirect(to: "/#{tenant.slug}/portal")
+                      |> halt()
+
+                    _ ->
+                      conn
+                      |> assign(:current_candidate, candidate)
+                      |> assign(:current_tenant, tenant)
+                  end
+
+                _ ->
+                  conn
+                  |> assign(:current_candidate, candidate)
+                  |> assign(:current_tenant, tenant)
+              end
           end
         end
     end

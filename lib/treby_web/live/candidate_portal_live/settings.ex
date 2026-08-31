@@ -8,15 +8,25 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
     candidate_id = session["candidate_id"]
     candidate = Treby.Repo.get!(Treby.Candidates.Candidate, candidate_id)
     tenant = Treby.Tenants.get_tenant_by_slug!(slug)
-    prefs = CandidatePortal.get_notification_preferences(candidate)
 
-    {:ok,
-     socket
-     |> assign(:candidate, candidate)
-     |> assign(:current_tenant, tenant)
-     |> assign(:current_candidate, candidate)
-     |> assign(:preferences, prefs)
-     |> assign(:page_title, "Settings")}
+    if tenant.id != candidate.tenant_id do
+      real_tenant = Treby.Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)
+
+      {:ok,
+       socket
+       |> put_flash(:error, gettext("Wrong workspace. Redirected to your portal."))
+       |> redirect(to: "/#{real_tenant.slug}/portal/settings")}
+    else
+      prefs = CandidatePortal.get_notification_preferences(candidate)
+
+      {:ok,
+       socket
+       |> assign(:candidate, candidate)
+       |> assign(:current_tenant, tenant)
+       |> assign(:current_candidate, candidate)
+       |> assign(:preferences, prefs)
+       |> assign(:page_title, "Settings")}
+    end
   end
 
   @impl true

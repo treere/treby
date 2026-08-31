@@ -8,14 +8,27 @@ defmodule TrebyWeb.CareersLive.Index do
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
     career_page = Careers.get_published_career_page_by_tenant(tenant.id)
     jobs = Jobs.list_visible_jobs(tenant.id)
+    applied_job_ids = applied_job_ids_for_session(session, tenant.id)
 
     {:ok,
      socket
      |> assign(tenant: tenant)
      |> assign(career_page: career_page)
      |> assign(jobs: jobs)
+     |> assign(applied_job_ids: applied_job_ids)
      |> assign(search_query: "")
      |> assign(search_form: to_form(%{"query" => ""}, as: :search))}
+  end
+
+  defp applied_job_ids_for_session(session, tenant_id) do
+    with cid when is_binary(cid) <- session["candidate_id"],
+         ^tenant_id <- session["candidate_tenant_id"] do
+      Treby.Pipeline.list_applications_for_candidate(tenant_id, cid)
+      |> Enum.map(& &1.job_id)
+      |> MapSet.new()
+    else
+      _ -> MapSet.new()
+    end
   end
 
   def render(assigns) do
@@ -66,8 +79,33 @@ defmodule TrebyWeb.CareersLive.Index do
             navigate={~p"/#{@tenant.slug}/careers/#{job.id}"}
             class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
           >
-            <h3 class="text-xl font-semibold text-base-content">{job.title}</h3>
-            <p :if={job.salary_range} class="mt-2 text-base-content/70">{job.salary_range}</p>
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="text-xl font-semibold text-base-content">{job.title}</h3>
+              <span
+                :if={MapSet.member?(@applied_job_ids, job.id)}
+                class="badge badge-sm bg-green-100 text-green-800 shrink-0"
+              >
+                {gettext("Applied ✓")}
+              </span>
+            </div>
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-base-content/70">
+              <span :if={job.salary_range}>{job.salary_range}</span>
+              <span :if={job.location} class="inline-flex items-center gap-1">
+                <.icon name="hero-map-pin" class="w-4 h-4" /> {job.location}
+              </span>
+              <span
+                :if={job.employment_type}
+                class="badge badge-sm bg-base-200"
+              >
+                {Treby.Jobs.Job.employment_type_label(job.employment_type)}
+              </span>
+              <span
+                :if={job.workplace_type}
+                class="badge badge-sm bg-base-200"
+              >
+                {Treby.Jobs.Job.workplace_type_label(job.workplace_type)}
+              </span>
+            </div>
           </.link>
         </div>
       </div>

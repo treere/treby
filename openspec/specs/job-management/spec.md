@@ -89,3 +89,19 @@ The system SHALL expose navigation from a job's internal detail page to its per-
 #### Scenario: Job detail header shows view summary
 - **WHEN** a team member views the job detail page at `/app/jobs/:id`
 - **THEN** a summary badge near the title shows total views and last-7-days views for that job (or "No views yet"), consistent with the analytics page KPIs
+
+### Requirement: Structured job fields
+The system SHALL support optional structured fields for location and employment details on job postings.
+
+#### Scenario: Create job with structured fields
+- **WHEN** a team member creates a job with `location`, `employment_type`, and `workplace_type`
+- **THEN** the job is persisted with those values
+- **AND** invalid enum values are rejected with a validation error
+
+#### Scenario: Create job without structured fields
+- **WHEN** a team member creates a job providing only `title` and `description`
+- **THEN** the job is created successfully with structured fields defaulting to `nil`
+
+#### Scenario: Edit job structured fields
+- **WHEN** a team member updates `location` or type fields on an existing job
+- **THEN** the changes are persisted and visible on the next load

@@ -49,3 +49,16 @@ The system SHALL display a footer with basic information.
 - **WHEN** a visitor scrolls to the bottom of the landing page
 - **THEN** a footer is visible with the product name
 - **AND** copyright or attribution text is present
+
+### Requirement: Careers discovery
+The system SHALL provide a discoverable link to the public job board from the landing page.
+
+#### Scenario: Careers link in header
+- **WHEN** a visitor views the landing page
+- **THEN** a "Careers" link is visible in the header
+- **AND** clicking it navigates to `/careers`
+
+#### Scenario: Careers link in footer
+- **WHEN** a visitor scrolls to the footer of the landing page
+- **THEN** a "Careers" link is visible alongside existing footer links
+- **AND** it navigates to `/careers`

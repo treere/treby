@@ -44,7 +44,8 @@ defmodule Treby.Jobs do
     |> where(
       [j],
       j.tenant_id == ^tenant_id and j.status == "open" and j.visible == true and
-        (ilike(j.title, ^ilike_query) or ilike(j.description, ^ilike_query))
+        (ilike(j.title, ^ilike_query) or ilike(j.description, ^ilike_query) or
+           ilike(j.location, ^ilike_query))
     )
     |> order_by([j], j.title)
     |> Repo.all()
@@ -58,7 +59,8 @@ defmodule Treby.Jobs do
     |> where(
       [j, t],
       j.status == "open" and j.visible == true and
-        (ilike(j.title, ^ilike_query) or ilike(j.description, ^ilike_query))
+        (ilike(j.title, ^ilike_query) or ilike(j.description, ^ilike_query) or
+           ilike(j.location, ^ilike_query))
     )
     |> preload([j, t], tenant: t)
     |> order_by([j, t], asc: t.name, asc: j.title)

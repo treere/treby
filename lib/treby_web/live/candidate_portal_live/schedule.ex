@@ -5,11 +5,23 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
   alias Treby.Calendar.Providers.Jitsi
 
   @impl true
-  def mount(%{"tenant_slug" => _slug}, session, socket) do
+  def mount(%{"tenant_slug" => slug}, session, socket) do
     candidate_id = session["candidate_id"]
     candidate = Repo.get!(Treby.Candidates.Candidate, candidate_id)
     tenant = Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)
+    slug_tenant = Treby.Tenants.get_tenant_by_slug(slug)
 
+    if slug_tenant && slug_tenant.id != candidate.tenant_id do
+      {:ok,
+       socket
+       |> put_flash(:error, gettext("Wrong workspace. Redirected to your portal."))
+       |> redirect(to: "/#{tenant.slug}/portal/schedule")}
+    else
+      do_mount(candidate, tenant, socket)
+    end
+  end
+
+  defp do_mount(candidate, tenant, socket) do
     application = schedulable_application(candidate.id)
 
     socket =

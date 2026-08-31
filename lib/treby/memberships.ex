@@ -22,9 +22,18 @@ defmodule Treby.Memberships do
   end
 
   def create_membership(attrs) do
-    %Membership{}
-    |> Membership.changeset(attrs)
-    |> Repo.insert()
+    case %Membership{} |> Membership.changeset(attrs) |> Repo.insert() do
+      {:ok, membership} ->
+        Treby.Audit.log_event("membership.created", "membership", membership.id, %{
+          tenant_id: membership.tenant_id,
+          metadata: %{after: %{user_id: membership.user_id, role: membership.role}}
+        })
+
+        {:ok, membership}
+
+      error ->
+        error
+    end
   end
 
   def list_tenants_for_user(user_id) do
@@ -57,8 +66,20 @@ defmodule Treby.Memberships do
     |> Repo.all()
   end
 
-  def remove_membership(%Membership{} = membership, _actor \\ nil) do
-    Repo.delete(membership)
+  def remove_membership(%Membership{} = membership, actor \\ nil) do
+    case Repo.delete(membership) do
+      {:ok, deleted} ->
+        Treby.Audit.log_event("membership.removed", "membership", deleted.id, %{
+          tenant_id: deleted.tenant_id,
+          actor_id: actor && actor.id,
+          metadata: %{before: %{user_id: deleted.user_id, role: deleted.role}}
+        })
+
+        {:ok, deleted}
+
+      error ->
+        error
+    end
   end
 
   def remove_membership_by_ids(user_id, tenant_id, actor \\ nil) do

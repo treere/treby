@@ -159,6 +159,18 @@ defmodule TrebyWeb.SettingsLive.Index do
             <h2 class="text-lg font-semibold text-base-content">{gettext("Language")}</h2>
             <p class="mt-2 text-sm text-base-content/70">{gettext("Set your preferred language")}</p>
           </.link>
+
+          <.link
+            :if={@current_membership.role == "admin"}
+            navigate={~p"/app/settings/audit-log"}
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            id="settings-audit-log"
+          >
+            <h2 class="text-lg font-semibold text-base-content">{gettext("Audit Log")}</h2>
+            <p class="mt-2 text-sm text-base-content/70">
+              {gettext("Immutable history of all changes in this workspace")}
+            </p>
+          </.link>
         </div>
       </div>
     </Layouts.app>

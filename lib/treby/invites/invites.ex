@@ -37,6 +37,12 @@ defmodule Treby.Invites do
 
       case result do
         {:ok, invite} ->
+          Treby.Audit.log_event("team.invite_created", "invite", invite.id, %{
+            tenant_id: invite.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{after: %{email: invite.email}}
+          })
+
           send_invite_email(invite)
           {:ok, invite}
 
@@ -56,7 +62,19 @@ defmodule Treby.Invites do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      Repo.delete(invite)
+      case Repo.delete(invite) do
+        {:ok, deleted} ->
+          Treby.Audit.log_event("team.invite_deleted", "invite", deleted.id, %{
+            tenant_id: deleted.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{before: %{email: deleted.email}}
+          })
+
+          {:ok, deleted}
+
+        error ->
+          error
+      end
     end
   end
 

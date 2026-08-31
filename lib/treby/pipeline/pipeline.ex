@@ -36,19 +36,50 @@ defmodule Treby.Pipeline do
   def get_pipeline(id), do: PipelineDef |> Repo.get(id) |> Repo.preload(:pipeline_stages)
 
   def create_pipeline(attrs \\ %{}) do
-    %PipelineDef{}
-    |> PipelineDef.changeset(attrs)
-    |> Repo.insert()
+    case %PipelineDef{} |> PipelineDef.changeset(attrs) |> Repo.insert() do
+      {:ok, pipeline} ->
+        Treby.Audit.log_event("pipeline.created", "pipeline", pipeline.id, %{
+          tenant_id: pipeline.tenant_id,
+          metadata: %{after: %{name: pipeline.name}}
+        })
+
+        {:ok, pipeline}
+
+      error ->
+        error
+    end
   end
 
   def update_pipeline(%PipelineDef{} = pipeline, attrs) do
-    pipeline
-    |> PipelineDef.changeset(attrs)
-    |> Repo.update()
+    before = Map.take(pipeline, [:name, :is_default])
+
+    case pipeline |> PipelineDef.changeset(attrs) |> Repo.update() do
+      {:ok, updated} ->
+        Treby.Audit.log_event("pipeline.updated", "pipeline", updated.id, %{
+          tenant_id: updated.tenant_id,
+          metadata: %{before: before, after: Map.take(updated, [:name, :is_default])}
+        })
+
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 
   def delete_pipeline(%PipelineDef{} = pipeline) do
-    Repo.delete(pipeline)
+    case Repo.delete(pipeline) do
+      {:ok, deleted} ->
+        Treby.Audit.log_event("pipeline.deleted", "pipeline", deleted.id, %{
+          tenant_id: deleted.tenant_id,
+          metadata: %{before: %{name: deleted.name}}
+        })
+
+        {:ok, deleted}
+
+      error ->
+        error
+    end
   end
 
   def set_default_pipeline(%PipelineDef{} = pipeline) do
@@ -264,9 +295,21 @@ defmodule Treby.Pipeline do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      %PipelineStage{}
-      |> PipelineStage.changeset(attrs)
-      |> Repo.insert()
+      case %PipelineStage{} |> PipelineStage.changeset(attrs) |> Repo.insert() do
+        {:ok, stage} ->
+          Treby.Audit.log_event("pipeline.stage_created", "pipeline_stage", stage.id, %{
+            tenant_id:
+              stage.pipeline_id &&
+                (Repo.get(PipelineDef, stage.pipeline_id) || %{tenant_id: nil}).tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{after: Map.take(stage, [:name, :position, :color, :stage_type])}
+          })
+
+          {:ok, stage}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -274,9 +317,25 @@ defmodule Treby.Pipeline do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      pipeline_stage
-      |> PipelineStage.changeset(attrs)
-      |> Repo.update()
+      before = Map.take(pipeline_stage, [:name, :position, :color, :stage_type])
+
+      case pipeline_stage |> PipelineStage.changeset(attrs) |> Repo.update() do
+        {:ok, updated} ->
+          Treby.Audit.log_event("pipeline.stage_updated", "pipeline_stage", updated.id, %{
+            tenant_id:
+              (Repo.get(PipelineDef, updated.pipeline_id) || %{tenant_id: nil}).tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{
+              before: before,
+              after: Map.take(updated, [:name, :position, :color, :stage_type])
+            }
+          })
+
+          {:ok, updated}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -284,7 +343,20 @@ defmodule Treby.Pipeline do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      Repo.delete(pipeline_stage)
+      case Repo.delete(pipeline_stage) do
+        {:ok, deleted} ->
+          Treby.Audit.log_event("pipeline.stage_deleted", "pipeline_stage", deleted.id, %{
+            tenant_id:
+              (Repo.get(PipelineDef, deleted.pipeline_id) || %{tenant_id: nil}).tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{before: Map.take(deleted, [:name, :position, :color])}
+          })
+
+          {:ok, deleted}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -784,15 +856,35 @@ defmodule Treby.Pipeline do
   end
 
   def create_application(attrs \\ %{}) do
-    attrs
-    |> stringify_keys()
-    |> ensure_anagrafica()
-    |> set_duplicate_flag()
-    |> then(fn attrs ->
-      %Application{}
-      |> Application.changeset(attrs)
-      |> Repo.insert()
-    end)
+    result =
+      attrs
+      |> stringify_keys()
+      |> ensure_anagrafica()
+      |> set_duplicate_flag()
+      |> then(fn attrs ->
+        %Application{}
+        |> Application.changeset(attrs)
+        |> Repo.insert()
+      end)
+
+    case result do
+      {:ok, app} ->
+        Treby.Audit.log_event("application.created", "application", app.id, %{
+          tenant_id: app.tenant_id,
+          metadata: %{
+            after: %{
+              job_id: app.job_id,
+              candidate_id: app.candidate_id,
+              stage_id: app.pipeline_stage_id
+            }
+          }
+        })
+
+        {:ok, app}
+
+      error ->
+        error
+    end
   end
 
   defp stringify_keys(attrs) do
@@ -898,6 +990,15 @@ defmodule Treby.Pipeline do
             tenant_id: app.tenant_id
           }
         )
+
+        Treby.Audit.log_event("application.stage_moved", "application", app.id, %{
+          tenant_id: app.tenant_id,
+          actor_id: opts[:actor] && opts[:actor].id,
+          metadata: %{
+            before: %{stage_id: old_stage_id, stage_name: old_stage && old_stage.name},
+            after: %{stage_id: stage_id, stage_name: new_stage && new_stage.name}
+          }
+        })
 
         # Send stage change notification email if not skipped (non-blocking)
         unless opts[:skip_notification] do

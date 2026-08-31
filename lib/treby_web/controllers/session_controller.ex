@@ -13,6 +13,19 @@ defmodule TrebyWeb.SessionController do
       {:ok, user} ->
         tenants = Memberships.list_tenants_for_user(user.id)
 
+        # audit login per first tenant if available
+        case List.first(tenants) do
+          %{tenant: t} ->
+            Treby.Audit.log_event("auth.login", "user", user.id, %{
+              tenant_id: t.id,
+              actor_id: user.id,
+              metadata: %{after: %{email: user.email}}
+            })
+
+          _ ->
+            :ok
+        end
+
         conn = conn |> put_session("user_id", user.id) |> delete_session("tenant_id")
 
         case tenants do

@@ -73,6 +73,7 @@ defmodule TrebyWeb.Router do
       live "/settings/emails", SettingsLive.EmailTemplates
       live "/settings/sources", SettingsLive.Sources
       live "/settings/notifications", SettingsLive.Notifications
+      live "/settings/audit-log", SettingsLive.AuditLog
     end
   end
 
@@ -122,6 +123,7 @@ defmodule TrebyWeb.Router do
       live "/settings/emails", SettingsLive.EmailTemplates
       live "/settings/sources", SettingsLive.Sources
       live "/settings/notifications", SettingsLive.Notifications
+      live "/settings/audit-log", SettingsLive.AuditLog
     end
 
     get "/*path", LegacyAppController, :redirect_legacy

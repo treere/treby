@@ -129,6 +129,12 @@ defmodule Treby.Candidates do
           %{tenant_id: candidate.tenant_id}
         )
 
+        Treby.Audit.log_event("candidate.created", "candidate", candidate.id, %{
+          tenant_id: candidate.tenant_id,
+          actor_id: attrs["actor_id"] || attrs[:actor_id],
+          metadata: %{after: %{name: candidate.name, email: candidate.email}}
+        })
+
         {:ok, candidate}
 
       error ->
@@ -137,6 +143,8 @@ defmodule Treby.Candidates do
   end
 
   def update_candidate(%Candidate{} = candidate, attrs, metadata \\ %{}) do
+    before = Map.take(candidate, [:name, :email, :phone])
+
     result =
       candidate
       |> Candidate.changeset(attrs)
@@ -151,6 +159,15 @@ defmodule Treby.Candidates do
           Map.merge(metadata, %{tenant_id: updated.tenant_id})
         )
 
+        Treby.Audit.log_event("candidate.updated", "candidate", updated.id, %{
+          tenant_id: updated.tenant_id,
+          actor_id: metadata[:actor_id] || metadata["actor_id"],
+          metadata: %{
+            before: before,
+            after: Map.take(updated, [:name, :email, :phone])
+          }
+        })
+
         {:ok, updated}
 
       error ->
@@ -162,7 +179,19 @@ defmodule Treby.Candidates do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      Repo.delete(candidate)
+      case Repo.delete(candidate) do
+        {:ok, deleted} ->
+          Treby.Audit.log_event("candidate.deleted", "candidate", deleted.id, %{
+            tenant_id: deleted.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{before: %{name: deleted.name, email: deleted.email}}
+          })
+
+          {:ok, deleted}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -271,6 +300,12 @@ defmodule Treby.Candidates do
       }
     )
 
+    Treby.Audit.log_event("candidate.merged", "candidate", primary.id, %{
+      tenant_id: primary.tenant_id,
+      actor_id: actor && actor.id,
+      metadata: %{absorbed_candidate_id: absorbed.id}
+    })
+
     merge_log
   end
 
@@ -340,6 +375,12 @@ defmodule Treby.Candidates do
               absorbed_candidate_id: absorbed.id
             }
           )
+
+          Treby.Audit.log_event("candidate.merge_undone", "candidate", primary.id, %{
+            tenant_id: primary.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{absorbed_candidate_id: absorbed.id}
+          })
 
           Treby.Pipeline.recompute_duplicate_flags(primary.id)
 

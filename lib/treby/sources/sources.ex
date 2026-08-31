@@ -19,9 +19,18 @@ defmodule Treby.Sources do
   end
 
   def create_source(attrs \\ %{}) do
-    %Source{}
-    |> Source.changeset(attrs)
-    |> Repo.insert()
+    case %Source{} |> Source.changeset(attrs) |> Repo.insert() do
+      {:ok, source} ->
+        Treby.Audit.log_event("source.created", "source", source.id, %{
+          tenant_id: source.tenant_id,
+          metadata: %{after: %{name: source.name}}
+        })
+
+        {:ok, source}
+
+      error ->
+        error
+    end
   end
 
   def update_source(%Source{} = source, attrs) do
@@ -58,7 +67,18 @@ defmodule Treby.Sources do
     |> where([a], a.source == ^source.name and a.tenant_id == ^source.tenant_id)
     |> Repo.update_all(set: [source: other_source.name])
 
-    Repo.delete(source)
+    case Repo.delete(source) do
+      {:ok, deleted} ->
+        Treby.Audit.log_event("source.deleted", "source", deleted.id, %{
+          tenant_id: deleted.tenant_id,
+          metadata: %{before: %{name: deleted.name}}
+        })
+
+        {:ok, deleted}
+
+      error ->
+        error
+    end
   end
 
   def default_source(tenant_id) do

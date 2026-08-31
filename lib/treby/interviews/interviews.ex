@@ -93,6 +93,14 @@ defmodule Treby.Interviews do
           }
         )
 
+        Treby.Audit.log_event("interview.scheduled", "interview_event", event.id, %{
+          tenant_id: event.tenant_id,
+          actor_id: event.scheduled_by_id,
+          metadata: %{
+            after: %{application_id: event.application_id, start_at: event.start_at_utc}
+          }
+        })
+
         {:ok, event}
 
       error ->
@@ -124,6 +132,12 @@ defmodule Treby.Interviews do
             tenant_id: event.tenant_id
           }
         )
+
+        Treby.Audit.log_event("interview.completed", "interview_event", completed_event.id, %{
+          tenant_id: completed_event.tenant_id,
+          actor_id: actor && actor.id,
+          metadata: %{before: %{status: "scheduled"}, after: %{status: "completed"}}
+        })
 
         # Broadcast so pipeline boards re-stream without manual reload
         try do
@@ -181,6 +195,11 @@ defmodule Treby.Interviews do
             tenant_id: event.tenant_id
           }
         )
+
+        Treby.Audit.log_event("interview.cancelled", "interview_event", cancelled_event.id, %{
+          tenant_id: cancelled_event.tenant_id,
+          metadata: %{before: %{status: "scheduled"}, after: %{status: "cancelled"}}
+        })
 
         {:ok, cancelled_event}
 

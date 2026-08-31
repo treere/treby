@@ -44,6 +44,12 @@ defmodule Treby.Notes do
           }
         )
 
+        Treby.Audit.log_event("note.created", "note", note.id, %{
+          tenant_id: note.tenant_id,
+          actor_id: note.author_id,
+          metadata: %{after: %{application_id: note.application_id, type: note.type}}
+        })
+
         {:ok, note}
 
       error ->

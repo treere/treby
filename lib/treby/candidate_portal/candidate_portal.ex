@@ -238,6 +238,16 @@ defmodule Treby.CandidatePortal do
 
         broadcast_conversation_updated(message)
 
+        conv = Repo.get!(Conversation, message.conversation_id)
+
+        Treby.Audit.log_event("message.sent", "message", message.id, %{
+          tenant_id: conv.tenant_id,
+          actor_type: if(message.sender_type == "candidate", do: "candidate", else: "user"),
+          metadata: %{
+            after: %{conversation_id: message.conversation_id, message_type: message.message_type}
+          }
+        })
+
         {:ok, message}
 
       error ->

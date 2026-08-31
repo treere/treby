@@ -29,9 +29,21 @@ defmodule Treby.Scorecards do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      %ScorecardTemplate{tenant_id: attrs["tenant_id"]}
-      |> ScorecardTemplate.changeset(attrs)
-      |> Repo.insert()
+      case %ScorecardTemplate{tenant_id: attrs["tenant_id"]}
+           |> ScorecardTemplate.changeset(attrs)
+           |> Repo.insert() do
+        {:ok, tmpl} ->
+          Treby.Audit.log_event("scorecard_template.created", "scorecard_template", tmpl.id, %{
+            tenant_id: tmpl.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{after: %{name: tmpl.name}}
+          })
+
+          {:ok, tmpl}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -39,9 +51,21 @@ defmodule Treby.Scorecards do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      scorecard_template
-      |> ScorecardTemplate.changeset(attrs)
-      |> Repo.update()
+      before = Map.take(scorecard_template, [:name])
+
+      case scorecard_template |> ScorecardTemplate.changeset(attrs) |> Repo.update() do
+        {:ok, updated} ->
+          Treby.Audit.log_event("scorecard_template.updated", "scorecard_template", updated.id, %{
+            tenant_id: updated.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{before: before, after: Map.take(updated, [:name])}
+          })
+
+          {:ok, updated}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -49,7 +73,19 @@ defmodule Treby.Scorecards do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      Repo.delete(scorecard_template)
+      case Repo.delete(scorecard_template) do
+        {:ok, deleted} ->
+          Treby.Audit.log_event("scorecard_template.deleted", "scorecard_template", deleted.id, %{
+            tenant_id: deleted.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{before: %{name: deleted.name}}
+          })
+
+          {:ok, deleted}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -58,24 +94,61 @@ defmodule Treby.Scorecards do
   end
 
   def submit_scorecard(interview_event_id, interviewer_id, attrs) do
-    case Repo.get_by(Scorecard,
-           interview_event_id: interview_event_id,
-           interviewer_id: interviewer_id
-         ) do
-      nil ->
-        %Scorecard{}
-        |> Scorecard.changeset(
-          Map.merge(attrs, %{
-            "interview_event_id" => interview_event_id,
-            "interviewer_id" => interviewer_id
-          })
-        )
-        |> Repo.insert()
+    result =
+      case Repo.get_by(Scorecard,
+             interview_event_id: interview_event_id,
+             interviewer_id: interviewer_id
+           ) do
+        nil ->
+          %Scorecard{}
+          |> Scorecard.changeset(
+            Map.merge(attrs, %{
+              "interview_event_id" => interview_event_id,
+              "interviewer_id" => interviewer_id
+            })
+          )
+          |> Repo.insert()
 
-      existing ->
-        existing
-        |> Scorecard.changeset(attrs)
-        |> Repo.update()
+        existing ->
+          existing
+          |> Scorecard.changeset(attrs)
+          |> Repo.update()
+      end
+
+    case result do
+      {:ok, scorecard} ->
+        tenant_id =
+          (Repo.get(Treby.Interviews.InterviewEvent, interview_event_id) || %{tenant_id: nil}).tenant_id ||
+            attrs["tenant_id"] || attrs[:tenant_id]
+
+        action =
+          if result |> elem(0) == :ok and
+               not is_nil(
+                 Repo.get_by(Scorecard,
+                   interview_event_id: interview_event_id,
+                   interviewer_id: interviewer_id
+                 )
+               ) do
+            "scorecard.submitted"
+          else
+            "scorecard.submitted"
+          end
+
+        Treby.Audit.log_event(action, "scorecard", scorecard.id, %{
+          tenant_id: tenant_id,
+          actor_id: interviewer_id,
+          metadata: %{
+            after: %{
+              interview_event_id: interview_event_id,
+              recommendation: scorecard.recommendation
+            }
+          }
+        })
+
+        {:ok, scorecard}
+
+      error ->
+        error
     end
   end
 

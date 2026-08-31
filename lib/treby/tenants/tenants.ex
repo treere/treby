@@ -59,9 +59,20 @@ defmodule Treby.Tenants do
   end
 
   def update_tenant(%Tenant{} = tenant, attrs) do
-    tenant
-    |> Tenant.changeset(attrs)
-    |> Repo.update()
+    before = Map.take(tenant, [:name, :slug])
+
+    case tenant |> Tenant.changeset(attrs) |> Repo.update() do
+      {:ok, updated} ->
+        Treby.Audit.log_event("tenant.updated", "tenant", updated.id, %{
+          tenant_id: updated.id,
+          metadata: %{before: before, after: Map.take(updated, [:name, :slug])}
+        })
+
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 
   def delete_tenant(%Tenant{} = tenant) do

@@ -33,9 +33,19 @@ defmodule Treby.Customization do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      %CustomField{}
-      |> CustomField.changeset(attrs)
-      |> Repo.insert()
+      case %CustomField{} |> CustomField.changeset(attrs) |> Repo.insert() do
+        {:ok, cf} ->
+          Treby.Audit.log_event("custom_field.created", "custom_field", cf.id, %{
+            tenant_id: cf.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{after: %{name: cf.name, applies_to: cf.applies_to}}
+          })
+
+          {:ok, cf}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -43,9 +53,21 @@ defmodule Treby.Customization do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      custom_field
-      |> CustomField.changeset(attrs)
-      |> Repo.update()
+      before = Map.take(custom_field, [:name, :applies_to])
+
+      case custom_field |> CustomField.changeset(attrs) |> Repo.update() do
+        {:ok, updated} ->
+          Treby.Audit.log_event("custom_field.updated", "custom_field", updated.id, %{
+            tenant_id: updated.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{before: before, after: Map.take(updated, [:name, :applies_to])}
+          })
+
+          {:ok, updated}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -53,7 +75,19 @@ defmodule Treby.Customization do
     if actor && actor.role != "admin" do
       {:error, :unauthorized}
     else
-      Repo.delete(custom_field)
+      case Repo.delete(custom_field) do
+        {:ok, deleted} ->
+          Treby.Audit.log_event("custom_field.deleted", "custom_field", deleted.id, %{
+            tenant_id: deleted.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{before: %{name: deleted.name}}
+          })
+
+          {:ok, deleted}
+
+        error ->
+          error
+      end
     end
   end
 

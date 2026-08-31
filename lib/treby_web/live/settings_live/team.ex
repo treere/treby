@@ -58,12 +58,9 @@ defmodule TrebyWeb.SettingsLive.Team do
             <h1 class="text-2xl font-bold mt-2">{gettext("Team Management")}</h1>
             <p class="mt-1 text-base-content/70">{gettext("Manage your team members")}</p>
           </div>
-          <button
-            phx-click="show_invite_form"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
+          <.button variant="primary" phx-click="show_invite_form">
             + Invite Member
-          </button>
+          </.button>
         </div>
 
         <div :if={@show_invite_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
@@ -88,7 +85,7 @@ defmodule TrebyWeb.SettingsLive.Team do
             />
             <div class="flex gap-2">
               <.button type="submit">{gettext("Send Invite")}</.button>
-              <.button type="button" phx-click="cancel_invite" class="bg-gray-500">
+              <.button type="button" variant="ghost" phx-click="cancel_invite">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -203,7 +200,17 @@ defmodule TrebyWeb.SettingsLive.Team do
         </div>
       </div>
     </Layouts.app>
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_confirm_delete" />
+    <.confirm_dialog
+      id="confirm-team"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm="do_confirm_delete"
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+    />
     """
   end
 

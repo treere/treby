@@ -95,12 +95,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 {@duplicate_count}
               </span>
             </.link>
-            <button
-              phx-click="show_create_form"
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              + Add Candidate
-            </button>
+            <.button phx-click="show_create_form" variant="primary">
+              + {gettext("Add Candidate")}
+            </.button>
           </div>
         </div>
 
@@ -206,8 +203,8 @@ defmodule TrebyWeb.CandidatesLive.Index do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit">{gettext("Add")}</.button>
-              <.button type="button" phx-click="hide_create_form" class="bg-gray-500">
+              <.button type="submit" variant="primary">{gettext("Add")}</.button>
+              <.button type="button" phx-click="hide_create_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -347,42 +344,47 @@ defmodule TrebyWeb.CandidatesLive.Index do
               </form>
             </div>
 
-            <button
+            <.button
               :if={@bulk_action == "move_stage" && @bulk_stage_id != nil}
               phx-click="bulk_execute_move"
-              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+              variant="primary"
+              size="sm"
             >
               {gettext("Move")}
-            </button>
-            <button
+            </.button>
+            <.button
               :if={@bulk_action == "mark_reviewed"}
               phx-click="bulk_execute_mark_reviewed"
-              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+              variant="primary"
+              size="sm"
             >
               {gettext("Mark Reviewed")}
-            </button>
-            <button
+            </.button>
+            <.button
               :if={@bulk_action == "mark_unreviewed"}
               phx-click="bulk_execute_mark_unreviewed"
-              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+              variant="primary"
+              size="sm"
             >
               {gettext("Mark New")}
-            </button>
-            <button
+            </.button>
+            <.button
               :if={@bulk_action == "merge"}
               phx-click="bulk_execute_merge"
-              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+              variant="primary"
+              size="sm"
             >
               {gettext("Merge...")}
-            </button>
-            <button
+            </.button>
+            <.button
               :if={@bulk_action == "compare"}
               phx-click="bulk_execute_compare"
-              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+              variant="primary"
+              size="sm"
             >
               {gettext("Compare")}
-            </button>
-            <button
+            </.button>
+            <.button
               :if={@bulk_action == "delete"}
               phx-click="confirm_delete"
               phx-value-id="bulk"
@@ -394,18 +396,20 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   count: length(@selected_ids)
                 )
               }
-              class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
+              variant="danger"
+              size="sm"
             >
               {gettext("Delete")}
-            </button>
+            </.button>
 
-            <button
+            <.button
               :if={@bulk_action == "send_message"}
               phx-click="bulk_execute_send_message"
-              class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+              variant="primary"
+              size="sm"
             >
               {gettext("Send")}
-            </button>
+            </.button>
 
             <button
               phx-click="clear_selection"
@@ -573,27 +577,28 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 </label>
               </div>
               <div class="flex justify-end gap-3 mt-6">
-                <button
-                  phx-click="cancel_merge_modal"
-                  class="px-4 py-2 rounded-lg border border-base-300 text-sm font-medium text-base-content/80 hover:bg-base-200"
-                >
+                <.button phx-click="cancel_merge_modal" variant="ghost" size="sm">
                   {gettext("Cancel")}
-                </button>
-                <button
-                  phx-click="do_bulk_execute_merge"
-                  class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
-                >
+                </.button>
+                <.button phx-click="do_bulk_execute_merge" variant="primary" size="sm">
                   {gettext("Merge")}
-                </button>
+                </.button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </Layouts.app>
-    <.confirm_modal
-      confirm_delete={@confirm_delete}
-      on_confirm="do_delete_candidate"
+    <.confirm_dialog
+      id="confirm-candidate"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm={(@confirm_delete && Map.get(@confirm_delete, :on_confirm)) || "do_delete_candidate"}
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
     />
     """
   end

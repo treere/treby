@@ -38,12 +38,13 @@ defmodule TrebyWeb.HomeLive do
             >
               {gettext("Log in")}
             </.link>
-            <.link
+            <.button
               navigate={~p"/register"}
-              class="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
+              variant="primary"
+              class="rounded-full"
             >
               {gettext("Get started")}
-            </.link>
+            </.button>
           </div>
         </nav>
       </header>
@@ -72,12 +73,14 @@ defmodule TrebyWeb.HomeLive do
                 )}
               </p>
               <div class="mt-10 flex items-center justify-center gap-x-6">
-                <.link
+                <.button
                   navigate={~p"/register"}
-                  class="rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
+                  variant="primary"
+                  size="lg"
+                  class="rounded-full"
                 >
                   {gettext("Get started free")}
-                </.link>
+                </.button>
                 <.link
                   navigate={~p"/login"}
                   class="text-sm/6 font-semibold text-base-content hover:text-blue-600 transition-colors"

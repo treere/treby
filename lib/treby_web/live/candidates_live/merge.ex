@@ -88,23 +88,14 @@ defmodule TrebyWeb.CandidatesLive.Merge do
             </h2>
             <%= case group.confidence do %>
               <% :high -> %>
-                <span class="text-xs font-medium bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
-                  High confidence
-                </span>
+                <.badge variant="success" class="text-xs">{gettext("High confidence")}</.badge>
               <% :medium -> %>
-                <span class="text-xs font-medium bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
-                  Medium confidence
-                </span>
+                <.badge variant="warning" class="text-xs">{gettext("Medium confidence")}</.badge>
             <% end %>
-            <span class="text-xs text-base-content/50 bg-base-200 px-2 py-0.5 rounded-full">
-              {signal_label(group.signal)}
-            </span>
-            <span
-              :if={group.auto_merge}
-              class="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full"
-            >
+            <.badge variant="default" class="text-xs">{signal_label(group.signal)}</.badge>
+            <.badge :if={group.auto_merge} variant="info" class="text-xs">
               Same email — safe to merge
-            </span>
+            </.badge>
           </div>
 
           <div class="overflow-x-auto">
@@ -165,20 +156,22 @@ defmodule TrebyWeb.CandidatesLive.Merge do
           </div>
 
           <div class="flex items-center gap-3 mt-5">
-            <button
+            <.button
               phx-click="merge_group"
               phx-value-group_id={group.id}
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
+              variant="primary"
+              size="sm"
             >
               Merge {length(group.candidates)} into primary
-            </button>
-            <button
+            </.button>
+            <.button
               phx-click="dismiss_group"
               phx-value-group_id={group.id}
-              class="px-4 py-2 rounded-lg border border-base-300 text-sm font-medium text-base-content/80 hover:bg-base-200"
+              variant="ghost"
+              size="sm"
             >
               Dismiss
-            </button>
+            </.button>
             <p class="text-xs text-base-content/50">
               The primary profile keeps all applications, email threads, and activity. The others are archived.
             </p>

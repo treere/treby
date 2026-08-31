@@ -83,25 +83,17 @@ defmodule TrebyWeb.JobsLive.Analytics do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="mb-6">
-          <.link
-            navigate={~p"/app/jobs/#{@job.id}"}
-            class="text-blue-600 hover:text-blue-900 text-sm inline-flex items-center gap-1"
-          >
-            <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Job
-          </.link>
-          <h1 class="text-2xl font-bold mt-2">
-            {gettext("%{title} — Analytics", title: @job.title)}
-          </h1>
-          <p class="text-sm text-base-content/50 mt-1">
-            Views and conversion for this position
-            <span
-              :if={@job.status == "closed"}
-              class="ml-2 px-2 py-0.5 rounded-full bg-base-200 text-xs"
-            >
-              Closed — showing historical data
-            </span>
-          </p>
+        <.page_header
+          title={gettext("%{title} — Analytics", title: @job.title)}
+          subtitle={gettext("Views and conversion for this position")}
+          breadcrumbs={[
+            %{label: gettext("Jobs"), href: ~p"/app/jobs"},
+            %{label: @job.title, href: ~p"/app/jobs/#{@job.id}"},
+            %{label: gettext("Analytics")}
+          ]}
+        />
+        <div :if={@job.status == "closed"} class="mb-4">
+          <.badge variant="default">{gettext("Closed — showing historical data")}</.badge>
         </div>
 
         <%!-- KPI Cards --%>
@@ -147,19 +139,13 @@ defmodule TrebyWeb.JobsLive.Analytics do
           </div>
         </div>
 
-        <%!-- Empty state --%>
-        <div
+        <.empty_state
           :if={@summary.total_views == 0}
-          class="bg-base-100 rounded-lg shadow p-12 text-center mb-8"
-        >
-          <div class="mx-auto w-12 h-12 rounded-full bg-base-200 flex items-center justify-center mb-4">
-            <.icon name="hero-chart-bar" class="w-6 h-6 text-base-content/50" />
-          </div>
-          <h3 class="text-lg font-semibold text-base-content">{gettext("No views yet")}</h3>
-          <p class="mt-2 text-sm text-base-content/50 max-w-md mx-auto">
-            When visitors view the public job page, you'll see daily and monthly trends, traffic sources, and the view→application funnel here.
-          </p>
-        </div>
+          icon="hero-chart-bar"
+          title={gettext("No views yet")}
+          description={gettext("When visitors view the public job page, you'll see daily and monthly trends, traffic sources, and the view→application funnel here.")}
+          class="mb-8"
+        />
 
         <div :if={@summary.total_views > 0} class="space-y-8">
           <%!-- Daily chart --%>

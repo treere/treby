@@ -199,15 +199,26 @@ defmodule TrebyWeb.Router do
     get "/google/callback", GoogleAuthController, :callback
   end
 
-  # Enable LiveDashboard and Swoosh mailbox preview in development
+  # Enable LiveDashboard, Swoosh mailbox preview and Storybook in development (dev-only)
   if Application.compile_env(:treby, :dev_routes) do
     import Phoenix.LiveDashboard.Router
+    import PhoenixStorybook.Router
+
+    scope "/" do
+      pipe_through :browser
+      storybook_assets()
+    end
 
     scope "/dev" do
       pipe_through :browser
 
       live_dashboard "/dashboard", metrics: TrebyWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+
+    scope "/", TrebyWeb do
+      pipe_through :browser
+      live_storybook("/dev/storybook", backend_module: TrebyWeb.Storybook)
     end
   end
 end

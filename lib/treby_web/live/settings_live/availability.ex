@@ -86,12 +86,9 @@ defmodule TrebyWeb.SettingsLive.Availability do
         </div>
 
         <div class="mb-6">
-          <button
-            phx-click="show_create_form"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-          >
+          <.button variant="primary" phx-click="show_create_form">
             <.icon name="hero-plus" class="mr-2 h-4 w-4" /> Add Availability
-          </button>
+          </.button>
         </div>
 
         <div :if={@show_form} class="mb-8 bg-base-100 rounded-lg shadow p-6">
@@ -137,7 +134,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
             </div>
             <div class="flex gap-4">
               <.button type="submit">{gettext("Save")}</.button>
-              <.button type="button" phx-click="cancel_form" class="bg-gray-500 hover:bg-gray-600">
+              <.button type="button" variant="ghost" phx-click="cancel_form">
                 Cancel
               </.button>
             </div>
@@ -214,7 +211,17 @@ defmodule TrebyWeb.SettingsLive.Availability do
         </div>
       </div>
     </Layouts.app>
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_rule" />
+    <.confirm_dialog
+      id="confirm-availability"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm="do_delete_rule"
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+    />
     """
   end
 

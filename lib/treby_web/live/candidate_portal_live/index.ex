@@ -143,50 +143,50 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
       current_candidate={@current_candidate}
     >
       <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          {gettext("Your Applications")}
-        </h1>
+        <.page_header title={gettext("Your Applications")} />
 
         <%= if @selected_application do %>
-          <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <.card class="mb-6">
             <div class="flex justify-between items-start mb-4">
               <div>
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 class="text-xl font-semibold text-base-content">
                   {@selected_application.job.title}
                 </h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
+                <p class="text-sm text-base-content/60">
                   {@selected_application.job.description}
                 </p>
               </div>
-              <button
+              <.button
                 phx-click="close_detail"
                 aria-label={gettext("Close")}
-                class="text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                variant="ghost"
+                size="sm"
+                class="min-h-[44px] min-w-[44px]"
               >
                 ✕
-              </button>
+              </.button>
             </div>
 
             <div class="mb-4">
               <.status_badge status={@selected_application.pipeline_stage.name} />
             </div>
 
-            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
-              <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+            <div class="bg-base-200 rounded-lg border border-base-300 p-4 mb-4">
+              <p class="text-sm font-medium text-base-content mb-1">
                 {gettext("Where you are")}
               </p>
-              <p class="text-sm text-gray-600 dark:text-gray-300">
+              <p class="text-sm text-base-content/70">
                 {candidate_step(@selected_application)}
               </p>
 
               <%= if @selected_action do %>
-                <div class="mt-3 flex items-center justify-between gap-3 rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 px-3 py-2">
-                  <p class="text-sm text-blue-800 dark:text-blue-200">
+                <div class="mt-3 flex items-center justify-between gap-3 rounded-md bg-info/10 border border-info/20 px-3 py-2">
+                  <p class="text-sm text-info-content">
                     <span class="font-medium">{gettext("Action needed:")}</span> {@selected_action.label}
                   </p>
                   <.link
                     navigate={@selected_action.link}
-                    class="shrink-0 text-sm font-medium text-blue-700 dark:text-blue-300 hover:underline"
+                    class="shrink-0 text-sm font-medium text-primary hover:underline"
                   >
                     Reply now →
                   </.link>
@@ -194,8 +194,8 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               <% end %>
             </div>
 
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div class="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <div class="border-t border-base-300 pt-4">
+              <div class="flex flex-wrap gap-4 text-sm text-base-content/50">
                 <p>
                   Applied {Calendar.strftime(@selected_application.applied_at, "%b %d, %Y")}
                 </p>
@@ -206,17 +206,17 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
             </div>
 
             <%= if @selected_timeline != [] do %>
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                <p class="text-sm font-medium text-gray-900 dark:text-white mb-3">
+              <div class="border-t border-base-300 pt-4 mt-4">
+                <p class="text-sm font-medium text-base-content mb-3">
                   Timeline
                 </p>
                 <div class="space-y-3">
                   <%= for entry <- @selected_timeline do %>
                     <div class="flex items-start gap-3">
-                      <div class="mt-1.5 w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
+                      <div class="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0"></div>
                       <div>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">{entry.body}</p>
-                        <p class="text-xs text-gray-400">
+                        <p class="text-sm text-base-content/80">{entry.body}</p>
+                        <p class="text-xs text-base-content/40">
                           {Calendar.strftime(entry.inserted_at, "%b %d, %Y")}
                         </p>
                       </div>
@@ -229,14 +229,14 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
             <%= if @selected_conversations != [] do %>
               <% active = Enum.find(@selected_conversations, &(&1.status != "closed")) %>
               <%= if active do %>
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                <div class="border-t border-base-300 pt-4 mt-4">
                   <div class="flex items-center justify-between mb-3">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                    <p class="text-sm font-medium text-base-content">
                       {active.subject || "Conversation"}
                     </p>
                     <.link
                       navigate={"/#{@current_tenant.slug}/portal/messages/#{active.id}"}
-                      class="text-sm text-blue-600 hover:text-blue-800"
+                      class="text-sm text-primary hover:underline"
                     >
                       Open full thread →
                     </.link>
@@ -246,13 +246,13 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                     <%= for message <- active.messages do %>
                       <div class={[
                         "rounded-lg p-3 max-w-3xl",
-                        message.sender_type == "candidate" && "bg-blue-50 dark:bg-blue-900/20 ml-auto",
-                        message.sender_type == "recruiter" && "bg-gray-100 dark:bg-gray-800",
+                        message.sender_type == "candidate" && "bg-primary/10 ml-auto",
+                        message.sender_type == "recruiter" && "bg-base-200",
                         message.sender_type == "system" &&
-                          "bg-gray-50 dark:bg-gray-800/50 mx-auto text-center text-xs text-gray-500"
+                          "bg-base-200/50 mx-auto text-center text-xs text-base-content/50"
                       ]}>
-                        <p class="text-sm text-gray-900 dark:text-white">{message.body}</p>
-                        <p class="text-xs text-gray-400 mt-0.5">
+                        <p class="text-sm text-base-content">{message.body}</p>
+                        <p class="text-xs text-base-content/40 mt-0.5">
                           {Calendar.strftime(message.inserted_at, "%b %d, %H:%M")}
                         </p>
                       </div>
@@ -270,45 +270,44 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                       value={@selected_draft}
                       phx-change="update_detail_draft"
                       placeholder={gettext("Type a message...")}
-                      class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="input flex-1"
                     />
-                    <button
-                      type="submit"
-                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                    >
+                    <.button type="submit" variant="primary" size="sm">
                       Send
-                    </button>
+                    </.button>
                   </form>
                 </div>
               <% end %>
             <% end %>
-          </div>
+          </.card>
         <% end %>
 
         <%= if @applications == [] do %>
-          <div class="text-center py-12">
-            <p class="text-gray-500 dark:text-gray-400">{gettext("No applications yet.")}</p>
-            <.link
-              navigate={"/#{@current_tenant.slug}/careers"}
-              class="mt-4 inline-block text-blue-600 hover:text-blue-800"
-            >
-              Browse open positions →
-            </.link>
-          </div>
+          <.empty_state
+            icon="hero-inbox"
+            title={gettext("No applications yet.")}
+            description={gettext("Browse open positions to apply.")}
+          >
+            <:cta>
+              <.button variant="primary" navigate={"/#{@current_tenant.slug}/careers"}>
+                Browse open positions →
+              </.button>
+            </:cta>
+          </.empty_state>
         <% else %>
           <div class="space-y-4">
             <%= for application <- @applications do %>
               <button
                 phx-click="select_application"
                 phx-value-id={application.id}
-                class="w-full text-left p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors"
+                class="w-full text-left p-4 bg-base-100 rounded-lg border border-base-300 hover:border-primary transition-colors shadow-sm"
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <p class="font-medium text-gray-900 dark:text-white">
+                    <p class="font-medium text-base-content">
                       {application.job.title}
                     </p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <p class="text-sm text-base-content/60 line-clamp-2">
                       {application.job.description}
                     </p>
                   </div>
@@ -325,19 +324,17 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
 
   defp status_badge(assigns) do
     ~H"""
-    <span class={[
-      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-      @status == "new" && "bg-gray-100 text-gray-800",
-      @status == "screening" && "bg-blue-100 text-blue-800",
-      @status == "interview" && "bg-yellow-100 text-yellow-800",
-      @status == "offer" && "bg-green-100 text-green-800",
-      @status == "hired" && "bg-green-100 text-green-800",
-      @status == "rejected" && "bg-red-100 text-red-800"
-    ]}>
-      {human_status(@status)}
-    </span>
+    <.badge variant={badge_variant(@status)}>{human_status(@status)}</.badge>
     """
   end
+
+  defp badge_variant("new"), do: "default"
+  defp badge_variant("screening"), do: "info"
+  defp badge_variant("interview"), do: "warning"
+  defp badge_variant("offer"), do: "success"
+  defp badge_variant("hired"), do: "success"
+  defp badge_variant("rejected"), do: "danger"
+  defp badge_variant(_), do: "default"
 
   defp human_status("new"), do: gettext("Received")
   defp human_status("screening"), do: gettext("Screening")

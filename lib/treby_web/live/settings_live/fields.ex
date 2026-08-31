@@ -57,12 +57,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
               {gettext("Define custom fields for candidates, jobs, and applications")}
             </p>
           </div>
-          <button
-            phx-click="show_create_form"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            + Add Field
-          </button>
+          <.button phx-click="show_create_form" variant="primary">+ {gettext("Add Field")}</.button>
         </div>
 
         <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
@@ -126,7 +121,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
 
             <div class="flex gap-2">
               <.button type="submit">{gettext("Save")}</.button>
-              <.button type="button" phx-click="cancel_form" class="bg-gray-500">
+              <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -199,7 +194,17 @@ defmodule TrebyWeb.SettingsLive.Fields do
         </div>
       </div>
     </Layouts.app>
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_field" />
+    <.confirm_dialog
+      id="confirm-field"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm="do_delete_field"
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+    />
     """
   end
 

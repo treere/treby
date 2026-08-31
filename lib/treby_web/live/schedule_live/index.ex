@@ -74,22 +74,27 @@ defmodule TrebyWeb.ScheduleLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="mb-8">
-          <.link
-            navigate={~p"/app/candidates/#{@application.candidate_id}"}
-            class="text-blue-600 hover:text-blue-900 text-sm"
-          >
-            &larr; Back to Candidate
-          </.link>
-          <h1 class="text-2xl font-bold mt-2">{gettext("Schedule Interview")}</h1>
-          <p class="mt-1 text-base-content/70">
-            {gettext("Scheduling for")}<strong>{@application.candidate.name}</strong> — {@application.job.title}
-          </p>
-        </div>
+        <.page_header
+          title={gettext("Schedule Interview")}
+          subtitle={
+            gettext("Scheduling for %{candidate} — %{job}",
+              candidate: @application.candidate.name,
+              job: @application.job.title
+            )
+          }
+          breadcrumbs={[
+            %{label: gettext("Candidates"), href: ~p"/app/candidates"},
+            %{
+              label: @application.candidate.name,
+              href: ~p"/app/candidates/#{@application.candidate_id}"
+            },
+            %{label: gettext("Schedule Interview")}
+          ]}
+        />
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div class="lg:col-span-2">
-            <div class="bg-base-100 rounded-lg shadow p-6">
+            <.card class="shadow">
               <h2 class="text-lg font-semibold mb-4">{gettext("Select Interviewer")}</h2>
               <div :if={@users == []} class="space-y-4">
                 <div class="text-center py-4">
@@ -97,10 +102,10 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     {gettext("No team members have set their availability yet.")}
                   </p>
                   <p class="text-xs text-base-content/40 mt-1">
-                    {gettext("Schedule ad-hoc without weekly rules — or")}<.link
-                      navigate={~p"/app/settings/availability"}
-                      class="text-blue-600 hover:text-blue-800"
-                    >{gettext("Set weekly availability → Settings → Availability")}</.link>
+                    {gettext("Schedule ad-hoc without weekly rules — or")}
+                    <.link navigate={~p"/app/settings/availability"} class="link link-primary">
+                      {gettext("Set weekly availability → Settings → Availability")}
+                    </.link>
                   </p>
                 </div>
                 <div class="border rounded-lg p-4 bg-base-200/50 space-y-3">
@@ -143,13 +148,14 @@ defmodule TrebyWeb.ScheduleLive.Index do
                       </option>
                     </select>
                   </div>
-                  <button
+                  <.button
                     phx-click="book_ad_hoc"
+                    variant="primary"
                     disabled={is_nil(@ad_hoc_user_id) or @ad_hoc_date == "" or @ad_hoc_time == ""}
-                    class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full"
                   >
                     {gettext("Book Interview")}
-                  </button>
+                  </.button>
                 </div>
               </div>
 
@@ -161,18 +167,20 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     class={[
                       "w-full text-left px-4 py-3 rounded-lg border transition-colors",
                       if(@selected_user && @selected_user.id == user.id,
-                        do: "border-blue-500 bg-blue-50 dark:bg-blue-950",
+                        do: "border-primary bg-primary/10",
                         else: "border-base-300 hover:border-base-300"
                       )
                     ]}
                   >
                     <span class="font-medium">{user.name}</span>
                     <span class="text-sm text-base-content/50 ml-2">{user.email}</span>
-                    <%= if MapSet.member?(@connected_ids, user.id) do %>
-                      <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {gettext("Google connected")}
-                      </span>
-                    <% end %>
+                    <.badge
+                      :if={MapSet.member?(@connected_ids, user.id)}
+                      variant="success"
+                      class="ml-2"
+                    >
+                      {gettext("Google connected")}
+                    </.badge>
                   </button>
                 <% end %>
               </div>
@@ -182,12 +190,9 @@ defmodule TrebyWeb.ScheduleLive.Index do
                   <h3 class="font-medium mb-3">{gettext("Available Slots")}</h3>
 
                   <div class="flex items-center gap-4 mb-4">
-                    <button
-                      phx-click="prev_week"
-                      class="px-3 py-1 border rounded hover:bg-base-200"
-                    >
-                      &larr; Prev
-                    </button>
+                    <.button variant="ghost" size="sm" phx-click="prev_week">
+                      &larr; {gettext("Prev")}
+                    </.button>
                     <span class="text-sm text-base-content/70">
                       {Elixir.Calendar.strftime(@selected_date, "%B %d")} - {Date.add(
                         @selected_date,
@@ -195,19 +200,17 @@ defmodule TrebyWeb.ScheduleLive.Index do
                       )
                       |> Elixir.Calendar.strftime("%B %d, %Y")}
                     </span>
-                    <button
-                      phx-click="next_week"
-                      class="px-3 py-1 border rounded hover:bg-base-200"
-                    >
+                    <.button variant="ghost" size="sm" phx-click="next_week">
                       {gettext("Next &rarr;")}
-                    </button>
+                    </.button>
                   </div>
 
-                  <div :if={@slots == []} class="text-center py-8">
-                    <p class="text-base-content/50 text-sm">
-                      {gettext("No available slots for this week")}
-                    </p>
-                  </div>
+                  <.empty_state
+                    :if={@slots == []}
+                    icon="hero-calendar-days"
+                    title={gettext("No available slots for this week")}
+                    description={gettext("Try selecting another week or another interviewer.")}
+                  />
 
                   <div :if={@slots != []} class="grid grid-cols-7 gap-2">
                     <%= for slot <- @slots do %>
@@ -217,8 +220,8 @@ defmodule TrebyWeb.ScheduleLive.Index do
                         class={[
                           "px-3 py-2 text-xs rounded border text-center transition-colors",
                           if(@selected_slot && @selected_slot.start == slot.start,
-                            do: "border-blue-500 bg-blue-500 text-white",
-                            else: "border-base-300 hover:border-blue-300"
+                            do: "border-primary bg-primary text-primary-content",
+                            else: "border-base-300 hover:border-primary/30"
                           )
                         ]}
                       >
@@ -228,16 +231,16 @@ defmodule TrebyWeb.ScheduleLive.Index do
                   </div>
                 </div>
               <% end %>
-            </div>
+            </.card>
           </div>
 
           <div class="lg:col-span-1">
-            <div class="bg-base-100 rounded-lg shadow p-6">
+            <.card class="shadow">
               <h2 class="text-lg font-semibold mb-4">{gettext("Details")}</h2>
               <dl class="space-y-3 text-sm">
                 <div>
                   <dt class="text-base-content/50">{gettext("Candidate")}</dt>
-                  <dd class="font-medium">{@application.candidate.name}</dd>
+                  <dd><strong>{@application.candidate.name}</strong></dd>
                 </div>
                 <div>
                   <dt class="text-base-content/50">{gettext("Job")}</dt>
@@ -255,14 +258,14 @@ defmodule TrebyWeb.ScheduleLive.Index do
                 </div>
               </dl>
 
-              <%= if @selected_slot && @selected_user do %>
-                <button
-                  phx-click="book_interview"
-                  class="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  {gettext("Book Interview")}
-                </button>
-              <% end %>
+              <.button
+                :if={@selected_slot && @selected_user}
+                phx-click="book_interview"
+                variant="primary"
+                class="mt-6 w-full"
+              >
+                {gettext("Book Interview")}
+              </.button>
 
               <div class="mt-6 pt-6 border-t">
                 <h3 class="text-sm font-medium text-base-content/80 mb-2">
@@ -270,12 +273,11 @@ defmodule TrebyWeb.ScheduleLive.Index do
                 </h3>
                 <p class="text-xs text-base-content/50">
                   {gettext(
-                    "The candidate can choose their own time slot from their application portal.
-                  Send them a message in the portal to let them know they can book."
+                    "The candidate can choose their own time slot from their application portal. Send them a message in the portal to let them know they can book."
                   )}
                 </p>
               </div>
-            </div>
+            </.card>
           </div>
         </div>
       </div>

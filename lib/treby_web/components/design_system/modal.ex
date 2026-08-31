@@ -80,8 +80,10 @@ defmodule TrebyWeb.DesignSystem.Modal do
   defp size_class("lg"), do: "max-w-lg"
   defp size_class("xl"), do: "max-w-xl"
 
-  defp close_event(nil, id), do: JS.push("close-modal", value: %{id: id})
-  defp close_event(event, _id), do: JS.push(event)
+  defp close_event(nil, id),
+    do: JS.push("close-modal", value: %{id: id}) |> JS.add_class("hidden", to: "##{id}")
+
+  defp close_event(event, id), do: JS.push(event) |> JS.add_class("hidden", to: "##{id}")
 
   defp icon(assigns) do
     ~H"""

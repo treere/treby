@@ -117,8 +117,8 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             </div>
 
             <div class="flex gap-2">
-              <.button type="submit">{gettext("Save")}</.button>
-              <.button type="button" phx-click="cancel_form" class="bg-gray-500">
+              <.button type="submit" variant="primary">{gettext("Save")}</.button>
+              <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -150,8 +150,8 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               prompt={gettext("Select a stage")}
             />
             <div class="flex gap-2">
-              <.button type="submit">{gettext("Move & Delete")}</.button>
-              <.button type="button" phx-click="cancel_delete" class="bg-gray-500">
+              <.button type="submit" variant="primary">{gettext("Move & Delete")}</.button>
+              <.button type="button" phx-click="cancel_delete" variant="ghost">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -269,12 +269,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
         </div>
 
         <div class="mt-4">
-          <button
-            phx-click="show_create_form"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
+          <.button phx-click="show_create_form" variant="primary">
             + {gettext("Add Stage")}
-          </button>
+          </.button>
         </div>
 
         <%!-- Role Assignment Modal --%>
@@ -326,7 +323,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     prompt={gettext("Select user...")}
                     label=""
                   />
-                  <.button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                  <.button type="submit" variant="primary" size="sm">
                     {gettext("Add")}
                   </.button>
                 </.form>
@@ -366,7 +363,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     prompt={gettext("Select user...")}
                     label=""
                   />
-                  <.button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
+                  <.button type="submit" variant="primary" size="sm">
                     {gettext("Add")}
                   </.button>
                 </.form>
@@ -406,7 +403,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     prompt={gettext("Select user...")}
                     label=""
                   />
-                  <.button type="submit" class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
+                  <.button type="submit" variant="secondary" size="sm">
                     {gettext("Add")}
                   </.button>
                 </.form>

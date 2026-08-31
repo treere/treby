@@ -201,68 +201,55 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
     >
       <div class="max-w-2xl mx-auto px-4 py-8">
         <%= if @confirmed do %>
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-              <.icon name="hero-check" class="h-8 w-8 text-green-600" />
+          <.card class="text-center">
+            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+              <.icon name="hero-check" class="h-8 w-8 text-success" />
             </div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 class="text-2xl font-bold text-base-content">
               {gettext("Interview Scheduled!")}
             </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
+            <p class="mt-2 text-base-content/60">
               {gettext(
                 "Your interview has been confirmed. You can find the details in your messages."
               )}
             </p>
             <div :if={@meet_link} class="mt-6">
-              <a
-                href={@meet_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
+              <.button variant="primary" href={@meet_link} target="_blank">
                 <.icon name="hero-video-camera" class="h-5 w-5" /> {meeting_label(@meet_link)}
-              </a>
+              </.button>
             </div>
-          </div>
+          </.card>
         <% else %>
           <%= if @application do %>
-            <div class="text-center mb-8">
-              <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                {gettext("Schedule your interview")}
-              </h1>
-              <p class="mt-2 text-gray-600 dark:text-gray-400">
-                for {@application.job.title}
-              </p>
-            </div>
+            <.page_header
+              title={gettext("Schedule your interview")}
+              subtitle={@application.job.title}
+            />
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            <.card>
+              <h2 class="text-lg font-semibold mb-4 text-base-content">
                 {gettext("Select a time slot")}
               </h2>
 
               <div class="flex items-center gap-4 mb-4">
-                <button
-                  phx-click="prev_week"
-                  class="px-3 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <.button variant="ghost" size="sm" phx-click="prev_week">
                   &larr; Prev
-                </button>
-                <span class="text-sm text-gray-600 dark:text-gray-400">
+                </.button>
+                <span class="text-sm text-base-content/60">
                   {Elixir.Calendar.strftime(@selected_date, "%B %d")} - {Date.add(@selected_date, 6)
                   |> Elixir.Calendar.strftime("%B %d, %Y")}
                 </span>
-                <button
-                  phx-click="next_week"
-                  class="px-3 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <.button variant="ghost" size="sm" phx-click="next_week">
                   {gettext("Next &rarr;")}
-                </button>
+                </.button>
               </div>
 
               <div :if={@slots == []} class="text-center py-8">
-                <p class="text-gray-500 dark:text-gray-400 text-sm">
-                  {gettext("No available slots for this period")}
-                </p>
+                <.empty_state
+                  icon="hero-calendar-days"
+                  title={gettext("No available slots for this period")}
+                  description={gettext("Try navigating to another week.")}
+                />
               </div>
 
               <div :if={@slots != []} class="grid grid-cols-7 gap-2">
@@ -273,14 +260,14 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
                     class={[
                       "px-3 py-2 text-xs rounded border text-center transition-colors",
                       if(@selected_slot && @selected_slot.start == slot.start,
-                        do: "border-blue-500 bg-blue-500 text-white",
-                        else: "border-gray-300 dark:border-gray-600 hover:border-blue-300"
+                        do: "border-primary bg-primary text-primary-content",
+                        else: "border-base-300 hover:border-primary/50 bg-base-100"
                       )
                     ]}
                   >
                     {slot.start |> Elixir.Calendar.strftime("%a %H:%M")}
                     <%= if Map.has_key?(slot, :available_examiners) && slot.available_examiners != [] do %>
-                      <div class="text-[10px] text-green-600 mt-0.5">
+                      <div class="text-[10px] text-success mt-0.5">
                         {length(slot.available_examiners)} available
                       </div>
                     <% end %>
@@ -289,30 +276,31 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
               </div>
 
               <%= if @selected_slot do %>
-                <div class="mt-6 pt-6 border-t">
-                  <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {gettext("Selected:")}<strong>
+                <div class="mt-6 pt-6 border-t border-base-300">
+                  <p class="text-sm text-base-content/60">
+                    {gettext("Selected:")}<strong class="text-base-content ml-1">
                       {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                     </strong>
                   </p>
-                  <button
+                  <.button
                     phx-click="confirm_booking"
-                    class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    variant="primary"
+                    class="mt-4 w-full"
                   >
                     {gettext("Confirm Booking")}
-                  </button>
+                  </.button>
                 </div>
               <% end %>
-            </div>
+            </.card>
           <% else %>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+            <.card class="text-center">
+              <h1 class="text-xl font-bold text-base-content">
                 {gettext("Nothing to schedule")}
               </h1>
-              <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <p class="mt-2 text-base-content/60">
                 {gettext("You don't have any application in an interview stage right now.")}
               </p>
-            </div>
+            </.card>
           <% end %>
         <% end %>
       </div>

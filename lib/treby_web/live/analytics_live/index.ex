@@ -51,54 +51,64 @@ defmodule TrebyWeb.AnalyticsLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="flex justify-between items-center mb-8">
-          <h1 class="text-2xl font-bold">{gettext("Analytics")}</h1>
-          <.form for={%{}} phx-change="select_pipeline" id="pipeline-selector-form">
-            <select
-              name="pipeline_id"
-              class="select"
-            >
-              <option value="" selected={@selected_pipeline_id == nil}>
-                {gettext("All pipelines")}
-              </option>
-              <%= for pipeline <- @pipelines do %>
-                <option
-                  value={pipeline.id}
-                  selected={@selected_pipeline_id == pipeline.id}
-                >
-                  {pipeline.name}
+        <.page_header
+          title={gettext("Analytics")}
+          subtitle={gettext("Pipeline performance and candidate insights")}
+        >
+          <:actions>
+            <.form for={%{}} phx-change="select_pipeline" id="pipeline-selector-form">
+              <select name="pipeline_id" class="select">
+                <option value="" selected={@selected_pipeline_id == nil}>
+                  {gettext("All pipelines")}
                 </option>
-              <% end %>
-            </select>
-          </.form>
-        </div>
+                <%= for pipeline <- @pipelines do %>
+                  <option value={pipeline.id} selected={@selected_pipeline_id == pipeline.id}>
+                    {pipeline.name}
+                  </option>
+                <% end %>
+              </select>
+            </.form>
+          </:actions>
+        </.page_header>
 
         <%!-- Metrics Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <.card class="shadow">
             <h3 class="text-sm font-medium text-base-content/50">{gettext("Total Candidates")}</h3>
             <p class="mt-2 text-3xl font-bold text-base-content">
               {Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end)}
             </p>
-          </div>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          </.card>
+          <.card class="shadow">
             <h3 class="text-sm font-medium text-base-content/50">{gettext("Avg. Time to Hire")}</h3>
             <p class="mt-2 text-3xl font-bold text-base-content">
               {if @avg_hire_days,
                 do: "#{@avg_hire_days |> Decimal.to_float() |> Float.round(1)} days",
                 else: "N/A"}
             </p>
-          </div>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          </.card>
+          <.card class="shadow">
             <h3 class="text-sm font-medium text-base-content/50">{gettext("Active Jobs")}</h3>
             <p class="mt-2 text-3xl font-bold text-base-content">
               {Enum.count(@jobs, &(&1.status == "open"))}
             </p>
-          </div>
+            <.badge :if={Enum.count(@jobs, &(&1.status == "open")) > 0} variant="success" class="mt-2">
+              {gettext("Open")}
+            </.badge>
+          </.card>
         </div>
 
+        <.empty_state
+          :if={@pipeline_counts == [] and @source_breakdown == []}
+          icon="hero-chart-bar"
+          title={gettext("No analytics data yet")}
+          description={
+            gettext("Add candidates and move them through your pipeline to see analytics.")
+          }
+        />
+
         <%!-- Source Breakdown --%>
-        <div :if={@source_breakdown != []} class="bg-base-100 rounded-lg shadow p-6 mb-8">
+        <.card :if={@source_breakdown != []} class="shadow mb-8">
           <h2 class="text-lg font-semibold mb-4">{gettext("Candidates by Source")}</h2>
           <div class="space-y-3">
             <div :for={item <- @source_breakdown} class="flex items-center gap-4">
@@ -115,15 +125,21 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   </span>
                 </div>
               </div>
-              <span class="w-8 text-sm text-base-content/70 text-right">{item.count}</span>
+              <.badge variant="default" class="w-10 justify-center">{item.count}</.badge>
             </div>
           </div>
-        </div>
+        </.card>
 
         <%!-- Pipeline Overview --%>
-        <div class="bg-base-100 rounded-lg shadow p-6 mb-8">
+        <.card class="shadow mb-8">
           <h2 class="text-lg font-semibold mb-4">{gettext("Pipeline Overview")}</h2>
-          <div class="space-y-3">
+          <.empty_state
+            :if={@pipeline_counts == []}
+            icon="hero-queue-list"
+            title={gettext("No pipeline data")}
+            description={gettext("Pipeline stages will appear here once candidates are added.")}
+          />
+          <div :if={@pipeline_counts != []} class="space-y-3">
             <div :for={item <- @pipeline_counts} class="flex items-center gap-4">
               <div class="w-32 flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full" style={"background-color: #{item.stage.color}"}>
@@ -142,13 +158,13 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   </span>
                 </div>
               </div>
-              <span class="w-8 text-sm text-base-content/70 text-right">{item.count}</span>
+              <.badge variant="default" class="w-10 justify-center">{item.count}</.badge>
             </div>
           </div>
-        </div>
+        </.card>
 
         <%!-- Time in Stage --%>
-        <div :if={@time_in_stage != []} class="bg-base-100 rounded-lg shadow p-6 mb-8">
+        <.card :if={@time_in_stage != []} class="shadow mb-8">
           <h2 class="text-lg font-semibold mb-4">{gettext("Time in Stage (Avg. Days)")}</h2>
           <div class="space-y-3">
             <div :for={item <- @time_in_stage} class="flex items-center gap-4">
@@ -161,6 +177,9 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                 <span class="text-sm font-medium text-base-content/80">
                   {if item.stage, do: item.stage.name, else: "Unknown"}
                 </span>
+                <.badge :if={item.is_bottleneck} variant="danger" class="ml-1">
+                  {gettext("Bottleneck")}
+                </.badge>
               </div>
               <div class="flex-1 bg-base-200 rounded-full h-6">
                 <div
@@ -180,14 +199,20 @@ defmodule TrebyWeb.AnalyticsLive.Index do
               </span>
             </div>
           </div>
-        </div>
+        </.card>
 
         <%!-- Hiring Funnel --%>
-        <div class="bg-base-100 rounded-lg shadow p-6 mb-8">
+        <.card class="shadow mb-8">
           <h2 class="text-lg font-semibold mb-4">{gettext("Hiring Funnel")}</h2>
-          <div class="flex flex-col items-center gap-1">
+          <.empty_state
+            :if={@pipeline_counts == []}
+            icon="hero-funnel"
+            title={gettext("No funnel data")}
+            description={gettext("Move candidates through stages to see your hiring funnel.")}
+          />
+          <div :if={@pipeline_counts != []} class="flex flex-col items-center gap-1">
             <div
-              :for={{item, idx} <- Enum.with_index(@pipeline_counts)}
+              :for={{item, _idx} <- Enum.with_index(@pipeline_counts)}
               class="flex items-center gap-4 w-full max-w-lg"
             >
               <div class="w-28 text-right flex items-center justify-end gap-2">
@@ -209,31 +234,28 @@ defmodule TrebyWeb.AnalyticsLive.Index do
                   </span>
                 </div>
               </div>
-              <span class="w-10 text-sm text-base-content/50 text-right">
+              <.badge variant="default" class="w-12 justify-center">
                 {total = Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end)
                 if total > 0, do: "#{trunc(item.count / total * 100)}%", else: "0%"}
-              </span>
+              </.badge>
             </div>
           </div>
-        </div>
+        </.card>
 
         <%!-- Conversion Rates --%>
-        <div :if={@conversion_rates != []} class="bg-base-100 rounded-lg shadow p-6">
+        <.card :if={@conversion_rates != []} class="shadow">
           <h2 class="text-lg font-semibold mb-4">{gettext("Stage Conversion Rates")}</h2>
           <div class="space-y-2">
             <div :for={rate <- @conversion_rates} class="flex items-center gap-3 text-sm">
               <span class="text-base-content/80">{rate.from.name}</span>
               <.icon name="hero-arrow-right" class="w-4 h-4 text-base-content/40" />
               <span class="text-base-content/80">{rate.to.name}</span>
-              <span class={[
-                "font-medium ml-auto",
-                if(rate.rate >= 50, do: "text-green-600", else: "text-red-600")
-              ]}>
+              <.badge variant={if rate.rate >= 50, do: "success", else: "danger"} class="ml-auto">
                 {rate.rate}%
-              </span>
+              </.badge>
             </div>
           </div>
-        </div>
+        </.card>
       </div>
     </Layouts.app>
     """

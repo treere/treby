@@ -17,7 +17,7 @@
           phx-value-tab="scheduled"
           class={[
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
-            @tab == "scheduled" && "border-blue-500 text-blue-600",
+            @tab == "scheduled" && "border-primary text-primary",
             @tab != "scheduled" &&
               "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
@@ -29,7 +29,7 @@
           phx-value-tab="sent"
           class={[
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
-            @tab == "sent" && "border-blue-500 text-blue-600",
+            @tab == "sent" && "border-primary text-primary",
             @tab != "sent" &&
               "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
@@ -41,7 +41,7 @@
           phx-value-tab="failed"
           class={[
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
-            @tab == "failed" && "border-red-500 text-red-600",
+            @tab == "failed" && "border-error text-error",
             @tab != "failed" &&
               "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
@@ -53,7 +53,7 @@
           phx-value-tab="cancelled"
           class={[
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
-            @tab == "cancelled" && "border-gray-500 text-base-content/70",
+            @tab == "cancelled" && "border-base-300 text-base-content",
             @tab != "cancelled" &&
               "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
           ]}
@@ -67,18 +67,12 @@
       <div class="mb-4 flex items-center gap-3 p-3 bg-base-200 rounded-lg border border-base-300">
         <span class="text-sm text-base-content/70">{MapSet.size(@selected_ids)} selected</span>
         <%= if @tab == "scheduled" do %>
-          <button
-            phx-click="bulk_send_now"
-            class="text-sm px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          <.button phx-click="bulk_send_now" variant="primary" size="sm">
             Post Selected
-          </button>
-          <button
-            phx-click="bulk_cancel"
-            class="text-sm px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
+          </.button>
+          <.button phx-click="bulk_cancel" variant="danger" size="sm">
             Cancel Selected
-          </button>
+          </.button>
         <% end %>
         <button
           phx-click="deselect_all"
@@ -331,19 +325,12 @@
           </div>
 
           <div class="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
-              phx-click="close_edit"
-              class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300 transition-colors"
-            >
+            <.button type="button" phx-click="close_edit" variant="ghost">
               Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            </.button>
+            <.button type="submit" variant="primary">
               Save
-            </button>
+            </.button>
           </div>
         </.form>
       </div>

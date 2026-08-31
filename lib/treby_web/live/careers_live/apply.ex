@@ -56,16 +56,12 @@ defmodule TrebyWeb.CareersLive.Apply do
       <div class="max-w-2xl mx-auto py-12 px-4">
         <.link
           navigate={~p"/#{@tenant.slug}/careers/#{@job.id}"}
-          class="text-blue-600 hover:text-blue-900"
+          class="text-primary hover:text-primary/80"
         >
           &larr; Back to job
         </.link>
 
-        <div
-          :if={@duplicate}
-          id="duplicate-notice"
-          class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center"
-        >
+        <.card :if={@duplicate} id="duplicate-notice" class="mt-8 text-center">
           <h2 class="text-2xl font-bold text-base-content">
             {gettext("You have already applied")}
           </h2>
@@ -79,24 +75,21 @@ defmodule TrebyWeb.CareersLive.Apply do
             <% end %>
           </p>
           <div class="mt-6 space-y-4">
-            <.link
-              navigate={~p"/#{@tenant.slug}/portal/login"}
-              class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
+            <.button variant="primary" navigate={~p"/#{@tenant.slug}/portal/login"}>
               {gettext("View Your Application")}
-            </.link>
+            </.button>
             <div>
               <.link
                 navigate={~p"/#{@tenant.slug}/careers"}
-                class="text-blue-600 hover:text-blue-900"
+                class="text-primary hover:text-primary/80"
               >
                 {gettext("View other positions")}
               </.link>
             </div>
           </div>
-        </div>
+        </.card>
 
-        <div :if={@submitted} class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center">
+        <.card :if={@submitted} class="mt-8 text-center">
           <h2 class="text-2xl font-bold text-base-content">{gettext("Thank you!")}</h2>
           <p class="mt-4 text-base-content/70">
             {gettext(
@@ -104,16 +97,17 @@ defmodule TrebyWeb.CareersLive.Apply do
             )}
           </p>
           <div class="mt-6 space-y-4">
-            <.link
+            <.button
+              variant="primary"
               navigate={~p"/#{@tenant.slug}/portal/login"}
-              class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 min-h-[44px]"
+              class="min-h-[44px]"
             >
               {gettext("Track your application")}
-            </.link>
+            </.button>
             <div>
               <.link
                 navigate={~p"/#{@tenant.slug}/careers"}
-                class="text-blue-600 hover:text-blue-900"
+                class="text-primary hover:text-primary/80"
               >
                 {gettext("View other positions")}
               </.link>
@@ -122,12 +116,12 @@ defmodule TrebyWeb.CareersLive.Apply do
           <%= if email = @tenant.settings["support_email"] || @tenant.settings["contact_email"] do %>
             <div
               id="candidate-help"
-              class="mt-8 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 p-4 text-left"
+              class="mt-8 rounded-lg bg-info/10 border border-info/20 p-4 text-left"
             >
-              <p class="text-sm font-medium text-blue-900 dark:text-blue-100">
+              <p class="text-sm font-medium text-base-content">
                 {gettext("Need help?")}
               </p>
-              <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+              <p class="mt-1 text-sm text-base-content/70">
                 {gettext(
                   "Contact %{company} support or email us at %{email} if you have trouble with your application.",
                   company: @tenant.name,
@@ -136,11 +130,11 @@ defmodule TrebyWeb.CareersLive.Apply do
               </p>
             </div>
           <% end %>
-        </div>
+        </.card>
 
-        <div :if={!@submitted && !@duplicate} class="mt-8 bg-base-100 rounded-lg shadow p-8">
+        <.card :if={!@submitted && !@duplicate} class="mt-8">
           <h2 class="text-2xl font-bold text-base-content">Apply for {@job.title}</h2>
-          <p :if={@prefill != %{}} class="mt-2 text-sm text-blue-600">
+          <p :if={@prefill != %{}} class="mt-2 text-sm text-primary">
             {gettext("Prefilled from your portal profile — you can edit before submitting.")}
           </p>
 
@@ -162,7 +156,7 @@ defmodule TrebyWeb.CareersLive.Apply do
               </select>
             </div>
 
-            <div :if={@application_fields != []} class="border-t pt-4 mt-4">
+            <div :if={@application_fields != []} class="border-t border-base-300 pt-4 mt-4">
               <h3 class="text-sm font-medium text-base-content/80 mb-3">
                 {gettext("Additional Information")}
               </h3>
@@ -199,7 +193,7 @@ defmodule TrebyWeb.CareersLive.Apply do
               </label>
               <.live_file_input
                 upload={@uploads.resume}
-                class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-950 file:text-blue-700 dark:file:text-blue-100 hover:file:bg-blue-100 dark:bg-blue-900 dark:hover:file:bg-blue-900 min-h-[44px]"
+                class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 min-h-[44px]"
               />
               <div
                 :for={entry <- @uploads.resume.entries}
@@ -207,25 +201,27 @@ defmodule TrebyWeb.CareersLive.Apply do
               >
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2 min-w-0">
-                    <.icon name="hero-document" class="w-5 h-5 text-blue-600 shrink-0" />
+                    <.icon name="hero-document" class="w-5 h-5 text-primary shrink-0" />
                     <span class="text-sm font-medium text-base-content truncate">
                       {entry.client_name} &mdash; {format_bytes(entry.client_size)}
                     </span>
-                    <span :if={entry.done?} class="text-green-600 text-sm">✓</span>
+                    <span :if={entry.done?} class="text-success text-sm">✓</span>
                   </div>
-                  <button
+                  <.button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     phx-click="cancel_upload"
                     phx-value-ref={entry.ref}
                     aria-label={gettext("Remove file")}
-                    class="min-h-[44px] min-w-[44px] px-3 text-sm font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg shrink-0"
+                    class="shrink-0 text-error"
                   >
                     {gettext("Remove")}
-                  </button>
+                  </.button>
                 </div>
                 <div :if={!entry.done?} class="w-full bg-base-300 rounded-full h-2">
                   <div
-                    class="bg-blue-600 h-2 rounded-full transition-all"
+                    class="bg-primary h-2 rounded-full transition-all"
                     style={"width: #{entry.progress}%"}
                   >
                   </div>
@@ -233,17 +229,18 @@ defmodule TrebyWeb.CareersLive.Apply do
                 <p :if={!entry.done?} class="text-xs text-base-content/70">
                   {entry.progress}% {gettext("uploading...")}
                 </p>
-                <p :for={err <- upload_errors(@uploads.resume, entry)} class="text-red-500 text-sm">
+                <p :for={err <- upload_errors(@uploads.resume, entry)} class="text-error text-sm">
                   {upload_error_to_string(err)}
                 </p>
               </div>
-              <p :for={err <- upload_errors(@uploads.resume)} class="text-red-500 text-sm mt-2">
+              <p :for={err <- upload_errors(@uploads.resume)} class="text-error text-sm mt-2">
                 {upload_error_to_string(err)}
               </p>
             </div>
 
             <.button
               type="submit"
+              variant="primary"
               class="w-full min-h-[44px]"
               style={"background-color: #{@career_page && @career_page.primary_color || "#3b82f6"}"}
               disabled={Enum.any?(@uploads.resume.entries, fn e -> !e.done? end)}
@@ -261,12 +258,12 @@ defmodule TrebyWeb.CareersLive.Apply do
           <%= if email = @tenant.settings["support_email"] || @tenant.settings["contact_email"] do %>
             <div
               id="candidate-help"
-              class="mt-6 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 p-4"
+              class="mt-6 rounded-lg bg-info/10 border border-info/20 p-4"
             >
-              <p class="text-sm font-medium text-blue-900 dark:text-blue-100">
+              <p class="text-sm font-medium text-base-content">
                 {gettext("Need help?")}
               </p>
-              <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+              <p class="mt-1 text-sm text-base-content/70">
                 {gettext(
                   "Contact %{company} support or email us at %{email} if you have trouble with your application.",
                   company: @tenant.name,
@@ -275,7 +272,7 @@ defmodule TrebyWeb.CareersLive.Apply do
               </p>
             </div>
           <% end %>
-        </div>
+        </.card>
       </div>
     </div>
     """

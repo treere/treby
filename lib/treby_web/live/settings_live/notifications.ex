@@ -39,9 +39,9 @@ defmodule TrebyWeb.SettingsLive.Notifications do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="mb-8">
-          <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+          <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
             &larr; {gettext("Back to Settings")}
-          </.link>
+          </.button>
           <h1 class="text-2xl font-bold mt-2">{gettext("Notification Preferences")}</h1>
           <p class="mt-1 text-base-content/70">
             {gettext("Configure which email notifications are sent automatically")}
@@ -49,7 +49,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
         </div>
 
         <div class="bg-base-100 rounded-lg shadow overflow-hidden">
-          <div class="divide-y divide-gray-200">
+          <div class="divide-y divide-base-300">
             <div class="p-6">
               <div class="flex items-center justify-between">
                 <div>
@@ -66,8 +66,8 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   phx-click="toggle_preference"
                   phx-value-key="stage_change_candidate"
                   class={[
-                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                    @preferences["stage_change_candidate"] && "bg-blue-600",
+                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                    @preferences["stage_change_candidate"] && "bg-primary",
                     !@preferences["stage_change_candidate"] && "bg-base-300"
                   ]}
                   role="switch"
@@ -98,8 +98,8 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   phx-click="toggle_preference"
                   phx-value-key="new_application_candidate"
                   class={[
-                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                    @preferences["new_application_candidate"] && "bg-blue-600",
+                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                    @preferences["new_application_candidate"] && "bg-primary",
                     !@preferences["new_application_candidate"] && "bg-base-300"
                   ]}
                   role="switch"
@@ -128,8 +128,8 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   phx-click="toggle_preference"
                   phx-value-key="new_application_team"
                   class={[
-                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                    @preferences["new_application_team"] && "bg-blue-600",
+                    "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                    @preferences["new_application_team"] && "bg-primary",
                     !@preferences["new_application_team"] && "bg-base-300"
                   ]}
                   role="switch"

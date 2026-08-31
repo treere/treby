@@ -106,7 +106,9 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 />
               </div>
 
-              <.button type="submit" class="w-full">{gettext("Save Branding")}</.button>
+              <.button type="submit" variant="primary" class="w-full">
+                {gettext("Save Branding")}
+              </.button>
             </.form>
           </div>
 

@@ -210,8 +210,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </div>
 
               <div class="flex gap-2">
-                <.button type="submit">{gettext("Save")}</.button>
-                <.button type="button" phx-click="cancel_edit" class="bg-gray-500">
+                <.button type="submit" variant="primary">{gettext("Save")}</.button>
+                <.button type="button" phx-click="cancel_edit" variant="ghost">
                   Cancel
                 </.button>
               </div>
@@ -232,12 +232,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   </.link>
                 </p>
               </div>
-              <button
-                phx-click="start_edit"
-                class="text-sm text-blue-600 hover:text-blue-900 border border-blue-600 rounded px-3 py-1"
-              >
+              <.button phx-click="start_edit" variant="ghost" size="sm">
                 Edit
-              </button>
+              </.button>
             </div>
 
             <div
@@ -258,13 +255,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   Merged <span class="font-medium">{log.absorbed_candidate.name}</span>
                   on {Calendar.strftime(log.merged_at, "%b %d, %Y")}
                 </p>
-                <button
+                <.button
                   phx-click="undo_merge"
                   phx-value-merge_id={log.id}
-                  class="text-xs font-medium text-blue-700 hover:text-blue-900 underline"
+                  variant="ghost"
+                  size="sm"
                 >
                   Undo merge
-                </button>
+                </.button>
               </div>
             </div>
 
@@ -378,32 +376,31 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       </div>
                     </div>
                     <div class="flex items-center gap-2">
-                      <span class={[
-                        "px-2 py-1 text-xs rounded-full",
-                        if(interview.status == "scheduled",
-                          do: "bg-green-100 text-green-800",
-                          else: "bg-base-200 text-base-content/90"
-                        )
-                      ]}>
+                      <.badge
+                        variant={if interview.status == "scheduled", do: "success", else: "default"}
+                        class="text-xs"
+                      >
                         {interview.status}
-                      </span>
+                      </.badge>
                       <%= if interview.status == "scheduled" do %>
-                        <button
+                        <.button
                           phx-click="complete_interview"
                           phx-value-id={interview.id}
-                          class="px-3 py-1 text-xs bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-100 rounded-md hover:bg-indigo-100 transition-colors"
+                          variant="ghost"
+                          size="sm"
                         >
                           Mark as completed
-                        </button>
+                        </.button>
                       <% end %>
                       <%= if Enum.any?(interview.event_examiners, &(&1.user_id == @current_user.id)) do %>
-                        <button
+                        <.button
                           phx-click="open_scorecard"
                           phx-value-event_id={interview.id}
-                          class="px-3 py-1 text-xs bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-100 rounded-md hover:bg-blue-100 transition-colors"
+                          variant="ghost"
+                          size="sm"
                         >
                           Scorecard
-                        </button>
+                        </.button>
                       <% end %>
                       <%= if interview.video_conf_url do %>
                         <a
@@ -437,12 +434,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   >
                     {application.job.title}
                   </.link>
-                  <span
-                    :if={application.is_duplicate}
-                    class="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium"
-                  >
+                  <.badge :if={application.is_duplicate} variant="warning" class="text-xs">
                     DUPLICATE APP
-                  </span>
+                  </.badge>
                 </div>
                 <p class="text-sm text-base-content/50">
                   Stage: {application.pipeline_stage.name}
@@ -482,13 +476,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <span class="text-sm text-base-content/40">
                   {Calendar.strftime(application.inserted_at, "%b %d, %Y")}
                 </span>
-                <button
+                <.button
                   phx-click="toggle_note_form"
                   phx-value-application_id={application.id}
-                  class="text-sm text-blue-600 hover:text-blue-900"
+                  variant="ghost"
+                  size="sm"
                 >
                   Add Note
-                </button>
+                </.button>
               </div>
             </div>
 
@@ -527,7 +522,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                     <p class="text-sm text-base-content/70 mt-1">{note.content}</p>
                   </div>
                   <%= if note.author_id == @current_user.id do %>
-                    <button
+                    <.button
                       phx-click="confirm_delete"
                       phx-value-id={note.id}
                       phx-value-title={gettext("Delete note")}
@@ -536,10 +531,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
                           "Are you sure you want to delete this note? This action cannot be undone."
                         )
                       }
-                      class="text-xs text-red-500 hover:text-red-700"
+                      variant="ghost"
+                      size="sm"
                     >
                       Delete
-                    </button>
+                    </.button>
                   <% end %>
                 </div>
               </div>
@@ -583,15 +579,16 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   />
                 </div>
                 <div class="flex gap-2">
-                  <.button type="submit" class="text-sm">{gettext("Save Note")}</.button>
-                  <button
+                  <.button type="submit" variant="primary" size="sm">{gettext("Save Note")}</.button>
+                  <.button
                     type="button"
                     phx-click="toggle_note_form"
                     phx-value-application_id=""
-                    class="text-sm text-base-content/50 hover:text-base-content/80"
+                    variant="ghost"
+                    size="sm"
                   >
                     Cancel
-                  </button>
+                  </.button>
                 </div>
               </.form>
             </div>
@@ -698,31 +695,19 @@ defmodule TrebyWeb.CandidatesLive.Show do
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold">{gettext("Portal Conversations")}</h2>
             <div class="flex items-center gap-2">
-              <span
-                :if={@conversations != []}
-                class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
-              >
+              <.badge :if={@conversations != []} variant="info" class="text-xs">
                 {length(@conversations)}
-              </span>
+              </.badge>
               <div class="flex gap-2">
-                <button
-                  phx-click="new_portal_message"
-                  class="text-sm text-blue-600 hover:text-blue-900 border border-blue-600 rounded px-3 py-1"
-                >
+                <.button phx-click="new_portal_message" variant="primary" size="sm">
                   + New Message
-                </button>
-                <button
-                  phx-click="request_info"
-                  class="text-sm text-amber-600 hover:text-amber-900 border border-amber-600 rounded px-3 py-1"
-                >
+                </.button>
+                <.button phx-click="request_info" variant="ghost" size="sm">
                   Request Info
-                </button>
-                <button
-                  phx-click="reject_candidate"
-                  class="text-sm text-red-600 hover:text-red-900 border border-red-600 rounded px-3 py-1"
-                >
+                </.button>
+                <.button phx-click="reject_candidate" variant="danger" size="sm">
                   Reject
-                </button>
+                </.button>
               </div>
             </div>
           </div>
@@ -753,14 +738,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 rows={4}
               />
               <div class="flex gap-2">
-                <.button type="submit" class="text-sm">{gettext("Send Message")}</.button>
-                <button
-                  type="button"
-                  phx-click="cancel_new_message"
-                  class="text-sm text-base-content/50 hover:text-base-content/80"
-                >
+                <.button type="submit" variant="primary" size="sm">{gettext("Send Message")}</.button>
+                <.button type="button" phx-click="cancel_new_message" variant="ghost" size="sm">
                   Cancel
-                </button>
+                </.button>
               </div>
             </.form>
           </div>
@@ -804,16 +785,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 rows={3}
               />
               <div class="flex gap-2">
-                <.button type="submit" class="text-sm bg-amber-600 hover:bg-amber-700">
+                <.button type="submit" variant="primary" size="sm">
                   Send Request
                 </.button>
-                <button
-                  type="button"
-                  phx-click="cancel_request_info"
-                  class="text-sm text-base-content/50 hover:text-base-content/80"
-                >
+                <.button type="button" phx-click="cancel_request_info" variant="ghost" size="sm">
                   Cancel
-                </button>
+                </.button>
               </div>
             </.form>
           </div>
@@ -847,16 +824,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 rows={3}
               />
               <div class="flex gap-2">
-                <.button type="submit" class="text-sm bg-red-600 hover:bg-red-700">
+                <.button type="submit" variant="danger" size="sm">
                   {gettext("Reject")}
                 </.button>
-                <button
-                  type="button"
-                  phx-click="cancel_reject"
-                  class="text-sm text-base-content/50 hover:text-base-content/80"
-                >
+                <.button type="button" phx-click="cancel_reject" variant="ghost" size="sm">
                   Cancel
-                </button>
+                </.button>
               </div>
             </.form>
           </div>
@@ -874,18 +847,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   you can collect scorecards before advancing.
                 </p>
                 <div class="flex justify-end gap-2">
-                  <button
-                    phx-click="cancel_complete_interview"
-                    class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
-                  >
+                  <.button phx-click="cancel_complete_interview" variant="ghost" size="sm">
                     Cancel
-                  </button>
-                  <button
-                    phx-click="confirm_complete_interview"
-                    class="px-4 py-2 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-                  >
+                  </.button>
+                  <.button phx-click="confirm_complete_interview" variant="primary" size="sm">
                     Mark as completed
-                  </button>
+                  </.button>
                 </div>
               </div>
             </div>
@@ -905,13 +872,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   </span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class={[
-                    "px-2 py-1 text-xs rounded-full",
-                    conversation.status == "open" && "bg-green-100 text-green-800",
-                    conversation.status == "closed" && "bg-gray-100 text-gray-600"
-                  ]}>
+                  <.badge
+                    variant={if conversation.status == "open", do: "success", else: "default"}
+                    class="text-xs"
+                  >
                     {conversation.status}
-                  </span>
+                  </.badge>
                   <span class="text-xs text-base-content/40">
                     {if conversation.last_message_at do
                       Calendar.strftime(conversation.last_message_at, "%b %d, %Y at %H:%M")
@@ -965,24 +931,26 @@ defmodule TrebyWeb.CandidatesLive.Show do
                     rows={3}
                   />
                   <div class="flex gap-2">
-                    <.button type="submit" class="text-sm">{gettext("Send")}</.button>
-                    <button
+                    <.button type="submit" variant="primary" size="sm">{gettext("Send")}</.button>
+                    <.button
                       type="button"
                       phx-click="cancel_conversation_reply"
-                      class="text-sm text-base-content/50 hover:text-base-content/80"
+                      variant="ghost"
+                      size="sm"
                     >
                       Cancel
-                    </button>
+                    </.button>
                   </div>
                 </.form>
               <% else %>
-                <button
+                <.button
                   phx-click="reply_to_conversation"
                   phx-value-conversation_id={conversation.id}
-                  class="text-sm text-blue-600 hover:text-blue-800"
+                  variant="ghost"
+                  size="sm"
                 >
                   Reply
-                </button>
+                </.button>
               <% end %>
             </div>
           </div>
@@ -994,7 +962,17 @@ defmodule TrebyWeb.CandidatesLive.Show do
       criteria={@scorecard_criteria}
       form={@scorecard_form}
     />
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_note" />
+    <.confirm_dialog
+      id="confirm-note"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm="do_delete_note"
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+    />
     """
   end
 

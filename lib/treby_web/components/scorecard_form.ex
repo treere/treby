@@ -139,10 +139,10 @@ defmodule TrebyWeb.ScorecardForm do
             </div>
 
             <div class="flex gap-2 justify-end">
-              <.button type="button" phx-click="close_scorecard" class="bg-gray-500">
+              <.button type="button" phx-click="close_scorecard" variant="ghost">
                 Cancel
               </.button>
-              <.button type="submit">{gettext("Submit Scorecard")}</.button>
+              <.button type="submit" variant="primary">{gettext("Submit Scorecard")}</.button>
             </div>
           </.form>
         </div>

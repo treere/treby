@@ -2,12 +2,12 @@ defmodule TrebyWeb.DesignSystem.CoreTest do
   use TrebyWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
-  import TrebyWeb.CoreComponents
   import TrebyWeb.DesignSystem.Card
   import TrebyWeb.DesignSystem.Modal
   import TrebyWeb.DesignSystem.Tabs
   import TrebyWeb.DesignSystem.Feedback
   import TrebyWeb.DesignSystem.Avatar
+  import TrebyWeb.DesignSystem.Pattern
 
   describe "card" do
     test "renders with card class" do
@@ -57,17 +57,17 @@ defmodule TrebyWeb.DesignSystem.CoreTest do
     end
   end
 
-  describe "confirm_modal" do
+  describe "confirm_dialog" do
     test "renders the current message and wires the confirm button to on_confirm" do
       html =
-        render_component(&confirm_modal/1, %{
-          confirm_delete: %{
-            id: "cand-1",
-            title: "Delete candidate",
-            message: "Are you sure you want to delete Alice?"
-          },
+        render_component(&confirm_dialog/1, %{
+          id: "confirm-test",
+          show: true,
+          title: "Delete candidate",
+          message: "Are you sure you want to delete Alice?",
           on_confirm: "do_delete_candidate",
-          on_cancel: "cancel_delete"
+          on_cancel: "cancel_delete",
+          extra_attrs: %{id: "cand-1"}
         })
 
       assert html =~ "Are you sure you want to delete Alice?"

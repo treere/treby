@@ -141,39 +141,30 @@ defmodule TrebyWeb.PipelineLive.Index do
             </h1>
           </div>
           <div class="flex gap-2">
-            <button
+            <.button
               phx-click="filter_review"
               value="all"
-              class={[
-                "px-3 py-1 text-sm rounded-lg",
-                @review_filter == "all" && "bg-blue-600 text-white",
-                @review_filter != "all" && "bg-base-300 text-base-content/80 hover:bg-base-300"
-              ]}
+              variant={if @review_filter == "all", do: "primary", else: "ghost"}
+              size="sm"
             >
               All
-            </button>
-            <button
+            </.button>
+            <.button
               phx-click="filter_review"
               value="new"
-              class={[
-                "px-3 py-1 text-sm rounded-lg",
-                @review_filter == "new" && "bg-blue-600 text-white",
-                @review_filter != "new" && "bg-base-300 text-base-content/80 hover:bg-base-300"
-              ]}
+              variant={if @review_filter == "new", do: "primary", else: "ghost"}
+              size="sm"
             >
               New Only
-            </button>
-            <button
+            </.button>
+            <.button
               phx-click="filter_review"
               value="rejected"
-              class={[
-                "px-3 py-1 text-sm rounded-lg",
-                @review_filter == "rejected" && "bg-red-600 text-white",
-                @review_filter != "rejected" && "bg-base-300 text-base-content/80 hover:bg-base-300"
-              ]}
+              variant={if @review_filter == "rejected", do: "danger", else: "ghost"}
+              size="sm"
             >
               Rejected
-            </button>
+            </.button>
           </div>
         </div>
 
@@ -402,75 +393,54 @@ defmodule TrebyWeb.PipelineLive.Index do
         />
       </div>
 
-      <%!-- Rejection Modal --%>
-      <div
-        :if={@rejecting_application}
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        phx-click="cancel_reject"
+      <.modal
+        id="reject-candidate-modal"
+        show={@rejecting_application != nil}
+        title={gettext("Reject Candidate")}
+        close_event="cancel_reject"
+        size="lg"
       >
-        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
-          <div class="p-6">
-            <h2 class="text-lg font-semibold mb-2">{gettext("Reject Candidate")}</h2>
-            <p class="text-sm text-base-content/70 mb-4">
-              Are you sure you want to reject {@rejecting_application.candidate.name}?
-            </p>
-            <textarea
-              id="rejection-reason"
-              class="w-full border rounded-lg p-2 text-sm mb-4"
-              rows="3"
-              placeholder={gettext("Reason for rejection (required)")}
-              required
-              phx-change="update_rejection_reason"
-              phx-hook=".AutoResize"
-            >{@rejection_reason}</textarea>
-            <div class="flex justify-end gap-2">
-              <button
-                phx-click="cancel_reject"
-                class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
-              >
-                Cancel
-              </button>
-              <button
-                phx-click="confirm_reject"
-                class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700"
-              >
-                Reject
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        <p class="text-sm text-base-content/70 mb-4">
+          Are you sure you want to reject {@rejecting_application &&
+            @rejecting_application.candidate.name}?
+        </p>
+        <textarea
+          id="rejection-reason"
+          class="w-full border rounded-lg p-2 text-sm mb-4"
+          rows="3"
+          placeholder={gettext("Reason for rejection (required)")}
+          required
+          phx-change="update_rejection_reason"
+          phx-hook=".AutoResize"
+        >{@rejection_reason}</textarea>
+        <:footer>
+          <.button variant="ghost" size="sm" phx-click="cancel_reject">{gettext("Cancel")}</.button>
+          <.button variant="danger" size="sm" phx-click="confirm_reject">{gettext("Reject")}</.button>
+        </:footer>
+      </.modal>
 
-      <%!-- Complete Interview Confirmation Dialog --%>
-      <div
-        :if={@completing_interview}
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        phx-click="cancel_complete_interview"
+      <.modal
+        id="complete-interview-modal"
+        show={@completing_interview != nil}
+        title={gettext("Mark Interview as Completed")}
+        close_event="cancel_complete_interview"
+        size="lg"
       >
-        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
-          <div class="p-6">
-            <h2 class="text-lg font-semibold mb-2">{gettext("Mark Interview as Completed")}</h2>
-            <p class="text-sm text-base-content/70 mb-4">
-              This marks the interview as done. You can now collect scorecards before advancing the candidate.
-              The candidate's stage will not change automatically.
-            </p>
-            <div class="flex justify-end gap-2">
-              <button
-                phx-click="cancel_complete_interview"
-                class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
-              >
-                Cancel
-              </button>
-              <button
-                phx-click="confirm_complete_interview"
-                class="px-4 py-2 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-              >
-                Mark as completed
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        <p class="text-sm text-base-content/70 mb-4">
+          This marks the interview as done. You can now collect scorecards before advancing the candidate.
+          The candidate's stage will not change automatically.
+        </p>
+        <:footer>
+          <.button variant="ghost" size="sm" phx-click="cancel_complete_interview">{gettext("Cancel")}</.button>
+          <.button
+            variant="primary"
+            size="sm"
+            phx-click="confirm_complete_interview"
+          >
+            Mark as completed
+          </.button>
+        </:footer>
+      </.modal>
 
       <%!-- Message Confirmation Dialog --%>
       <div
@@ -500,30 +470,33 @@ defmodule TrebyWeb.PipelineLive.Index do
             <%= if @show_schedule_picker do %>
               <div class="space-y-3 p-4 bg-base-200 rounded-lg mb-4">
                 <div class="flex flex-wrap gap-2">
-                  <button
+                  <.button
                     type="button"
                     phx-click="preset_schedule"
                     phx-value-label="tomorrow_9"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
+                    variant="ghost"
+                    size="sm"
                   >
                     Tomorrow 9:00
-                  </button>
-                  <button
+                  </.button>
+                  <.button
                     type="button"
                     phx-click="preset_schedule"
                     phx-value-label="tomorrow_14"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
+                    variant="ghost"
+                    size="sm"
                   >
                     Tomorrow 14:00
-                  </button>
-                  <button
+                  </.button>
+                  <.button
                     type="button"
                     phx-click="preset_schedule"
                     phx-value-label="next_monday"
-                    class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
+                    variant="ghost"
+                    size="sm"
                   >
                     Next Monday
-                  </button>
+                  </.button>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
@@ -564,42 +537,43 @@ defmodule TrebyWeb.PipelineLive.Index do
             <% end %>
 
             <div class="flex gap-2 justify-end">
-              <button
+              <.button
                 phx-click="confirm_stage_move"
                 phx-value-action="cancel"
-                class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300"
+                variant="ghost"
+                size="sm"
               >
                 Cancel
-              </button>
-              <button
+              </.button>
+              <.button
                 phx-click="confirm_stage_move"
                 phx-value-action="skip"
-                class="px-4 py-2 text-sm text-base-content/80 bg-base-200 rounded-lg hover:bg-base-300"
+                variant="ghost"
+                size="sm"
               >
                 Skip Message
-              </button>
-              <button
-                phx-click="toggle_schedule"
-                class="px-4 py-2 text-sm text-blue-700 dark:text-blue-100 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg hover:bg-blue-100"
-              >
+              </.button>
+              <.button phx-click="toggle_schedule" variant="secondary" size="sm">
                 {if @show_schedule_picker, do: gettext("Remove Schedule"), else: "Schedule"}
-              </button>
-              <button
+              </.button>
+              <.button
                 :if={@show_schedule_picker}
                 phx-click="confirm_stage_move"
                 phx-value-action="schedule"
-                class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                variant="primary"
+                size="sm"
               >
                 Schedule & Move
-              </button>
-              <button
+              </.button>
+              <.button
                 :if={not @show_schedule_picker}
                 phx-click="confirm_stage_move"
                 phx-value-action="send"
-                class="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                variant="primary"
+                size="sm"
               >
                 Send & Move
-              </button>
+              </.button>
             </div>
           </div>
         </div>
@@ -614,7 +588,7 @@ defmodule TrebyWeb.PipelineLive.Index do
             <select
               phx-change="bulk_select_action"
               name="bulk_action"
-              class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+              class="select select-sm"
             >
               <option value="">{gettext("Actions...")}</option>
               <option value="move_stage" disabled={@stages == []}>{gettext("Move to Stage")}</option>
@@ -627,35 +601,38 @@ defmodule TrebyWeb.PipelineLive.Index do
               :if={@bulk_action == "move_stage" && @stages != []}
               phx-change="bulk_select_stage"
               name="bulk_stage_id"
-              class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+              class="select select-sm"
             >
               <option value="">{gettext("Select stage...")}</option>
               <option :for={stage <- @stages} value={stage.id}>{stage.name}</option>
             </select>
           </.form>
 
-          <button
+          <.button
             :if={@bulk_action == "move_stage" && @bulk_stage_id != nil}
             phx-click="bulk_execute_move"
-            class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            variant="primary"
+            size="sm"
           >
             Move
-          </button>
-          <button
+          </.button>
+          <.button
             :if={@bulk_action == "mark_reviewed"}
             phx-click="bulk_execute_mark_reviewed"
-            class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            variant="primary"
+            size="sm"
           >
             Mark Reviewed
-          </button>
-          <button
+          </.button>
+          <.button
             :if={@bulk_action == "mark_unreviewed"}
             phx-click="bulk_execute_mark_unreviewed"
-            class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
+            variant="primary"
+            size="sm"
           >
             Mark New
-          </button>
-          <button
+          </.button>
+          <.button
             :if={@bulk_action == "delete"}
             phx-click="confirm_delete"
             phx-value-id="bulk"
@@ -666,10 +643,11 @@ defmodule TrebyWeb.PipelineLive.Index do
                 count: length(@selected_ids)
               )
             }
-            class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
+            variant="danger"
+            size="sm"
           >
             Delete
-          </button>
+          </.button>
 
           <button
             phx-click="clear_selection"
@@ -685,7 +663,17 @@ defmodule TrebyWeb.PipelineLive.Index do
       criteria={@scorecard_criteria}
       form={@scorecard_form}
     />
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_bulk_execute_delete" />
+    <.confirm_dialog
+      id="confirm-pipeline-bulk"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm="do_bulk_execute_delete"
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+    />
     """
   end
 

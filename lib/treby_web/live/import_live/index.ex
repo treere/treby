@@ -57,7 +57,14 @@ defmodule TrebyWeb.ImportLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-4xl mx-auto">
-        <h1 class="text-2xl font-bold">{gettext("Import Candidates")}</h1>
+        <.page_header
+          title={gettext("Import Candidates")}
+          subtitle={gettext("Upload a CSV file to bulk import candidates")}
+          breadcrumbs={[
+            %{label: gettext("Candidates"), href: ~p"/app/candidates"},
+            %{label: gettext("Import")}
+          ]}
+        />
 
         <div class="mt-6 flex items-center gap-2 text-sm text-base-content/70">
           <span class={[
@@ -93,7 +100,7 @@ defmodule TrebyWeb.ImportLive.Index do
           </span>
         </div>
 
-        <div :if={@step == 1} class="mt-8 bg-base-100 rounded-lg border border-base-300 p-8">
+        <.card :if={@step == 1} class="shadow mt-8">
           <div
             class="border-2 border-dashed border-base-300 rounded-lg p-12 text-center hover:border-blue-400 transition-colors bg-base-200"
             phx-drop-target={@uploads.csv.ref}
@@ -112,16 +119,20 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
 
           <div :if={@uploads.csv.entries != []} class="mt-6">
-            <.link
-              phx-click="process_upload"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <.button variant="primary" phx-click="process_upload">
               {gettext("Continue")}
-            </.link>
+            </.button>
           </div>
-        </div>
+          <.empty_state
+            :if={@uploads.csv.entries == []}
+            icon="hero-arrow-up-tray"
+            title={gettext("No file selected")}
+            description={gettext("Select a CSV file with candidate data to get started.")}
+            class="py-8"
+          />
+        </.card>
 
-        <div :if={@step == 2} class="mt-8 bg-base-100 rounded-lg border border-base-300 p-8">
+        <.card :if={@step == 2} class="shadow mt-8">
           <h2 class="text-lg font-semibold">{gettext("Map Columns")}</h2>
           <p class="mt-1 text-sm text-base-content/70">
             {gettext("Match CSV columns to candidate fields")}
@@ -182,22 +193,16 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
 
           <div class="mt-8 flex gap-4">
-            <.link
-              phx-click="go_to_step_1"
-              class="px-4 py-2 border border-base-300 rounded-lg hover:bg-base-200 transition-colors"
-            >
+            <.button variant="ghost" phx-click="go_to_step_1">
               {gettext("Back")}
-            </.link>
-            <.link
-              phx-click="go_to_preview"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            </.button>
+            <.button variant="primary" phx-click="go_to_preview">
               {gettext("Preview")}
-            </.link>
+            </.button>
           </div>
-        </div>
+        </.card>
 
-        <div :if={@step == 3} class="mt-8 bg-base-100 rounded-lg border border-base-300 p-8">
+        <.card :if={@step == 3} class="shadow mt-8">
           <h2 class="text-lg font-semibold">{gettext("Preview")}</h2>
           <p class="mt-1 text-sm text-base-content/70">
             {gettext("Review first 10 rows before importing")}
@@ -225,18 +230,16 @@ defmodule TrebyWeb.ImportLive.Index do
                   ]}
                 >
                   <td class="px-3 py-2 border">
-                    <span :if={row.is_duplicate} class="text-yellow-600 text-xs">
-                      {gettext("Duplicate")}
-                    </span>
-                    <span :if={match?({:error, _}, row.validation)} class="text-red-600 text-xs">
+                    <.badge :if={row.is_duplicate} variant="warning">{gettext("Duplicate")}</.badge>
+                    <.badge :if={match?({:error, _}, row.validation)} variant="danger">
                       {gettext("Error")}
-                    </span>
-                    <span
+                    </.badge>
+                    <.badge
                       :if={row.validation == :ok and not row.is_duplicate}
-                      class="text-green-600 text-xs"
+                      variant="success"
                     >
                       {gettext("New")}
-                    </span>
+                    </.badge>
                   </td>
                   <td
                     :for={{_header, field} <- @mapping}
@@ -249,16 +252,13 @@ defmodule TrebyWeb.ImportLive.Index do
             </table>
           </div>
 
-          <div :if={@jobs != []} class="mt-8 bg-base-200 rounded-lg p-6">
+          <.card :if={@jobs != []} class="mt-8 bg-base-200 border-0 shadow-none">
             <h3 class="font-medium">{gettext("Add to Job (Optional)")}</h3>
             <.form for={@import_form} id="import-options-form">
               <div class="mt-4 grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm text-base-content/70">{gettext("Job")}</label>
-                  <select
-                    phx-change="select_job"
-                    class="select w-full mt-1"
-                  >
+                  <select phx-change="select_job" class="select w-full mt-1">
                     <option value="">{gettext("None")}</option>
                     <option :for={job <- @jobs} value={job.id}>{job.title}</option>
                   </select>
@@ -266,15 +266,9 @@ defmodule TrebyWeb.ImportLive.Index do
 
                 <div :if={@selected_job_id} class="space-y-3">
                   <label class="block text-sm text-base-content/70">{gettext("Stage")}</label>
-                  <select
-                    phx-change="select_stage"
-                    class="select w-full mt-1"
-                  >
+                  <select phx-change="select_stage" class="select w-full mt-1">
                     <option value="">{gettext("First stage")}</option>
-                    <option
-                      :for={stage <- get_stages_for_job(@selected_job_id)}
-                      value={stage.id}
-                    >
+                    <option :for={stage <- get_stages_for_job(@selected_job_id)} value={stage.id}>
                       {stage.name}
                     </option>
                   </select>
@@ -283,49 +277,40 @@ defmodule TrebyWeb.ImportLive.Index do
 
               <div class="mt-4">
                 <label class="block text-sm text-base-content/70">{gettext("Source")}</label>
-                <select
-                  phx-change="select_source"
-                  class="select w-full mt-1"
-                >
+                <select phx-change="select_source" class="select w-full mt-1">
                   <option value="">{gettext("None")}</option>
                   <option :for={source <- @sources} value={source.name}>{source.name}</option>
                 </select>
               </div>
             </.form>
-          </div>
+          </.card>
 
           <div class="mt-8 flex gap-4">
-            <.link
-              phx-click="go_to_step_2"
-              class="px-4 py-2 border border-base-300 rounded-lg hover:bg-base-200 transition-colors"
-            >
+            <.button variant="ghost" phx-click="go_to_step_2">
               {gettext("Back")}
-            </.link>
-            <.link
-              phx-click="execute_import"
-              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
+            </.button>
+            <.button variant="primary" phx-click="execute_import">
               {gettext("Import %{count} candidates", count: length(@rows))}
-            </.link>
+            </.button>
           </div>
-        </div>
+        </.card>
 
-        <div :if={@step == 4 and @import_results} class="mt-8">
+        <.card :if={@step == 4 and @import_results} class="shadow mt-8">
           <h2 class="text-lg font-semibold">{gettext("Import Complete")}</h2>
 
           <div class="mt-6 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-900 rounded-lg p-6">
             <div class="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div class="text-2xl font-bold text-green-600">{@import_results.imported}</div>
-                <div class="text-sm text-base-content/70">{gettext("Imported")}</div>
+                <.badge variant="success" class="mt-1">{gettext("Imported")}</.badge>
               </div>
               <div>
                 <div class="text-2xl font-bold text-yellow-600">{@import_results.skipped}</div>
-                <div class="text-sm text-base-content/70">{gettext("Skipped")}</div>
+                <.badge variant="warning" class="mt-1">{gettext("Skipped")}</.badge>
               </div>
               <div>
                 <div class="text-2xl font-bold text-red-600">{length(@import_results.errors)}</div>
-                <div class="text-sm text-base-content/70">{gettext("Errors")}</div>
+                <.badge variant="danger" class="mt-1">{gettext("Errors")}</.badge>
               </div>
             </div>
           </div>
@@ -341,20 +326,14 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
 
           <div class="mt-8 flex gap-4">
-            <.link
-              navigate={~p"/app/import"}
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <.button variant="primary" navigate={~p"/app/import"}>
               {gettext("Import More")}
-            </.link>
-            <.link
-              navigate={~p"/app/candidates"}
-              class="px-4 py-2 border border-base-300 rounded-lg hover:bg-base-200 transition-colors"
-            >
+            </.button>
+            <.button variant="ghost" navigate={~p"/app/candidates"}>
               {gettext("View Candidates")}
-            </.link>
+            </.button>
           </div>
-        </div>
+        </.card>
       </div>
     </Layouts.app>
     """

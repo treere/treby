@@ -31,7 +31,8 @@ defmodule TrebyWeb.SettingsLive.Calendar do
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
-     |> assign(connection: connection)}
+     |> assign(connection: connection)
+     |> assign(confirm_disconnect: false)}
   end
 
   def render(assigns) do
@@ -73,14 +74,12 @@ defmodule TrebyWeb.SettingsLive.Calendar do
             </div>
 
             <div class="mt-6 pt-6 border-t">
-              <.link
-                href="#"
-                phx-click="disconnect"
-                data-confirm={gettext("Are you sure you want to disconnect your Google Calendar?")}
+              <button
+                phx-click="confirm_disconnect"
                 class="text-red-600 hover:text-red-800 text-sm font-medium"
               >
-                Disconnect Google Calendar
-              </.link>
+                {gettext("Disconnect Google Calendar")}
+              </button>
             </div>
           <% else %>
             <div class="text-center py-8">
@@ -93,19 +92,34 @@ defmodule TrebyWeb.SettingsLive.Calendar do
                 scheduling works even without it.
               </p>
               <div class="mt-6">
-                <.link
-                  href={~p"/auth/google"}
-                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  <.icon name="hero-plus" class="mr-2 h-4 w-4" /> Connect Google Calendar
-                </.link>
+                <.button variant="primary" href={~p"/auth/google"}>
+                  <.icon name="hero-plus" class="h-4 w-4" /> {gettext("Connect Google Calendar")}
+                </.button>
               </div>
             </div>
           <% end %>
         </div>
       </div>
     </Layouts.app>
+    <.confirm_dialog
+      id="confirm-disconnect-calendar"
+      show={@confirm_disconnect}
+      title={gettext("Disconnect Google Calendar?")}
+      message={gettext("Are you sure you want to disconnect your Google Calendar?")}
+      confirm_label={gettext("Disconnect")}
+      confirm_variant="danger"
+      on_confirm="disconnect"
+      on_cancel="cancel_disconnect"
+    />
     """
+  end
+
+  def handle_event("confirm_disconnect", _, socket) do
+    {:noreply, assign(socket, confirm_disconnect: true)}
+  end
+
+  def handle_event("cancel_disconnect", _, socket) do
+    {:noreply, assign(socket, confirm_disconnect: false)}
   end
 
   def handle_event("disconnect", _, socket) do
@@ -113,7 +127,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
 
     {:noreply,
      socket
-     |> assign(connection: nil)
+     |> assign(connection: nil, confirm_disconnect: false)
      |> put_flash(:info, gettext("Google Calendar disconnected"))}
   end
 end

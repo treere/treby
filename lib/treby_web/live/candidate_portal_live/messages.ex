@@ -51,31 +51,33 @@ defmodule TrebyWeb.CandidatePortalLive.Messages do
       current_candidate={@current_candidate}
     >
       <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{gettext("Messages")}</h1>
+        <.page_header title={gettext("Messages")} />
 
         <%= if @conversations == [] do %>
-          <div class="text-center py-12">
-            <p class="text-gray-500 dark:text-gray-400">{gettext("No messages yet.")}</p>
-          </div>
+          <.empty_state
+            icon="hero-chat-bubble-left-right"
+            title={gettext("No messages yet.")}
+            description={gettext("Your conversations with the hiring team will appear here.")}
+          />
         <% else %>
           <div class="space-y-4">
             <%= for conversation <- @conversations do %>
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/messages/#{conversation.id}"}
-                class="block p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors"
+                class="block p-4 bg-base-100 rounded-lg border border-base-300 hover:border-primary transition-colors shadow-sm"
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <p class="font-medium text-gray-900 dark:text-white">
+                    <p class="font-medium text-base-content">
                       {conversation.subject || "Conversation"}
                     </p>
                     <%= if last_msg = List.last(conversation.messages) do %>
-                      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                      <p class="text-sm text-base-content/60 mt-1 line-clamp-1">
                         {last_msg.body}
                       </p>
                     <% end %>
                   </div>
-                  <span class="text-xs text-gray-400">
+                  <span class="text-xs text-base-content/40">
                     <%= if conversation.last_message_at do %>
                       {Calendar.strftime(conversation.last_message_at, "%b %d")}
                     <% end %>

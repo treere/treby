@@ -18,18 +18,12 @@ defmodule TrebyWeb.ErrorLive.NotFound do
           {gettext("The page or entity you're looking for doesn't exist or has been removed.")}
         </p>
         <div class="flex gap-4">
-          <.link
-            navigate={~p"/app/jobs"}
-            class="inline-flex items-center px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
+          <.button navigate={~p"/app/jobs"} variant="primary">
             {gettext("Back to Jobs")}
-          </.link>
-          <.link
-            navigate={~p"/app"}
-            class="inline-flex items-center px-5 py-2.5 rounded-lg border border-base-300 text-base-content text-sm font-medium hover:bg-base-100 transition-colors"
-          >
+          </.button>
+          <.button navigate={~p"/app"} variant="ghost">
             {gettext("Go to Dashboard")}
-          </.link>
+          </.button>
         </div>
       </div>
     </Layouts.app>

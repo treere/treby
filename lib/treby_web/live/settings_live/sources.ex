@@ -47,13 +47,9 @@ defmodule TrebyWeb.SettingsLive.Sources do
         <p class="mt-2 text-base-content/70">{gettext("Manage how candidates find you")}</p>
 
         <div class="mt-6">
-          <button
-            :if={not @show_form}
-            phx-click="show_create_form"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          <.button :if={not @show_form} phx-click="show_create_form" variant="primary">
             {gettext("Add Source")}
-          </button>
+          </.button>
         </div>
 
         <.form
@@ -67,7 +63,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
           <.input field={@form[:name]} type="text" label={gettext("Source Name")} />
           <div class="mt-4 flex gap-2">
             <.button type="submit">{gettext("Save")}</.button>
-            <.button type="button" phx-click="cancel_form" class="bg-gray-500">
+            <.button type="button" phx-click="cancel_form" variant="ghost">
               {gettext("Cancel")}
             </.button>
           </div>
@@ -106,7 +102,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
               >
                 <.input field={@form[:name]} type="text" />
                 <.button type="submit">{gettext("Save")}</.button>
-                <.button type="button" phx-click="cancel_edit" class="bg-gray-500">
+                <.button type="button" phx-click="cancel_edit" variant="ghost">
                   {gettext("Cancel")}
                 </.button>
               </.form>
@@ -133,7 +129,17 @@ defmodule TrebyWeb.SettingsLive.Sources do
         </div>
       </div>
     </Layouts.app>
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_source" />
+    <.confirm_dialog
+      id="confirm-source"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm="do_delete_source"
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+    />
     """
   end
 

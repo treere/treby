@@ -31,8 +31,8 @@ defmodule TrebyWeb.CoreComponents do
 
   alias Phoenix.HTML.Form, as: HTMLForm
   alias Phoenix.LiveView.JS
-  alias TrebyWeb.DesignSystem.Button
-  alias TrebyWeb.DesignSystem.Pattern
+
+  import TrebyWeb.DesignSystem.Badge, only: [badge: 1]
 
   @doc """
   Renders flash notices.
@@ -87,33 +87,6 @@ defmodule TrebyWeb.CoreComponents do
       </div>
     </div>
     """
-  end
-
-  @doc """
-  Renders a button with navigation support.
-
-  ## Examples
-
-      <.button>{gettext("Send!")}</.button>
-      <.button phx-click="go" variant="primary">{gettext("Send!")}</.button>
-      <.button navigate={~p"/"}>{gettext("Home")}</.button>
-
-  ## Deprecation
-
-  This function delegates to `TrebyWeb.DesignSystem.Button.button/1`.
-  Use `<.button>` directly in new templates — it provides the same API
-  with additional variants (secondary, danger, ghost, outline), sizes,
-  loading state, and icon slot support.
-  """
-  attr :rest, :global,
-    include: ~w(href navigate patch method download name value disabled form type)
-
-  attr :class, :any
-  attr :variant, :string, values: ~w(primary)
-  slot :inner_block, required: true
-
-  def button(assigns) do
-    Button.button(assigns)
   end
 
   @doc """
@@ -419,49 +392,6 @@ defmodule TrebyWeb.CoreComponents do
   end
 
   @doc """
-  Renders a confirmation modal dialog for destructive actions.
-
-  ## Examples
-
-      <.confirm_modal confirm_delete={@confirm_delete} />
-
-  ## Deprecation
-
-  This function delegates to `TrebyWeb.DesignSystem.Pattern.confirm_dialog/1`.
-  Use `<.confirm_dialog>` in new templates — it provides the same functionality
-  with a cleaner API (explicit id, show, title, message attrs).
-  """
-  attr :confirm_delete, :map, default: nil
-  attr :on_confirm, :string, default: "confirm_delete"
-  attr :on_cancel, :string, default: "cancel_delete"
-
-  def confirm_modal(assigns) do
-    cd = assigns.confirm_delete
-
-    modal_assigns =
-      %{
-        __changed__: nil,
-        id: "confirm-modal-backdrop",
-        show: cd != nil,
-        title: cd && cd.title,
-        confirm_label: "Delete",
-        confirm_variant: "danger",
-        on_confirm: assigns.on_confirm,
-        on_cancel: assigns.on_cancel
-      }
-      |> then(fn m ->
-        if cd do
-          Map.put(m, :message, cd.message)
-          |> Map.put(:extra_attrs, %{id: cd.id})
-        else
-          Map.put(m, :message, "")
-        end
-      end)
-
-    Pattern.confirm_dialog(modal_assigns)
-  end
-
-  @doc """
   Renders a [Heroicon](https://heroicons.com).
 
   Heroicons come in three styles – outline, solid, and mini.
@@ -576,18 +506,8 @@ defmodule TrebyWeb.CoreComponents do
           {@name}
         </.link>
         <div class="flex items-center gap-1 flex-shrink-0">
-          <span
-            :if={not @reviewed}
-            class="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium"
-          >
-            NEW
-          </span>
-          <span
-            :if={@is_duplicate}
-            class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium"
-          >
-            DUPLICATE
-          </span>
+          <.badge :if={not @reviewed} variant="danger" class="text-[10px]">NEW</.badge>
+          <.badge :if={@is_duplicate} variant="warning" class="text-[10px]">DUPLICATE</.badge>
         </div>
       </div>
       <p class="text-xs text-base-content/50 truncate">{@email}</p>
@@ -609,8 +529,8 @@ defmodule TrebyWeb.CoreComponents do
   defp event_color("interview_scheduled"), do: "bg-purple-500"
   defp event_color("interview_cancelled"), do: "bg-red-500"
   defp event_color("candidate_created"), do: "bg-green-500"
-  defp event_color("candidate_updated"), do: "bg-gray-500"
-  defp event_color(_), do: "bg-gray-400"
+  defp event_color("candidate_updated"), do: "bg-base-300"
+  defp event_color(_), do: "bg-base-300"
 
   defp format_event(%{action: "application_stage_changed", metadata: meta}) do
     gettext("Moved from %{old} to %{new}",
@@ -644,28 +564,6 @@ defmodule TrebyWeb.CoreComponents do
       diff < 604_800 -> "#{div(diff, 86400)}d ago"
       true -> Calendar.strftime(dt, "%b %d, %Y")
     end
-  end
-
-  @doc """
-  Renders an empty state with icon, title, description, and optional actions.
-
-  Use `action` for a single CTA or `actions` for multiple CTAs.
-  Each action is a map with `href` and `label` keys.
-
-  ## Deprecation
-
-  This function delegates to `TrebyWeb.DesignSystem.Pattern.empty_state/1`.
-  Use `<.empty_state>` directly in new templates — it provides the same API
-  with theme-aware styling and an optional `:cta` slot for custom action content.
-  """
-  attr :icon, :string, required: true
-  attr :title, :string, required: true
-  attr :description, :string, required: true
-  attr :action, :map, default: nil
-  attr :actions, :list, default: []
-
-  def empty_state(assigns) do
-    Pattern.empty_state(assigns)
   end
 
   @doc """

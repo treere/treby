@@ -170,4 +170,25 @@
   --ds-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
 }
 
+/* Storybook sandbox: override phoenix_storybook's serif default (see deps/phoenix_storybook/assets/css/phoenix_storybook.css .psb-sandbox{font-family:serif}) */
+.psb-sandbox,
+.psb-sandbox.treby-sandbox,
+.treby-sandbox {
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.treby-sandbox {
+  --font-sans: var(--ds-font-sans);
+  --font-mono: var(--ds-font-mono);
+}
+
+/* Storybook: contain modal fixed overlay within its preview (prevent 5 overlapping fullscreen modals in Stories view) */
+.psb-sandbox.treby-sandbox {
+  position: relative;
+}
+
+.treby-sandbox .fixed.inset-0 {
+  position: absolute !important;
+}
+
 /* This file is for your main application CSS */

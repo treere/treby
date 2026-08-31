@@ -81,26 +81,24 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
       <div class="max-w-4xl mx-auto px-4 py-8">
         <.link
           navigate={"/#{@current_tenant.slug}/portal/messages"}
-          class="text-sm text-blue-600 hover:text-blue-800 mb-4 inline-block"
+          class="text-sm text-primary hover:underline mb-4 inline-flex items-center gap-1"
         >
           ← Back to messages
         </.link>
 
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          {@conversation.subject || "Conversation"}
-        </h1>
+        <.page_header title={@conversation.subject || "Conversation"} />
 
         <div class="space-y-4 mb-6">
           <%= for message <- @conversation.messages do %>
             <div class={[
               "rounded-lg p-4 max-w-3xl",
-              message.sender_type == "candidate" && "bg-blue-50 dark:bg-blue-900/20 ml-auto",
-              message.sender_type == "recruiter" && "bg-gray-100 dark:bg-gray-800",
+              message.sender_type == "candidate" && "bg-primary/10 ml-auto",
+              message.sender_type == "recruiter" && "bg-base-200",
               message.sender_type == "system" &&
-                "bg-gray-50 dark:bg-gray-800/50 mx-auto text-center text-sm text-gray-500"
+                "bg-base-200/50 mx-auto text-center text-sm text-base-content/50"
             ]}>
-              <p class="text-gray-900 dark:text-white">{message.body}</p>
-              <p class="text-xs text-gray-400 mt-1">
+              <p class="text-base-content">{message.body}</p>
+              <p class="text-xs text-base-content/40 mt-1">
                 {Calendar.strftime(message.inserted_at, "%b %d, %H:%M")}
               </p>
             </div>
@@ -115,17 +113,14 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
               value={@new_message}
               phx-change="update_message"
               placeholder={gettext("Type a message...")}
-              class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="input flex-1"
             />
-            <button
-              type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
+            <.button type="submit" variant="primary">
               Send
-            </button>
+            </.button>
           </.form>
         <% else %>
-          <p class="text-center text-gray-500 dark:text-gray-400 text-sm">
+          <p class="text-center text-base-content/50 text-sm">
             This conversation is closed.
           </p>
         <% end %>

@@ -35,7 +35,7 @@
       </div>
 
       <div>
-        <.button type="submit" class="group relative w-full justify-center py-2">
+        <.button variant="primary" type="submit" class="w-full justify-center">
           {gettext("Verify email")}
         </.button>
       </div>
@@ -54,7 +54,7 @@
           id="resend-code-btn"
           phx-hook=".ResendCountdown"
           data-countdown="60"
-          class="text-sm font-medium text-blue-600 hover:text-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="text-sm font-medium text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {gettext("Didn't receive it? Resend code")}
         </button>

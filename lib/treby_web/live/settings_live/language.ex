@@ -18,9 +18,9 @@ defmodule TrebyWeb.SettingsLive.Language do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-2xl">
-        <.link navigate={~p"/app/settings"} class="text-sm text-blue-600 hover:text-blue-500">
+        <.button variant="ghost" navigate={~p"/app/settings"} size="sm">
           ← {gettext("Settings")}
-        </.link>
+        </.button>
 
         <h1 class="mt-4 text-2xl font-bold">{gettext("Language")}</h1>
         <p class="mt-2 text-base-content/70">{gettext("Set your preferred language")}</p>
@@ -34,7 +34,7 @@ defmodule TrebyWeb.SettingsLive.Language do
           />
 
           <div class="mt-6">
-            <.button type="submit" phx-disable-with="Saving...">
+            <.button variant="primary" type="submit" phx-disable-with="Saving...">
               {gettext("Save")}
             </.button>
           </div>

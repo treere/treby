@@ -55,15 +55,13 @@ defmodule TrebyWeb.JobsLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="flex justify-between items-center mb-8">
-          <h1 class="text-2xl font-bold">{gettext("Jobs")}</h1>
-          <button
-            phx-click="show_create_form"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-flex items-center gap-1"
-          >
-            <.icon name="hero-plus" class="w-4 h-4" /> {gettext("New Job")}
-          </button>
-        </div>
+        <.page_header title={gettext("Jobs")}>
+          <:actions>
+            <.button variant="primary" phx-click="show_create_form">
+              <.icon name="hero-plus" class="w-4 h-4" /> {gettext("New Job")}
+            </.button>
+          </:actions>
+        </.page_header>
 
         <div class="flex gap-2 mb-6">
           <button
@@ -186,8 +184,8 @@ defmodule TrebyWeb.JobsLive.Index do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit">{gettext("Create")}</.button>
-              <.button type="button" phx-click="hide_create_form" class="bg-gray-500">
+              <.button type="submit" variant="primary">{gettext("Create")}</.button>
+              <.button type="button" phx-click="hide_create_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -235,9 +233,9 @@ defmodule TrebyWeb.JobsLive.Index do
                   {job.salary_range || "-"}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if job.status == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/90"}"}>
+                  <.badge variant={if job.status == "open", do: "success", else: "default"}>
                     {job.status}
-                  </span>
+                  </.badge>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <button
@@ -305,13 +303,9 @@ defmodule TrebyWeb.JobsLive.Index do
             }
           >
             <:cta>
-              <button
-                type="button"
-                phx-click="show_create_form"
-                class="btn btn-primary"
-              >
+              <.button variant="primary" phx-click="show_create_form">
                 {gettext("Create your first job")}
-              </button>
+              </.button>
             </:cta>
           </.empty_state>
         </div>

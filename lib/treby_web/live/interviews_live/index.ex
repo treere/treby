@@ -45,6 +45,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
       |> assign(scorecard_criteria: [])
       |> assign(scorecard_template: nil)
       |> assign(completing_interview: nil)
+      |> assign(cancelling_interview: nil)
       |> load_interviews()
 
     {:ok, socket}
@@ -77,6 +78,34 @@ defmodule TrebyWeb.InterviewsLive.Index do
      socket
      |> assign(filter_interviewer_id: filter_id)
      |> load_interviews()}
+  end
+
+  def handle_event("prompt_cancel_interview", %{"id" => event_id}, socket) do
+    event = Interviews.get_event!(event_id)
+    {:noreply, assign(socket, cancelling_interview: event)}
+  end
+
+  def handle_event("cancel_cancel_interview", _params, socket) do
+    {:noreply, assign(socket, cancelling_interview: nil)}
+  end
+
+  def handle_event("confirm_cancel_interview", %{"id" => event_id}, socket) do
+    event = Interviews.get_event!(event_id)
+
+    case Interviews.cancel_interview(event) do
+      {:ok, _event} ->
+        {:noreply,
+         socket
+         |> assign(cancelling_interview: nil)
+         |> put_flash(:info, gettext("Interview cancelled"))
+         |> load_interviews()}
+
+      {:error, _changeset} ->
+        {:noreply,
+         socket
+         |> assign(cancelling_interview: nil)
+         |> put_flash(:error, gettext("Failed to cancel interview"))}
+    end
   end
 
   def handle_event("cancel_interview", %{"id" => event_id}, socket) do
@@ -191,68 +220,62 @@ defmodule TrebyWeb.InterviewsLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-6xl mx-auto">
-        <div class="flex items-center justify-between mb-8">
-          <div>
-            <h1 class="text-2xl font-bold text-base-content">{gettext("Interviews")}</h1>
-            <p class="mt-1 text-sm text-base-content/50">
-              {gettext("Manage and view all scheduled interviews")}
-            </p>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="flex gap-2">
-              <button
-                phx-click="set_view"
-                phx-value-view="all"
-                class={[
-                  "px-4 py-2 text-sm rounded-md transition-colors",
-                  if(@view == "all",
-                    do: "bg-blue-600 text-white",
-                    else: "bg-base-100 text-base-content/80 border hover:bg-base-200"
-                  )
-                ]}
-              >
-                All
-              </button>
-              <button
-                phx-click="set_view"
-                phx-value-view="my"
-                class={[
-                  "px-4 py-2 text-sm rounded-md transition-colors",
-                  if(@view == "my",
-                    do: "bg-blue-600 text-white",
-                    else: "bg-base-100 text-base-content/80 border hover:bg-base-200"
-                  )
-                ]}
-              >
-                My Interviews
-              </button>
-            </div>
-
-            <%= if @view == "all" do %>
-              <.form for={@filter_form} id="interviews-filter-form">
-                <select
-                  phx-change="filter_interviewer"
-                  name="interviewer_id"
-                  class="select"
+        <.page_header
+          title={gettext("Interviews")}
+          subtitle={gettext("Manage and view all scheduled interviews")}
+        >
+          <:actions>
+            <div class="flex items-center gap-3">
+              <div class="flex gap-2">
+                <.button
+                  variant={if @view == "all", do: "primary", else: "ghost"}
+                  size="sm"
+                  phx-click="set_view"
+                  phx-value-view="all"
                 >
-                  <option value="">{gettext("All Examiners")}</option>
-                  <%= for user <- @users do %>
-                    <option
-                      value={user.id}
-                      selected={@filter_interviewer_id == user.id}
-                    >
-                      {user.name}
-                    </option>
-                  <% end %>
-                </select>
-              </.form>
-            <% end %>
-          </div>
-        </div>
+                  {gettext("All")}
+                </.button>
+                <.button
+                  variant={if @view == "my", do: "primary", else: "ghost"}
+                  size="sm"
+                  phx-click="set_view"
+                  phx-value-view="my"
+                >
+                  {gettext("My Interviews")}
+                </.button>
+              </div>
 
-        <div :if={@interviews == []} class="text-center py-12 bg-base-100 rounded-lg border">
-          <p class="text-base-content/50">{gettext("No interviews scheduled yet")}</p>
-        </div>
+              <%= if @view == "all" do %>
+                <.form for={@filter_form} id="interviews-filter-form">
+                  <select
+                    phx-change="filter_interviewer"
+                    name="interviewer_id"
+                    class="select"
+                  >
+                    <option value="">{gettext("All Examiners")}</option>
+                    <%= for user <- @users do %>
+                      <option
+                        value={user.id}
+                        selected={@filter_interviewer_id == user.id}
+                      >
+                        {user.name}
+                      </option>
+                    <% end %>
+                  </select>
+                </.form>
+              <% end %>
+            </div>
+          </:actions>
+        </.page_header>
+
+        <.empty_state
+          :if={@interviews == []}
+          icon="hero-calendar"
+          title={gettext("No interviews scheduled yet")}
+          description={
+            gettext("No interviews scheduled yet — interviews will appear here once scheduled.")
+          }
+        />
 
         <div :if={@interviews != []} class="space-y-3">
           <%= for {event, scorecard_status} <- @interviews do %>
@@ -294,38 +317,41 @@ defmodule TrebyWeb.InterviewsLive.Index do
 
                 <div class="flex items-center gap-2">
                   <%= if event.video_conf_url do %>
-                    <a
+                    <.button
+                      variant="ghost"
+                      size="sm"
                       href={event.video_conf_url}
                       target="_blank"
-                      class="px-3 py-1 text-sm bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-100 rounded-md hover:bg-green-100"
                     >
-                      Join Meet
-                    </a>
+                      {gettext("Join Meet")}
+                    </.button>
                   <% end %>
-                  <button
+                  <.button
+                    variant="ghost"
+                    size="sm"
                     phx-click="open_scorecard"
                     phx-value-event_id={event.id}
-                    class="px-3 py-1 text-sm bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-100 rounded-md hover:bg-blue-100"
                   >
-                    Scorecard
-                  </button>
+                    {gettext("Scorecard")}
+                  </.button>
                   <%= if event.status == "scheduled" do %>
-                    <button
+                    <.button
+                      variant="ghost"
+                      size="sm"
                       phx-click="complete_interview"
                       phx-value-id={event.id}
-                      class="px-3 py-1 text-sm bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-100 rounded-md hover:bg-indigo-100"
                     >
-                      Mark as completed
-                    </button>
+                      {gettext("Mark as completed")}
+                    </.button>
                   <% end %>
-                  <button
-                    phx-click="cancel_interview"
+                  <.button
+                    variant="danger"
+                    size="sm"
+                    phx-click="prompt_cancel_interview"
                     phx-value-id={event.id}
-                    data-confirm={gettext("Are you sure you want to cancel this interview?")}
-                    class="px-3 py-1 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-md"
                   >
                     {gettext("Cancel")}
-                  </button>
+                  </.button>
                 </div>
               </div>
             </div>
@@ -339,35 +365,32 @@ defmodule TrebyWeb.InterviewsLive.Index do
         />
       </div>
 
-      <div
-        :if={@completing_interview}
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        phx-click="cancel_complete_interview"
-      >
-        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
-          <div class="p-6">
-            <h2 class="text-lg font-semibold mb-2">{gettext("Mark Interview as Completed")}</h2>
-            <p class="text-sm text-base-content/70 mb-4">
-              This marks the interview as done. The candidate's stage will not change automatically;
-              you can collect scorecards before advancing.
-            </p>
-            <div class="flex justify-end gap-2">
-              <button
-                phx-click="cancel_complete_interview"
-                class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
-              >
-                Cancel
-              </button>
-              <button
-                phx-click="confirm_complete_interview"
-                class="px-4 py-2 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-              >
-                Mark as completed
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <.confirm_dialog
+        id="complete-interview-dialog"
+        show={@completing_interview != nil}
+        title={gettext("Mark Interview as Completed")}
+        message={
+          gettext(
+            "This marks the interview as done. The candidate's stage will not change automatically; you can collect scorecards before advancing."
+          )
+        }
+        confirm_label={gettext("Mark as completed")}
+        confirm_variant="primary"
+        on_confirm="confirm_complete_interview"
+        on_cancel="cancel_complete_interview"
+      />
+
+      <.confirm_dialog
+        id="cancel-interview-dialog"
+        show={@cancelling_interview != nil}
+        title={gettext("Cancel Interview")}
+        message={gettext("Are you sure you want to cancel this interview?")}
+        confirm_label={gettext("Cancel")}
+        confirm_variant="danger"
+        on_confirm="confirm_cancel_interview"
+        on_cancel="cancel_cancel_interview"
+        extra_attrs={if @cancelling_interview, do: %{id: @cancelling_interview.id}, else: %{}}
+      />
     </Layouts.app>
     """
   end

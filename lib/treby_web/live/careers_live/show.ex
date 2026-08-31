@@ -150,11 +150,11 @@ defmodule TrebyWeb.CareersLive.Show do
     ~H"""
     <div class="min-h-screen bg-base-200">
       <div class="max-w-3xl mx-auto py-12 px-4">
-        <.link navigate={~p"/#{@tenant.slug}/careers"} class="text-blue-600 hover:text-blue-900">
+        <.link navigate={~p"/#{@tenant.slug}/careers"} class="text-primary hover:text-primary/80">
           &larr; Back to all positions
         </.link>
 
-        <div :if={@job && @job.status == "open"} class="mt-8 bg-base-100 rounded-lg shadow p-8">
+        <.card :if={@job && @job.status == "open"} class="mt-8">
           <div :if={@career_page} class="flex items-center gap-4 mb-6">
             <img
               :if={@career_page.logo_url}
@@ -179,12 +179,12 @@ defmodule TrebyWeb.CareersLive.Show do
             <span :if={@job.location} class="inline-flex items-center gap-1">
               <.icon name="hero-map-pin" class="w-4 h-4" /> {@job.location}
             </span>
-            <span :if={@job.employment_type} class="badge badge-sm bg-base-200">
+            <.badge :if={@job.employment_type} variant="default">
               {Treby.Jobs.Job.employment_type_label(@job.employment_type)}
-            </span>
-            <span :if={@job.workplace_type} class="badge badge-sm bg-base-200">
+            </.badge>
+            <.badge :if={@job.workplace_type} variant="default">
               {Treby.Jobs.Job.workplace_type_label(@job.workplace_type)}
-            </span>
+            </.badge>
             <span class="inline-flex items-center gap-1">
               <.icon name="hero-calendar" class="w-4 h-4" />
               {gettext("Posted")} {Calendar.strftime(@job.inserted_at, "%b %d, %Y")}
@@ -195,53 +195,46 @@ defmodule TrebyWeb.CareersLive.Show do
             <p class="whitespace-pre-wrap text-base-content/80">{@job.description}</p>
           </div>
 
-          <.link
+          <.button
             :if={!@already_applied}
+            variant="primary"
             navigate={~p"/#{@tenant.slug}/careers/#{@job.id}/apply"}
-            class="mt-8 inline-block px-6 py-3 text-white font-semibold rounded-lg hover:opacity-90"
+            class="mt-8"
             style={"background-color: #{@career_page && @career_page.primary_color || "#3b82f6"}"}
           >
             {gettext("Apply Now")}
-          </.link>
-          <.link
+          </.button>
+          <.button
             :if={@already_applied}
+            variant="primary"
             navigate={~p"/#{@tenant.slug}/portal"}
-            class="mt-8 inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700"
+            class="mt-8"
           >
             {gettext("Already applied — View status")}
-          </.link>
-        </div>
+          </.button>
+        </.card>
 
-        <div
-          :if={@job && @job.status != "open"}
-          class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center"
-        >
+        <.card :if={@job && @job.status != "open"} class="mt-8 text-center">
           <h1 class="text-2xl font-bold text-base-content">
             {gettext("This position is no longer available")}
           </h1>
           <p class="mt-4 text-base-content/70">
             The job you're looking for has been closed or removed.
           </p>
-          <.link
-            navigate={~p"/#{@tenant.slug}/careers"}
-            class="mt-6 inline-block text-blue-600 hover:text-blue-900"
-          >
+          <.button variant="ghost" navigate={~p"/#{@tenant.slug}/careers"} class="mt-6">
             View other positions
-          </.link>
-        </div>
+          </.button>
+        </.card>
 
-        <div :if={!@job} class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center">
+        <.card :if={!@job} class="mt-8 text-center">
           <h1 class="text-2xl font-bold text-base-content">{gettext("Position not found")}</h1>
           <p class="mt-4 text-base-content/70">
             The job you're looking for doesn't exist or has been removed.
           </p>
-          <.link
-            navigate={~p"/#{@tenant.slug}/careers"}
-            class="mt-6 inline-block text-blue-600 hover:text-blue-900"
-          >
+          <.button variant="ghost" navigate={~p"/#{@tenant.slug}/careers"} class="mt-6">
             View other positions
-          </.link>
-        </div>
+          </.button>
+        </.card>
       </div>
     </div>
     """

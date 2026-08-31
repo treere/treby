@@ -160,10 +160,10 @@ defmodule TrebyWeb.DashboardLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-7xl mx-auto">
-        <h1 class="text-2xl font-bold mb-2">{gettext("Dashboard")}</h1>
-        <p class="text-base-content/70 mb-8">
-          {gettext("Welcome, %{name}!", name: @current_user.name)}
-        </p>
+        <.page_header
+          title={gettext("Dashboard")}
+          subtitle={gettext("Welcome, %{name}!", name: @current_user.name)}
+        />
 
         <.onboarding_checklist
           steps={@onboarding_steps}
@@ -173,26 +173,26 @@ defmodule TrebyWeb.DashboardLive do
 
         <%!-- Weekly Stats --%>
         <div class="grid grid-cols-4 gap-4 mb-8">
-          <div class="bg-base-100 rounded-lg shadow p-4">
+          <.card class="shadow">
             <p class="text-sm text-base-content/50">{gettext("Applications This Week")}</p>
             <p class="text-3xl font-bold text-blue-600">{@weekly_stats.applications}</p>
-          </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
+          </.card>
+          <.card class="shadow">
             <p class="text-sm text-base-content/50">{gettext("Interviews This Week")}</p>
             <p class="text-3xl font-bold text-purple-600">{@weekly_stats.interviews}</p>
-          </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
+          </.card>
+          <.card class="shadow">
             <p class="text-sm text-base-content/50">{gettext("Offers This Week")}</p>
             <p class="text-3xl font-bold text-pink-600">{@weekly_stats.offers}</p>
-          </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
+          </.card>
+          <.card class="shadow">
             <p class="text-sm text-base-content/50">{gettext("Hires This Week")}</p>
             <p class="text-3xl font-bold text-green-600">{@weekly_stats.hires}</p>
-          </div>
+          </.card>
         </div>
 
         <%!-- My Actions --%>
-        <div class="mb-8 bg-base-100 rounded-lg shadow p-6">
+        <.card class="shadow mb-8">
           <h2 class="text-lg font-semibold mb-4">{gettext("My Actions")}</h2>
 
           <%!-- Pending scorecards --%>
@@ -225,13 +225,14 @@ defmodule TrebyWeb.DashboardLive do
                       )}
                     </p>
                   </div>
-                  <button
+                  <.button
+                    variant="primary"
+                    size="sm"
                     phx-click="open_scorecard"
                     phx-value-event_id={action.event_id}
-                    class="flex-shrink-0 px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
                   >
                     {gettext("Fill scorecard")}
-                  </button>
+                  </.button>
                 </div>
               </div>
             <% end %>
@@ -259,11 +260,11 @@ defmodule TrebyWeb.DashboardLive do
               </div>
             <% end %>
           <% end %>
-        </div>
+        </.card>
 
         <div class="grid grid-cols-2 gap-8">
           <%!-- Upcoming Interviews --%>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <.card class="shadow">
             <h2 class="text-lg font-semibold mb-4">{gettext("Upcoming Interviews (7 days)")}</h2>
             <.empty_state
               :if={@upcoming_interviews == []}
@@ -301,10 +302,10 @@ defmodule TrebyWeb.DashboardLive do
                 {gettext("with %{name}", name: interviewer_name(interview))}
               </p>
             </div>
-          </div>
+          </.card>
 
           <%!-- Stale Candidates --%>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <.card class="shadow">
             <h2 class="text-lg font-semibold mb-4">{gettext("Stale Candidates (7+ days)")}</h2>
             <.empty_state
               :if={@stale_candidates == []}
@@ -323,20 +324,18 @@ defmodule TrebyWeb.DashboardLive do
                   <p class="text-sm text-base-content/50">{app.job.title}</p>
                 </div>
                 <div class="text-right">
-                  <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                    {app.pipeline_stage.name}
-                  </span>
+                  <.badge variant="warning">{app.pipeline_stage.name}</.badge>
                   <p class="text-xs text-base-content/40 mt-1">
                     {gettext("Updated %{date}", date: Calendar.strftime(app.updated_at, "%b %d"))}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
+          </.card>
         </div>
 
         <%!-- Pipeline Snapshot --%>
-        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
+        <.card class="shadow mt-8">
           <h2 class="text-lg font-semibold mb-4">{gettext("Pipeline Overview")}</h2>
           <.empty_state
             :if={@pipeline_snapshot == []}
@@ -370,14 +369,17 @@ defmodule TrebyWeb.DashboardLive do
               </div>
             </div>
           </div>
-        </div>
+        </.card>
         <%!-- Recent Activity --%>
-        <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
+        <.card class="shadow mt-8">
           <h2 class="text-lg font-semibold mb-4">{gettext("Recent Activity")}</h2>
-          <div :if={@recent_activities == []} class="text-base-content/50 text-sm">
-            {gettext("No activity yet.")}
-          </div>
-          <ul class="space-y-3">
+          <.empty_state
+            :if={@recent_activities == []}
+            icon="hero-clock"
+            title={gettext("No activity yet")}
+            description={gettext("Activity for your workspace will appear here.")}
+          />
+          <ul :if={@recent_activities != []} class="space-y-3">
             <li :for={activity <- @recent_activities} class="flex items-start gap-3 text-sm">
               <span class="mt-1.5 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></span>
               <div>
@@ -391,7 +393,7 @@ defmodule TrebyWeb.DashboardLive do
               </div>
             </li>
           </ul>
-        </div>
+        </.card>
       </div>
       <.scorecard_form
         show={@show_scorecard_form}

@@ -52,10 +52,10 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
       current_candidate={@current_candidate}
     >
       <div class="max-w-2xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{gettext("Settings")}</h1>
+        <.page_header title={gettext("Settings")} />
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+        <.card>
+          <h2 class="text-lg font-medium text-base-content mb-4">
             Notification Preferences
           </h2>
 
@@ -67,18 +67,18 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
             {"important_only", gettext("Important notifications only")}
           ] do %>
               <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                <span class="text-sm text-base-content/80">{label}</span>
                 <button
                   phx-click="toggle_preference"
                   phx-value-key={key}
                   class={[
-                    "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                    @preferences[key] && "bg-blue-600",
-                    !@preferences[key] && "bg-gray-200 dark:bg-gray-700"
+                    "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                    @preferences[key] && "bg-primary",
+                    !@preferences[key] && "bg-base-300"
                   ]}
                 >
                   <span class={[
-                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-base-100 shadow ring-0 transition duration-200 ease-in-out",
                     @preferences[key] && "translate-x-5",
                     !@preferences[key] && "translate-x-0"
                   ]} />
@@ -86,7 +86,7 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
               </div>
             <% end %>
           </div>
-        </div>
+        </.card>
       </div>
     </Layouts.candidate_portal>
     """

@@ -77,6 +77,7 @@ defmodule Treby.MixProject do
       {:tzdata, "~> 1.1"},
       {:nimble_csv, "~> 1.2"},
       {:oban, "~> 2.19"},
+      {:phoenix_storybook, "~> 0.9", only: :dev},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}
     ]
@@ -105,6 +106,7 @@ defmodule Treby.MixProject do
         "format --check-formatted",
         "credo --strict",
         "treby.check_translations",
+        "treby.check_design_system",
         "sobelow --config",
         "compile --warnings-as-errors",
         "test"

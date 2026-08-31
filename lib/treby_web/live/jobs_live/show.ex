@@ -75,54 +75,45 @@ defmodule TrebyWeb.JobsLive.Show do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="flex justify-between items-center mb-8">
-          <div>
-            <.link
-              navigate={~p"/app/jobs"}
-              class="text-blue-600 hover:text-blue-900 text-sm inline-flex items-center gap-1"
-            >
-              <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back to Jobs")}
-            </.link>
-            <h1 class="text-2xl font-bold mt-2">{@job.title}</h1>
-            <div id="job-view-summary" class="mt-2 flex items-center gap-2 text-sm">
-              <%= if @job_view_summary.total_views > 0 do %>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-xs font-medium">
-                  <.icon name="hero-eye" class="w-3 h-3" /> {@job_view_summary.total_views} views · {@job_view_summary.views_last_7_days} last 7d
-                </span>
-              <% else %>
-                <span class="text-xs text-base-content/50">{gettext("No views yet")}</span>
-              <% end %>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <.link
-              id="job-analytics-link"
+        <.page_header
+          title={@job.title}
+          breadcrumbs={[
+            %{label: gettext("Jobs"), href: ~p"/app/jobs"},
+            %{label: @job.title}
+          ]}
+        >
+          <:actions>
+            <.button
+              variant="ghost"
               navigate={~p"/app/jobs/#{@job.id}/analytics"}
-              class="bg-base-300 text-base-content px-4 py-2 rounded-lg hover:bg-base-300 inline-flex items-center gap-1"
+              id="job-analytics-link"
             >
               <.icon name="hero-chart-bar" class="w-4 h-4" /> Analytics
-            </.link>
-            <button
+            </.button>
+            <.button
+              variant="ghost"
               id="copy-public-link"
               phx-hook=".CopyToClipboard"
               data-url={TrebyWeb.Endpoint.url() <> ~p"/#{@current_tenant.slug}/careers/#{@job.id}"}
-              class="bg-base-300 px-4 py-2 rounded-lg hover:bg-base-300 inline-flex items-center gap-1"
             >
               <.icon name="hero-link" class="w-4 h-4" /> Copy Public Link
-            </button>
-            <button
-              phx-click="start_editing"
-              class="bg-base-300 px-4 py-2 rounded-lg hover:bg-base-300 inline-flex items-center gap-1"
-            >
+            </.button>
+            <.button variant="ghost" phx-click="start_editing">
               <.icon name="hero-pencil" class="w-4 h-4" /> Edit
-            </button>
-            <.link
-              navigate={~p"/app/pipeline/#{@job.id}"}
-              class="bg-base-300 text-base-content px-4 py-2 rounded-lg hover:bg-base-300 inline-flex items-center gap-1"
-            >
+            </.button>
+            <.button variant="primary" navigate={~p"/app/pipeline/#{@job.id}"}>
               <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> View Pipeline
-            </.link>
-          </div>
+            </.button>
+          </:actions>
+        </.page_header>
+        <div id="job-view-summary" class="mb-6 flex items-center gap-2 text-sm">
+          <%= if @job_view_summary.total_views > 0 do %>
+            <.badge variant="info">
+              <.icon name="hero-eye" class="w-3 h-3" /> {@job_view_summary.total_views} views · {@job_view_summary.views_last_7_days} last 7d
+            </.badge>
+          <% else %>
+            <span class="text-xs text-base-content/50">{gettext("No views yet")}</span>
+          <% end %>
         </div>
 
         <div :if={@editing} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
@@ -219,8 +210,8 @@ defmodule TrebyWeb.JobsLive.Show do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit">{gettext("Save")}</.button>
-              <.button type="button" phx-click="cancel_editing" class="bg-gray-500">
+              <.button type="submit" variant="primary">{gettext("Save")}</.button>
+              <.button type="button" phx-click="cancel_editing" variant="ghost">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -258,9 +249,9 @@ defmodule TrebyWeb.JobsLive.Show do
               <div>
                 <dt class="text-sm text-base-content/50">{gettext("Status")}</dt>
                 <dd>
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if @job.status == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/90"}"}>
+                  <.badge variant={if @job.status == "open", do: "success", else: "default"}>
                     {@job.status}
-                  </span>
+                  </.badge>
                 </dd>
               </div>
               <div>
@@ -456,23 +447,17 @@ defmodule TrebyWeb.JobsLive.Show do
                 {gettext("Stages for this job")}
               </p>
             </div>
-            <button
+            <.button
               :if={@current_membership.role == "admin"}
               phx-click="toggle_manage_pipeline"
-              class={[
-                "px-4 py-2 rounded-lg inline-flex items-center gap-1",
-                if(@manage_pipeline,
-                  do: "bg-green-600 text-white hover:bg-green-700",
-                  else: "bg-base-300 text-base-content hover:bg-base-300"
-                )
-              ]}
+              variant={if @manage_pipeline, do: "primary", else: "ghost"}
             >
               <.icon
                 name={if @manage_pipeline, do: "hero-check", else: "hero-wrench-screwdriver"}
                 class="w-4 h-4"
               />
               {if @manage_pipeline, do: gettext("Done"), else: gettext("Manage Pipeline")}
-            </button>
+            </.button>
           </div>
 
           <%!-- Read-only pipeline overview (default) --%>
@@ -492,38 +477,24 @@ defmodule TrebyWeb.JobsLive.Show do
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
                     <p class="font-medium text-sm text-base-content">{stage.name}</p>
-                    <span class="text-xs text-base-content/50 bg-base-300 px-1.5 py-0.5 rounded-full">
-                      {stage.candidate_count}
-                    </span>
-                    <span
-                      :if={stage.stage_type}
-                      class="inline-flex items-center rounded bg-base-300 px-1.5 py-0.5 text-[10px] font-medium text-base-content/70 uppercase"
-                    >
+                    <.badge variant="default" class="text-xs">{stage.candidate_count}</.badge>
+                    <.badge :if={stage.stage_type} variant="default" class="text-[10px] uppercase">
                       {stage.stage_type}
-                    </span>
+                    </.badge>
                   </div>
                   <div
                     :if={stage.examiners != [] or stage.reviewers != [] or stage.advancers != []}
                     class="mt-1 flex flex-wrap gap-1 text-[11px]"
                   >
-                    <span
-                      :for={examiner <- stage.examiners}
-                      class="inline-flex items-center rounded bg-blue-50 dark:bg-blue-950 px-1.5 py-0.5 text-blue-700 dark:text-blue-300"
-                    >
+                    <.badge :for={examiner <- stage.examiners} variant="info" class="text-[11px]">
                       <span class="font-medium mr-0.5">E</span>{examiner.user.name}
-                    </span>
-                    <span
-                      :for={reviewer <- stage.reviewers}
-                      class="inline-flex items-center rounded bg-green-50 dark:bg-green-950 px-1.5 py-0.5 text-green-700 dark:text-green-300"
-                    >
+                    </.badge>
+                    <.badge :for={reviewer <- stage.reviewers} variant="success" class="text-[11px]">
                       <span class="font-medium mr-0.5">R</span>{reviewer.user.name}
-                    </span>
-                    <span
-                      :for={advancer <- stage.advancers}
-                      class="inline-flex items-center rounded bg-purple-50 dark:bg-purple-950 px-1.5 py-0.5 text-purple-700 dark:text-purple-300"
-                    >
+                    </.badge>
+                    <.badge :for={advancer <- stage.advancers} variant="warning" class="text-[11px]">
                       <span class="font-medium mr-0.5">A</span>{advancer.user.name}
-                    </span>
+                    </.badge>
                   </div>
                 </div>
               </div>
@@ -533,12 +504,9 @@ defmodule TrebyWeb.JobsLive.Show do
           <%!-- Pipeline editor (only while managing) --%>
           <div :if={@manage_pipeline}>
             <div class="flex justify-end mb-4">
-              <button
-                phx-click="show_create_form"
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-flex items-center gap-1"
-              >
+              <.button variant="primary" phx-click="show_create_form">
                 <.icon name="hero-plus" class="w-4 h-4" /> {gettext("Add Stage")}
-              </button>
+              </.button>
             </div>
 
             <div :if={@show_form} class="mb-6 p-5 bg-base-200 rounded-lg">
@@ -582,8 +550,8 @@ defmodule TrebyWeb.JobsLive.Show do
                 </div>
 
                 <div class="flex gap-2">
-                  <.button type="submit">{gettext("Save")}</.button>
-                  <.button type="button" phx-click="cancel_form" class="bg-gray-500">
+                  <.button type="submit" variant="primary">{gettext("Save")}</.button>
+                  <.button type="button" phx-click="cancel_form" variant="ghost">
                     {gettext("Cancel")}
                   </.button>
                 </div>
@@ -616,8 +584,8 @@ defmodule TrebyWeb.JobsLive.Show do
                   value=""
                 />
                 <div class="flex gap-2">
-                  <.button type="submit">{gettext("Move & Delete")}</.button>
-                  <.button type="button" phx-click="cancel_delete" class="bg-gray-500">
+                  <.button type="submit" variant="primary">{gettext("Move & Delete")}</.button>
+                  <.button type="button" phx-click="cancel_delete" variant="ghost">
                     {gettext("Cancel")}
                   </.button>
                 </div>
@@ -641,36 +609,25 @@ defmodule TrebyWeb.JobsLive.Show do
                   <div>
                     <p class="font-medium text-sm text-base-content">{stage.name}</p>
                     <div class="flex flex-wrap gap-1 mt-1">
-                      <span
-                        :if={stage.stage_type}
-                        class="inline-flex items-center rounded bg-base-300 px-1.5 py-0.5 text-[10px] font-medium text-base-content/70 uppercase"
-                      >
+                      <.badge :if={stage.stage_type} variant="default" class="text-[10px] uppercase">
                         {stage.stage_type}
-                      </span>
-                      <span
+                      </.badge>
+                      <.badge
                         :if={stage.stage_type == "interview" && stage.min_examiners > 1}
-                        class="inline-flex items-center rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-800"
+                        variant="info"
+                        class="text-[10px]"
                       >
                         {gettext("%{count} examiners", count: stage.min_examiners)}
-                      </span>
-                      <span
-                        :if={stage.examiner_count > 0}
-                        class="inline-flex items-center rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700"
-                      >
+                      </.badge>
+                      <.badge :if={stage.examiner_count > 0} variant="info" class="text-[10px]">
                         {gettext("%{count}E", count: stage.examiner_count)}
-                      </span>
-                      <span
-                        :if={stage.reviewer_count > 0}
-                        class="inline-flex items-center rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-700"
-                      >
+                      </.badge>
+                      <.badge :if={stage.reviewer_count > 0} variant="success" class="text-[10px]">
                         {gettext("%{count}R", count: stage.reviewer_count)}
-                      </span>
-                      <span
-                        :if={stage.advancer_count > 0}
-                        class="inline-flex items-center rounded bg-purple-50 px-1.5 py-0.5 text-[10px] font-medium text-purple-700"
-                      >
+                      </.badge>
+                      <.badge :if={stage.advancer_count > 0} variant="warning" class="text-[10px]">
                         {gettext("%{count}A", count: stage.advancer_count)}
-                      </span>
+                      </.badge>
                     </div>
                   </div>
                 </div>
@@ -721,188 +678,171 @@ defmodule TrebyWeb.JobsLive.Show do
           </div>
         </div>
 
-        <%!-- Role Assignment Modal --%>
-        <div
+        <.modal
           :if={@manage_pipeline and @editing_roles}
-          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          phx-click="close_roles"
+          id="job-roles-modal"
+          show={true}
+          title={gettext("Roles for") <> " #{@editing_roles.name}"}
+          close_event="close_roles"
+          size="lg"
         >
-          <div
-            class="bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-            phx-click=""
-          >
-            <div class="p-6">
-              <h2 class="text-lg font-semibold mb-4">
-                {gettext("Roles for")} {@editing_roles.name}
-              </h2>
-
-              <div class="mb-6">
-                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Examiners")}</h3>
-                <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
-                  <span
-                    :for={examiner <- @editing_roles.examiners}
-                    class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs"
-                  >
-                    {examiner.user.name}
-                    <button
-                      phx-click="remove_examiner"
-                      phx-value-stage_id={@editing_roles.id}
-                      phx-value-user_id={examiner.user_id}
-                      class="text-blue-600 hover:text-blue-900"
-                    >
-                      &times;
-                    </button>
-                  </span>
-                </div>
-                <.form
-                  for={%{}}
-                  id="job-add-examiner-form"
-                  phx-submit="add_examiner"
-                  class="flex gap-2"
+          <div class="mb-6">
+            <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Examiners")}</h3>
+            <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
+              <.badge
+                :for={examiner <- @editing_roles.examiners}
+                variant="info"
+                class="gap-1 text-xs"
+              >
+                {examiner.user.name}
+                <button
+                  phx-click="remove_examiner"
+                  phx-value-stage_id={@editing_roles.id}
+                  phx-value-user_id={examiner.user_id}
+                  class="text-blue-600 hover:text-blue-900 ml-1"
                 >
-                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <.input
-                    name="user_id"
-                    type="select"
-                    options={
-                      Enum.map(available_users(@users, @editing_roles.examiners), &{&1.name, &1.id})
-                    }
-                    prompt={gettext("Select user...")}
-                    label=""
-                    value=""
-                  />
-                  <.button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
-                    {gettext("Add")}
-                  </.button>
-                </.form>
-              </div>
-
-              <div class="mb-6">
-                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Reviewers")}</h3>
-                <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
-                  <span
-                    :for={reviewer <- @editing_roles.reviewers}
-                    class="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs"
-                  >
-                    {reviewer.user.name}
-                    <button
-                      phx-click="remove_reviewer"
-                      phx-value-stage_id={@editing_roles.id}
-                      phx-value-user_id={reviewer.user_id}
-                      class="text-green-600 hover:text-green-900"
-                    >
-                      &times;
-                    </button>
-                  </span>
-                </div>
-                <.form
-                  for={%{}}
-                  id="job-add-reviewer-form"
-                  phx-submit="add_reviewer"
-                  class="flex gap-2"
-                >
-                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <.input
-                    name="user_id"
-                    type="select"
-                    options={
-                      Enum.map(available_users(@users, @editing_roles.reviewers), &{&1.name, &1.id})
-                    }
-                    prompt={gettext("Select user...")}
-                    label=""
-                    value=""
-                  />
-                  <.button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-sm">
-                    {gettext("Add")}
-                  </.button>
-                </.form>
-              </div>
-
-              <div class="mb-6">
-                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Advancers")}</h3>
-                <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
-                  <span
-                    :for={advancer <- @editing_roles.advancers}
-                    class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-1 text-xs"
-                  >
-                    {advancer.user.name}
-                    <button
-                      phx-click="remove_advancer"
-                      phx-value-stage_id={@editing_roles.id}
-                      phx-value-user_id={advancer.user_id}
-                      class="text-purple-600 hover:text-purple-900"
-                    >
-                      &times;
-                    </button>
-                  </span>
-                </div>
-                <.form
-                  for={%{}}
-                  id="job-add-advancer-form"
-                  phx-submit="add_advancer"
-                  class="flex gap-2"
-                >
-                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <.input
-                    name="user_id"
-                    type="select"
-                    options={
-                      Enum.map(available_users(@users, @editing_roles.advancers), &{&1.name, &1.id})
-                    }
-                    prompt={gettext("Select user...")}
-                    label=""
-                    value=""
-                  />
-                  <.button type="submit" class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
-                    {gettext("Add")}
-                  </.button>
-                </.form>
-              </div>
-
-              <div class="flex justify-end">
-                <.button type="button" phx-click="close_roles">{gettext("Done")}</.button>
-              </div>
+                  &times;
+                </button>
+              </.badge>
             </div>
+            <.form
+              for={%{}}
+              id="job-add-examiner-form"
+              phx-submit="add_examiner"
+              class="flex gap-2"
+            >
+              <input type="hidden" name="stage_id" value={@editing_roles.id} />
+              <.input
+                name="user_id"
+                type="select"
+                options={
+                  Enum.map(available_users(@users, @editing_roles.examiners), &{&1.name, &1.id})
+                }
+                prompt={gettext("Select user...")}
+                label=""
+                value=""
+              />
+              <.button type="submit" variant="primary" size="sm">
+                {gettext("Add")}
+              </.button>
+            </.form>
           </div>
-        </div>
 
-        <%!-- Rejection Modal --%>
-        <div
-          :if={@rejecting_application}
-          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          phx-click="cancel_reject"
+          <div class="mb-6">
+            <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Reviewers")}</h3>
+            <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
+              <.badge
+                :for={reviewer <- @editing_roles.reviewers}
+                variant="success"
+                class="gap-1 text-xs"
+              >
+                {reviewer.user.name}
+                <button
+                  phx-click="remove_reviewer"
+                  phx-value-stage_id={@editing_roles.id}
+                  phx-value-user_id={reviewer.user_id}
+                  class="text-green-600 hover:text-green-900 ml-1"
+                >
+                  &times;
+                </button>
+              </.badge>
+            </div>
+            <.form
+              for={%{}}
+              id="job-add-reviewer-form"
+              phx-submit="add_reviewer"
+              class="flex gap-2"
+            >
+              <input type="hidden" name="stage_id" value={@editing_roles.id} />
+              <.input
+                name="user_id"
+                type="select"
+                options={
+                  Enum.map(available_users(@users, @editing_roles.reviewers), &{&1.name, &1.id})
+                }
+                prompt={gettext("Select user...")}
+                label=""
+                value=""
+              />
+              <.button type="submit" variant="secondary" size="sm">
+                {gettext("Add")}
+              </.button>
+            </.form>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Advancers")}</h3>
+            <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
+              <.badge
+                :for={advancer <- @editing_roles.advancers}
+                variant="warning"
+                class="gap-1 text-xs"
+              >
+                {advancer.user.name}
+                <button
+                  phx-click="remove_advancer"
+                  phx-value-stage_id={@editing_roles.id}
+                  phx-value-user_id={advancer.user_id}
+                  class="text-purple-600 hover:text-purple-900 ml-1"
+                >
+                  &times;
+                </button>
+              </.badge>
+            </div>
+            <.form
+              for={%{}}
+              id="job-add-advancer-form"
+              phx-submit="add_advancer"
+              class="flex gap-2"
+            >
+              <input type="hidden" name="stage_id" value={@editing_roles.id} />
+              <.input
+                name="user_id"
+                type="select"
+                options={
+                  Enum.map(available_users(@users, @editing_roles.advancers), &{&1.name, &1.id})
+                }
+                prompt={gettext("Select user...")}
+                label=""
+                value=""
+              />
+              <.button type="submit" variant="secondary" size="sm">
+                {gettext("Add")}
+              </.button>
+            </.form>
+          </div>
+
+          <div class="flex justify-end">
+            <.button type="button" phx-click="close_roles" variant="primary">
+              {gettext("Done")}
+            </.button>
+          </div>
+        </.modal>
+
+        <.modal
+          id="reject-candidate-modal"
+          show={@rejecting_application != nil}
+          title={gettext("Reject Candidate")}
+          close_event="cancel_reject"
+          size="lg"
         >
-          <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
-            <div class="p-6">
-              <h2 class="text-lg font-semibold mb-2">{gettext("Reject Candidate")}</h2>
-              <p class="text-sm text-base-content/70 mb-4">
-                Are you sure you want to reject {@rejecting_application.candidate.name}?
-              </p>
-              <textarea
-                id="rejection-reason"
-                class="w-full border rounded-lg p-2 text-sm mb-4"
-                rows="3"
-                placeholder={gettext("Reason for rejection (required)")}
-                required
-                phx-change="update_rejection_reason"
-              >{@rejection_reason}</textarea>
-              <div class="flex justify-end gap-2">
-                <button
-                  phx-click="cancel_reject"
-                  class="px-4 py-2 text-sm rounded-lg border hover:bg-base-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  phx-click="confirm_reject"
-                  class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700"
-                >
-                  Reject
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          <p class="text-sm text-base-content/70 mb-4">
+            {gettext("Are you sure you want to reject")} {@rejecting_application &&
+              @rejecting_application.candidate.name}?
+          </p>
+          <textarea
+            id="rejection-reason"
+            class="w-full border rounded-lg p-2 text-sm mb-4"
+            rows="3"
+            placeholder={gettext("Reason for rejection (required)")}
+            required
+            phx-change="update_rejection_reason"
+          >{@rejection_reason}</textarea>
+          <:footer>
+            <.button variant="ghost" phx-click="cancel_reject">{gettext("Cancel")}</.button>
+            <.button variant="danger" phx-click="confirm_reject">{gettext("Reject")}</.button>
+          </:footer>
+        </.modal>
       </div>
     </Layouts.app>
 

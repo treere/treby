@@ -96,10 +96,23 @@ cd site && npm install && npm run dev
 
 Opens at `http://localhost:5173/treby/`. Build with `cd site && npm run build`. Screenshots: `node scripts/screenshots.mjs` (requires running app + seeded DB).
 
+## Design System & Storybook
+
+All UI uses `TrebyWeb.DesignSystem.*` (`Button`, `Badge`, `Card`, `Modal`, `Dropdown`, `Tabs`, `Avatar`, `Feedback`/`Spinner`/`Skeleton`/`Toast`, `Pattern`/`ConfirmDialog`/`PageHeader`/`EmptyState`/`FilterBar`/`FormSection`/`LoadingOverlay`) with tokens in `assets/css/app.css` (`--ds-*`, light/dark via `data-theme`). No screen should define ad-hoc `bg-blue-600`/`bg-gray-500` button styles outside `lib/treby_web/components/design_system/*` — CI fails via `mix treby.check_design_system` (wired into `mix precommit`).
+
+Isolated preview (dev only, not in `prod`/`test`):
+
+```bash
+mix phx.server
+# http://localhost:4000/dev/storybook  (requires MIX_ENV=dev, mount via dev_routes)
+```
+
+Stories live in `storybook/` (`button`/`badge`/`card`/`modal`/`dropdown`/`tabs`/`avatar`/`spinner`/`skeleton`/`toast` + `patterns/*`), powered by [`phoenix_storybook ~> 0.9`](https://github.com/phenixdigital/phoenix_storybook) (`only: :dev`).
+
 ## Quality Checks
 
 ```bash
-mix precommit   # format --check-formatted, credo, sobelow, compile --warnings-as-errors, test
+mix precommit   # format --check-formatted, credo, treby.check_translations, treby.check_design_system, sobelow, compile --warnings-as-errors, test
 ```
 
 ## License

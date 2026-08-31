@@ -54,12 +54,9 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             <h1 class="text-2xl font-bold mt-2">{gettext("Pipelines")}</h1>
             <p class="mt-1 text-base-content/70">{gettext("Manage your hiring pipelines")}</p>
           </div>
-          <button
-            phx-click="show_create_form"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
+          <.button phx-click="show_create_form" variant="primary">
             + {gettext("New Pipeline")}
-          </button>
+          </.button>
         </div>
 
         <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
@@ -78,7 +75,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             />
             <div class="flex gap-2">
               <.button type="submit">{gettext("Create")}</.button>
-              <.button type="button" phx-click="cancel_form" class="bg-gray-500">
+              <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>
             </div>
@@ -159,12 +156,9 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
               <h2 class="text-xl font-bold">{gettext("Pipeline Templates")}</h2>
               <p class="mt-1 text-base-content/70">{gettext("Reusable pipeline configurations")}</p>
             </div>
-            <button
-              phx-click="show_create_template_form"
-              class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-            >
+            <.button phx-click="show_create_template_form" variant="primary">
               + {gettext("New Template")}
-            </button>
+            </.button>
           </div>
 
           <div :if={@show_template_form} class="mb-6 p-6 bg-base-100 rounded-lg shadow">
@@ -183,7 +177,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
               />
               <div class="flex gap-2">
                 <.button type="submit">{gettext("Create")}</.button>
-                <.button type="button" phx-click="cancel_template_form" class="bg-gray-500">
+                <.button type="button" phx-click="cancel_template_form" variant="ghost">
                   {gettext("Cancel")}
                 </.button>
               </div>
@@ -220,7 +214,17 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         </div>
       </div>
     </Layouts.app>
-    <.confirm_modal confirm_delete={@confirm_delete} on_confirm="do_delete_pipeline" />
+    <.confirm_dialog
+      id="confirm-pipeline"
+      show={@confirm_delete != nil}
+      title={@confirm_delete && @confirm_delete.title}
+      message={@confirm_delete && @confirm_delete.message}
+      confirm_label="Delete"
+      confirm_variant="danger"
+      on_confirm="do_delete_pipeline"
+      on_cancel="cancel_delete"
+      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+    />
     """
   end
 

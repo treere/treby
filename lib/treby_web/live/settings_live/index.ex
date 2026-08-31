@@ -33,16 +33,22 @@ defmodule TrebyWeb.SettingsLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <h1 class="text-2xl font-bold">{gettext("Settings")}</h1>
-        <p class="mt-2 text-base-content/70">
-          {gettext("Company settings for")} {@current_tenant.name}
-        </p>
+        <.page_header
+          title={gettext("Settings")}
+          subtitle={
+            if @current_tenant do
+              gettext("Company settings for %{name}", name: @current_tenant.name)
+            else
+              gettext("Company settings")
+            end
+          }
+        />
 
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/pipeline"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Pipeline Stages")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -52,7 +58,7 @@ defmodule TrebyWeb.SettingsLive.Index do
 
           <.link
             navigate={~p"/app/settings/branding"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Branding")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -63,7 +69,7 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/team"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Team")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -74,7 +80,7 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/fields"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Custom Fields")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -85,7 +91,7 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/scorecards"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Scorecard Templates")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -96,7 +102,7 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/emails"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Message Templates")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -107,7 +113,7 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/notifications"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Notifications")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -118,7 +124,7 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/sources"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Sources")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -128,7 +134,7 @@ defmodule TrebyWeb.SettingsLive.Index do
 
           <.link
             navigate={~p"/app/settings/calendar"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Calendar")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -138,7 +144,7 @@ defmodule TrebyWeb.SettingsLive.Index do
 
           <.link
             navigate={~p"/app/settings/availability"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Availability")}</h2>
             <p class="mt-2 text-sm text-base-content/70">
@@ -148,7 +154,7 @@ defmodule TrebyWeb.SettingsLive.Index do
 
           <.link
             navigate={~p"/app/settings/language"}
-            class="block bg-base-100 rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
           >
             <h2 class="text-lg font-semibold text-base-content">{gettext("Language")}</h2>
             <p class="mt-2 text-sm text-base-content/70">{gettext("Set your preferred language")}</p>

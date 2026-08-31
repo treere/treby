@@ -1,58 +1,58 @@
-# Cambio Spazio di Lavoro
+# Workspace Switching
 
-Un'unica email e password per tutte le tue aziende. Ogni azienda è uno spazio separato con le sue posizioni, candidati e impostazioni — puoi essere Admin in una e Membro in un'altra.
+One email and password for all your companies. Each company is a separate workspace with its own jobs, candidates, and settings — you can be Admin in one and Member in another.
 
-![Scegli spazio di lavoro](/screenshots/27-workspace-picker.png)
+![Choose workspace](/screenshots/27-workspace-picker.png)
 
-*Scegli spazio di lavoro — dopo il login chi ha più aziende vede l'elenco con ruolo. Sotto, **Crea nuova azienda**.*
+*Choose workspace — after login, anyone with multiple companies sees the list with their role. Below, **Create new company**.*
 
-![Menu cambio spazio nell'header](/screenshots/28-header-switcher.png)
+![Header workspace switcher](/screenshots/28-header-switcher.png)
 
-*Menu nell'header (visibile con più di uno spazio) — mostra l'azienda attuale con spunta e ruolo, più **Crea nuova azienda**.*
+*Header menu (visible with more than one workspace) — shows the current company with a checkmark and role, plus **Create new company**.*
 
-## Dove si trova
+## Where to Find It
 
-* **Al login** — dopo email e password, se appartieni a più aziende vedi **Scegli spazio di lavoro**. Scegli l'azienda e prosegui.
-* **Nell'header** — quando hai più di uno spazio, accanto al logo Treby c'è un menu con il nome dell'azienda attuale. Aprilo per cambiare al volo.
-* **Crea nuova azienda** — nel selettore o nel menu dell'header scegli **Crea nuova azienda**, inserisci il nome e diventi Admin del nuovo spazio.
+* **At login** — after email and password, if you belong to multiple companies you see **Choose workspace**. Pick a company to continue.
+* **In the header** — when you have more than one workspace, next to the Treby logo there's a menu with the current company name. Open it to switch instantly.
+* **Create new company** — in the picker or header menu, choose **Create new company**, enter a name, and become Admin of the new workspace.
 
-## Come si usa
+## How to Use It
 
-1. **Accedi** con email e password.
-   * Un solo spazio → vai direttamente a `tua-azienda/app`.
-   * Più spazi → atterri su **Scegli spazio di lavoro** con l'elenco delle aziende e il tuo ruolo (Admin / Membro).
+1. **Sign in** with email and password.
+   * One workspace → go directly to `your-company/app`.
+   * Multiple workspaces → land on **Choose workspace** with the list of companies and your role (Admin / Member).
 
-2. **Scegli lo spazio** — clic sull'azienda. Tutto l'app si carica in quel contesto: posizioni, candidati, pipeline e analytics sono solo di quell'azienda.
+2. **Pick a workspace** — click a company. The whole app loads in that context: jobs, candidates, pipeline, and analytics are scoped to that company.
 
-3. **Cambia al volo** — apri il menu dell'azienda nell'header e seleziona un'altra azienda. L'indirizzo diventa `altra-azienda/app` e l'app si ricarica. I preferiti mantengono lo spazio (`azienda/app/posizioni/123`).
+3. **Switch on the fly** — open the company menu in the header and select another company. The URL becomes `other-company/app` and the app reloads. Bookmarks keep the workspace (`company/app/jobs/123`).
 
-4. **Crea un'altra azienda** — dal selettore o dal menu, **Crea nuova azienda** → inserisci il nome → vieni reindirizzato al nuovo spazio come Admin. Non serve una nuova password: la stessa vale ovunque.
+4. **Create another company** — from the picker or the menu, **Create new company** → enter a name → you are redirected to the new workspace as Admin. No new password needed: the same one works everywhere.
 
-5. **Compatibilità** — i vecchi preferiti come `/app/posizioni` continuano a funzionare e ti portano al primo spazio o al selettore se ne hai più d'uno.
+5. **Compatibility** — old bookmarks like `/app/jobs` still work and take you to your first workspace or the picker if you have more than one.
 
-## Ruoli per spazio
+## Roles per Workspace
 
-Il ruolo è **per azienda**, non globale.
+The role is **per company**, not global.
 
-| Tu sei | In quell'azienda puoi |
+| You are | In that company you can |
 |---|---|
-| **Admin** | Gestire **Impostazioni → Pipeline**, **Team**, **Campi**, **Sorgenti**, branding, inviti |
-| **Membro** | Usare posizioni, candidati, candidature, note, colloqui e valutazioni secondo i permessi delle fasi |
+| **Admin** | Manage **Settings → Pipeline**, **Team**, **Fields**, **Sources**, branding, invitations |
+| **Member** | Use jobs, candidates, applications, notes, interviews, and scorecards according to stage permissions |
 
-Vedi solo gli spazi in cui sei stato invitato.
+You only see workspaces you have been invited to.
 
-## Inviti
+## Invitations
 
-* **Admin → Impostazioni → Team → Invita** — invita per email nello spazio attuale. L'invitato riceve un link.
-* **Se l'email esiste già** — Treby non crea un duplicato: aggiunge la persona allo spazio con la password che già usa.
-  * Non sei entrato → vedi **Accedi come nome@email per accettare l'invito**.
-  * Sei già entrato con la stessa email → **Unisciti a Nome Azienda** (un clic, senza nuova registrazione).
-  * Sei entrato con un'altra email → **Sei entrato come altro@azienda.com ma l'invito è per nome@email — Esci e continua come nome@email**.
+* **Admin → Settings → Team → Invite** — invite by email to the current workspace. The invitee receives a link.
+* **If the email already exists** — Treby does not create a duplicate: it adds the person to the workspace with the password they already use.
+  * Not signed in → you see **Sign in as name@email to accept the invitation**.
+  * Already signed in with the same email → **Join Company Name** (one click, no new registration).
+  * Signed in with a different email → **You are signed in as other@company.com but the invitation is for name@email — Sign out and continue as name@email**.
 
-L'invito scade dopo 7 giorni.
+Invitations expire after 7 days.
 
-## Consigli
+## Tips
 
-* Il menu di cambio spazio è nascosto se hai un solo spazio.
-* L'indirizzo dell'azienda deriva dal nome (es. `acme-corp`) e non cambia dopo la creazione.
-* **Reimposta password** è globale: la nuova password vale per tutti i tuoi spazi.
+* The workspace switcher is hidden if you have only one workspace.
+* The company slug in the URL comes from the name (e.g., `acme-corp`) and does not change after creation.
+* **Reset password** is global: the new password works for all your workspaces.

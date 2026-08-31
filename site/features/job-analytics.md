@@ -1,42 +1,42 @@
-# Job Analytics — Visite Annuncio
+# Job Analytics — Job Views
 
-Capisci quante persone vedono ogni annuncio e da dove arrivano, per ottimizzare visibilità e conversione.
+Understand how many people view each job posting and where they come from, so you can optimize visibility and conversion.
 
 ![Job Analytics](/screenshots/12-job-analytics.png)
 
-## Dove si trova
+## Where to Find It
 
-- **Lista offerte** (`Offerte`): ogni riga mostra un riepilogo sintetico — totale visite e visite ultimi 7 giorni — o “Nessuna visita” se l’annuncio è nuovo.
-- **Dettaglio offerta** (`Offerte → Dettaglio`): sopra il titolo trovi un badge con lo stesso riepilogo; nelle azioni in alto a destra c’è il pulsante **Analytics** (icona grafico) che apre la pagina dedicata.
-- **Pagina analytics per offerta** (`Offerte → Dettaglio → Analytics`): raggiungibile solo da membri del tuo team. Se provi ad aprire un annuncio di un’altra azienda, vedrai una pagina “Non trovato”.
+- **Jobs list** (`Jobs`): each row shows a compact summary — total views and views in the last 7 days — or "No views yet" if the posting is new.
+- **Job detail** (`Jobs → Detail`): above the title you'll see a badge with the same summary; in the top-right actions there's an **Analytics** button (chart icon) that opens the dedicated page.
+- **Per-job analytics page** (`Jobs → Detail → Analytics`): accessible only to members of your team. If you try to open a job from another company, you'll see a "Not found" page.
 
-## Cosa mostra la pagina Analytics
+## What the Analytics Page Shows
 
-- **Indicatori (KPI)** in alto:
-  - *Totale visite* e *Visite uniche* (stessa persona contata una volta)
-  - *Ultimi 7 / 30 giorni* e *Media giornaliera*
-  - *Conversione* — % di visite che diventano candidature, con numero totale candidature e media aziendale a confronto
-- **Grafico giornaliero** — barre per gli ultimi 7, 30 o 90 giorni (selettore periodo in alto). I giorni senza visite restano a 0.
-- **Mensile** — barre per gli ultimi 12 mesi (dal primo del mese).
-- **Sorgenti traffico** — da dove arrivano le visite: `utm_source` se presente (es. LinkedIn, Indeed), altrimenti dominio del referrer, altrimenti “Direct”. Percentuale e conteggio.
-- **Funnel Visita → Candidatura** — totale visite vs totale candidature e tasso di conversione; utile per capire se un annuncio è visto ma poco attrattivo.
+- **KPIs** at the top:
+  - *Total views* and *Unique views* (same person counted once)
+  - *Last 7 / 30 days* and *Daily average*
+  - *Conversion* — % of views that become applications, with total applications and company average for comparison
+- **Daily chart** — bars for the last 7, 30, or 90 days (period selector at the top). Days with no views stay at 0.
+- **Monthly** — bars for the last 12 months (from the first of the month).
+- **Traffic sources** — where views come from: `utm_source` if present (e.g., LinkedIn, Indeed), otherwise referrer domain, otherwise "Direct". Percentage and count.
+- **View → Application funnel** — total views vs total applications and conversion rate; useful to tell whether a posting is seen but not compelling.
 
-Se l’annuncio è **chiuso**, la pagina resta accessibile con i dati storici ma non registra nuove visite. Se non ci sono ancora visite, vedrai “Nessuna visita” e i grafici vuoti con messaggio esplicativo.
+If the posting is **closed**, the page remains accessible with historical data but no longer records new views. If there are no views yet, you'll see "No views yet" and empty charts with an explanatory message.
 
-## Come usarla — passo per passo
+## How to Use It — Step by Step
 
-1. Apri `Offerte` e individua l’annuncio da analizzare.
-2. Entra nel dettaglio e clicca **Analytics** in alto a destra.
-3. Controlla i KPI: molte visite ma poche candidature → rivedi titolo/descrizione; poche visite → promuovi di più il link pubblico.
-4. Scegli il periodo (7/30/90 giorni) per vedere picchi dopo condivisioni su LinkedIn o newsletter.
-5. Leggi le sorgenti: se “Direct” domina, aggiungi `?utm_source=linkedin` quando condividi l’annuncio per tracciare meglio.
-6. Confronta la conversione con la media aziendale sotto il funnel per priorizzare le posizioni.
+1. Open `Jobs` and find the posting you want to analyze.
+2. Go to the detail page and click **Analytics** in the top right.
+3. Check the KPIs: many views but few applications → revisit title/description; few views → promote the public link more.
+4. Pick a time range (7/30/90 days) to spot spikes after shares on LinkedIn or a newsletter.
+5. Read the sources: if "Direct" dominates, add `?utm_source=linkedin` when you share the posting to track better.
+6. Compare the conversion against the company average under the funnel to prioritize positions.
 
 ## Privacy
 
-Non viene salvato l’indirizzo IP in chiaro né dati personali del visitatore — solo un identificativo anonimo di sessione, dominio del referrer e `utm_source`. Le visite del tuo stesso team (mentre sei autenticato) non vengono conteggiate, così come i bot più comuni.
+No plain IP address or personal visitor data is stored — only an anonymous session identifier, referrer domain, and `utm_source`. Views from your own team (while signed in) are not counted, nor are the most common bots.
 
-## Dettagli utili
+## Useful Details
 
-- Le visite ripetute dalla stessa persona entro circa un’ora contano come una sola (anti-refresh).
-- I link pubblici diretti (`/:azienda/careers/:id`) vengono conteggiati anche se l’annuncio è “Privato” ma aperto; gli annunci chiusi non incrementano più il contatore.
+- Repeated views by the same person within about an hour count as one (anti-refresh).
+- Direct public links (`/:company/careers/:id`) are counted even when the posting is "Private" but open; closed postings no longer increment the counter.

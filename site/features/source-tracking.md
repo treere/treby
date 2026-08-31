@@ -1,29 +1,29 @@
-# Sorgenti candidato
+# Candidate Sources
 
-Capisci da dove arrivano i candidati e confronta i canali.
+Understand where candidates come from and compare channels.
 
-## Gestione sorgenti
+## Managing Sources
 
-Gli admin gestiscono le sorgenti in **Impostazioni → Sorgenti**:
+Admins manage sources in **Settings → Sources**:
 
-- Ogni sorgente appartiene alla tua azienda e ha un ordine personalizzabile
-- Valori tipici: "LinkedIn", "Segnalazione", "Pagina carriere", "Agenzia"
-- Puoi rinominare una sorgente: il nuovo nome si aggiorna anche sulle candidature già create
+- Each source belongs to your company and has a customizable order
+- Typical values: "LinkedIn", "Referral", "Career Page", "Agency"
+- You can rename a source: the new name updates on already-created applications as well
 
-## Assegnazione
+## Assignment
 
-- La sorgente viene scelta al momento della candidatura (modulo pubblico), dell'inserimento manuale o dell'importazione CSV
-- Ogni candidatura mostra la propria sorgente come etichetta
-- Le sorgenti sono configurabili per azienda — non c'è un elenco fisso
+- The source is chosen at application time (public form), on manual creation, or during CSV import
+- Each application shows its source as a label
+- Sources are configurable per company — there is no fixed list
 
-## Analisi
+## Analytics
 
-La dashboard **Analytics** mostra un **Dettaglio per sorgente**: numero di candidature per ogni sorgente, sia a livello globale sia filtrato per pipeline. Utile per capire quali canali portano davvero assunzioni.
+The **Analytics** dashboard shows a **Breakdown by source**: number of applications per source, both globally and filtered by pipeline. Useful to see which channels actually drive hires.
 
 ```
-Dettaglio per sorgente (tutte le pipeline)
-  Pagina carriere  ████████  42
-  LinkedIn         █████      27
-  Segnalazione     ███        14
-  Non specificata  █          3
+Breakdown by source (all pipelines)
+  Career Page  ████████  42
+  LinkedIn     █████      27
+  Referral     ███        14
+  Not specified█          3
 ```

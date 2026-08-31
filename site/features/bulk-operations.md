@@ -1,21 +1,21 @@
-# Operazioni massive
+# Bulk Operations
 
-Agisci su più candidature in una sola volta, direttamente dall'elenco candidati o dalla pagina di una posizione.
+Act on multiple applications at once, directly from the candidates list or a job page.
 
-## Cosa puoi fare
+## What You Can Do
 
-| Azione | Cosa succede |
+| Action | What happens |
 |---|---|
-| **Sposta fase** | Sposti tutte le candidature selezionate in un'altra fase |
-| **Segna come letto / non letto** | Aggiorna il badge **NUOVO** sulle schede |
-| **Invia messaggio** | Invii un messaggio nel portale a tutti i candidati selezionati — subito, programmato o saltato tramite i modelli |
-| **Unisci in uno** | Unisci più profili duplicati scegliendo un profilo principale — vedi [Gestione candidati](/features/candidate-management) |
-| **Elimina** | Elimini le candidature selezionate; se un candidato resta senza candidature, il profilo viene rimosso |
+| **Move stage** | Move all selected applications to another stage |
+| **Mark as read / unread** | Update the **NEW** badge on cards |
+| **Send message** | Send a portal message to all selected candidates — immediately, scheduled, or skipped via templates |
+| **Merge into one** | Merge duplicate profiles by picking a primary profile — see [Candidate Management](/features/candidate-management) |
+| **Delete** | Delete the selected applications; if a candidate is left with no applications, the profile is removed |
 
-## Come funziona
+## How It Works
 
-Seleziona una o più righe con le caselle di spunta nell'elenco candidati: comparirà una barra con le azioni disponibili. Lo spostamento di fase, come quello singolo, aggiorna la pipeline in tempo reale per tutto il team.
+Select one or more rows with the checkboxes in the candidates list: an action bar appears with the available actions. Stage moves, like single moves, update the pipeline in real time for the whole team.
 
-## Messaggi programmati
+## Scheduled Messages
 
-I messaggi massivi usano lo stesso selettore di programmazione degli spostamenti di fase — scorciatoie come **Domani 9:00**, **Domani 14:00**, **Lunedì prossimo**, più un selettore data/ora completo e un margine casuale opzionale. Ogni destinatario riceve un messaggio indipendente che puoi modificare o annullare dalla **Coda messaggi** (`Messaggi in coda` nel menu).
+Bulk messages use the same scheduling picker as stage moves — shortcuts like **Tomorrow 9:00**, **Tomorrow 2:00 PM**, **Next Monday**, plus a full date/time picker and an optional random jitter. Each recipient gets an independent message you can edit or cancel from the **Message Queue** (`Queued Messages` in the menu).

@@ -1,22 +1,22 @@
-# Campi personalizzati
+# Custom Fields
 
-Aggiungi campi specifici della tua azienda a candidati, candidature o posizioni — senza modifiche al codice.
+Add company-specific fields to candidates, applications, or jobs — without code changes.
 
-## Configurazione
+## Configuration
 
-Gli admin gestiscono i campi in **Impostazioni → Campi**:
+Admins manage fields in **Settings → Fields**:
 
-- Ogni campo ha un tipo di entità (`candidato`, `candidatura`, `posizione`), un nome visualizzato e un tipo (testo, selezione, ecc.)
-- Puoi creare, modificare o rimuovere campi in qualsiasi momento
+- Each field has an entity type (`candidate`, `application`, `job`), a display name, and a type (text, select, etc.)
+- You can create, edit, or remove fields at any time
 
-## Dove compaiono
+## Where They Appear
 
-- **Campi candidato** — nel modulo di aggiunta candidato e nel profilo
-- **Campi candidatura** — nel modulo di candidatura pubblica e nelle viste interne del candidato/posizione
-- **Campi posizione** — nella creazione e modifica della posizione
+- **Candidate fields** — in the add-candidate form and in the profile
+- **Application fields** — in the public application form and in internal candidate/job views
+- **Job fields** — when creating and editing a job
 
-I valori sono salvati insieme alla scheda e validati secondo la definizione del campo.
+Values are stored alongside the record and validated according to the field definition.
 
-## Lingue
+## Languages
 
-Le etichette dei campi sono testi liberi; l'interfaccia attorno è tradotta in inglese e italiano.
+Field labels are free text; the surrounding UI is translated into English and Italian.

@@ -1,23 +1,23 @@
-# Confronto candidati
+# Candidate Comparison
 
-Valuta 2 o 3 candidati affiancati senza saltare tra profili diversi.
+Evaluate 2 or 3 candidates side by side without jumping between profiles.
 
-## Come si usa
+## How to Use It
 
-Dall'elenco candidati seleziona 2 o 3 profili e scegli **Confronta**. Puoi anche aprire direttamente la pagina di confronto con i candidati già selezionati.
+From the candidates list, select 2 or 3 profiles and choose **Compare**. You can also open the comparison page directly with candidates pre-selected.
 
-## Cosa viene confrontato
+## What Is Compared
 
-Per ogni candidato vedi:
+For each candidate you see:
 
-- recapiti (nome, email, telefono, LinkedIn)
-- tutte le candidature con posizione e fase attuale
-- note con valutazioni a stelle e autore
-- valutazioni dei colloqui, quando presenti
+- contact details (name, email, phone, LinkedIn)
+- all applications with job and current stage
+- notes with star ratings and author
+- interview scorecards, when present
 
-L'interfaccia mostra una colonna per candidato, così confronti punti di forza ed eventuali lacune a colpo d'occhio.
+The interface shows one column per candidate so you can spot strengths and gaps at a glance.
 
-## Limiti
+## Limits
 
-- Minimo 2, massimo 3 candidati alla volta
-- Vedi solo i candidati della tua azienda
+- Minimum 2, maximum 3 candidates at a time
+- You only see candidates from your company

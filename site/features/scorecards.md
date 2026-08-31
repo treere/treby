@@ -1,36 +1,36 @@
-# Schede di valutazione
+# Scorecards
 
-Valutazioni strutturate per i colloqui: modelli con criteri, compilazione per esaminatore e blocco dell'avanzamento finché mancano valutazioni.
+Structured evaluations for interviews: templates with criteria, per-examiner completion, and advancement gating until all scorecards are in.
 
-## Modelli
+## Templates
 
-Gli admin configurano i modelli in **Impostazioni → Valutazioni**:
+Admins configure templates in **Settings → Scorecards**:
 
-- Ogni modello ha una lista ordinata di **criteri** (es. "Profondità tecnica", "Comunicazione", "Affinità culturale") con descrizione opzionale
-- Le fasi di tipo "colloquio" possono essere collegate a un modello
+- Each template has an ordered list of **criteria** (e.g., "Technical Depth", "Communication", "Culture Fit") with an optional description
+- Interview-type stages can be linked to a template
 
-## Compilazione
+## Completing Scorecards
 
-- Solo gli esaminatori assegnati alla fase possono compilare la valutazione per quel colloquio
-- Ogni colloquio ha una valutazione per esaminatore
-- Lo stesso modulo è disponibile in più punti: scheda del candidato nella pipeline, pannello del profilo, pulsante **Compila valutazione** nella dashboard e nella pagina colloqui
-- Una valutazione già inviata può essere modificata dallo stesso esaminatore
+- Only examiners assigned to the stage can submit the scorecard for that interview
+- Each interview has one scorecard per examiner
+- The same form is available in multiple places: the candidate card in the pipeline, the profile panel, the **Fill scorecard** button on the dashboard and on the interviews page
+- A submitted scorecard can be edited by the same examiner
 
-## Blocco avanzamento
+## Advancement Gating
 
-Nelle fasi di colloquio l'avanzamento richiede entrambe le condizioni:
+In interview stages, advancing requires both conditions:
 
-1. il colloquio segnato come **completato** (con conferma), e
-2. **tutte** le valutazioni degli esaminatori inviate
+1. the interview marked as **completed** (with confirmation), and
+2. **all** examiner scorecards submitted
 
-Finché manca qualcosa:
+While something is missing:
 
-- la scheda mostra blocchi operativi ("Manca valutazione: Caio", "Colloquio non ancora completato")
-- il pulsante **Avanzare** (e il drag & drop verso la fase successiva) resta disattivato per chi non è avanzatore o se le valutazioni sono incomplete
+- the card shows blockers ("Missing scorecard: John", "Interview not yet completed")
+- the **Advance** button (and drag & drop to the next stage) stays disabled for non-advancers or when scorecards are incomplete
 
-Vedi anche [Pipeline Kanban](/features/pipeline) per il flusso completo di avanzamento e rifiuto.
+See also [Kanban Pipeline](/features/pipeline) for the full advancement and rejection flow.
 
-## Collegamento con la dashboard
+## Dashboard Link
 
-- **Le mie azioni → Valutazioni da compilare** elenca i colloqui dove sei esaminatore con pulsante diretto per compilare
-- **In attesa di altri** mostra le candidature bloccate perché mancano valutazioni di altri esaminatori
+- **My Actions → Scorecards to fill** lists interviews where you are an examiner with a direct button to fill the scorecard
+- **Waiting on others** shows applications blocked because other examiners still have outstanding scorecards

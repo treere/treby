@@ -34,7 +34,7 @@ Each candidate detail page shows:
 - **Complete interview + Scorecard actions** — mark a scheduled interview as completed and open the scorecard form directly from the page
 - **Concurrent-application visibility** — when a candidate is in more than one pipeline, each application shows "Also in N other positions"
 - **Duplicate-application badges** when a candidate applied to the same job more than once
-- Per-application **anagrafica** — the name, email, and phone captured at apply time ("as submitted"), shown when it differs from the candidate's current master data
+- Per-application **submitted snapshot** — the name, email, and phone captured at apply time ("as submitted"), shown when it differs from the candidate's current master data
 - Notes and feedback per application with star ratings
 - Custom fields
 - **Undo merge** action when the profile was merged into another

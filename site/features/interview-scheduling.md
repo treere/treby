@@ -29,7 +29,7 @@ Slot availability always starts from Treby's **internal calendar**:
 For interview-type stages with multiple examiners assigned, Treby computes **overlapping availability**:
 
 - The system combines availability rules with busy periods from the internal calendar and every connected provider for all eligible examiners
-- Vengono mostrati solo gli slot in cui è disponibile il numero minimo di esaminatori richiesto per la fase
+- Only slots where the minimum required number of examiners for the stage is available are shown
 - Each slot displays how many examiners are available (e.g., "3 available")
 - When a slot is booked, a **single** calendar event is created with **all examiners plus the candidate as attendees**, and one meeting link is stored on the interview
 

@@ -1,88 +1,88 @@
 # Roadmap
 
-> **Stella polare**: semplicità alla Notion, ma pensata per le assunzioni.
-> Per piccole aziende e startup (5–50 persone, 1–10 posizioni aperte alla volta).
+> **North Star**: Notion-like simplicity, built for hiring.
+> For small companies and startups (5–50 people, 1–10 open roles at a time).
 
-## Stato attuale
+## Current Status
 
-Treby è completo come sostituto di un ATS per una singola azienda. Le funzionalità principali sono già disponibili; ciò che resta è rifinitura, non capacità di base.
+Treby is complete as a single-company ATS replacement. Core features are already available; what remains is polish, not core capability.
 
-| Funzionalità | Stato |
+| Feature | Status |
 |---|---|
-| Architettura multi-azienda | ✅ Completa |
-| Cambio spazio con un'unica email (picker al login + menu header) | ✅ Completa |
-| Pipeline multiple per azienda + modelli | ✅ Completa |
-| Pipeline Kanban (drag & drop, tempo reale) | ✅ Completa |
-| Pagina carriere pubblica con branding | ✅ Completa |
-| Auto-prenotazione colloqui nel portale + link meeting (Google Meet / Jitsi) | ✅ Completa |
-| Integrazione Google Calendar (opzionale; calendario interno sempre attivo) | ✅ Completa |
-| Regole di disponibilità + sovrapposizione multi-esaminatore | ✅ Completa |
-| Campi personalizzati per candidato/posizione/candidatura | ✅ Completa |
-| Note con valutazioni a stelle | ✅ Completa |
-| Upload CV e loghi su S3 | ✅ Completa |
-| Email (solo codici OTP e avvisi brevi) | ✅ Completa |
-| Inviti team e permessi per ruolo | ✅ Completa |
-| Traduzioni (inglese/italiano) | ✅ Completa |
-| Landing page | ✅ Completa |
-| Dashboard con "Le mie azioni", candidature ferme, prossimi colloqui, attività | ✅ Completa |
-| Ricerca e filtri candidati | ✅ Completa |
-| Modifica candidati | ✅ Completa |
-| Stato di lettura candidature (badge NUOVO) | ✅ Completa |
-| Timeline attività | ✅ Completa |
-| Controllo accessi per ruolo (admin/membro + esaminatore/revisore/avanzatore) | ✅ Completa |
-| Schede di valutazione + blocco avanzamento | ✅ Completa |
-| Modelli di messaggio per fase | ✅ Completa |
-| Selettore pipeline in Analytics | ✅ Completa |
-| Metriche di permanenza per fase | ✅ Completa |
-| Tracciamento sorgenti | ✅ Completa |
-| Importazione CSV | ✅ Completa |
-| Operazioni massive (bulk) | ✅ Completa |
-| Confronto candidati (2–3 affiancati) | ✅ Completa |
-| Comunicazioni portal-first (OTP, conversazioni, avvisi) | ✅ Completa |
-| Programmazione messaggi (jitter, ritentativi, coda) | ✅ Completa |
-| Rilevamento duplicati e unione | ✅ Completa |
-| Tema scuro (chiaro/scuro/sistema) | ✅ Completa |
+| Multi-company architecture | ✅ Complete |
+| Workspace switching with a single email (picker at login + header menu) | ✅ Complete |
+| Multiple pipelines per company + templates | ✅ Complete |
+| Kanban pipeline (drag & drop, real-time) | ✅ Complete |
+| Public career page with branding | ✅ Complete |
+| Self-scheduling in the portal + meeting links (Google Meet / Jitsi) | ✅ Complete |
+| Google Calendar integration (optional; internal calendar always active) | ✅ Complete |
+| Availability rules + multi-examiner overlap | ✅ Complete |
+| Custom fields for candidate / position / application | ✅ Complete |
+| Notes with star ratings | ✅ Complete |
+| CV and logo upload to S3 | ✅ Complete |
+| Email (OTP codes and short pings only) | ✅ Complete |
+| Team invitations and role-based permissions | ✅ Complete |
+| Translations (English / Italian) | ✅ Complete |
+| Landing page | ✅ Complete |
+| Dashboard with "My Actions", stale applications, upcoming interviews, activity | ✅ Complete |
+| Candidate search and filters | ✅ Complete |
+| Candidate editing | ✅ Complete |
+| Application read status (NEW badge) | ✅ Complete |
+| Activity timeline | ✅ Complete |
+| Role-based access control (admin/member + examiner/reviewer/advancer) | ✅ Complete |
+| Scorecards + advancement gating | ✅ Complete |
+| Per-stage message templates | ✅ Complete |
+| Pipeline selector in Analytics | ✅ Complete |
+| Time-in-stage metrics | ✅ Complete |
+| Source tracking | ✅ Complete |
+| CSV import | ✅ Complete |
+| Bulk operations | ✅ Complete |
+| Candidate comparison (2–3 side by side) | ✅ Complete |
+| Portal-first communications (OTP, conversations, pings) | ✅ Complete |
+| Message scheduling (jitter, retries, queue) | ✅ Complete |
+| Duplicate detection and merging | ✅ Complete |
+| Dark mode (light/dark/system) | ✅ Complete |
 
-## Cosa resta (rifinitura)
+## What's Left (Polish)
 
-- Rigenerazione screenshot per le nuove pagine
-- Possibili migliorie future: export analytics, notifiche più granulari, filtri salvati, gestione lettere di offerta
+- Screenshot regeneration for new pages
+- Possible future improvements: analytics export, more granular notifications, saved filters, offer letter management
 
-Sono volutamente rimandate — vedi "Cosa non costruiremo" sotto.
+These are intentionally deferred — see "What We Won't Build" below.
 
-## Piano originale in fasi (già realizzato)
+## Original Phased Plan (Already Delivered)
 
-### Fase 1: "Posso usarlo ogni giorno" — ✅ completata
+### Phase 1: "I Can Use It Every Day" — ✅ Done
 
-- Dashboard con azioni da fare, prossimi colloqui, candidature ferme
-- Ricerca per nome/email e filtri per posizione/fase
-- Modifica diretta dei dati candidato
-- Stato letto/non letto con badge
-- Cronologia attività
+- Dashboard with action items, upcoming interviews, stale applications
+- Search by name/email and filters by job/stage
+- Direct candidate data editing
+- Read/unread status with badge
+- Activity history
 
-### Fase 2: "Anche il mio team vuole usarlo" — ✅ completata
+### Phase 2: "My Team Wants to Use It Too" — ✅ Done
 
-- Permessi admin vs membro + ruoli per fase (esaminatore/revisore/avanzatore)
-- Schede di valutazione strutturate
-- Modelli di messaggio per fase nel portale
-- Selettore pipeline in Analytics
-- Tempo medio di permanenza per fase
+- Admin vs member permissions + per-stage roles (examiner/reviewer/advancer)
+- Structured scorecards
+- Per-stage message templates in the portal
+- Pipeline selector in Analytics
+- Average time-in-stage
 
-### Fase 3: "Sostituisce il vecchio ATS" — ✅ completata
+### Phase 3: "It Replaces the Old ATS" — ✅ Done
 
-- Importazione CSV con mappatura colonne
-- Operazioni massive su più candidature
-- Confronto affiancato tra candidati
-- Tracciamento sorgenti con breakdown in Analytics
-- Comunicazioni portal-first (contenuti nel portale, email solo come avviso)
+- CSV import with column mapping
+- Bulk operations on multiple applications
+- Side-by-side candidate comparison
+- Source tracking with breakdown in Analytics
+- Portal-first communications (content in the portal, email only as notification)
 
-## Cosa non costruiremo
+## What We Won't Build
 
-- Valutazione candidati con AI
-- Video-colloqui proprietari (usiamo link automatici Google Meet o Jitsi)
-- Gestione lettere di offerta
-- Workflow di onboarding
-- Catene di approvazione complesse
+- AI candidate scoring
+- Proprietary video interviews (we use automatic Google Meet or Jitsi links)
+- Offer letter management
+- Onboarding workflows
+- Complex approval chains
 - SSO/SAML
-- App mobile (l'app web è già responsive)
-- Integrazioni con job board esterne (costose e poco utili all'inizio)
+- Mobile app (the web app is already responsive)
+- External job board integrations (expensive and low value early on)

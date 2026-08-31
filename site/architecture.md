@@ -1,109 +1,109 @@
-# Come funziona Treby
+# How Treby Works
 
-## Panoramica
+## Overview
 
-Treby è un'applicazione web dove ogni azienda (tenant) ha i propri dati completamente isolati. Un'azienda vede solo le proprie posizioni, candidati e pipeline.
+Treby is a web application where each company (tenant) has fully isolated data. A company sees only its own jobs, candidates, and pipelines.
 
 ```
 ┌───────────────────────────────────────────────────────┐
 │                     Browser                            │
-│                  (il tuo computer)                     │
+│                  (your computer)                       │
 ├───────────────────────────────────────────────────────┤
-│                 Applicazione Treby                     │
-│         pagine interattive + aggiornamenti             │
-│                in tempo reale                          │
+│                 Treby Application                      │
+│         interactive pages + real-time                  │
+│                updates                                 │
 ├───────────────────────────────────────────────────────┤
-│                  Logica di Treby                       │
-│   Utenti │ Pipeline │ Colloqui │ Valutazioni │ Portale │
-│   Offerte│ Candidati│ Calendari│ Messaggi    │ Sorgenti│
+│                  Treby Logic                           │
+│   Users │ Pipeline │ Interviews │ Scorecards │ Portal   │
+│   Jobs  │Candidates│ Calendars  │ Messages   │ Sources  │
 ├────────────────────────────────────────────────────────┤
 │                     Database                           │
-│         (un unico database, dati separati              │
-│          per azienda)                                  │
+│         (single database, data isolated                │
+│          per company)                                  │
 ├────────────────────────────────────────────────────────┤
-│              Servizi esterni                            │
-│  Storage file (CV, loghi) │ Calendari │ Email          │
+│              External Services                          │
+│  File Storage (CVs, logos) │ Calendars │ Email         │
 └────────────────────────────────────────────────────────┘
 ```
 
-Tutte le pagine sono interattive e si aggiornano senza ricaricare il browser. Quando qualcuno sposta un candidato nella pipeline, tutti i colleghi vedono lo spostamento in tempo reale.
+All pages are interactive and update without reloading the browser. When someone moves a candidate in the pipeline, every teammate sees the move in real time.
 
-## Concetti chiave
+## Key Concepts
 
-### Aziende isolate (multi-tenant)
+### Isolated Companies (Multi-Tenant)
 
-Ogni azienda registrata ha uno spazio separato. I dati di Acme non sono mai visibili a un'altra azienda e viceversa. L'isolamento avviene a livello di database.
+Each registered company has a separate workspace. Data from Acme is never visible to another company and vice versa. Isolation is enforced at the database level.
 
-Una stessa persona può appartenere a più aziende con un'unica email e password: ogni appartenenza ha il suo ruolo (Admin in una, Membro in un'altra) e l'app mostra solo i dati dell'azienda selezionata.
+The same person can belong to multiple companies with a single email and password: each membership has its own role (Admin in one, Member in another) and the app shows only the data for the selected company.
 
-È possibile creare più pipeline per la stessa azienda: ogni posizione può usare la pipeline predefinita o una pipeline dedicata con fasi diverse.
+You can create multiple pipelines for the same company: each job can use the default pipeline or a dedicated pipeline with different stages.
 
-### Pipeline e fasi
+### Pipelines and Stages
 
-Una pipeline è la sequenza di fasi che un candidato attraversa (es. Nuovo → Screening → Colloquio → Offerta → Assunto → Rifiutato). Ogni fase ha un colore, un ordine e può avere un tipo (es. fase di colloquio) che attiva regole particolari come le valutazioni.
+A pipeline is the sequence of stages a candidate goes through (e.g., New → Screening → Interview → Offer → Hired → Rejected). Each stage has a color, an order, and may have a type (e.g., interview stage) that enables specific rules such as scorecards.
 
-Le pipeline sono configurabili: puoi rinominare le fasi, cambiare colori, riordinarle o crearne di nuove. Puoi anche salvare una pipeline come modello per riutilizzarla su altre posizioni.
+Pipelines are configurable: you can rename stages, change colors, reorder them, or create new ones. You can also save a pipeline as a template to reuse it for other jobs.
 
-### Ruoli sulle fasi
+### Stage Roles
 
-Ogni fase può avere tre tipi di assegnazione:
+Each stage can have three assignment types:
 
-- **Esaminatori** — chi conduce i colloqui e compila le valutazioni
-- **Revisori** — chi revisiona le candidature
-- **Avanzatori** — chi può spostare o rifiutare candidati in quella fase
+- **Examiners** — who runs the interviews and fills out scorecards
+- **Reviewers** — who reviews applications
+- **Advancers** — who can move or reject candidates in that stage
 
-Solo gli avanzatori possono far avanzare o rifiutare candidati. Questa distinzione permette a un team di collaborare senza che tutti possano prendere decisioni finali.
+Only advancers can advance or reject candidates. This lets a team collaborate without everyone having final decision power.
 
-### Autenticazione
+### Authentication
 
-- **Team interno** (admin e membri): accesso con email e password. Una stessa email può appartenere a più aziende con ruoli diversi; al login, chi ha più spazi vede **Scegli spazio di lavoro** e può cambiare azienda dall'header senza uscire. Gli admin gestiscono impostazioni, pipeline e inviti; i membri usano la pipeline e i colloqui secondo i permessi assegnati.
-- **Candidati**: nessun account con password. Il candidato inserisce la propria email, riceve un codice a 6 cifre via email valido 10 minuti e usa quel codice per entrare nel portale. La sessione dura poche ore e può essere chiusa esplicitamente.
+- **Internal team** (admins and members): sign in with email and password. The same email can belong to multiple companies with different roles; at login, anyone with multiple workspaces sees **Choose workspace** and can switch companies from the header without signing out. Admins manage settings, pipelines, and invitations; members use the pipeline and interviews according to their assigned permissions.
+- **Candidates**: no password account. Candidates enter their email, receive a 6-digit code valid for 10 minutes, and use that code to enter the portal. The session lasts a few hours and can be ended explicitly.
 
-### Portale candidati
+### Candidate Portal
 
-Il portale è l'unico posto dove vivono i contenuti reali: messaggi, aggiornamenti di fase, dettagli del colloquio. L'email invia solo un avviso breve ("hai un nuovo messaggio, vai nel portale") con un link, mai il contenuto.
+The portal is the only place where real content lives: messages, stage updates, interview details. Email only sends a short notification ("you have a new message, go to the portal") with a link — never the actual content.
 
-### File e calendari
+### Files and Calendars
 
-- CV e loghi sono salvati su uno storage compatibile S3 (in sviluppo un servizio locale, in produzione qualsiasi provider S3).
-- Ogni membro imposta le proprie fasce di disponibilità settimanale. Se colleghi Google Calendar, Treby incrocia le tue fasce interne con i tuoi impegni reali per proporre solo slot liberi.
-- I link per i colloqui vengono creati automaticamente: Google Meet se almeno un esaminatore ha Google collegato, altrimenti Jitsi.
+- CVs and logos are stored on S3-compatible storage (a local service in development, any S3 provider in production).
+- Each member sets their own weekly availability windows. If you connect Google Calendar, Treby intersects your internal windows with your real commitments to propose only free slots.
+- Interview meeting links are created automatically: Google Meet if at least one examiner has Google connected, otherwise Jitsi.
 
-### Messaggi programmati
+### Scheduled Messages
 
-Puoi inviare un messaggio subito o programmarlo per dopo. I messaggi programmati hanno una coda dedicata, supportano un margine casuale (jitter) e ritentativi automatici in caso di errore.
+You can send a message immediately or schedule it for later. Scheduled messages have a dedicated queue, support random jitter, and automatic retries on failure.
 
-## Cosa usa Treby (panoramica tecnica, non necessaria per l'uso quotidiano)
+## What Treby Uses (Technical Overview — Not Needed for Daily Use)
 
-Treby è costruito con Phoenix LiveView, database PostgreSQL, storage S3, email via Swoosh, aggiornamenti in tempo reale e lavori in background per i messaggi programmati. Il dettaglio implementativo non è necessario per utilizzare l'applicazione: ti basta sapere che è un'applicazione web standard che gira nel browser e conserva i dati in un database.
+Treby is built with Phoenix LiveView, a PostgreSQL database, S3 storage, email via Swoosh, real-time updates, and background jobs for scheduled messages. You don't need to know the implementation details to use the application: just know it's a standard web app that runs in the browser and stores data in a database.
 
-## Modello dei dati (semplificato)
+## Simplified Data Model
 
 ```
-Aziende
-  ├── Utenti (admin / membri)
-  │   ├── Connessioni calendario
-  │   └── Disponibilità settimanale
-  ├── Pipeline (predefinita + modelli)
-  │   └── Fasi (ordine, colore, tipo, valutazioni)
-  │       └── Candidature (posizione, candidato, fase, stato lettura, sorgente)
-  │           ├── Note e feedback con stelle
-  │           └── Colloqui (data, stato, link meeting)
-  │               └── Valutazioni (una per esaminatore)
-  ├── Posizioni aperte
-  ├── Candidati (anagrafica condivisa tra più posizioni)
-  │   └── Conversazioni e messaggi del portale
-  ├── Sorgenti candidato
-  ├── Campi personalizzati
-  ├── Pagine carriere (titolo, descrizione, colore, logo)
-  ├── Modelli di messaggio per fase
-  └── Modelli di valutazione
+Companies
+  ├── Users (admin / member)
+  │   ├── Calendar connections
+  │   └── Weekly availability
+  ├── Pipelines (default + templates)
+  │   └── Stages (order, color, type, scorecards)
+  │       └── Applications (job, candidate, stage, read status, source)
+  │           ├── Notes and star-rated feedback
+  │           └── Interviews (date, status, meeting link)
+  │               └── Scorecards (one per examiner)
+  ├── Open Positions
+  ├── Candidates (profile shared across multiple positions)
+  │   └── Portal conversations and messages
+  ├── Candidate Sources
+  ├── Custom Fields
+  ├── Career Pages (title, description, color, logo)
+  ├── Message Templates per Stage
+  └── Scorecard Templates
 ```
 
-## Flusso di navigazione
+## Navigation Flow
 
-1. Pagine pubbliche: home, carriere (`/careers` e `/:azienda/careers`), login e registrazione.
-2. Scelta spazio (`/choose-tenant`): dopo il login, chi ha più aziende sceglie lo spazio; chi ne ha una sola va diretto a `/:azienda/app`.
-3. Area riservata team (`/:azienda/app/*`): dashboard, posizioni, candidati, pipeline, analytics, colloqui — richiede login e appartenenza allo spazio. L'header mostra il menu di cambio spazio quando hai più aziende. I vecchi link `/app/*` continuano a funzionare.
-4. Impostazioni (`/:azienda/app/settings/*`): riservate agli admin dello spazio per pipeline, branding, team, campi, sorgenti, modelli.
-5. Portale candidati (`/:azienda/portal/*`): login con codice via email, poi messaggi, programmazione colloqui e impostazioni notifiche. Separato dall'autenticazione del team.
+1. Public pages: home, careers (`/careers` and `/:company/careers`), login and registration.
+2. Workspace picker (`/choose-tenant`): after login, anyone belonging to multiple companies picks a workspace; those with one go directly to `/:company/app`.
+3. Team area (`/:company/app/*`): dashboard, jobs, candidates, pipeline, analytics, interviews — requires login and workspace membership. The header shows the workspace switcher when you belong to multiple companies. Old `/app/*` links keep working.
+4. Settings (`/:company/app/settings/*`): reserved for workspace admins — pipelines, branding, team, custom fields, sources, templates.
+5. Candidate portal (`/:company/portal/*`): email code login, then messages, interview scheduling, and notification settings. Separate from team authentication.

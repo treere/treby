@@ -1,26 +1,26 @@
 # Analytics
 
-Tieni sotto controllo l'avanzamento delle assunzioni con una dashboard dedicata.
+Track hiring progress with a dedicated dashboard.
 
 ![Analytics Dashboard](/screenshots/10-analytics.png)
 
-## Cosa trovi
+## What You'll Find
 
-- **Totale candidati** — quanti profili sono nel tuo spazio aziendale
-- **Tempo medio di assunzione** — giorni medi dall'application all'assunzione
-- **Posizioni attive** — numero di offerte aperte
-- **Panoramica pipeline** — barre orizzontali con il numero di candidati per fase
-- **Tassi di conversione** — percentuale di chi passa da una fase alla successiva
-- **Permanenza per fase** — giorni medi di permanenza in ciascuna fase
-- **Sorgenti** — da dove arrivano i candidati (vedi [Sorgenti](/features/source-tracking))
+- **Total candidates** — how many profiles are in your company workspace
+- **Average time to hire** — average days from application to hire
+- **Active positions** — number of open jobs
+- **Pipeline overview** — horizontal bars with candidate counts per stage
+- **Conversion rates** — percentage of candidates moving from one stage to the next
+- **Time in stage** — average days spent in each stage
+- **Sources** — where candidates come from (see [Sources](/features/source-tracking))
 
-## Filtro per pipeline
+## Pipeline Filter
 
-In alto trovi un selettore per scegliere una pipeline specifica. Se selezioni "Tutte le pipeline" vedi i dati aggregati; se scegli una pipeline, tutti i grafici si aggiornano per mostrare solo quella pipeline.
+At the top you'll find a selector to pick a specific pipeline. Choose "All pipelines" for aggregated data; pick a single pipeline and all charts update to show only that pipeline.
 
-## Come usarla
+## How to Use It
 
-- Individua i colli di bottiglia: dove i candidati restano più a lungo?
-- Capisci dove perdi candidati: quali fasi hanno il tasso di abbandono più alto?
-- Valuta i tempi: quanto ci vuole in media per chiudere una posizione?
-- Confronta i canali: quali sorgenti portano davvero assunzioni?
+- Spot bottlenecks: where do candidates stay the longest?
+- Understand drop-off: which stages have the highest abandonment rate?
+- Evaluate timing: how long does it take on average to close a position?
+- Compare channels: which sources actually lead to hires?

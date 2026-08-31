@@ -4,7 +4,7 @@ Schedule portal messages for a future time — from stage moves or bulk sends �
 
 ![Message Queue](/screenshots/23-message-queue.png)
 
-## Schedule any portal message
+## Schedule Any Portal Message
 
 Every portal message flow can be sent immediately or scheduled for later:
 
@@ -13,7 +13,7 @@ Every portal message flow can be sent immediately or scheduled for later:
 | **Stage move** | Moving a candidate with a message template: send now, schedule, or skip |
 | **Bulk send** | In the candidates list, choose a date and time for the bulk message |
 
-The schedule picker offers presets — **Tomorrow 9:00**, **Tomorrow 14:00**, **Next Monday** — plus a full date/time picker. A jitter option spreads scheduled messages across a time window.
+The schedule picker offers presets — **Tomorrow 9:00**, **Tomorrow 2:00 PM**, **Next Monday** — plus a full date/time picker. A jitter option spreads scheduled messages across a time window.
 
 ## Message Queue
 
@@ -25,15 +25,15 @@ For each queued message you can:
 - **Post Now** — deliver immediately, skipping the schedule
 - **Cancel** — stop a pending message before it goes out
 
-Se annulli un messaggio, non verrà più inviato anche se la consegna era già stata programmata.
+If you cancel a message, it will no longer be sent even if delivery was already scheduled.
 
-## Affidabilità
+## Reliability
 
-- Se l'invio fallisce, Treby ritenta automaticamente con attese crescenti (circa 1, 4, 15 e 60 minuti)
-- Dopo 5 tentativi falliti il messaggio viene segnato come **non riuscito** con il motivo dell'errore e puoi ritentare manualmente
-- Finché è in attesa, il messaggio resta modificabile o annullabile
+- If sending fails, Treby retries automatically with increasing delays (about 1, 4, 15, and 60 minutes)
+- After 5 failed attempts the message is marked as **failed** with the error reason and you can retry manually
+- While pending, the message remains editable or cancellable
 
-## Dettagli utili
+## Useful Details
 
-- Negli invii massivi ogni candidato riceve un messaggio programmato indipendente — puoi modificarne uno senza toccare gli altri
-- L'orario effettivo di invio tiene conto dell'eventuale margine casuale scelto
+- In bulk sends each candidate receives an independent scheduled message — you can edit one without affecting the others
+- The actual delivery time accounts for any random jitter you selected

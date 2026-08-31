@@ -17,9 +17,10 @@ The project has a Vitepress documentation and showcase site in `site/`, deployed
 
 **Rules for every page in `site/`:**
 
+- **Language: English only. MANDATORY.** All files in `site/` (`site/index.md`, `site/getting-started.md`, `site/architecture.md`, `site/roadmap.md`, `site/features/*.md`) MUST be written entirely in English. No Italian headings, paragraphs, labels, or examples. When referencing UI menu paths use English labels (`Settings → Pipeline`, `Candidates → Compare`). The product UI itself is bilingual (IT/EN), but the documentation is English-only — never add Italian translations or bilingual headings in `site/`.
 - **No code references.** Never mention file paths (`lib/...`, `priv/...`, `config/...`), module names (`Treby.*`), function names, or line numbers (e.g. `lib/treby/pipeline/pipeline.ex:678`). If a detail is only meaningful to a developer, it does not belong in `site/`.
 - **No implementation details.** Do not describe schemas, DB columns, PubSub topics, Oban workers, encryption internals, or library choices. Describe *what the user sees and does*.
-- **Explain how to configure and how to use.** Each feature page must answer: where to find it in the UI, what it does, and a short step-by-step. Prefer UI labels and menu paths (`Impostazioni → Pipeline`, `Candidati → Confronta`) over technical terms.
+- **Explain how to configure and how to use.** Each feature page must answer: where to find it in the UI, what it does, and a short step-by-step. Prefer UI labels and menu paths (`Settings → Pipeline`, `Candidates → Compare`) over technical terms — always in English.
 - **Keep it concise and task-oriented.** Use tables and bullet lists for actions, screenshots for orientation. Avoid long architecture digressions.
 - **Language for the user.** `site/architecture.md`, `site/getting-started.md` and all `site/features/*.md` should be written for the end user. Technical setup (env vars, Docker, VitePress build) in `site/getting-started.md` is allowed but must be framed as "how to install/run Treby", not as a code tour.
 - **Keep `site/roadmap.md` user-facing.** List features and what they enable, not where they are implemented.

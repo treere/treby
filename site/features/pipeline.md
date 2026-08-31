@@ -1,102 +1,102 @@
-# Pipeline Kanban
+# Kanban Pipeline
 
-La pipeline è il cuore di Treby: una bacheca dove sposti i candidati tra le fasi di selezione.
+The pipeline is the heart of Treby: a board where you move candidates through hiring stages.
 
 ![Pipeline Kanban](/screenshots/07-pipeline-kanban.png)
 
-## Pagina della posizione
+## Job Detail Page
 
-La pagina di dettaglio di una posizione è lo spazio di lavoro quotidiano: i candidati sono **raggruppati per fase** in colonne, così vedi a colpo d'occhio chi è dove.
+The job detail page is your daily workspace: candidates are **grouped by stage** into columns so you can see at a glance who is where.
 
-- **Cambio fase rapido** — ogni scheda ha un menu "Sposta in…" per cambiare fase senza uscire dalla pagina
-- **Stato di lettura** — segna le candidature come lette (badge NUOVO) direttamente dalla scheda
-- **Rifiuto** — rifiuta con motivazione direttamente dalla pagina
-- **Schede contestuali** — badge DUPLICATO e "Anche in N altre posizioni", chip per i prossimi colloqui e link al CV
-- **Ricerca** — filtra i candidati della posizione per nome o email
-- **Profili** — clic sul nome apre il profilo, con ritorno alla posizione di partenza
+- **Quick stage change** — each card has a "Move to…" menu to change stage without leaving the page
+- **Read status** — mark applications as read (NEW badge) directly from the card
+- **Reject** — reject with a reason directly from the page
+- **Contextual badges** — DUPLICATE badge and "Also in N other positions", chips for upcoming interviews and CV link
+- **Search** — filter candidates for this job by name or email
+- **Profiles** — click a name to open the profile, with back navigation to the originating job
 
-### Panoramica pipeline
+### Pipeline Overview
 
-La sezione pipeline nella pagina della posizione è in sola lettura di default: mostra le fasi in ordine con colore, tipo, numero di candidati e nomi di esaminatori, revisori e avanzatori assegnati. Gli admin possono aprire l'editor con il pulsante **Gestisci pipeline**.
+The pipeline section on the job page is read-only by default: it shows stages in order with color, type, candidate count, and names of assigned examiners, reviewers, and advancers. Admins can open the editor with the **Manage pipeline** button.
 
-## Come funziona
+## How It Works
 
-- **Fasi** configurabili: aggiungi, rimuovi, riordina e colora
-- **Schede** con nome, email e indicatori di contesto
-- **Drag & drop** per spostare i candidati tra fasi
-- **Sincronizzazione in tempo reale**: tutti i membri vedono gli spostamenti subito
-- **Contatori** nell'intestazione di ogni colonna
+- **Configurable stages**: add, remove, reorder, and recolor
+- **Cards** with name, email, and contextual indicators
+- **Drag & drop** to move candidates between stages
+- **Real-time sync**: every team member sees moves instantly
+- **Counters** in each column header
 
-## Indicatori sulle schede
+## Card Indicators
 
-- **"Anche in N altre posizioni"** — quando un candidato ha candidature in altre posizioni
-- **Badge DUPLICATO** — quando lo stesso candidato ha due candidature per la stessa posizione
-- **Badge NUOVO** — finché la candidatura non è stata segnata come letta
-- **Blocchi operativi** — nelle fasi di colloquio vedi cosa manca per avanzare, con i nomi degli esaminatori in attesa ("Manca valutazione: Caio") o colloquio non ancora completato
-- **Pronto ad avanzare** — indicatore verde quando colloquio completato e valutazioni ricevute
+- **"Also in N other positions"** — when a candidate has applications in other jobs
+- **DUPLICATE badge** — when the same candidate has two applications for the same job
+- **NEW badge** — until the application has been marked as read
+- **Blockers** — in interview stages you see what is missing to advance, with names of pending examiners ("Missing scorecard: John") or interview not yet completed
+- **Ready to advance** — green indicator when the interview is completed and all scorecards are in
 
-## Permessi per fase
+## Per-Stage Permissions
 
-Ogni fase può avere tre assegnazioni:
+Each stage can have three assignments:
 
-| Ruolo | Chi è | Cosa può fare |
+| Role | Who | What they can do |
 |---|---|---|
-| **Esaminatore** | Chi conduce i colloqui | Svolge colloqui e compila valutazioni |
-| **Revisore** | Chi revisiona le candidature | Revisiona e lascia feedback |
-| **Avanzatore** | Chi decide | Fa avanzare o rifiuta candidati in quella fase |
+| **Examiner** | Runs the interviews | Conducts interviews and fills out scorecards |
+| **Reviewer** | Reviews applications | Reviews and leaves feedback |
+| **Advancer** | Decides | Advances or rejects candidates in that stage |
 
-Solo gli avanzatori possono far avanzare o rifiutare. Gli altri vedono la pipeline ma non possono decidere l'avanzamento.
+Only advancers can advance or reject. Others can view the pipeline but cannot make advancement decisions.
 
-### Blocco avanzamento
+### Advancement Gating
 
-Nelle fasi di colloquio l'avanzamento richiede sia il colloquio segnato come **completato** sia tutte le valutazioni inviate:
+In interview stages, advancing requires both the interview marked as **completed** and all scorecards submitted:
 
-- Il pulsante **Avanzare** è visibile solo agli avanzatori
-- **Segna come completato** sulla scheda richiede conferma
-- Il pulsante resta disattivato finché manca una valutazione o il colloquio non è completato
-- Anche il drag & drop verso la fase successiva richiede di essere avanzatore
+- The **Advance** button is visible only to advancers
+- **Mark as completed** on the card requires confirmation
+- The button stays disabled until a scorecard is missing or the interview is not completed
+- Drag & drop to the next stage also requires advancer permission
 
-Gli esaminatori possono aprire il modulo di valutazione direttamente dalla scheda del candidato.
+Examiners can open the scorecard form directly from the candidate card.
 
-### Rifiuto
+### Rejection
 
-Gli avanzatori possono rifiutare dalla bacheca:
+Advancers can reject from the board:
 
-1. Clic su **Rifiuta** sulla scheda
-2. Inserisci una motivazione (obbligatoria)
-3. Il candidato passa alla fase "Rifiutato"
+1. Click **Reject** on the card
+2. Enter a reason (required)
+3. The candidate moves to the "Rejected" stage
 
-Usa il filtro **Rifiutati** per vedere solo i candidati rifiutati.
+Use the **Rejected** filter to see only rejected candidates.
 
-## Fasi predefinite
+## Default Stages
 
-La pipeline predefinita ha 7 fasi:
+The default pipeline has 7 stages:
 
-| Fase | Colore | Scopo |
+| Stage | Color | Purpose |
 |---|---|---|
-| Nuovo | verde | Nuove candidature da pagina carriere, inserimento manuale o import CSV |
-| Screening | blu | Prima scrematura dei requisiti |
-| Phone Screen | viola | Primo contatto telefonico |
-| Colloquio | arancio | Colloqui approfonditi — con valutazioni e blocco avanzamento |
-| Offerta | rosa | Negoziazione offerta |
-| Assunto | verde chiaro | Assunzione completata — usata per i tempi medi |
-| Rifiutato | rosso | Candidati non selezionati (richiede motivazione) |
+| New | green | New applications from the career page, manual creation, or CSV import |
+| Screening | blue | Initial requirements screening |
+| Phone Screen | purple | First phone contact |
+| Interview | orange | In-depth interviews — with scorecards and advancement gating |
+| Offer | pink | Offer negotiation |
+| Hired | light green | Hiring completed — used for average time metrics |
+| Rejected | red | Candidates not selected (requires a reason) |
 
-Puoi personalizzarle in **Impostazioni → Pipeline** / **Impostazioni → Fasi pipeline**: nomi, colori, ordine, tipo di fase, numero minimo di esaminatori e modello di valutazione collegato, oltre a gestire più pipeline per azienda.
+You can customize them in **Settings → Pipeline** / **Settings → Pipeline Stages**: names, colors, order, stage type, minimum number of examiners and linked scorecard template, plus managing multiple pipelines per company.
 
-## Modelli di pipeline
+## Pipeline Templates
 
-Crea configurazioni riutilizzabili per non ripetere la stessa impostazione per posizioni simili.
+Create reusable configurations so you don't repeat the same setup for similar jobs.
 
-- **Crea modelli** da zero in **Impostazioni → Modelli pipeline**
-- **Salva come modello** da una pipeline esistente (copia fasi e assegnazioni)
-- **Usa un modello** quando crei una nuova posizione
-- I modelli copiano assegnazioni, numero minimo di esaminatori e modelli di valutazione
+- **Create templates** from scratch in **Settings → Pipeline Templates**
+- **Save as template** from an existing pipeline (copies stages and assignments)
+- **Use a template** when creating a new job
+- Templates copy assignments, minimum examiner count, and scorecard templates
 
-## Come usarla al meglio
+## Tips for Getting the Most Out of It
 
-1. Apri una posizione dalla pagina **Posizioni** — la pagina di dettaglio è il tuo workspace con candidati raggruppati, spostamenti rapidi, lettura e rifiuti
-2. Clic su **Vedi pipeline** per la bacheca avanzata con drag & drop, azioni massive, programmazione e valutazioni
-3. Trascina una scheda in un'altra colonna (o usa il pulsante Avanzare nelle fasi di colloquio)
-4. Tutti i membri vedono l'aggiornamento in tempo reale
-5. Clic sul nome del candidato per aprire il profilo completo
+1. Open a job from the **Jobs** page — the detail page is your workspace with grouped candidates, quick moves, read status, and rejections
+2. Click **View pipeline** for the advanced board with drag & drop, bulk actions, scheduling, and scorecards
+3. Drag a card to another column (or use the Advance button in interview stages)
+4. All team members see the update in real time
+5. Click a candidate name to open the full profile

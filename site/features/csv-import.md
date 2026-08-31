@@ -1,30 +1,30 @@
-# Importazione CSV
+# CSV Import
 
-Migra candidati da un foglio di calcolo in tre passi: carica, mappa, importa.
+Migrate candidates from a spreadsheet in three steps: upload, map, import.
 
-## Procedura
+## Steps
 
-Trovi la funzione in **Importa** dal menu principale.
+Find it under **Import** in the main menu.
 
-1. **Carica** — trascina un file `.csv` (max 10 MB). Il sistema legge intestazioni e righe.
-2. **Mappa** — Treby riconosce automaticamente le colonne più comuni:
+1. **Upload** — drag a `.csv` file (max 10 MB). The system reads headers and rows.
+2. **Map** — Treby auto-detects the most common columns:
 
-   | Intestazione nel CSV | Campo in Treby |
+   | Header in CSV | Field in Treby |
    |---|---|
-   | `name` / `full_name` / `candidate_name` | Nome |
+   | `name` / `full_name` / `candidate_name` | Name |
    | `email` / `e-mail` / `email_address` | Email |
-   | `phone` / `mobile` / `phone_number` | Telefono |
-   | `linkedin` / `linkedin_url` | Profilo LinkedIn |
+   | `phone` / `mobile` / `phone_number` | Phone |
+   | `linkedin` / `linkedin_url` | LinkedIn profile |
 
-   Puoi correggere la mappatura, scegliere la **posizione** e la **fase** di destinazione e indicare una **sorgente** opzionale.
-3. **Importa** — il sistema crea o riusa i profili (cercando per email all'interno della tua azienda), crea una candidatura per ogni riga nella fase scelta e mostra un riepilogo con conteggi ed eventuali errori per riga.
+   You can correct the mapping, choose the **job** and **stage** destination, and optionally set a **source**.
+3. **Import** — the system creates or reuses profiles (looking up by email inside your company), creates one application per row in the chosen stage, and shows a summary with counts and per-row errors.
 
-L'interfaccia è una procedura guidata in 4 passi (Carica → Mappa → Anteprima → Risultato) con validazione e segnalazione errori.
+The interface is a 4-step wizard (Upload → Map → Preview → Result) with validation and error reporting.
 
-## Duplicati
+## Duplicates
 
-Se un'email esiste già, il profilo esistente viene riutilizzato invece di crearne uno nuovo; la candidatura viene comunque creata e contrassegnata come duplicata se lo stesso candidato aveva già una candidatura per quella posizione.
+If an email already exists, the existing profile is reused instead of creating a new one; the application is still created and marked as duplicate if the same candidate already had an application for that job.
 
-## Sorgenti
+## Sources
 
-Se indichi una sorgente durante l'importazione, tutte le candidature create porteranno quel valore, che poi ritrovi nel breakdown per sorgente in **Analytics** e come etichetta sulla candidatura.
+If you specify a source during import, all created applications carry that value, which you can later find in the per-source breakdown in **Analytics** and as a label on the application.

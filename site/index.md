@@ -15,14 +15,14 @@ Manage job postings, track candidates through customizable hiring pipelines, rev
 
 ## Why Treby?
 
-- **Isolato per azienda** — ogni azienda vede solo i propri dati
-- **Pipeline personalizzabili** — più pipeline per azienda, bacheca drag & drop, fasi e colori configurabili
-- **Collaborazione in tempo reale** — gli spostamenti si aggiornano subito per tutto il team
-- **Pagine carriere pubbliche** — pubblica carriere con il tuo brand
-- **Portale candidati** — accesso con codice via email, auto-prenotazione, conversazioni e preferenze notifiche
-- **Colloqui senza scambi di email** — disponibilità settimanale interna + eventuale Google Calendar, link automatici Jitsi/Google Meet
-- **Lavoro di squadra** — ruoli per fase (esaminatore/revisore/avanzatore), valutazioni con blocco, operazioni massive e importazione CSV
-- **Open source** — licenza MIT, self-hosted, controllo completo
+- **Isolated per company** — each company sees only its own data
+- **Customizable pipelines** — multiple pipelines per company, drag & drop board, configurable stages and colors
+- **Real-time collaboration** — moves update instantly for the whole team
+- **Public career pages** — publish branded career pages
+- **Candidate portal** — email code access, self-scheduling, conversations, and notification preferences
+- **Interviews without email ping-pong** — weekly internal availability + optional Google Calendar, automatic Jitsi/Google Meet links
+- **Teamwork** — per-stage roles (examiner/reviewer/advancer), gated scorecards, bulk operations, and CSV import
+- **Open source** — MIT license, self-hosted, full control
 
 Treby is designed for small businesses and startups (5–50 people, hiring 1–10 roles at a time).
 
@@ -77,7 +77,7 @@ CSV import with column mapping and source tagging, bulk move/review/delete, and 
 
 ---
 
-Treby è un'applicazione web moderna: gira nel browser, salva i dati in un database e si integra con storage ed email. Se vuoi approfondire il funzionamento, vedi [Come funziona Treby →](/architecture).
+Treby is a modern web application: it runs in the browser, stores data in a database, and integrates with file storage and email. To learn how it works under the hood, see [How Treby Works →](/architecture).
 
 ---
 

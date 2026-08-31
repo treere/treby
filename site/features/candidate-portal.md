@@ -1,38 +1,38 @@
-# Portale candidati
+# Candidate Portal
 
-I candidati hanno un portale personale dove seguono la propria candidatura senza bisogno di password: basta un codice a 6 cifre.
+Candidates have a personal portal where they track their applications without needing a password — just a 6-digit code.
 
 ![Portal Login](/screenshots/26-portal-login.png)
 
-## Accesso con codice
+## Code-Based Access
 
-- Il candidato inserisce la propria email nella pagina di login del portale
-- Riceve via email un **codice a 6 cifre** valido 10 minuti, utilizzabile una sola volta
-- Inserisce il codice e accede al portale per qualche ora, poi può uscire esplicitamente
+- Candidates enter their email on the portal login page
+- They receive a **6-digit code** by email, valid for 10 minutes and single-use
+- They enter the code and access the portal for a few hours, then can sign out explicitly
 
-Non viene mai creata una password per i candidati; l'accesso del team e quello dei candidati sono completamente separati.
+Candidates never get a password; team access and candidate access are completely separate.
 
-## Cosa può fare il candidato
+## What Candidates Can Do
 
-| Pagina | Cosa vede |
+| Page | What they see |
 |---|---|
-| **Panoramica** | Stato della candidatura, fase attuale e prossimi passi |
-| **Messaggi** | Conversazioni per ogni candidatura (botta e risposta con i recruiter) |
-| **Colloqui** | Scelta dello slot per il colloquio tra quelli disponibili (vedi [Colloqui](/features/interview-scheduling)) |
-| **Impostazioni** | Preferenze di notifica — quali avvisi generano un'email e filtro "solo importanti" |
+| **Overview** | Application status, current stage, and next steps |
+| **Messages** | Conversations for each application (two-way messaging with recruiters) |
+| **Interviews** | Self-scheduling — pick an available interview slot (see [Interviews](/features/interview-scheduling)) |
+| **Settings** | Notification preferences — which events generate an email and the "important only" filter |
 
-Ogni nuova candidatura crea automaticamente una conversazione di benvenuto. Spostamenti di fase, messaggi, aggiornamenti sui colloqui e rifiuti vengono pubblicati nella stessa conversazione e, se previsto, generano un breve avviso via email con link al portale.
+Each new application automatically creates a welcome conversation. Stage moves, messages, interview updates, and rejections are posted to the same conversation and, when configured, generate a short email notification with a link to the portal.
 
-## Messaggi nel portale
+## Portal Messages
 
-- Ogni candidatura ha la propria conversazione
-- I recruiter scrivono dalla scheda della pipeline, dal profilo candidato o dalla coda messaggi; i candidati rispondono dai **Messaggi** del portale
-- I messaggi possono essere inviati subito o programmati (vedi [Programmazione messaggi](/features/message-scheduler))
-- I modelli di messaggio supportano variabili come nome candidato, titolo posizione, nome azienda e nome fase
+- Each application has its own conversation
+- Recruiters write from the pipeline card, the candidate profile, or the message queue; candidates reply from **Messages** in the portal
+- Messages can be sent immediately or scheduled (see [Message Scheduler](/features/message-scheduler))
+- Message templates support variables such as candidate name, job title, company name, and stage name
 
-## Privacy e notifiche
+## Privacy and Notifications
 
-- Tutti i contenuti reali vivono nel portale: l'email contiene solo un avviso breve con link, mai il testo del messaggio
-- Il candidato decide dalle **Impostazioni** del portale quali eventi generano avvisi
-- La sessione del portale è legata alla singola azienda e scade dopo poche ore
-- Ogni candidato vede solo le proprie candidature: anche provando a indovinare un link, il portale mostra solo i dati del proprio profilo e, se l'indirizzo dell'azienda nell'URL non corrisponde, reindirizza automaticamente al proprio portale
+- All real content lives in the portal: email only contains a short notification with a link, never the message body
+- Candidates choose in portal **Settings** which events generate notifications
+- The portal session is scoped to a single company and expires after a few hours
+- Each candidate sees only their own applications: even if someone guesses a URL, the portal shows only their own data and, if the company in the URL does not match, automatically redirects to their own portal

@@ -134,7 +134,7 @@ defmodule TrebyWeb.DashboardLiveTest do
         |> Repo.insert()
 
       # Create a team member
-      {:ok, _member} =
+      {:ok, member} =
         tenant
         |> Ecto.build_assoc(:users)
         |> User.changeset(%{
@@ -147,9 +147,9 @@ defmodule TrebyWeb.DashboardLiveTest do
 
       {:ok, _} =
         Treby.Memberships.create_membership(%{
-          user_id: _member.id,
+          user_id: member.id,
           tenant_id: tenant.id,
-          role: _member.role
+          role: member.role
         })
 
       conn = login_user(conn, user)

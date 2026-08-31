@@ -41,7 +41,7 @@ defmodule Treby.AccountsTest do
     test "returns true when tenant has other users" do
       {tenant, user} = setup_tenant()
 
-      {:ok, _member} =
+      {:ok, member} =
         tenant
         |> Ecto.build_assoc(:users)
         |> User.changeset(%{
@@ -54,9 +54,9 @@ defmodule Treby.AccountsTest do
 
       {:ok, _} =
         Treby.Memberships.create_membership(%{
-          user_id: _member.id,
+          user_id: member.id,
           tenant_id: tenant.id,
-          role: _member.role
+          role: member.role
         })
 
       assert Accounts.has_members_besides?(tenant.id, user.id)

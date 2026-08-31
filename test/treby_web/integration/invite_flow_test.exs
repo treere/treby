@@ -1,6 +1,5 @@
 defmodule TrebyWeb.InviteFlowTest do
   use TrebyWeb.ConnCase, async: false
-  import Phoenix.LiveViewTest
   import Ecto.Query
 
   alias Treby.{Tenants, Repo, Invites, Memberships}

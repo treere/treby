@@ -15,7 +15,7 @@ defmodule TrebyWeb.PipelineDragDropTest do
     pipeline_id = Pipeline.default_pipeline_id(tenant.id)
     stages = Pipeline.list_pipeline_stages(pipeline_id)
 
-    {:ok, _user} =
+    {:ok, user} =
       tenant
       |> Ecto.build_assoc(:users)
       |> User.changeset(%{
@@ -28,9 +28,9 @@ defmodule TrebyWeb.PipelineDragDropTest do
 
     {:ok, _} =
       Treby.Memberships.create_membership(%{
-        user_id: _user.id,
+        user_id: user.id,
         tenant_id: tenant.id,
-        role: _user.role
+        role: user.role
       })
 
     {:ok, job} =

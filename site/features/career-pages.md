@@ -27,13 +27,17 @@ Job cards in the listings also show location and type badges, and an **Applied �
 External candidates can apply through a clean form with:
 
 - Full name, email, phone number
-- Resume upload (PDF, DOC, DOCX — max 10MB)
+- Resume upload (PDF, DOC, DOCX — max 10MB) with **visible feedback**: after picking a file you see the filename and size, a progress bar while uploading, a green check when done, and a **Remove** button; errors like *"File type not accepted"* or *"File too large"* appear inline in red next to the field
+- The **Submit** button is disabled and shows *Uploading…* with a spinner until the upload finishes; if you picked a file but it has errors, submitting keeps the form open and shows *"Please fix the resume upload or remove the file to apply without a CV"* — you are never left wondering if your CV arrived
+- A **Need help?** block appears under the form (and again on the thank-you screen) with your company's contact email when configured in the tenant settings — the email is shown only if present
 - Custom application fields (if configured)
 - Location and contract details shown on the job (configured in **Jobs**)
 
 If you're logged into the candidate portal for that company, the form is **prefilled** with your name/email/phone and shows a hint — you can still edit before submitting. Submitting again to the same position shows **You have already applied on …** instead of creating a duplicate.
 
 Applications are automatically placed in the first pipeline stage. Candidates are deduplicated by email.
+
+After a successful submit you see **Thank you!** with clear next steps: *"Check your email — including spam — for a 10-minute code to track your application"* and a primary **Track your application** button linking to the portal login.
 
 ## Portal-Enabled Applications
 

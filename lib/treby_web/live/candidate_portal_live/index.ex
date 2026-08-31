@@ -160,7 +160,8 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               </div>
               <button
                 phx-click="close_detail"
-                class="text-gray-400 hover:text-gray-600"
+                aria-label={gettext("Close")}
+                class="text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 ✕
               </button>
@@ -333,10 +334,18 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
       @status == "hired" && "bg-green-100 text-green-800",
       @status == "rejected" && "bg-red-100 text-red-800"
     ]}>
-      {String.capitalize(@status)}
+      {human_status(@status)}
     </span>
     """
   end
+
+  defp human_status("new"), do: gettext("Received")
+  defp human_status("screening"), do: gettext("Screening")
+  defp human_status("interview"), do: gettext("Interview")
+  defp human_status("offer"), do: gettext("Offer")
+  defp human_status("hired"), do: gettext("Hired")
+  defp human_status("rejected"), do: gettext("Not selected")
+  defp human_status(other), do: String.capitalize(other)
 
   defp status_timeline(conversations) do
     conversations

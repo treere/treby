@@ -1,10 +1,4 @@
-# Public Job Board
-
-## Purpose
-
-Serve a global public job board and control per-job visibility on public boards.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Global job board
 The system SHALL serve a global public job board at `/careers` showing all visible open positions across all tenants.

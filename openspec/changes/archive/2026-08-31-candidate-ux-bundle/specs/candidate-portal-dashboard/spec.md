@@ -1,10 +1,4 @@
-# Candidate Portal Dashboard
-
-## Purpose
-
-Provide authenticated candidates with a centralized dashboard to view their applications, track status changes, and engage with recruiters through the candidate portal.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Candidate portal dashboard
 The system SHALL display a dashboard at `/:tenant_slug/portal` for authenticated candidates showing their applications and recent messages.

@@ -1,10 +1,4 @@
-# File Upload
-
-## Purpose
-
-Handle secure file uploads for resumes and logos with S3-compatible storage (RustFS in dev).
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Resume upload
 The system SHALL allow uploading resumes as part of the application process and SHALL surface visible feedback and rejection messaging for candidate uploads.

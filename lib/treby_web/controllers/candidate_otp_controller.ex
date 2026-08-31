@@ -14,26 +14,42 @@ defmodule TrebyWeb.CandidateOtpController do
     tenant = Tenants.get_tenant_by_slug!(slug)
     email = email |> String.trim() |> String.downcase()
 
-    case Candidates.list_candidates(tenant.id, %{search: email}) do
-      [candidate | _] ->
-        case CandidatePortal.generate_otp(candidate) do
-          {:ok, code} ->
-            candidate
-            |> NotificationEmail.otp_email(tenant, code)
-            |> Treby.Mailer.deliver()
+    result =
+      case Candidates.list_candidates(tenant.id, %{search: email}) do
+        [candidate | _] ->
+          case CandidatePortal.generate_otp(candidate) do
+            {:ok, code} -> {:ok, candidate, code}
+            {:error, :rate_limited} -> {:error, :rate_limited}
+            other -> other
+          end
 
-          {:error, _reason} ->
-            :ok
-        end
+        _ ->
+          :not_found
+      end
+
+    case result do
+      {:ok, candidate, code} ->
+        candidate
+        |> NotificationEmail.otp_email(tenant, code)
+        |> Treby.Mailer.deliver()
+
+        conn
+        |> put_session("otp_email", email)
+        |> put_flash(:info, gettext("Check your email for your login code"))
+        |> redirect(to: "/#{slug}/portal/verify")
+
+      {:error, :rate_limited} ->
+        conn
+        |> put_session("otp_email", email)
+        |> put_flash(:error, gettext("Wait 60 seconds before requesting another code"))
+        |> redirect(to: "/#{slug}/portal/verify")
 
       _ ->
-        :ok
+        conn
+        |> put_session("otp_email", email)
+        |> put_flash(:info, gettext("Check your email for your login code"))
+        |> redirect(to: "/#{slug}/portal/verify")
     end
-
-    conn
-    |> put_session("otp_email", email)
-    |> put_flash(:info, gettext("Check your email for your login code"))
-    |> redirect(to: "/#{slug}/portal/verify")
   end
 
   @doc """

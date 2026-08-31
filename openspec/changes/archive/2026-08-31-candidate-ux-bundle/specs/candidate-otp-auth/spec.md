@@ -1,10 +1,4 @@
-# Candidate OTP Authentication
-
-## Purpose
-
-Let candidates access the candidate portal via a one-time password (OTP) sent by email, providing secure, passwordless authentication without email enumeration.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Candidate requests OTP login
 The system SHALL allow a candidate to request access to the portal by entering their email address at `/:tenant_slug/portal/login`, sending a one-time code (OTP) to that email address, and surface static helper guidance without leaking account existence.

@@ -372,7 +372,7 @@ defmodule TrebyWeb.Layouts do
                 <% end %>
               </.link>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="hidden sm:flex items-center space-x-4">
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/messages"}
                 class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600"
@@ -402,15 +402,91 @@ defmodule TrebyWeb.Layouts do
               >
                 <button
                   type="submit"
-                  class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600"
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 min-h-[44px] px-2"
                 >
                   Logout
                 </button>
               </.form>
             </div>
+            <div class="sm:hidden flex items-center">
+              <button
+                phx-click={
+                  Phoenix.LiveView.JS.toggle_class("hidden", to: "#candidate-portal-overlay")
+                  |> Phoenix.LiveView.JS.toggle_class("-translate-x-full",
+                    to: "#candidate-portal-drawer"
+                  )
+                }
+                class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                aria-label={gettext("Toggle navigation")}
+              >
+                <.icon name="hero-bars-3" class="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              </button>
+            </div>
           </div>
         </div>
       </nav>
+
+      <div id="candidate-portal-overlay" class="sm:hidden fixed inset-0 bg-black/50 z-40 hidden">
+      </div>
+      <div
+        id="candidate-portal-drawer"
+        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-xl z-50 transform -translate-x-full transition-transform"
+      >
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-6">
+            <span class="text-lg font-bold text-blue-600">{@current_tenant.name}</span>
+            <button
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#candidate-portal-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full",
+                  to: "#candidate-portal-drawer"
+                )
+              }
+              class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label={gettext("Close navigation")}
+            >
+              <.icon name="hero-x-mark" class="w-6 h-6 text-gray-500" />
+            </button>
+          </div>
+          <div class="space-y-1">
+            <.link
+              navigate={"/#{@current_tenant.slug}/portal/messages"}
+              class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[44px]"
+            >
+              Messages
+            </.link>
+            <.link
+              navigate={"/#{@current_tenant.slug}/portal/schedule"}
+              class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[44px]"
+            >
+              Schedule
+            </.link>
+            <.link
+              navigate={"/#{@current_tenant.slug}/portal/settings"}
+              class="block px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[44px]"
+            >
+              Settings
+            </.link>
+          </div>
+          <div class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4 space-y-1">
+            <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+              {@current_candidate.name}
+            </div>
+            <.form
+              for={%{}}
+              action={~p"/#{@current_tenant.slug}/portal/logout"}
+              method="post"
+            >
+              <button
+                type="submit"
+                class="w-full text-left px-3 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 min-h-[44px]"
+              >
+                Logout
+              </button>
+            </.form>
+          </div>
+        </div>
+      </div>
 
       <.flash_group flash={@flash} />
 

@@ -63,27 +63,72 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
             <div>
               <button
                 type="submit"
-                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px]"
               >
                 Verify code
               </button>
             </div>
           </.form>
 
+          <p class="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+            {gettext("Code valid 10 minutes — check spam folder, sender noreply@treby.app.")}
+          </p>
+          <p class="mt-1 text-center text-xs text-gray-500 dark:text-gray-400">
+            {gettext("Didn't receive it? Check spam or correct your email.")}
+            <.link
+              navigate={~p"/#{@tenant.slug}/portal/login"}
+              class="text-blue-600 hover:underline ml-1"
+            >
+              {gettext("Correct email")}
+            </.link>
+          </p>
+          <p class="mt-2 text-center text-xs text-gray-400">
+            {gettext("You can request a new code after 60 seconds.")}
+          </p>
+
           <.form
             for={%{}}
             action={~p"/#{@tenant.slug}/portal/login"}
             method="post"
-            class="text-center"
+            class="text-center mt-4"
           >
             <input type="hidden" name="email" value={@email} />
             <button
               type="submit"
-              class="text-sm font-medium text-blue-600 hover:text-blue-500"
+              id="resend-code-btn"
+              phx-hook=".ResendCountdown"
+              data-countdown="60"
+              class="text-sm font-medium text-blue-600 hover:text-blue-500 min-h-[44px] px-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Resend code
             </button>
           </.form>
+          <script :type={Phoenix.LiveView.ColocatedHook} name=".ResendCountdown">
+            export default {
+              mounted() {
+                const btn = this.el
+                let remaining = parseInt(btn.dataset.countdown || "60", 10)
+                btn.disabled = true
+                const original = btn.textContent.trim()
+                const tick = () => {
+                  if (remaining <= 0) {
+                    btn.disabled = false
+                    btn.textContent = original
+                    clearInterval(timer)
+                  } else {
+                    btn.textContent = `Resend in ${remaining}s`
+                    remaining -= 1
+                  }
+                }
+                tick()
+                const timer = setInterval(tick, 1000)
+                this._timer = timer
+              },
+              destroyed() {
+                if (this._timer) clearInterval(this._timer)
+              }
+            }
+          </script>
         <% else %>
           <.form
             for={%{}}
@@ -106,12 +151,17 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
             <div>
               <button
                 type="submit"
-                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-h-[44px]"
               >
                 Send login code
               </button>
             </div>
           </.form>
+          <p class="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+            {gettext(
+              "Code valid 10 minutes — check spam folder, sender noreply@treby.app. You can request a new code after 60 seconds."
+            )}
+          </p>
         <% end %>
       </div>
     </div>

@@ -99,24 +99,43 @@ defmodule TrebyWeb.CareersLive.Apply do
         <div :if={@submitted} class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center">
           <h2 class="text-2xl font-bold text-base-content">{gettext("Thank you!")}</h2>
           <p class="mt-4 text-base-content/70">
-            Your application has been submitted. We'll be in touch soon.
+            {gettext(
+              "Your application has been submitted. Check your email — including spam — for a 10-minute code to track your application."
+            )}
           </p>
           <div class="mt-6 space-y-4">
             <.link
               navigate={~p"/#{@tenant.slug}/portal/login"}
-              class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 min-h-[44px]"
             >
-              Access Your Portal
+              {gettext("Track your application")}
             </.link>
             <div>
               <.link
                 navigate={~p"/#{@tenant.slug}/careers"}
                 class="text-blue-600 hover:text-blue-900"
               >
-                View other positions
+                {gettext("View other positions")}
               </.link>
             </div>
           </div>
+          <%= if email = @tenant.settings["support_email"] || @tenant.settings["contact_email"] do %>
+            <div
+              id="candidate-help"
+              class="mt-8 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 p-4 text-left"
+            >
+              <p class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                {gettext("Need help?")}
+              </p>
+              <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                {gettext(
+                  "Contact %{company} support or email us at %{email} if you have trouble with your application.",
+                  company: @tenant.name,
+                  email: email
+                )}
+              </p>
+            </div>
+          <% end %>
         </div>
 
         <div :if={!@submitted && !@duplicate} class="mt-8 bg-base-100 rounded-lg shadow p-8">
@@ -174,52 +193,137 @@ defmodule TrebyWeb.CareersLive.Apply do
               </div>
             </div>
 
-            <div>
+            <div id="resume-upload">
               <label class="block text-sm font-medium text-base-content/80 mb-1">
                 Resume (PDF, DOC, DOCX - max 10MB)
               </label>
               <.live_file_input
                 upload={@uploads.resume}
-                class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-950 file:text-blue-700 dark:file:text-blue-100 hover:file:bg-blue-100 dark:bg-blue-900 dark:hover:file:bg-blue-900"
+                class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-950 file:text-blue-700 dark:file:text-blue-100 hover:file:bg-blue-100 dark:bg-blue-900 dark:hover:file:bg-blue-900 min-h-[44px]"
               />
-              <p :for={err <- upload_errors(@uploads.resume)} class="text-red-500 text-sm mt-1">
+              <div
+                :for={entry <- @uploads.resume.entries}
+                class="mt-3 flex flex-col gap-2 rounded-lg border border-base-300 bg-base-200 p-3"
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <.icon name="hero-document" class="w-5 h-5 text-blue-600 shrink-0" />
+                    <span class="text-sm font-medium text-base-content truncate">
+                      {entry.client_name} &mdash; {format_bytes(entry.client_size)}
+                    </span>
+                    <span :if={entry.done?} class="text-green-600 text-sm">✓</span>
+                  </div>
+                  <button
+                    type="button"
+                    phx-click="cancel_upload"
+                    phx-value-ref={entry.ref}
+                    aria-label={gettext("Remove file")}
+                    class="min-h-[44px] min-w-[44px] px-3 text-sm font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg shrink-0"
+                  >
+                    {gettext("Remove")}
+                  </button>
+                </div>
+                <div :if={!entry.done?} class="w-full bg-base-300 rounded-full h-2">
+                  <div
+                    class="bg-blue-600 h-2 rounded-full transition-all"
+                    style={"width: #{entry.progress}%"}
+                  >
+                  </div>
+                </div>
+                <p :if={!entry.done?} class="text-xs text-base-content/70">
+                  {entry.progress}% {gettext("uploading...")}
+                </p>
+                <p :for={err <- upload_errors(@uploads.resume, entry)} class="text-red-500 text-sm">
+                  {upload_error_to_string(err)}
+                </p>
+              </div>
+              <p :for={err <- upload_errors(@uploads.resume)} class="text-red-500 text-sm mt-2">
                 {upload_error_to_string(err)}
               </p>
             </div>
 
             <.button
               type="submit"
-              class="w-full"
+              class="w-full min-h-[44px]"
               style={"background-color: #{@career_page && @career_page.primary_color || "#3b82f6"}"}
+              disabled={Enum.any?(@uploads.resume.entries, fn e -> !e.done? end)}
             >
-              Submit Application
+              <%= if Enum.any?(@uploads.resume.entries, fn e -> !e.done? end) do %>
+                <span class="inline-flex items-center gap-2">
+                  <.icon name="hero-arrow-path" class="w-4 h-4 animate-spin" />
+                  {gettext("Uploading...")}
+                </span>
+              <% else %>
+                {gettext("Submit Application")}
+              <% end %>
             </.button>
           </.form>
+          <%= if email = @tenant.settings["support_email"] || @tenant.settings["contact_email"] do %>
+            <div
+              id="candidate-help"
+              class="mt-6 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 p-4"
+            >
+              <p class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                {gettext("Need help?")}
+              </p>
+              <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                {gettext(
+                  "Contact %{company} support or email us at %{email} if you have trouble with your application.",
+                  company: @tenant.name,
+                  email: email
+                )}
+              </p>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
     """
   end
 
+  def handle_event("cancel_upload", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :resume, ref)}
+  end
+
   def handle_event("submit_application", params, socket) do
-    tenant = socket.assigns.tenant
-    job = socket.assigns.job
-    application_params = Map.get(params, "application", %{})
-    custom_fields_values = Map.get(params, "custom_fields", %{})
+    # Guard against silent nil resume when file was attempted but invalid/incomplete
+    # Check for upload-level errors (too_large, not_accepted, too_many_files)
+    upload_config = socket.assigns.uploads.resume
+    general_errors = upload_errors(upload_config)
 
-    candidate_attrs = %{
-      "name" => application_params["name"],
-      "email" => application_params["email"],
-      "phone" => application_params["phone"],
-      "tenant_id" => tenant.id
-    }
+    entry_errors =
+      Enum.flat_map(upload_config.entries, fn entry -> upload_errors(upload_config, entry) end)
 
-    case Candidates.create_or_find(tenant.id, candidate_attrs) do
-      {:ok, candidate} ->
-        handle_candidate_found(socket, candidate, job, custom_fields_values, application_params)
+    has_errors = general_errors != [] or entry_errors != []
+    has_incomplete = Enum.any?(upload_config.entries, fn e -> not e.done? end)
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, gettext("Please review the errors below"))}
+    if has_errors or has_incomplete do
+      {:noreply,
+       socket
+       |> put_flash(
+         :error,
+         gettext("Please fix the resume upload or remove the file to apply without a CV.")
+       )}
+    else
+      tenant = socket.assigns.tenant
+      job = socket.assigns.job
+      application_params = Map.get(params, "application", %{})
+      custom_fields_values = Map.get(params, "custom_fields", %{})
+
+      candidate_attrs = %{
+        "name" => application_params["name"],
+        "email" => application_params["email"],
+        "phone" => application_params["phone"],
+        "tenant_id" => tenant.id
+      }
+
+      case Candidates.create_or_find(tenant.id, candidate_attrs) do
+        {:ok, candidate} ->
+          handle_candidate_found(socket, candidate, job, custom_fields_values, application_params)
+
+        {:error, _changeset} ->
+          {:noreply, put_flash(socket, :error, gettext("Please review the errors below"))}
+      end
     end
   end
 
@@ -356,8 +460,21 @@ defmodule TrebyWeb.CareersLive.Apply do
   defp upload_error_to_string(:too_large), do: gettext("File is too large (max 10MB)")
 
   defp upload_error_to_string(:not_accepted),
-    do: gettext("File type not accepted (use PDF, DOC, or DOCX)")
+    do:
+      gettext(
+        "File type not accepted (use PDF, DOC, or DOCX). If you have a photo, convert it to PDF or contact support."
+      )
 
   defp upload_error_to_string(:too_many_files), do: gettext("Only one file is allowed")
   defp upload_error_to_string(err), do: gettext("Upload error: %{reason}", reason: inspect(err))
+
+  defp format_bytes(size) when is_integer(size) do
+    cond do
+      size >= 1_000_000 -> "#{Float.round(size / 1_000_000, 1)} MB"
+      size >= 1000 -> "#{div(size, 1000)} KB"
+      true -> "#{size} bytes"
+    end
+  end
+
+  defp format_bytes(_), do: ""
 end

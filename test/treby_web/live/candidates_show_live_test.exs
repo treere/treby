@@ -6,6 +6,9 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
   alias Treby.{Tenants, Repo}
   alias Treby.Accounts.User
   alias Treby.Candidates.Candidate
+  alias Treby.Jobs.Job
+  alias Treby.Pipeline
+  alias Treby.Interviews.{InterviewEvent, EventExaminer}
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -208,25 +211,25 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       {tenant, user} = setup_tenant()
       candidate = create_candidate(tenant, "Interview Candidate")
 
-      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
       {:ok, job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Interview Job",
           description: "Desc",
           pipeline_id: pipeline_id
         })
-        |> Treby.Repo.insert()
+        |> Repo.insert()
 
       stage =
-        Treby.Pipeline.list_pipeline_stages(pipeline_id)
+        Pipeline.list_pipeline_stages(pipeline_id)
         |> Enum.find(&(&1.stage_type == "interview")) ||
-          List.first(Treby.Pipeline.list_pipeline_stages(pipeline_id))
+          List.first(Pipeline.list_pipeline_stages(pipeline_id))
 
       {:ok, application} =
-        Treby.Pipeline.create_application(%{
+        Pipeline.create_application(%{
           tenant_id: tenant.id,
           job_id: job.id,
           candidate_id: candidate.id,
@@ -237,8 +240,8 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
       {:ok, event} =
-        %Treby.Interviews.InterviewEvent{}
-        |> Treby.Interviews.InterviewEvent.changeset(%{
+        %InterviewEvent{}
+        |> InterviewEvent.changeset(%{
           start_at_utc: DateTime.add(now, 3600),
           end_at_utc: DateTime.add(now, 5400),
           duration_minutes: 30,
@@ -246,14 +249,14 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
           tenant_id: tenant.id,
           status: "scheduled"
         })
-        |> Treby.Repo.insert()
+        |> Repo.insert()
 
-      %Treby.Interviews.EventExaminer{}
-      |> Treby.Interviews.EventExaminer.changeset(%{
+      %EventExaminer{}
+      |> EventExaminer.changeset(%{
         interview_event_id: event.id,
         user_id: user.id
       })
-      |> Treby.Repo.insert!()
+      |> Repo.insert!()
 
       conn = login_user(conn, user)
       {:ok, view, html} = live(conn, ~p"/app/candidates/#{candidate.id}")

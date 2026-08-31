@@ -797,8 +797,8 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
       {:ok, event} =
-        %Treby.Interviews.InterviewEvent{}
-        |> Treby.Interviews.InterviewEvent.changeset(%{
+        %InterviewEvent{}
+        |> InterviewEvent.changeset(%{
           start_at_utc: DateTime.add(now, -3600),
           end_at_utc: DateTime.add(now, -1800),
           duration_minutes: 30,
@@ -808,8 +808,8 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
         |> Repo.insert()
 
-      %Treby.Interviews.EventExaminer{}
-      |> Treby.Interviews.EventExaminer.changeset(%{
+      %EventExaminer{}
+      |> EventExaminer.changeset(%{
         interview_event_id: event.id,
         user_id: user.id
       })
@@ -895,8 +895,8 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
       {:ok, event} =
-        %Treby.Interviews.InterviewEvent{}
-        |> Treby.Interviews.InterviewEvent.changeset(%{
+        %InterviewEvent{}
+        |> InterviewEvent.changeset(%{
           start_at_utc: DateTime.add(now, 3600),
           end_at_utc: DateTime.add(now, 5400),
           duration_minutes: 30,
@@ -906,8 +906,8 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
         |> Repo.insert()
 
-      %Treby.Interviews.EventExaminer{}
-      |> Treby.Interviews.EventExaminer.changeset(%{
+      %EventExaminer{}
+      |> EventExaminer.changeset(%{
         interview_event_id: event.id,
         user_id: user.id
       })

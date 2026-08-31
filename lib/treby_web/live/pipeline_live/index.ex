@@ -9,25 +9,7 @@ defmodule TrebyWeb.PipelineLive.Index do
   def mount(%{"job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
 
-    {user, tenant} =
-      cond do
-        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
-          {socket.assigns.current_user, socket.assigns.current_tenant}
-
-        session["user_id"] && session["tenant_id"] ->
-          {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
-
-        session["user_id"] ->
-          u = Accounts.get_user!(session["user_id"])
-
-          case Treby.Memberships.list_tenants_for_user(u.id) do
-            [%{tenant: t} | _] -> {u, t}
-            [] -> {u, nil}
-          end
-
-        true ->
-          {nil, nil}
-      end
+    {user, tenant} = resolve_mount_user_tenant(socket, session)
 
     case Jobs.get_job(tenant.id, job_id) do
       nil ->
@@ -1232,6 +1214,31 @@ defmodule TrebyWeb.PipelineLive.Index do
         else
           {:noreply, put_flash(socket, :error, gettext("No next stage found in this pipeline"))}
         end
+    end
+  end
+
+  defp resolve_mount_user_tenant(socket, session) do
+    cond do
+      socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+        {socket.assigns.current_user, socket.assigns.current_tenant}
+
+      session["user_id"] && session["tenant_id"] ->
+        {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
+
+      session["user_id"] ->
+        resolve_user_without_tenant(session["user_id"])
+
+      true ->
+        {nil, nil}
+    end
+  end
+
+  defp resolve_user_without_tenant(user_id) do
+    user = Accounts.get_user!(user_id)
+
+    case Treby.Memberships.list_tenants_for_user(user.id) do
+      [%{tenant: tenant} | _] -> {user, tenant}
+      [] -> {user, nil}
     end
   end
 

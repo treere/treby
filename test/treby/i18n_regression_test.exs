@@ -1,6 +1,8 @@
 defmodule Treby.I18nRegressionTest do
   use ExUnit.Case, async: false
 
+  alias Mix.Tasks.Treby.CheckTranslations
+
   @it_po "priv/gettext/it/LC_MESSAGES/default.po"
   @it_errors "priv/gettext/it/LC_MESSAGES/errors.po"
   @pot "priv/gettext/default.pot"
@@ -47,7 +49,7 @@ defmodule Treby.I18nRegressionTest do
     output =
       ExUnit.CaptureIO.capture_io(fn ->
         try do
-          Mix.Tasks.Treby.CheckTranslations.run([])
+          CheckTranslations.run([])
         catch
           :exit, _ -> :ok
         end

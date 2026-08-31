@@ -42,9 +42,7 @@ defmodule Treby.Credo.Check.NoHardcodedUIStrings do
   def run(%Credo.SourceFile{} = source_file, params) do
     filename = source_file.filename
 
-    if not relevant_file?(filename) do
-      []
-    else
+    if relevant_file?(filename) do
       lines = Credo.SourceFile.lines(source_file)
       source = Credo.SourceFile.source(source_file)
       gettext_strings = extract_gettext_strings(source)
@@ -56,6 +54,8 @@ defmodule Treby.Credo.Check.NoHardcodedUIStrings do
           trigger -> [issue_for(issue_meta, line_no, trigger, line) | acc]
         end
       end)
+    else
+      []
     end
   end
 
@@ -84,53 +84,32 @@ defmodule Treby.Credo.Check.NoHardcodedUIStrings do
   defp relevant_file?(_), do: false
 
   defp find_hardcoded(line, gettext_strings) do
+    if skip_hardcoded_line?(line) do
+      nil
+    else
+      quoted_trigger = find_quoted_trigger(line, gettext_strings)
+
+      if quoted_trigger do
+        quoted_trigger
+      else
+        find_text_node_trigger(line)
+      end
+    end
+  end
+
+  defp skip_hardcoded_line?(line) do
     trimmed = String.trim(line)
 
-    cond do
-      # Skip empty or comment-ish lines
-      trimmed == "" ->
-        nil
-
-      String.starts_with?(trimmed, "#") ->
-        nil
-
-      # Escape hatch
-      String.contains?(line, "credo:disable") ->
-        nil
-
-      # Already wrapped in gettext (including multiline where string is on next line after gettext()
-      String.contains?(line, "gettext") ->
-        nil
-
-      # Skip module / directive lines that are not UI
-      String.contains?(line, "defmodule") ->
-        nil
-
-      String.contains?(line, "alias ") ->
-        nil
-
-      String.contains?(line, "import ") ->
-        nil
-
-      String.contains?(line, "@moduledoc") ->
-        nil
-
-      String.contains?(line, "Logger.") ->
-        nil
-
-      String.contains?(line, "Hardcoded UI string") ->
-        nil
-
-      true ->
-        # Check quoted strings first (skip if already inside a gettext call anywhere in file)
-        quoted_trigger = find_quoted_trigger(line, gettext_strings)
-
-        if quoted_trigger do
-          quoted_trigger
-        else
-          find_text_node_trigger(line)
-        end
-    end
+    trimmed == "" or
+      String.starts_with?(trimmed, "#") or
+      String.contains?(line, "credo:disable") or
+      String.contains?(line, "gettext") or
+      String.contains?(line, "defmodule") or
+      String.contains?(line, "alias ") or
+      String.contains?(line, "import ") or
+      String.contains?(line, "@moduledoc") or
+      String.contains?(line, "Logger.") or
+      String.contains?(line, "Hardcoded UI string")
   end
 
   defp find_quoted_trigger(line, gettext_strings) do
@@ -167,32 +146,31 @@ defmodule Treby.Credo.Check.NoHardcodedUIStrings do
 
   def ui_string?(str) when is_binary(str) do
     trimmed = String.trim(str)
+    ui_string_valid?(trimmed)
+  end
 
+  def ui_string?(_), do: false
+
+  defp ui_string_valid?(trimmed) do
     cond do
       String.length(trimmed) < 3 -> false
       trimmed == "Treby" -> false
-      # Technical identifiers: hero-*, phx-*, data-*
-      String.contains?(trimmed, "hero-") -> false
-      String.contains?(trimmed, "phx-") -> false
-      String.contains?(trimmed, "data-") -> false
-      # File paths or technical values with slash/backslash
-      String.contains?(trimmed, "/") and String.contains?(trimmed, ".") -> false
-      String.contains?(trimmed, "\\") -> false
-      # All caps or snake_case constants
-      Regex.match?(~r/^[A-Z0-9_]+$/, trimmed) -> false
-      # Must start with capital and contain a letter
+      technical_ui_string?(trimmed) -> false
       not Regex.match?(~r/^[A-Z][a-z]/, trimmed) -> false
-      # Contains at least one lowercase letter after capital
       not Regex.match?(~r/[a-z]/, trimmed) -> false
-      # Exclude strings that are clearly code-like (contain =>, ->, :, | etc. without spaces)
       String.contains?(trimmed, "=>") -> false
-      # For single-word like "Dashboard", we allow if length >=4 and capitalized
-      # For multi-word, allow as well
       true -> true
     end
   end
 
-  def ui_string?(_), do: false
+  defp technical_ui_string?(trimmed) do
+    String.contains?(trimmed, "hero-") or
+      String.contains?(trimmed, "phx-") or
+      String.contains?(trimmed, "data-") or
+      (String.contains?(trimmed, "/") and String.contains?(trimmed, ".")) or
+      String.contains?(trimmed, "\\") or
+      Regex.match?(~r/^[A-Z0-9_]+$/, trimmed)
+  end
 
   defp issue_for(issue_meta, line_no, trigger, line) do
     column = find_column(line, trigger)

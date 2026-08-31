@@ -7,18 +7,16 @@ defmodule TrebyWeb.SettingsLive.Team do
     socket = set_locale_from_session(socket, session)
     # Support both slug and legacy session
     {user, tenant, membership} =
-      cond do
-        params["tenant_slug"] ->
-          slug = params["tenant_slug"]
-          tenant = Tenants.get_tenant_by_slug(slug)
-          user = Accounts.get_user!(session["user_id"])
-          membership = Treby.Memberships.get_membership(user.id, tenant.id)
-          {user, tenant, membership}
-
-        true ->
-          user = Accounts.get_user!(session["user_id"])
-          tenant = Tenants.get_tenant!(session["tenant_id"])
-          {user, tenant, nil}
+      if params["tenant_slug"] do
+        slug = params["tenant_slug"]
+        tenant = Tenants.get_tenant_by_slug(slug)
+        user = Accounts.get_user!(session["user_id"])
+        membership = Treby.Memberships.get_membership(user.id, tenant.id)
+        {user, tenant, membership}
+      else
+        user = Accounts.get_user!(session["user_id"])
+        tenant = Tenants.get_tenant!(session["tenant_id"])
+        {user, tenant, nil}
       end
 
     # Prefer memberships list with roles

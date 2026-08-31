@@ -127,31 +127,29 @@ defmodule Mix.Tasks.Treby.CheckTranslations do
                   [%{msgid: pot_entry.msgid, refs: pot_entry.refs}]
 
                 po_entry ->
-                  cond do
-                    pot_entry.plural? ->
-                      # Plural entry: check all msgstr[N] are non-empty
-                      if po_entry.msgstr_plural == [] do
-                        # No plural translations – treat as missing if singular msgstr empty
-                        if String.trim(po_entry.msgstr) == "" do
-                          [%{msgid: pot_entry.msgid, refs: pot_entry.refs}]
-                        else
-                          []
-                        end
-                      else
-                        missing_plural? =
-                          Enum.any?(po_entry.msgstr_plural, fn s -> String.trim(s) == "" end)
-
-                        if missing_plural?,
-                          do: [%{msgid: pot_entry.msgid, refs: pot_entry.refs}],
-                          else: []
-                      end
-
-                    true ->
+                  if pot_entry.plural? do
+                    # Plural entry: check all msgstr[N] are non-empty
+                    if po_entry.msgstr_plural == [] do
+                      # No plural translations – treat as missing if singular msgstr empty
                       if String.trim(po_entry.msgstr) == "" do
                         [%{msgid: pot_entry.msgid, refs: pot_entry.refs}]
                       else
                         []
                       end
+                    else
+                      missing_plural? =
+                        Enum.any?(po_entry.msgstr_plural, fn s -> String.trim(s) == "" end)
+
+                      if missing_plural?,
+                        do: [%{msgid: pot_entry.msgid, refs: pot_entry.refs}],
+                        else: []
+                    end
+                  else
+                    if String.trim(po_entry.msgstr) == "" do
+                      [%{msgid: pot_entry.msgid, refs: pot_entry.refs}]
+                    else
+                      []
+                    end
                   end
               end
             end
@@ -226,58 +224,8 @@ defmodule Mix.Tasks.Treby.CheckTranslations do
 
     # State machine for msgid/msgstr with possible multi-line quoted strings and plural forms
     {msgid, msgstr, msgstr_plural, plural?, _state} =
-      Enum.reduce(lines, {nil, nil, [], false, nil}, fn line,
-                                                        {msgid_acc, msgstr_acc, plural_acc,
-                                                         is_plural, state} ->
-        trimmed = String.trim_leading(line)
-
-        cond do
-          String.starts_with?(trimmed, "msgid_plural") ->
-            {msgid_acc, msgstr_acc, plural_acc, true, :msgid_plural}
-
-          String.starts_with?(trimmed, "msgid ") or trimmed == "msgid \"\"" ->
-            quoted =
-              extract_quoted(trimmed |> String.replace_prefix("msgid", "") |> String.trim())
-
-            {quoted, msgstr_acc, plural_acc, is_plural, :msgid}
-
-          String.starts_with?(trimmed, "msgstr[") ->
-            # msgstr[0] "..." etc
-            quoted = extract_quoted(trimmed)
-            {msgid_acc, msgstr_acc, plural_acc ++ [quoted], true, :msgstr_plural}
-
-          String.starts_with?(trimmed, "msgstr ") or trimmed == "msgstr \"\"" ->
-            quoted =
-              extract_quoted(trimmed |> String.replace_prefix("msgstr", "") |> String.trim())
-
-            {msgid_acc, quoted, plural_acc, is_plural, :msgstr}
-
-          String.starts_with?(trimmed, "\"") and state == :msgid ->
-            extra = extract_quoted(trimmed)
-            {(msgid_acc || "") <> extra, msgstr_acc, plural_acc, is_plural, :msgid}
-
-          String.starts_with?(trimmed, "\"") and state == :msgstr ->
-            extra = extract_quoted(trimmed)
-            {msgid_acc, (msgstr_acc || "") <> extra, plural_acc, is_plural, :msgstr}
-
-          String.starts_with?(trimmed, "\"") and state == :msgstr_plural ->
-            extra = extract_quoted(trimmed)
-            # Append to last plural entry
-            updated =
-              case plural_acc do
-                [] -> [extra]
-                list -> List.update_at(list, -1, &(&1 <> extra))
-              end
-
-            {msgid_acc, msgstr_acc, updated, is_plural, :msgstr_plural}
-
-          String.starts_with?(trimmed, "\"") and state == :msgid_plural ->
-            extra = extract_quoted(trimmed)
-            {(msgid_acc || "") <> extra, msgstr_acc, plural_acc, is_plural, :msgid_plural}
-
-          true ->
-            {msgid_acc, msgstr_acc, plural_acc, is_plural, state}
-        end
+      Enum.reduce(lines, {nil, nil, [], false, nil}, fn line, acc ->
+        parse_line(String.trim_leading(line), acc)
       end)
 
     if is_nil(msgid) and is_nil(msgstr) and msgstr_plural == [] do
@@ -293,12 +241,67 @@ defmodule Mix.Tasks.Treby.CheckTranslations do
     end
   end
 
+  defp parse_line(trimmed, {msgid_acc, msgstr_acc, plural_acc, is_plural, state}) do
+    cond do
+      String.starts_with?(trimmed, "msgid_plural") ->
+        {msgid_acc, msgstr_acc, plural_acc, true, :msgid_plural}
+
+      String.starts_with?(trimmed, "msgid ") or trimmed == "msgid \"\"" ->
+        quoted =
+          extract_quoted(trimmed |> String.replace_prefix("msgid", "") |> String.trim())
+
+        {quoted, msgstr_acc, plural_acc, is_plural, :msgid}
+
+      String.starts_with?(trimmed, "msgstr[") ->
+        quoted = extract_quoted(trimmed)
+        {msgid_acc, msgstr_acc, plural_acc ++ [quoted], true, :msgstr_plural}
+
+      String.starts_with?(trimmed, "msgstr ") or trimmed == "msgstr \"\"" ->
+        quoted =
+          extract_quoted(trimmed |> String.replace_prefix("msgstr", "") |> String.trim())
+
+        {msgid_acc, quoted, plural_acc, is_plural, :msgstr}
+
+      String.starts_with?(trimmed, "\"") ->
+        parse_continuation(trimmed, {msgid_acc, msgstr_acc, plural_acc, is_plural, state})
+
+      true ->
+        {msgid_acc, msgstr_acc, plural_acc, is_plural, state}
+    end
+  end
+
+  defp parse_continuation(trimmed, {msgid_acc, msgstr_acc, plural_acc, is_plural, state}) do
+    extra = extract_quoted(trimmed)
+
+    case state do
+      :msgid ->
+        {(msgid_acc || "") <> extra, msgstr_acc, plural_acc, is_plural, :msgid}
+
+      :msgstr ->
+        {msgid_acc, (msgstr_acc || "") <> extra, plural_acc, is_plural, :msgstr}
+
+      :msgstr_plural ->
+        updated =
+          case plural_acc do
+            [] -> [extra]
+            list -> List.update_at(list, -1, &(&1 <> extra))
+          end
+
+        {msgid_acc, msgstr_acc, updated, is_plural, :msgstr_plural}
+
+      :msgid_plural ->
+        {(msgid_acc || "") <> extra, msgstr_acc, plural_acc, is_plural, :msgid_plural}
+
+      _ ->
+        {msgid_acc, msgstr_acc, plural_acc, is_plural, state}
+    end
+  end
+
   defp extract_quoted(str) do
     # Extract all "..." quoted segments and unescape, then concat
     ~r/"((?:[^"\\]|\\.)*)"/
     |> Regex.scan(str)
-    |> Enum.map(fn [_, inner] -> unescape(inner) end)
-    |> Enum.join()
+    |> Enum.map_join("", fn [_, inner] -> unescape(inner) end)
   end
 
   defp unescape(str) do
@@ -315,68 +318,72 @@ defmodule Mix.Tasks.Treby.CheckTranslations do
     pot_path = @default_pot
     errors_pot_path = @default_errors_pot
 
-    original_pot =
-      case File.read(pot_path) do
-        {:ok, c} -> c
-        _ -> ""
-      end
-
-    original_errors =
-      case File.read(errors_pot_path) do
-        {:ok, c} -> c
-        _ -> ""
-      end
-
-    # Run extraction; it will overwrite POT files
+    {original_pot, original_errors} = read_original_pots(pot_path, errors_pot_path)
     {output, exit_code} = System.cmd("mix", ["gettext.extract"], stderr_to_stdout: true)
+    {fresh_pot, fresh_errors} = read_original_pots(pot_path, errors_pot_path)
 
-    fresh_pot =
+    restore_pots(pot_path, errors_pot_path, original_pot, original_errors)
+    handle_extract_exit(exit_code, output)
+    handle_pot_diff(original_pot, original_errors, fresh_pot, fresh_errors)
+  end
+
+  defp read_original_pots(pot_path, errors_path) do
+    pot =
       case File.read(pot_path) do
         {:ok, c} -> c
         _ -> ""
       end
 
-    fresh_errors =
-      case File.read(errors_pot_path) do
+    errors =
+      case File.read(errors_path) do
         {:ok, c} -> c
         _ -> ""
       end
 
-    # Restore originals regardless
+    {pot, errors}
+  end
+
+  defp restore_pots(pot_path, errors_path, original_pot, original_errors) do
     File.write!(pot_path, original_pot)
-    if File.exists?(errors_pot_path), do: File.write!(errors_pot_path, original_errors)
+    if File.exists?(errors_path), do: File.write!(errors_path, original_errors)
+  end
 
-    if exit_code != 0 do
-      Mix.shell().error("`mix gettext.extract` failed:\n#{output}")
-      exit({:shutdown, 1})
-    end
+  defp handle_extract_exit(0, _output), do: :ok
 
+  defp handle_extract_exit(_code, output) do
+    Mix.shell().error("`mix gettext.extract` failed:\n#{output}")
+    exit({:shutdown, 1})
+  end
+
+  defp handle_pot_diff(original_pot, original_errors, fresh_pot, fresh_errors) do
     if original_pot != fresh_pot or original_errors != fresh_errors do
-      Mix.shell().error("""
-      POT is stale — source contains gettext strings not in POT.
-      Run `mix gettext.extract --merge` and commit the updated POT/PO files.
-      """)
-
-      # Show diff hint: list msgids that are new
-      new_entries = parse_entries(fresh_pot) |> MapSet.new(& &1.msgid)
-      old_entries = parse_entries(original_pot) |> MapSet.new(& &1.msgid)
-      added = MapSet.difference(new_entries, old_entries) |> MapSet.delete("") |> Enum.to_list()
-
-      if added != [] do
-        Mix.shell().error("New msgids not in POT:")
-
-        for msgid <- Enum.take(added, 20) do
-          Mix.shell().error("  + \"#{msgid}\"")
-        end
-
-        if length(added) > 20 do
-          Mix.shell().error("  ... and #{length(added) - 20} more")
-        end
-      end
-
+      report_stale_pot(original_pot, fresh_pot)
       exit({:shutdown, 1})
     else
       Mix.shell().info("POT is fresh.")
+    end
+  end
+
+  defp report_stale_pot(original_pot, fresh_pot) do
+    Mix.shell().error("""
+    POT is stale — source contains gettext strings not in POT.
+    Run `mix gettext.extract --merge` and commit the updated POT/PO files.
+    """)
+
+    new_entries = parse_entries(fresh_pot) |> MapSet.new(& &1.msgid)
+    old_entries = parse_entries(original_pot) |> MapSet.new(& &1.msgid)
+    added = MapSet.difference(new_entries, old_entries) |> MapSet.delete("") |> Enum.to_list()
+
+    if added != [] do
+      Mix.shell().error("New msgids not in POT:")
+
+      for msgid <- Enum.take(added, 20) do
+        Mix.shell().error("  + \"#{msgid}\"")
+      end
+
+      if length(added) > 20 do
+        Mix.shell().error("  ... and #{length(added) - 20} more")
+      end
     end
   end
 end

@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.Treby.CheckTranslationsTest do
   use ExUnit.Case, async: false
 
+  alias Mix.Tasks.Treby.CheckTranslations
+
   @po_path "priv/gettext/it/LC_MESSAGES/default.po"
   @pot_path "priv/gettext/default.pot"
 
@@ -13,7 +15,7 @@ defmodule Mix.Tasks.Treby.CheckTranslationsTest do
     # We call the task directly; it will raise exit tuple on failure
     # If it passes, it will not exit
     try do
-      Mix.Tasks.Treby.CheckTranslations.run([])
+      CheckTranslations.run([])
       assert true
     rescue
       _ -> flunk("check_translations should pass on complete catalog")
@@ -26,7 +28,7 @@ defmodule Mix.Tasks.Treby.CheckTranslationsTest do
   test "en locale is skipped (not treated as missing)" do
     # En has empty msgstr by convention, but guard should skip it
     try do
-      Mix.Tasks.Treby.CheckTranslations.run(["--locales", "en"])
+      CheckTranslations.run(["--locales", "en"])
       assert true
     rescue
       _ -> flunk("en check should not fail")
@@ -41,7 +43,7 @@ defmodule Mix.Tasks.Treby.CheckTranslationsTest do
     output =
       ExUnit.CaptureIO.capture_io(fn ->
         try do
-          Mix.Tasks.Treby.CheckTranslations.run([])
+          CheckTranslations.run([])
         catch
           :exit, _ -> :ok
         end

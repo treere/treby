@@ -1,0 +1,21 @@
+#!/bin/sh
+# pre-push hook: run precommit checks before pushing
+# Mirrors CI: format --check-formatted, credo --strict, check_translations, check_design_system, sobelow, compile --warnings-as-errors, test
+
+set -e
+
+echo "▶ pre-push: running mix precommit..."
+
+# Ensure we run from repo root
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+# Run precommit (uses MIX_ENV=test, via mix alias)
+if ! mix precommit; then
+  echo ""
+  echo "✖ pre-push: mix precommit failed — push aborted"
+  echo "  Fix with: mix format && mix credo --strict && mix test"
+  exit 1
+fi
+
+echo "✓ pre-push: mix precommit passed"

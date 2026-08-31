@@ -461,16 +461,16 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
         {:noreply,
          socket
          |> assign(stages: stages, show_form: false, editing_stage: nil)
-         |> put_flash(:info, "Stage saved")}
+         |> put_flash(:info, gettext("Stage saved"))}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
+        {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -482,7 +482,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     cond do
       stage.stage_type == "new" and
           Enum.count(stages, &(&1.stage_type == "new")) == 1 ->
-        {:noreply, put_flash(socket, :error, "Cannot delete the only entry stage.")}
+        {:noreply, put_flash(socket, :error, gettext("Cannot delete the only entry stage."))}
 
       active_count > 0 ->
         deleting_stage = %{id: stage.id, name: stage.name, active_count: active_count}
@@ -492,10 +492,13 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
         case Pipeline.delete_pipeline_stage(stage, socket.assigns.current_user) do
           {:ok, _} ->
             stages = reload_stages_with_counts(socket.assigns.pipeline.id)
-            {:noreply, socket |> assign(stages: stages) |> put_flash(:info, "Stage deleted")}
+
+            {:noreply,
+             socket |> assign(stages: stages) |> put_flash(:info, gettext("Stage deleted"))}
 
           {:error, :unauthorized} ->
-            {:noreply, put_flash(socket, :error, "Only admins can delete pipeline stages")}
+            {:noreply,
+             put_flash(socket, :error, gettext("Only admins can delete pipeline stages"))}
         end
     end
   end
@@ -508,7 +511,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     {:noreply,
      socket
      |> assign(stages: stages, deleting_stage: nil)
-     |> put_flash(:info, "Candidates reassigned and stage deleted")}
+     |> put_flash(:info, gettext("Candidates reassigned and stage deleted"))}
   end
 
   def handle_event("cancel_delete", _, socket) do

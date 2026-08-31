@@ -7,7 +7,7 @@ defmodule TrebyWeb.ChooseTenantController do
     case Treby.Memberships.get_membership(user.id, Treby.Tenants.get_tenant_by_slug(slug).id) do
       nil ->
         conn
-        |> put_flash(:error, "You don't belong to that workspace")
+        |> put_flash(:error, gettext("You don't belong to that workspace"))
         |> redirect(to: ~p"/choose-tenant")
 
       _membership ->
@@ -17,7 +17,7 @@ defmodule TrebyWeb.ChooseTenantController do
 
   def choose(conn, _params) do
     conn
-    |> put_flash(:error, "Invalid workspace")
+    |> put_flash(:error, gettext("Invalid workspace"))
     |> redirect(to: ~p"/choose-tenant")
   end
 end

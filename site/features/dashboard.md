@@ -1,6 +1,6 @@
 # Dashboard
 
-Land on an at-a-glance view of what needs your attention the moment you log in.
+Land on an at-a-glance view of what needs your attention the moment you log in. The entire dashboard is bilingual — switch between Italian and English in **Impostazioni → Lingua** and every heading, label, empty state and notification updates instantly.
 
 ![Dashboard](/screenshots/04-dashboard.png)
 

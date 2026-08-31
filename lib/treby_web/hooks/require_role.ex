@@ -1,4 +1,6 @@
 defmodule TrebyWeb.Hooks.RequireRole do
+  use Gettext, backend: TrebyWeb.Gettext
+
   @moduledoc """
   LiveView on_mount hook that checks membership role against required role.
   """
@@ -25,7 +27,7 @@ defmodule TrebyWeb.Hooks.RequireRole do
     else
       socket =
         socket
-        |> put_flash(:error, "You don't have permission to access this page.")
+        |> put_flash(:error, gettext("You don't have permission to access this page."))
         |> redirect(to: "/#{slug}/app")
 
       {:halt, socket}
@@ -53,7 +55,7 @@ defmodule TrebyWeb.Hooks.RequireRole do
 
       socket =
         socket
-        |> put_flash(:error, "You don't have permission to access this page.")
+        |> put_flash(:error, gettext("You don't have permission to access this page."))
         |> redirect(to: redirect_to)
 
       {:halt, socket}

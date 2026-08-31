@@ -18,7 +18,9 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
     ~H"""
     <div class="min-h-screen bg-base-200">
       <div class="max-w-4xl mx-auto py-12 px-4">
-        <h1 class="text-4xl font-bold text-base-content text-center mb-8">All Open Positions</h1>
+        <h1 class="text-4xl font-bold text-base-content text-center mb-8">
+          {gettext("All Open Positions")}
+        </h1>
 
         <div class="mb-8">
           <.form for={@search_form} phx-submit="search" class="flex gap-2">
@@ -26,10 +28,10 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
               type="text"
               name="query"
               value={@search_query}
-              placeholder="Search across all companies..."
+              placeholder={gettext("Search across all companies...")}
               class="input flex-1"
             />
-            <.button type="submit" class="px-6">Search</.button>
+            <.button type="submit" class="px-6">{gettext("Search")}</.button>
           </.form>
         </div>
 

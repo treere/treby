@@ -1,4 +1,6 @@
 defmodule TrebyWeb.Plugs.Tenant do
+  use Gettext, backend: TrebyWeb.Gettext
+
   @moduledoc """
   Plug for extracting and scoping the current tenant.
 
@@ -15,7 +17,7 @@ defmodule TrebyWeb.Plugs.Tenant do
     case get_session(conn, "tenant_id") do
       nil ->
         conn
-        |> Phoenix.Controller.put_flash(:error, "You must be logged in")
+        |> Phoenix.Controller.put_flash(:error, gettext("You must be logged in"))
         |> Phoenix.Controller.redirect(to: "/login")
         |> halt()
 
@@ -23,7 +25,7 @@ defmodule TrebyWeb.Plugs.Tenant do
         case Tenants.get_tenant!(tenant_id) do
           nil ->
             conn
-            |> Phoenix.Controller.put_flash(:error, "Tenant not found")
+            |> Phoenix.Controller.put_flash(:error, gettext("Tenant not found"))
             |> Phoenix.Controller.redirect(to: "/login")
             |> halt()
 

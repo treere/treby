@@ -30,7 +30,7 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
     {:noreply,
      socket
      |> assign(:preferences, prefs)
-     |> put_flash(:info, "Preferences saved")}
+     |> put_flash(:info, gettext("Preferences saved"))}
   end
 
   @impl true
@@ -42,7 +42,7 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
       current_candidate={@current_candidate}
     >
       <div class="max-w-2xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Settings</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{gettext("Settings")}</h1>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
@@ -51,10 +51,10 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
 
           <div class="space-y-4">
             <%= for {key, label} <- [
-            {"new_message", "New messages"},
-            {"status_change", "Status changes"},
-            {"interview_update", "Interview updates"},
-            {"important_only", "Important notifications only"}
+            {"new_message", gettext("New messages")},
+            {"status_change", gettext("Status changes")},
+            {"interview_update", gettext("Interview updates")},
+            {"important_only", gettext("Important notifications only")}
           ] do %>
               <div class="flex items-center justify-between">
                 <span class="text-sm text-gray-700 dark:text-gray-300">{label}</span>

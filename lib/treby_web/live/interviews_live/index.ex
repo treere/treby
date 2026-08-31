@@ -5,7 +5,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
 
   alias Treby.{Accounts, Interviews, Repo, Scorecards}
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -86,11 +86,11 @@ defmodule TrebyWeb.InterviewsLive.Index do
       {:ok, _event} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Interview cancelled")
+         |> put_flash(:info, gettext("Interview cancelled"))
          |> load_interviews()}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to cancel interview")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to cancel interview"))}
     end
   end
 
@@ -112,14 +112,14 @@ defmodule TrebyWeb.InterviewsLive.Index do
         {:noreply,
          socket
          |> assign(completing_interview: nil)
-         |> put_flash(:info, "Interview marked as completed")
+         |> put_flash(:info, gettext("Interview marked as completed"))
          |> load_interviews()}
 
       {:error, _changeset} ->
         {:noreply,
          socket
          |> assign(completing_interview: nil)
-         |> put_flash(:error, "Failed to mark interview as completed")}
+         |> put_flash(:error, gettext("Failed to mark interview as completed"))}
     end
   end
 
@@ -179,11 +179,11 @@ defmodule TrebyWeb.InterviewsLive.Index do
         {:noreply,
          socket
          |> assign(show_scorecard_form: false, scorecard_event_id: nil)
-         |> put_flash(:info, "Scorecard submitted")
+         |> put_flash(:info, gettext("Scorecard submitted"))
          |> load_interviews()}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to submit scorecard")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to submit scorecard"))}
     end
   end
 
@@ -193,8 +193,10 @@ defmodule TrebyWeb.InterviewsLive.Index do
       <div class="p-8 max-w-6xl mx-auto">
         <div class="flex items-center justify-between mb-8">
           <div>
-            <h1 class="text-2xl font-bold text-base-content">Interviews</h1>
-            <p class="mt-1 text-sm text-base-content/50">Manage and view all scheduled interviews</p>
+            <h1 class="text-2xl font-bold text-base-content">{gettext("Interviews")}</h1>
+            <p class="mt-1 text-sm text-base-content/50">
+              {gettext("Manage and view all scheduled interviews")}
+            </p>
           </div>
           <div class="flex items-center gap-3">
             <div class="flex gap-2">
@@ -233,7 +235,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   name="interviewer_id"
                   class="select"
                 >
-                  <option value="">All Examiners</option>
+                  <option value="">{gettext("All Examiners")}</option>
                   <%= for user <- @users do %>
                     <option
                       value={user.id}
@@ -249,7 +251,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
         </div>
 
         <div :if={@interviews == []} class="text-center py-12 bg-base-100 rounded-lg border">
-          <p class="text-base-content/50">No interviews scheduled yet</p>
+          <p class="text-base-content/50">{gettext("No interviews scheduled yet")}</p>
         </div>
 
         <div :if={@interviews != []} class="space-y-3">
@@ -319,10 +321,10 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   <button
                     phx-click="cancel_interview"
                     phx-value-id={event.id}
-                    data-confirm="Are you sure you want to cancel this interview?"
+                    data-confirm={gettext("Are you sure you want to cancel this interview?")}
                     class="px-3 py-1 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-md"
                   >
-                    Cancel
+                    {gettext("Cancel")}
                   </button>
                 </div>
               </div>
@@ -344,7 +346,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
       >
         <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
           <div class="p-6">
-            <h2 class="text-lg font-semibold mb-2">Mark Interview as Completed</h2>
+            <h2 class="text-lg font-semibold mb-2">{gettext("Mark Interview as Completed")}</h2>
             <p class="text-sm text-base-content/70 mb-4">
               This marks the interview as done. The candidate's stage will not change automatically;
               you can collect scorecards before advancing.

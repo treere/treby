@@ -13,7 +13,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
      |> assign(:tenant, tenant)
      |> assign(:email, email)
      |> assign(:has_email?, is_binary(email))
-     |> assign(:page_title, "Enter your code")}
+     |> assign(:page_title, gettext("Enter your code"))}
   end
 
   @impl true
@@ -45,7 +45,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
             class="mt-8 space-y-6"
           >
             <div>
-              <label for="code" class="sr-only">Login code</label>
+              <label for="code" class="sr-only">{gettext("Login code")}</label>
               <input
                 id="code"
                 name="code"
@@ -92,14 +92,14 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
             class="mt-8 space-y-6"
           >
             <div>
-              <label for="email" class="sr-only">Email address</label>
+              <label for="email" class="sr-only">{gettext("Email address")}</label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
                 class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Email address"
+                placeholder={gettext("Email address")}
               />
             </div>
 

@@ -84,15 +84,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
-          <h1 class="text-2xl font-bold">Candidates</h1>
+          <h1 class="text-2xl font-bold">{gettext("Candidates")}</h1>
           <div class="flex items-center gap-3">
             <.link
               :if={@duplicate_count > 0}
               navigate={~p"/app/candidates/merge"}
               class="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-100 hover:bg-amber-100 text-sm font-medium"
             >
-              <.icon name="hero-user-group" class="w-4 h-4" /> Duplicates
-              <span class="bg-amber-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5">
+              <.icon name="hero-user-group" class="w-4 h-4" />{gettext("Duplicates")}<span class="bg-amber-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5">
                 {@duplicate_count}
               </span>
             </.link>
@@ -111,7 +110,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               type="text"
               name="search"
               value={@search}
-              placeholder="Search by name or email..."
+              placeholder={gettext("Search by name or email...")}
               class="input w-full"
             />
           </form>
@@ -120,7 +119,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               name="job_id"
               class="select w-full"
             >
-              <option value="">All Jobs</option>
+              <option value="">{gettext("All Jobs")}</option>
               <option :for={job <- @jobs} value={job.id} selected={job.id == @filter_job_id}>
                 {job.title}
               </option>
@@ -131,7 +130,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               name="stage_id"
               class="select w-full"
             >
-              <option value="">All Stages</option>
+              <option value="">{gettext("All Stages")}</option>
               <option
                 :for={stage <- @pipeline_stages}
                 value={stage.id}
@@ -144,22 +143,24 @@ defmodule TrebyWeb.CandidatesLive.Index do
         </div>
 
         <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
-          <h2 class="text-lg font-semibold mb-4">Add Candidate</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Add Candidate")}</h2>
           <.form for={@form} id="candidate-form" phx-submit="create_candidate">
-            <.input field={@form[:name]} type="text" label="Name" />
-            <.input field={@form[:email]} type="email" label="Email" />
-            <.input field={@form[:phone]} type="text" label="Phone" />
-            <.input field={@form[:linkedin_url]} type="text" label="LinkedIn URL" />
+            <.input field={@form[:name]} type="text" label={gettext("Name")} />
+            <.input field={@form[:email]} type="email" label={gettext("Email")} />
+            <.input field={@form[:phone]} type="text" label={gettext("Phone")} />
+            <.input field={@form[:linkedin_url]} type="text" label={gettext("LinkedIn URL")} />
             <.input
               field={@form[:job_id]}
               type="select"
-              label="Job (optional)"
+              label={gettext("Job (optional)")}
               options={Enum.map(@jobs, &{&1.title, &1.id})}
-              prompt="No job — just create profile"
+              prompt={gettext("No job — just create profile")}
             />
 
             <div :if={@candidate_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-3">Additional Information</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">
+                {gettext("Additional Information")}
+              </h3>
               <div :for={field <- @candidate_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -205,8 +206,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit">Add</.button>
-              <.button type="button" phx-click="hide_create_form" class="bg-gray-500">Cancel</.button>
+              <.button type="submit">{gettext("Add")}</.button>
+              <.button type="button" phx-click="hide_create_form" class="bg-gray-500">
+                {gettext("Cancel")}
+              </.button>
             </div>
           </.form>
         </div>
@@ -224,19 +227,19 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   />
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Name
+                  {gettext("Name")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Email
+                  {gettext("Email")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Phone
+                  {gettext("Phone")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Applications
+                  {gettext("Applications")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Actions
+                  {gettext("Actions")}
                 </th>
               </tr>
             </thead>
@@ -277,11 +280,16 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     :if={@current_membership.role == "admin"}
                     phx-click="confirm_delete"
                     phx-value-id={candidate.id}
-                    phx-value-title="Delete candidate"
-                    phx-value-message={"Are you sure you want to delete #{candidate.name}? This action cannot be undone."}
+                    phx-value-title={gettext("Delete candidate")}
+                    phx-value-message={
+                      gettext(
+                        "Are you sure you want to delete %{name}? This action cannot be undone.",
+                        name: candidate.name
+                      )
+                    }
                     class="text-red-600 hover:text-red-900"
                   >
-                    Delete
+                    {gettext("Delete")}
                   </button>
                 </td>
               </tr>
@@ -290,11 +298,15 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <.empty_state
             :if={@candidates == []}
             icon="hero-user-group"
-            title="No candidates yet"
-            description="Add candidates manually, import from a CSV file, or let them apply through your career page. Candidates will appear here once added."
+            title={gettext("No candidates yet")}
+            description={
+              gettext(
+                "Add candidates manually, import from a CSV file, or let them apply through your career page. Candidates will appear here once added."
+              )
+            }
             actions={[
-              %{href: ~p"/app/candidates", label: "Add a candidate"},
-              %{href: ~p"/app/import", label: "Import from CSV"}
+              %{href: ~p"/app/candidates", label: gettext("Add a candidate")},
+              %{href: ~p"/app/import", label: gettext("Import from CSV")}
             ]}
           />
         </div>
@@ -311,14 +323,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   name="bulk_action"
                   class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
                 >
-                  <option value="">Actions...</option>
-                  <option value="move_stage">Move to Stage</option>
-                  <option value="mark_reviewed">Mark as Reviewed</option>
-                  <option value="mark_unreviewed">Mark as New</option>
-                  <option value="send_message">Send Message</option>
-                  <option value="merge">Merge into one</option>
-                  <option value="compare">Compare</option>
-                  <option value="delete">Delete</option>
+                  <option value="">{gettext("Actions...")}</option>
+                  <option value="move_stage">{gettext("Move to Stage")}</option>
+                  <option value="mark_reviewed">{gettext("Mark as Reviewed")}</option>
+                  <option value="mark_unreviewed">{gettext("Mark as New")}</option>
+                  <option value="send_message">{gettext("Send Message")}</option>
+                  <option value="merge">{gettext("Merge into one")}</option>
+                  <option value="compare">{gettext("Compare")}</option>
+                  <option value="delete">{gettext("Delete")}</option>
                 </select>
               </form>
 
@@ -329,7 +341,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   name="bulk_stage_id"
                   class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
                 >
-                  <option value="">Select stage...</option>
+                  <option value="">{gettext("Select stage...")}</option>
                   <option :for={stage <- @pipeline_stages} value={stage.id}>{stage.name}</option>
                 </select>
               </form>
@@ -340,46 +352,51 @@ defmodule TrebyWeb.CandidatesLive.Index do
               phx-click="bulk_execute_move"
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
-              Move
+              {gettext("Move")}
             </button>
             <button
               :if={@bulk_action == "mark_reviewed"}
               phx-click="bulk_execute_mark_reviewed"
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
-              Mark Reviewed
+              {gettext("Mark Reviewed")}
             </button>
             <button
               :if={@bulk_action == "mark_unreviewed"}
               phx-click="bulk_execute_mark_unreviewed"
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
-              Mark New
+              {gettext("Mark New")}
             </button>
             <button
               :if={@bulk_action == "merge"}
               phx-click="bulk_execute_merge"
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
-              Merge...
+              {gettext("Merge...")}
             </button>
             <button
               :if={@bulk_action == "compare"}
               phx-click="bulk_execute_compare"
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
-              Compare
+              {gettext("Compare")}
             </button>
             <button
               :if={@bulk_action == "delete"}
               phx-click="confirm_delete"
               phx-value-id="bulk"
               phx-value-on_confirm="do_bulk_execute_delete"
-              phx-value-title="Delete candidates"
-              phx-value-message={"Are you sure you want to delete #{length(@selected_ids)} candidates? This action cannot be undone."}
+              phx-value-title={gettext("Delete candidates")}
+              phx-value-message={
+                gettext(
+                  "Are you sure you want to delete %{count} candidates? This action cannot be undone.",
+                  count: length(@selected_ids)
+                )
+              }
               class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
             >
-              Delete
+              {gettext("Delete")}
             </button>
 
             <button
@@ -387,7 +404,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               phx-click="bulk_execute_send_message"
               class="bg-blue-600 text-white text-sm px-4 py-1.5 rounded hover:bg-blue-700"
             >
-              Send
+              {gettext("Send")}
             </button>
 
             <button
@@ -412,7 +429,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
             >
               <h3 class="font-semibold mb-3">Send Message to {length(@selected_ids)} candidates</h3>
               <textarea
-                placeholder="Use {candidate_name} for personalization"
+                placeholder={gettext("Use {candidate_name} for personalization")}
                 value={@bulk_email_body}
                 phx-change="bulk_email_body_change"
                 name="bulk_email_body"
@@ -431,7 +448,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-value-mode="now"
                     class="radio radio-sm"
                   />
-                  <span class="text-sm font-medium text-base-content/80">Send now</span>
+                  <span class="text-sm font-medium text-base-content/80">{gettext("Send now")}</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer">
                   <input
@@ -443,7 +460,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-value-mode="schedule"
                     class="radio radio-sm"
                   />
-                  <span class="text-sm font-medium text-base-content/80">Schedule for later</span>
+                  <span class="text-sm font-medium text-base-content/80">
+                    {gettext("Schedule for later")}
+                  </span>
                 </label>
               </div>
 
@@ -458,7 +477,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-value-label="tomorrow_9"
                     class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
-                    Tomorrow 9:00
+                    {gettext("Tomorrow 9:00")}
                   </button>
                   <button
                     type="button"
@@ -466,7 +485,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-value-label="tomorrow_14"
                     class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
-                    Tomorrow 14:00
+                    {gettext("Tomorrow 14:00")}
                   </button>
                   <button
                     type="button"
@@ -474,12 +493,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-value-label="next_monday"
                     class="px-3 py-1.5 text-sm font-medium rounded-lg border border-base-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
                   >
-                    Next Monday
+                    {gettext("Next Monday")}
                   </button>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-xs font-medium text-base-content/70 mb-1">Date</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                      {gettext("Date")}
+                    </label>
                     <input
                       type="date"
                       value={@bulk_email_date}
@@ -488,7 +509,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-base-content/70 mb-1">Time</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                      {gettext("Time")}
+                    </label>
                     <input
                       type="time"
                       value={@bulk_email_time}
@@ -520,7 +543,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
         >
           <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4">
             <div class="p-6">
-              <h3 class="text-lg font-semibold mb-1">Merge candidates</h3>
+              <h3 class="text-lg font-semibold mb-1">{gettext("Merge candidates")}</h3>
               <p class="text-sm text-base-content/50 mb-4">
                 Choose the primary profile. Its data and history are kept; the other {length(
                   @selected_ids
@@ -554,13 +577,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   phx-click="cancel_merge_modal"
                   class="px-4 py-2 rounded-lg border border-base-300 text-sm font-medium text-base-content/80 hover:bg-base-200"
                 >
-                  Cancel
+                  {gettext("Cancel")}
                 </button>
                 <button
                   phx-click="do_bulk_execute_merge"
                   class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
                 >
-                  Merge
+                  {gettext("Merge")}
                 </button>
               </div>
             </div>
@@ -607,7 +630,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
       {:noreply,
        socket
-       |> put_flash(:error, "Please fill in required fields: #{missing}")}
+       |> put_flash(:error, gettext("Please fill in required fields: %{fields}", fields: missing))}
     else
       attrs = Map.put(attrs, "custom_fields", custom_fields_values)
 
@@ -651,10 +674,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
           flash_msg =
             if job_id in [nil, ""] do
-              "Candidate added"
+              gettext("Candidate added")
             else
               job = Jobs.get_job(socket.assigns.current_tenant.id, job_id)
-              if job, do: "Candidate added to #{job.title}", else: "Candidate added"
+
+              if job,
+                do: gettext("Candidate added to %{title}", title: job.title),
+                else: gettext("Candidate added")
             end
 
           {:noreply,
@@ -667,7 +693,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           {:noreply,
            socket
            |> assign(form: to_form(changeset))
-           |> put_flash(:error, "Please review the errors below")}
+           |> put_flash(:error, gettext("Please review the errors below"))}
       end
     end
   end
@@ -805,13 +831,16 @@ defmodule TrebyWeb.CandidatesLive.Index do
            bulk_action: nil,
            merge_modal_open: false
          )
-         |> put_flash(:info, "Merged candidates into #{merged_primary.name}")}
+         |> put_flash(:info, gettext("Merged candidates into %{name}", name: merged_primary.name))}
 
       _ ->
         {:noreply,
          socket
          |> assign(merge_modal_open: false)
-         |> put_flash(:error, "Merge failed. Make sure at least two candidates are selected.")}
+         |> put_flash(
+           :error,
+           gettext("Merge failed. Make sure at least two candidates are selected.")
+         )}
     end
   end
 
@@ -893,7 +922,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
       end
 
     if mode == "schedule" && is_nil(schedule) do
-      {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
+      {:noreply, put_flash(socket, :error, gettext("Please select a schedule date and time"))}
     else
       application_ids =
         ids
@@ -1041,17 +1070,19 @@ defmodule TrebyWeb.CandidatesLive.Index do
         {:noreply,
          socket
          |> assign(candidates: candidates, confirm_delete: nil)
-         |> put_flash(:info, "Candidate deleted")}
+         |> put_flash(:info, gettext("Candidate deleted"))}
 
       {:error, :unauthorized} ->
         {:noreply,
          socket
          |> assign(confirm_delete: nil)
-         |> put_flash(:error, "Only admins can delete candidates")}
+         |> put_flash(:error, gettext("Only admins can delete candidates"))}
 
       {:error, _} ->
         {:noreply,
-         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete candidate")}
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, gettext("Failed to delete candidate"))}
     end
   end
 

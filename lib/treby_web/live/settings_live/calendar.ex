@@ -3,7 +3,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
 
   alias Treby.{Accounts, Tenants, Calendar}
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -42,7 +42,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
           <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
             &larr; Back to Settings
           </.link>
-          <h1 class="text-2xl font-bold mt-2">Calendar Integration</h1>
+          <h1 class="text-2xl font-bold mt-2">{gettext("Calendar Integration")}</h1>
           <p class="mt-1 text-base-content/70">
             Connect your Google Calendar to check availability and create interview events
           </p>
@@ -76,7 +76,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
               <.link
                 href="#"
                 phx-click="disconnect"
-                data-confirm="Are you sure you want to disconnect your Google Calendar?"
+                data-confirm={gettext("Are you sure you want to disconnect your Google Calendar?")}
                 class="text-red-600 hover:text-red-800 text-sm font-medium"
               >
                 Disconnect Google Calendar
@@ -85,7 +85,9 @@ defmodule TrebyWeb.SettingsLive.Calendar do
           <% else %>
             <div class="text-center py-8">
               <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-base-content/40" />
-              <h3 class="mt-2 text-sm font-medium text-base-content">No calendar connected</h3>
+              <h3 class="mt-2 text-sm font-medium text-base-content">
+                {gettext("No calendar connected")}
+              </h3>
               <p class="mt-1 text-sm text-base-content/50">
                 Connect your Google Calendar to check availability against your calendar. Interview
                 scheduling works even without it.
@@ -112,6 +114,6 @@ defmodule TrebyWeb.SettingsLive.Calendar do
     {:noreply,
      socket
      |> assign(connection: nil)
-     |> put_flash(:info, "Google Calendar disconnected")}
+     |> put_flash(:info, gettext("Google Calendar disconnected"))}
   end
 end

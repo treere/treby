@@ -1,4 +1,6 @@
 defmodule TrebyWeb.Plugs.RequireMembership do
+  use Gettext, backend: TrebyWeb.Gettext
+
   @moduledoc """
   Verifies the authenticated user has a membership for the tenant identified by
   the URL slug. Assigns current_tenant, current_membership and available_tenants.
@@ -33,7 +35,7 @@ defmodule TrebyWeb.Plugs.RequireMembership do
         case Memberships.get_membership(user.id, tenant.id) do
           nil ->
             conn
-            |> Phoenix.Controller.put_flash(:error, "You don't belong to that workspace")
+            |> Phoenix.Controller.put_flash(:error, gettext("You don't belong to that workspace"))
             |> Phoenix.Controller.redirect(to: "/choose-tenant")
             |> halt()
 

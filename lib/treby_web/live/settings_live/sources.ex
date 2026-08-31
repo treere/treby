@@ -4,7 +4,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
   alias Treby.{Accounts, Tenants, Sources}
   alias Treby.Sources.Source
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -114,8 +114,12 @@ defmodule TrebyWeb.SettingsLive.Sources do
                 :if={not source.is_default}
                 phx-click="confirm_delete"
                 phx-value-id={source.id}
-                phx-value-title="Delete source"
-                phx-value-message="Are you sure you want to delete this source? This action cannot be undone."
+                phx-value-title={gettext("Delete source")}
+                phx-value-message={
+                  gettext(
+                    "Are you sure you want to delete this source? This action cannot be undone."
+                  )
+                }
                 class="text-red-600 hover:text-red-800"
               >
                 {gettext("Delete")}
@@ -173,7 +177,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -210,7 +214,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 

@@ -90,7 +90,9 @@ defmodule TrebyWeb.JobsLive.Analytics do
           >
             <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Job
           </.link>
-          <h1 class="text-2xl font-bold mt-2">{@job.title} — Analytics</h1>
+          <h1 class="text-2xl font-bold mt-2">
+            {gettext("%{title} — Analytics", title: @job.title)}
+          </h1>
           <p class="text-sm text-base-content/50 mt-1">
             Views and conversion for this position
             <span
@@ -153,7 +155,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
           <div class="mx-auto w-12 h-12 rounded-full bg-base-200 flex items-center justify-center mb-4">
             <.icon name="hero-chart-bar" class="w-6 h-6 text-base-content/50" />
           </div>
-          <h3 class="text-lg font-semibold text-base-content">No views yet</h3>
+          <h3 class="text-lg font-semibold text-base-content">{gettext("No views yet")}</h3>
           <p class="mt-2 text-sm text-base-content/50 max-w-md mx-auto">
             When visitors view the public job page, you'll see daily and monthly trends, traffic sources, and the view→application funnel here.
           </p>
@@ -163,18 +165,22 @@ defmodule TrebyWeb.JobsLive.Analytics do
           <%!-- Daily chart --%>
           <div class="bg-base-100 rounded-lg shadow p-6">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-semibold">Daily Views</h2>
+              <h2 class="text-lg font-semibold">{gettext("Daily Views")}</h2>
               <.form
                 for={%{}}
                 id="period-selector-form"
                 phx-change="select_period"
                 class="flex items-center gap-2"
               >
-                <label class="text-sm text-base-content/70">Period</label>
+                <label class="text-sm text-base-content/70">{gettext("Period")}</label>
                 <select name="period" class="select select-sm">
-                  <option value="7" selected={@selected_period == 7}>Last 7 days</option>
-                  <option value="30" selected={@selected_period == 30}>Last 30 days</option>
-                  <option value="90" selected={@selected_period == 90}>Last 90 days</option>
+                  <option value="7" selected={@selected_period == 7}>{gettext("Last 7 days")}</option>
+                  <option value="30" selected={@selected_period == 30}>
+                    {gettext("Last 30 days")}
+                  </option>
+                  <option value="90" selected={@selected_period == 90}>
+                    {gettext("Last 90 days")}
+                  </option>
                 </select>
               </.form>
             </div>
@@ -209,7 +215,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
           <%!-- Monthly breakdown --%>
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Monthly Views (Last 12 Months)</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Monthly Views (Last 12 Months)")}</h2>
             <div
               :if={Enum.all?(@monthly_breakdown, &(&1.count == 0))}
               class="text-center text-base-content/50 py-8"
@@ -239,7 +245,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
           <%!-- Source breakdown --%>
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Traffic Sources</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Traffic Sources")}</h2>
             <div :if={@source_breakdown == []} class="text-center text-base-content/50 py-8">
               No source data yet
             </div>
@@ -261,10 +267,10 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
           <%!-- Funnel --%>
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">View → Application Funnel</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("View → Application Funnel")}</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="text-center p-4 bg-base-200 rounded-lg">
-                <p class="text-xs uppercase tracking-wide text-base-content/50">Views</p>
+                <p class="text-xs uppercase tracking-wide text-base-content/50">{gettext("Views")}</p>
                 <p class="text-2xl font-bold mt-1">{@funnel.total_views}</p>
               </div>
               <div class="flex items-center justify-center">
@@ -276,7 +282,9 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 </span>
               </div>
               <div class="text-center p-4 bg-base-200 rounded-lg">
-                <p class="text-xs uppercase tracking-wide text-base-content/50">Applications</p>
+                <p class="text-xs uppercase tracking-wide text-base-content/50">
+                  {gettext("Applications")}
+                </p>
                 <p class="text-2xl font-bold mt-1">{@funnel.total_applications}</p>
               </div>
             </div>

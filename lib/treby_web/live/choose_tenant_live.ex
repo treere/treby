@@ -34,7 +34,7 @@ defmodule TrebyWeb.ChooseTenantLive do
       available_tenants={@available_tenants}
     >
       <div class="max-w-xl mx-auto py-12">
-        <h1 class="text-2xl font-bold mb-6">Choose workspace</h1>
+        <h1 class="text-2xl font-bold mb-6">{gettext("Choose workspace")}</h1>
         <div id="workspace-picker" class="space-y-3">
           <div :for={%{tenant: tenant, role: role} <- @tenants} id={"workspace-#{tenant.slug}"}>
             <.link
@@ -51,16 +51,16 @@ defmodule TrebyWeb.ChooseTenantLive do
         </div>
 
         <div class="mt-8 border-t pt-6">
-          <h2 class="font-medium mb-3">Create new company</h2>
+          <h2 class="font-medium mb-3">{gettext("Create new company")}</h2>
           <.form for={%{}} action={~p"/tenants"} method="post" id="create-tenant-form">
             <div class="flex gap-2">
               <input
                 name="tenant[name]"
-                placeholder="Company name"
+                placeholder={gettext("Company name")}
                 class="input input-bordered flex-1"
                 required
               />
-              <button type="submit" class="btn btn-primary">Create</button>
+              <button type="submit" class="btn btn-primary">{gettext("Create")}</button>
             </div>
           </.form>
         </div>

@@ -10,7 +10,7 @@ defmodule TrebyWeb.CandidatePortalLive.RequestLink do
     {:ok,
      socket
      |> assign(:tenant, tenant)
-     |> assign(:page_title, "Access Portal")}
+     |> assign(:page_title, gettext("Access Portal"))}
   end
 
   @impl true
@@ -34,14 +34,14 @@ defmodule TrebyWeb.CandidatePortalLive.RequestLink do
           class="mt-8 space-y-6"
         >
           <div>
-            <label for="email" class="sr-only">Email address</label>
+            <label for="email" class="sr-only">{gettext("Email address")}</label>
             <input
               id="email"
               name="email"
               type="email"
               required
               class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="Email address"
+              placeholder={gettext("Email address")}
             />
           </div>
 

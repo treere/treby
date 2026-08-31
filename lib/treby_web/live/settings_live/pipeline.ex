@@ -4,7 +4,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
   alias Treby.{Accounts, Tenants, Pipeline}
   alias Treby.Pipeline.Pipeline, as: PipelineDef
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -138,8 +138,12 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                 :if={not pipeline.is_default}
                 phx-click="confirm_delete"
                 phx-value-id={pipeline.id}
-                phx-value-title="Delete pipeline"
-                phx-value-message="Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
+                phx-value-title={gettext("Delete pipeline")}
+                phx-value-message={
+                  gettext(
+                    "Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
+                  )
+                }
                 class="text-red-600 hover:text-red-900 text-sm"
               >
                 {gettext("Delete")}
@@ -244,13 +248,13 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         {:noreply,
          socket
          |> assign(pipelines: pipelines, show_form: false)
-         |> put_flash(:info, "Pipeline created")}
+         |> put_flash(:info, gettext("Pipeline created"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -262,7 +266,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
     {:noreply,
      socket
      |> assign(pipelines: pipelines)
-     |> put_flash(:info, "Default pipeline updated")}
+     |> put_flash(:info, gettext("Default pipeline updated"))}
   end
 
   def handle_event("duplicate_pipeline", %{"pipeline_id" => pipeline_id}, socket) do
@@ -273,7 +277,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
     {:noreply,
      socket
      |> assign(pipelines: pipelines)
-     |> put_flash(:info, "Pipeline duplicated")}
+     |> put_flash(:info, gettext("Pipeline duplicated"))}
   end
 
   def handle_event(
@@ -298,13 +302,13 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         {:noreply,
          socket
          |> assign(pipelines: pipelines, confirm_delete: nil)
-         |> put_flash(:info, "Pipeline deleted")}
+         |> put_flash(:info, gettext("Pipeline deleted"))}
 
       {:error, :cannot_delete_default} ->
         {:noreply,
          socket
          |> assign(confirm_delete: nil)
-         |> put_flash(:error, "Cannot delete the default pipeline")}
+         |> put_flash(:error, gettext("Cannot delete the default pipeline"))}
     end
   end
 
@@ -330,13 +334,13 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         {:noreply,
          socket
          |> assign(templates: templates, show_template_form: false)
-         |> put_flash(:info, "Template created")}
+         |> put_flash(:info, gettext("Template created"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(template_form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -350,10 +354,15 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         {:noreply,
          socket
          |> assign(templates: templates)
-         |> put_flash(:info, "Template deleted")}
+         |> put_flash(:info, gettext("Template deleted"))}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Could not delete template: #{inspect(reason)}")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           gettext("Could not delete template: %{reason}", reason: inspect(reason))
+         )}
     end
   end
 end

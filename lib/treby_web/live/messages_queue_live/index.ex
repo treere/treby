@@ -17,7 +17,7 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
       |> assign(:selected_ids, MapSet.new())
       |> assign(:edit_message, nil)
       |> assign(:edit_form, nil)
-      |> assign(:page_title, "Message Queue")
+      |> assign(:page_title, gettext("Message Queue"))
       |> load_messages(user.tenant_id, tab)
 
     {:ok, socket}
@@ -103,7 +103,7 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
       :error ->
         {:noreply,
          socket
-         |> put_flash(:error, "Invalid time format. Use HH:MM, e.g. 23:49.")
+         |> put_flash(:error, gettext("Invalid time format. Use HH:MM, e.g. 23:49."))
          |> assign(edit_form: to_form(params))}
     end
   end
@@ -116,7 +116,7 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
 
     socket =
       socket
-      |> put_flash(:info, "Message queued for immediate posting")
+      |> put_flash(:info, gettext("Message queued for immediate posting"))
       |> load_messages(current_user.tenant_id, socket.assigns.tab)
 
     {:noreply, socket}
@@ -149,7 +149,7 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
 
     socket =
       socket
-      |> put_flash(:info, "Message cancelled")
+      |> put_flash(:info, gettext("Message cancelled"))
       |> load_messages(current_user.tenant_id, socket.assigns.tab)
 
     {:noreply, socket}
@@ -182,7 +182,7 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
 
     socket =
       socket
-      |> put_flash(:info, "Message deleted")
+      |> put_flash(:info, gettext("Message deleted"))
       |> load_messages(current_user.tenant_id, socket.assigns.tab)
 
     {:noreply, socket}
@@ -196,7 +196,7 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
 
     socket =
       socket
-      |> put_flash(:info, "Message scheduled for retry")
+      |> put_flash(:info, gettext("Message scheduled for retry"))
       |> load_messages(current_user.tenant_id, socket.assigns.tab)
 
     {:noreply, socket}
@@ -256,14 +256,14 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
 
         socket =
           socket
-          |> put_flash(:info, "Message updated")
+          |> put_flash(:info, gettext("Message updated"))
           |> assign(edit_message: nil, edit_form: nil)
           |> load_messages(current_user.tenant_id, socket.assigns.tab)
 
         {:noreply, socket}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to update message")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to update message"))}
     end
   end
 

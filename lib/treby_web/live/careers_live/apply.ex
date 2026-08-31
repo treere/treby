@@ -58,7 +58,7 @@ defmodule TrebyWeb.CareersLive.Apply do
         </.link>
 
         <div :if={@submitted} class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center">
-          <h2 class="text-2xl font-bold text-base-content">Thank you!</h2>
+          <h2 class="text-2xl font-bold text-base-content">{gettext("Thank you!")}</h2>
           <p class="mt-4 text-base-content/70">
             Your application has been submitted. We'll be in touch soon.
           </p>
@@ -84,9 +84,9 @@ defmodule TrebyWeb.CareersLive.Apply do
           <h2 class="text-2xl font-bold text-base-content">Apply for {@job.title}</h2>
 
           <.form for={@form} id="apply-form" phx-submit="submit_application" class="mt-6 space-y-4">
-            <.input field={@form[:name]} type="text" label="Full Name" required />
-            <.input field={@form[:email]} type="email" label="Email" required />
-            <.input field={@form[:phone]} type="text" label="Phone" />
+            <.input field={@form[:name]} type="text" label={gettext("Full Name")} required />
+            <.input field={@form[:email]} type="email" label={gettext("Email")} required />
+            <.input field={@form[:phone]} type="text" label={gettext("Phone")} />
 
             <div :if={@sources != []}>
               <label class="block text-sm font-medium text-base-content/80 mb-1">
@@ -102,7 +102,9 @@ defmodule TrebyWeb.CareersLive.Apply do
             </div>
 
             <div :if={@application_fields != []} class="border-t pt-4 mt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-3">Additional Information</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">
+                {gettext("Additional Information")}
+              </h3>
               <div :for={field <- @application_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -211,7 +213,7 @@ defmodule TrebyWeb.CareersLive.Apply do
                 CandidatePortal.create_conversation(%{
                   candidate_id: candidate.id,
                   tenant_id: tenant.id,
-                  subject: "Welcome - #{job.title}",
+                  subject: gettext("Welcome - %{title}", title: job.title),
                   context: "application",
                   application_id: application.id
                 })
@@ -220,7 +222,10 @@ defmodule TrebyWeb.CareersLive.Apply do
                 sender_type: "system",
                 conversation_id: conversation.id,
                 body:
-                  "Welcome! Thank you for applying for #{job.title}. We've received your application and will review it shortly. You can use this portal to communicate with our team.",
+                  gettext(
+                    "Welcome! Thank you for applying for %{title}. We've received your application and will review it shortly. You can use this portal to communicate with our team.",
+                    title: job.title
+                  ),
                 message_type: "text"
               })
             rescue
@@ -249,16 +254,19 @@ defmodule TrebyWeb.CareersLive.Apply do
             {:noreply, assign(socket, submitted: true)}
 
           {:error, _changeset} ->
-            {:noreply, put_flash(socket, :error, "Failed to submit application")}
+            {:noreply, put_flash(socket, :error, gettext("Failed to submit application"))}
         end
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Please review the errors below")}
+        {:noreply, put_flash(socket, :error, gettext("Please review the errors below"))}
     end
   end
 
-  defp upload_error_to_string(:too_large), do: "File is too large (max 10MB)"
-  defp upload_error_to_string(:not_accepted), do: "File type not accepted (use PDF, DOC, or DOCX)"
-  defp upload_error_to_string(:too_many_files), do: "Only one file is allowed"
-  defp upload_error_to_string(err), do: "Upload error: #{inspect(err)}"
+  defp upload_error_to_string(:too_large), do: gettext("File is too large (max 10MB)")
+
+  defp upload_error_to_string(:not_accepted),
+    do: gettext("File type not accepted (use PDF, DOC, or DOCX)")
+
+  defp upload_error_to_string(:too_many_files), do: gettext("Only one file is allowed")
+  defp upload_error_to_string(err), do: gettext("Upload error: %{reason}", reason: inspect(err))
 end

@@ -1,4 +1,6 @@
 defmodule TrebyWeb.Hooks.RequireMembership do
+  use Gettext, backend: TrebyWeb.Gettext
+
   @moduledoc """
   LiveView on_mount that loads tenant from slug and verifies membership.
   Assigns current_user, current_tenant, current_membership, available_tenants.
@@ -29,7 +31,7 @@ defmodule TrebyWeb.Hooks.RequireMembership do
       _ ->
         {:halt,
          socket
-         |> put_flash(:error, "You don't belong to that workspace")
+         |> put_flash(:error, gettext("You don't belong to that workspace"))
          |> redirect(to: "/choose-tenant")}
     end
   end
@@ -49,7 +51,8 @@ defmodule TrebyWeb.Hooks.RequireMembership do
          |> assign(:available_tenants, available)}
 
       [] ->
-        {:halt, socket |> put_flash(:error, "No workspace found") |> redirect(to: "/login")}
+        {:halt,
+         socket |> put_flash(:error, gettext("No workspace found")) |> redirect(to: "/login")}
 
       _ ->
         {:cont,
@@ -60,6 +63,7 @@ defmodule TrebyWeb.Hooks.RequireMembership do
   end
 
   def on_mount(:default, _params, _session, socket) do
-    {:halt, socket |> put_flash(:error, "You must be logged in") |> redirect(to: "/login")}
+    {:halt,
+     socket |> put_flash(:error, gettext("You must be logged in")) |> redirect(to: "/login")}
   end
 end

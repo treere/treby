@@ -43,14 +43,14 @@ defmodule TrebyWeb.CareersLive.Index do
               type="text"
               name="query"
               value={@search_query}
-              placeholder="Search positions..."
+              placeholder={gettext("Search positions...")}
               class="input flex-1"
             />
-            <.button type="submit" class="px-6">Search</.button>
+            <.button type="submit" class="px-6">{gettext("Search")}</.button>
           </.form>
         </div>
 
-        <h2 class="text-2xl font-semibold text-base-content/90 mb-6">Open Positions</h2>
+        <h2 class="text-2xl font-semibold text-base-content/90 mb-6">{gettext("Open Positions")}</h2>
 
         <div :if={@jobs == []} class="text-center py-12 text-base-content/50">
           <%= if @search_query != "" do %>

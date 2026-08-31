@@ -54,7 +54,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         {:ok,
          socket
          |> assign(current_user: user, current_tenant: tenant)
-         |> put_flash(:info, "This candidate was merged into another profile.")
+         |> put_flash(:info, gettext("This candidate was merged into another profile."))
          |> push_navigate(to: merged_redirect(primary_id, return_path))}
       else
         mount_active(socket, candidate, tenant, user, return_path, return_label)
@@ -150,20 +150,22 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
         <div class="mt-6 bg-base-100 rounded-lg shadow p-8">
           <%= if @editing? do %>
-            <h2 class="text-lg font-semibold mb-4">Edit Candidate</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Edit Candidate")}</h2>
             <.form
               for={@edit_form}
               id="edit-candidate-form"
               phx-submit="save_edit"
               class="space-y-4"
             >
-              <.input field={@edit_form[:name]} type="text" label="Name" />
-              <.input field={@edit_form[:email]} type="email" label="Email" />
-              <.input field={@edit_form[:phone]} type="text" label="Phone" />
-              <.input field={@edit_form[:linkedin_url]} type="url" label="LinkedIn URL" />
+              <.input field={@edit_form[:name]} type="text" label={gettext("Name")} />
+              <.input field={@edit_form[:email]} type="email" label={gettext("Email")} />
+              <.input field={@edit_form[:phone]} type="text" label={gettext("Phone")} />
+              <.input field={@edit_form[:linkedin_url]} type="url" label={gettext("LinkedIn URL")} />
 
               <div :if={@candidate_fields != []} class="border-t pt-4">
-                <h3 class="text-sm font-medium text-base-content/80 mb-3">Custom Fields</h3>
+                <h3 class="text-sm font-medium text-base-content/80 mb-3">
+                  {gettext("Custom Fields")}
+                </h3>
                 <div :for={field <- @candidate_fields} class="mb-3">
                   <%= cond do %>
                     <% field.field_type == "select" -> %>
@@ -208,7 +210,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </div>
 
               <div class="flex gap-2">
-                <.button type="submit">Save</.button>
+                <.button type="submit">{gettext("Save")}</.button>
                 <.button type="button" phx-click="cancel_edit" class="bg-gray-500">
                   Cancel
                 </.button>
@@ -267,7 +269,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
 
             <div :if={@candidate_fields != []} class="mt-6 border-t pt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-2">Custom Fields</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-2">
+                {gettext("Custom Fields")}
+              </h3>
               <dl class="grid grid-cols-2 gap-x-4 gap-y-2">
                 <div :for={field <- @candidate_fields}>
                   <dt class="text-sm text-base-content/50">{field.name}</dt>
@@ -284,7 +288,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           <% primary = hd(@applications) %>
           <% state = Treby.Pipeline.current_state(primary) %>
           <div class="mt-8">
-            <h2 class="text-xl font-semibold text-base-content/90 mb-4">Progress</h2>
+            <h2 class="text-xl font-semibold text-base-content/90 mb-4">{gettext("Progress")}</h2>
             <div class="bg-base-100 rounded-lg shadow p-4">
               <div class="flex items-center gap-2 mb-3">
                 <.icon name="hero-flag" class="w-4 h-4 text-base-content/60" />
@@ -333,7 +337,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
         <%= if @interviews != [] do %>
           <div class="mt-8">
-            <h2 class="text-xl font-semibold text-base-content/90 mb-4">Scheduled Interviews</h2>
+            <h2 class="text-xl font-semibold text-base-content/90 mb-4">
+              {gettext("Scheduled Interviews")}
+            </h2>
             <div class="space-y-3">
               <%= for interview <- @interviews do %>
                 <div class={[
@@ -417,7 +423,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         <% end %>
 
         <div class="mt-8">
-          <h2 class="text-xl font-semibold text-base-content/90 mb-4">Applications</h2>
+          <h2 class="text-xl font-semibold text-base-content/90 mb-4">{gettext("Applications")}</h2>
           <div :if={@applications == []} class="text-base-content/50">
             No applications yet.
           </div>
@@ -450,7 +456,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   }
                   class="mt-2 text-xs bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-900 rounded p-2"
                 >
-                  <p class="font-medium text-yellow-900 mb-1">As submitted</p>
+                  <p class="font-medium text-yellow-900 mb-1">{gettext("As submitted")}</p>
                   <dl class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-yellow-900">
                     <%= for {key, value} <- application.anagrafica do %>
                       <dt class="font-medium">{humanize_anagrafica_key(key)}</dt>
@@ -499,7 +505,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
             <%!-- Notes for this application --%>
             <div :if={application.notes != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-2">Notes</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-2">{gettext("Notes")}</h3>
               <div :for={note <- application.notes} class="mb-3 last:mb-0">
                 <div class="flex items-start gap-2">
                   <div class="flex-1">
@@ -524,8 +530,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                     <button
                       phx-click="confirm_delete"
                       phx-value-id={note.id}
-                      phx-value-title="Delete note"
-                      phx-value-message="Are you sure you want to delete this note? This action cannot be undone."
+                      phx-value-title={gettext("Delete note")}
+                      phx-value-message={
+                        gettext(
+                          "Are you sure you want to delete this note? This action cannot be undone."
+                        )
+                      }
                       class="text-xs text-red-500 hover:text-red-700"
                     >
                       Delete
@@ -547,21 +557,21 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <.input
                   field={@note_form[:content]}
                   type="textarea"
-                  label="Note"
-                  placeholder="Add your note..."
+                  label={gettext("Note")}
+                  placeholder={gettext("Add your note...")}
                   rows={3}
                 />
                 <div class="flex gap-4">
                   <.input
                     field={@note_form[:type]}
                     type="select"
-                    label="Type"
-                    options={[{"Note", "note"}, {"Interview Feedback", "interview_feedback"}]}
+                    label={gettext("Type")}
+                    options={[{"Note", "note"}, {gettext("Interview Feedback"), "interview_feedback"}]}
                   />
                   <.input
                     field={@note_form[:rating]}
                     type="select"
-                    label="Rating"
+                    label={gettext("Rating")}
                     options={[
                       {"", ""},
                       {"1 - Poor", 1},
@@ -573,7 +583,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   />
                 </div>
                 <div class="flex gap-2">
-                  <.button type="submit" class="text-sm">Save Note</.button>
+                  <.button type="submit" class="text-sm">{gettext("Save Note")}</.button>
                   <button
                     type="button"
                     phx-click="toggle_note_form"
@@ -590,7 +600,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
         <%!-- Activity Timeline --%>
         <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">Activity</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Activity")}</h2>
           <.activity_timeline events={@activities} />
         </div>
 
@@ -599,7 +609,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           :if={@scorecards != [] || @aggregate_scores.total_scorecards > 0}
           class="mt-8 bg-base-100 rounded-lg shadow p-6"
         >
-          <h2 class="text-lg font-semibold mb-4">Scorecards</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Scorecards")}</h2>
 
           <%!-- Aggregate View --%>
           <div :if={@aggregate_scores.total_scorecards > 0} class="mb-6 p-4 bg-base-200 rounded-lg">
@@ -609,7 +619,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </h3>
 
             <div :if={@aggregate_scores.avg_scores != %{}} class="mb-4">
-              <h4 class="text-xs font-medium text-base-content/50 uppercase mb-2">Average Scores</h4>
+              <h4 class="text-xs font-medium text-base-content/50 uppercase mb-2">
+                {gettext("Average Scores")}
+              </h4>
               <div class="grid grid-cols-2 gap-2">
                 <div
                   :for={{criterion, avg} <- @aggregate_scores.avg_scores}
@@ -622,7 +634,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
 
             <div :if={@aggregate_scores.recommendation_counts != %{}}>
-              <h4 class="text-xs font-medium text-base-content/50 uppercase mb-2">Recommendations</h4>
+              <h4 class="text-xs font-medium text-base-content/50 uppercase mb-2">
+                {gettext("Recommendations")}
+              </h4>
               <div class="flex gap-3">
                 <div :for={{rec, count} <- @aggregate_scores.recommendation_counts} class="text-sm">
                   <span class="text-base-content/70">
@@ -682,7 +696,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
         <%!-- Portal Conversations --%>
         <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">Portal Conversations</h2>
+            <h2 class="text-lg font-semibold">{gettext("Portal Conversations")}</h2>
             <div class="flex items-center gap-2">
               <span
                 :if={@conversations != []}
@@ -718,7 +732,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
             :if={@new_message_form_visible}
             class="mb-6 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950"
           >
-            <h3 class="text-sm font-medium text-blue-900 mb-3">New Portal Message</h3>
+            <h3 class="text-sm font-medium text-blue-900 mb-3">{gettext("New Portal Message")}</h3>
             <.form
               for={@new_message_form}
               id="new-portal-message-form"
@@ -728,18 +742,18 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <.input
                 field={@new_message_form[:subject]}
                 type="text"
-                label="Subject"
-                placeholder="Message subject..."
+                label={gettext("Subject")}
+                placeholder={gettext("Message subject...")}
               />
               <.input
                 field={@new_message_form[:body]}
                 type="textarea"
-                label="Message"
-                placeholder="Type your message..."
+                label={gettext("Message")}
+                placeholder={gettext("Type your message...")}
                 rows={4}
               />
               <div class="flex gap-2">
-                <.button type="submit" class="text-sm">Send Message</.button>
+                <.button type="submit" class="text-sm">{gettext("Send Message")}</.button>
                 <button
                   type="button"
                   phx-click="cancel_new_message"
@@ -763,7 +777,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
             :if={@show_request_info_form}
             class="mb-6 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950"
           >
-            <h3 class="text-sm font-medium text-amber-900 mb-3">Request Information</h3>
+            <h3 class="text-sm font-medium text-amber-900 mb-3">{gettext("Request Information")}</h3>
             <.form
               for={@request_info_form}
               id="request-info-form"
@@ -773,9 +787,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <.input
                 field={@request_info_form[:template]}
                 type="select"
-                label="Template"
+                label={gettext("Template")}
                 options={[
-                  {"Portfolio/Work Samples", "portfolio"},
+                  {gettext("Portfolio/Work Samples"), "portfolio"},
                   {"References", "references"},
                   {"Availability", "availability"},
                   {"Certificates", "certificates"},
@@ -785,8 +799,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <.input
                 field={@request_info_form[:message]}
                 type="textarea"
-                label="Message"
-                placeholder="Describe what information you need..."
+                label={gettext("Message")}
+                placeholder={gettext("Describe what information you need...")}
                 rows={3}
               />
               <div class="flex gap-2">
@@ -806,7 +820,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
           <%!-- Reject Form --%>
           <div :if={@show_reject_form} class="mb-6 p-4 border rounded-lg bg-red-50 dark:bg-red-950">
-            <h3 class="text-sm font-medium text-red-900 mb-3">Reject Candidate</h3>
+            <h3 class="text-sm font-medium text-red-900 mb-3">{gettext("Reject Candidate")}</h3>
             <.form
               for={@reject_form}
               id="reject-form"
@@ -816,24 +830,26 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <.input
                 field={@reject_form[:reason]}
                 type="select"
-                label="Reason"
+                label={gettext("Reason")}
                 options={[
-                  {"Not a fit for the role", "not_fit"},
-                  {"Insufficient experience", "insufficient_experience"},
-                  {"Position filled", "position_filled"},
-                  {"Culture fit", "culture_fit"},
+                  {gettext("Not a fit for the role"), "not_fit"},
+                  {gettext("Insufficient experience"), "insufficient_experience"},
+                  {gettext("Position filled"), "position_filled"},
+                  {gettext("Culture fit"), "culture_fit"},
                   {"Other", "other"}
                 ]}
               />
               <.input
                 field={@reject_form[:feedback]}
                 type="textarea"
-                label="Feedback (optional)"
-                placeholder="Provide constructive feedback..."
+                label={gettext("Feedback (optional)")}
+                placeholder={gettext("Provide constructive feedback...")}
                 rows={3}
               />
               <div class="flex gap-2">
-                <.button type="submit" class="text-sm bg-red-600 hover:bg-red-700">Reject</.button>
+                <.button type="submit" class="text-sm bg-red-600 hover:bg-red-700">
+                  {gettext("Reject")}
+                </.button>
                 <button
                   type="button"
                   phx-click="cancel_reject"
@@ -852,7 +868,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           >
             <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
               <div class="p-6">
-                <h2 class="text-lg font-semibold mb-2">Mark Interview as Completed</h2>
+                <h2 class="text-lg font-semibold mb-2">{gettext("Mark Interview as Completed")}</h2>
                 <p class="text-sm text-base-content/70 mb-4">
                   This marks the interview as done. The candidate's stage will not change automatically;
                   you can collect scorecards before advancing.
@@ -944,12 +960,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   <.input
                     field={@conversation_reply_form[:body]}
                     type="textarea"
-                    label="Reply"
-                    placeholder="Type your message..."
+                    label={gettext("Reply")}
+                    placeholder={gettext("Type your message...")}
                     rows={3}
                   />
                   <div class="flex gap-2">
-                    <.button type="submit" class="text-sm">Send</.button>
+                    <.button type="submit" class="text-sm">{gettext("Send")}</.button>
                     <button
                       type="button"
                       phx-click="cancel_conversation_reply"
@@ -1017,13 +1033,13 @@ defmodule TrebyWeb.CandidatesLive.Show do
          socket
          |> assign(applications: applications, show_note_form: nil)
          |> assign(note_form: to_form(%{}, as: :note))
-         |> put_flash(:info, "Note added")}
+         |> put_flash(:info, gettext("Note added"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(note_form: to_form(changeset, as: :note))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -1049,12 +1065,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
       {:noreply,
        socket
        |> assign(applications: applications, confirm_delete: nil)
-       |> put_flash(:info, "Note deleted")}
+       |> put_flash(:info, gettext("Note deleted"))}
     else
       {:noreply,
        socket
        |> assign(confirm_delete: nil)
-       |> put_flash(:error, "You can only delete your own notes")}
+       |> put_flash(:error, gettext("You can only delete your own notes"))}
     end
   end
 
@@ -1083,13 +1099,13 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> assign(candidate: updated)
          |> assign(editing?: false)
          |> assign(edit_form: to_form(Candidates.change_candidate(updated)))
-         |> put_flash(:info, "Candidate updated successfully.")}
+         |> put_flash(:info, gettext("Candidate updated successfully."))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(edit_form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -1107,11 +1123,15 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> assign(candidate: candidate)
          |> assign(merge_logs: merge_logs)
          |> assign(edit_form: to_form(Candidates.change_candidate(candidate)))
-         |> put_flash(:info, "Merge undone. The absorbed profile has been restored.")}
+         |> put_flash(:info, gettext("Merge undone. The absorbed profile has been restored."))}
 
       {:error, reason} ->
         {:noreply,
-         put_flash(socket, :error, "Cannot undo this merge: #{format_undo_error(reason)}")}
+         put_flash(
+           socket,
+           :error,
+           gettext("Cannot undo this merge: %{reason}", reason: format_undo_error(reason))
+         )}
     end
   end
 
@@ -1135,10 +1155,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
     cond do
       subject == "" ->
-        {:noreply, put_flash(socket, :error, "Subject is required")}
+        {:noreply, put_flash(socket, :error, gettext("Subject is required"))}
 
       body == "" ->
-        {:noreply, put_flash(socket, :error, "Message body is required")}
+        {:noreply, put_flash(socket, :error, gettext("Message body is required"))}
 
       true ->
         application = List.first(socket.assigns.applications)
@@ -1181,7 +1201,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> assign(conversations: conversations)
          |> assign(:new_message_form_visible, false)
          |> assign(:new_message_form, to_form(%{}, as: :message))
-         |> put_flash(:info, "Message sent")}
+         |> put_flash(:info, gettext("Message sent"))}
     end
   end
 
@@ -1207,13 +1227,16 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
     cond do
       message == "" ->
-        {:noreply, put_flash(socket, :error, "Message cannot be empty")}
+        {:noreply, put_flash(socket, :error, gettext("Message cannot be empty"))}
 
       is_nil(application) ->
         {:noreply,
          socket
          |> assign(:show_request_info_form, true)
-         |> put_flash(:error, "This candidate has no applications to request information for")}
+         |> put_flash(
+           :error,
+           gettext("This candidate has no applications to request information for")
+         )}
 
       true ->
         # Create a conversation with request_info type
@@ -1221,7 +1244,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           CandidatePortal.create_conversation(%{
             candidate_id: socket.assigns.candidate.id,
             tenant_id: socket.assigns.current_tenant.id,
-            subject: "Information Request",
+            subject: gettext("Information Request"),
             context: "info_request",
             application_id: application.id
           })
@@ -1256,7 +1279,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> assign(conversations: conversations)
          |> assign(:show_request_info_form, false)
          |> assign(:request_info_form, to_form(%{}, as: :request_info))
-         |> put_flash(:info, "Information request sent")}
+         |> put_flash(:info, gettext("Information request sent"))}
     end
   end
 
@@ -1293,7 +1316,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           CandidatePortal.create_conversation(%{
             candidate_id: socket.assigns.candidate.id,
             tenant_id: socket.assigns.current_tenant.id,
-            subject: "Application Update",
+            subject: gettext("Application Update"),
             context: "rejection",
             application_id: application.id
           })
@@ -1302,7 +1325,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
           sender_id: socket.assigns.current_user.id,
           sender_type: "recruiter",
           conversation_id: conversation.id,
-          body: "We've decided to move forward with other candidates. #{feedback}",
+          body:
+            gettext("We've decided to move forward with other candidates. %{feedback}",
+              feedback: feedback
+            ),
           message_type: "rejection",
           metadata: %{"rejection_reason" => reason, "feedback" => feedback}
         })
@@ -1341,18 +1367,18 @@ defmodule TrebyWeb.CandidatesLive.Show do
          |> assign(conversations: conversations)
          |> assign(:show_reject_form, false)
          |> assign(:reject_form, to_form(%{}, as: :reject))
-         |> put_flash(:info, "Candidate rejected")}
+         |> put_flash(:info, gettext("Candidate rejected"))}
       else
         {:noreply,
          socket
          |> assign(:show_reject_form, true)
-         |> put_flash(:error, "No rejected stage found in this pipeline")}
+         |> put_flash(:error, gettext("No rejected stage found in this pipeline"))}
       end
     else
       {:noreply,
        socket
        |> assign(:show_reject_form, true)
-       |> put_flash(:error, "This candidate has no applications to reject")}
+       |> put_flash(:error, gettext("This candidate has no applications to reject"))}
     end
   end
 
@@ -1377,13 +1403,13 @@ defmodule TrebyWeb.CandidatesLive.Show do
          socket
          |> assign(interviews: interviews)
          |> assign(completing_interview: nil)
-         |> put_flash(:info, "Interview marked as completed")}
+         |> put_flash(:info, gettext("Interview marked as completed"))}
 
       {:error, _changeset} ->
         {:noreply,
          socket
          |> assign(completing_interview: nil)
-         |> put_flash(:error, "Failed to mark interview as completed")}
+         |> put_flash(:error, gettext("Failed to mark interview as completed"))}
     end
   end
 
@@ -1448,10 +1474,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
          socket
          |> assign(show_scorecard_form: false, scorecard_event_id: nil)
          |> assign(scorecards: scorecards, aggregate_scores: aggregate_scores)
-         |> put_flash(:info, "Scorecard submitted")}
+         |> put_flash(:info, gettext("Scorecard submitted"))}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to submit scorecard")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to submit scorecard"))}
     end
   end
 
@@ -1477,7 +1503,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
     body = String.trim(body)
 
     if body == "" do
-      {:noreply, put_flash(socket, :error, "Message cannot be empty")}
+      {:noreply, put_flash(socket, :error, gettext("Message cannot be empty"))}
     else
       CandidatePortal.send_message(%{
         sender_id: socket.assigns.current_user.id,
@@ -1498,7 +1524,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
        |> assign(conversations: conversations)
        |> assign(:replying_to_conversation, nil)
        |> assign(:conversation_reply_form, to_form(%{}, as: :reply))
-       |> put_flash(:info, "Message sent")}
+       |> put_flash(:info, gettext("Message sent"))}
     end
   end
 

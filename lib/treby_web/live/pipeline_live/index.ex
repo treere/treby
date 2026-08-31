@@ -154,7 +154,9 @@ defmodule TrebyWeb.PipelineLive.Index do
             >
               &larr; Back to Job
             </.link>
-            <h1 class="text-2xl font-bold mt-2">{@job.title} - Pipeline</h1>
+            <h1 class="text-2xl font-bold mt-2">
+              {gettext("%{title} - Pipeline", title: @job.title)}
+            </h1>
           </div>
           <div class="flex gap-2">
             <button
@@ -221,7 +223,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               title={
                 if @current_membership.role != "admin" and
                      not Pipeline.user_is_advancer?(stage, @current_user.id),
-                   do: "Only stage advancers can move",
+                   do: gettext("Only stage advancers can move"),
                    else: nil
               }
             >
@@ -246,7 +248,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 title={
                   if @current_membership.role != "admin" and
                        not Pipeline.user_is_advancer?(stage, @current_user.id),
-                     do: "Only stage advancers can move",
+                     do: gettext("Only stage advancers can move"),
                      else: nil
                 }
                 data-application-id={application.id}
@@ -288,7 +290,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     <%= if @current_membership.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
                       <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
                         <.icon name="hero-check-circle" class="w-3 h-3" />
-                        <span>Ready to advance</span>
+                        <span>{gettext("Ready to advance")}</span>
                       </div>
                     <% end %>
                   <% end %>
@@ -308,7 +310,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     <%= if @current_membership.role == "admin" or Pipeline.user_is_advancer?(stage, @current_user.id) do %>
                       <div class="mt-2 flex items-center gap-1 text-xs text-green-700 dark:text-green-100 bg-green-50 dark:bg-green-950 rounded px-2 py-1">
                         <.icon name="hero-check-circle" class="w-3 h-3" />
-                        <span>Ready to advance</span>
+                        <span>{gettext("Ready to advance")}</span>
                       </div>
                     <% end %>
                   <% end %>
@@ -332,7 +334,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       )
                     ]}
                   >
-                    {if application.reviewed, do: "Reviewed", else: "Mark reviewed"}
+                    {if application.reviewed, do: gettext("Reviewed"), else: gettext("Mark reviewed")}
                   </button>
                   <%= if stage.stage_type == "interview" do %>
                     <% my_interview = examiner_interview_for_card(application, @current_user.id) %>
@@ -356,7 +358,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       <% else %>
                         <button
                           disabled
-                          title="No template — Settings → Scorecards"
+                          title={gettext("No template — Settings → Scorecards")}
                           class="text-xs text-base-content/30 cursor-not-allowed mt-1"
                         >
                           Scorecard
@@ -379,7 +381,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       phx-click="advance_application"
                       phx-value-id={application.id}
                       disabled={not ready}
-                      title={if not ready, do: "Complete required steps before advancing"}
+                      title={if not ready, do: gettext("Complete required steps before advancing")}
                       class={[
                         "text-xs mt-1",
                         if(ready,
@@ -409,8 +411,12 @@ defmodule TrebyWeb.PipelineLive.Index do
         <.empty_state
           :if={Enum.all?(@applications_by_stage, fn {_, apps} -> apps == [] end)}
           icon="hero-kanban"
-          title="No applications yet"
-          description="When candidates apply to this job, they'll appear here in your pipeline. Drag and drop cards between stages to move candidates forward."
+          title={gettext("No applications yet")}
+          description={
+            gettext(
+              "When candidates apply to this job, they\'ll appear here in your pipeline. Drag and drop cards between stages to move candidates forward."
+            )
+          }
         />
       </div>
 
@@ -422,7 +428,7 @@ defmodule TrebyWeb.PipelineLive.Index do
       >
         <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
           <div class="p-6">
-            <h2 class="text-lg font-semibold mb-2">Reject Candidate</h2>
+            <h2 class="text-lg font-semibold mb-2">{gettext("Reject Candidate")}</h2>
             <p class="text-sm text-base-content/70 mb-4">
               Are you sure you want to reject {@rejecting_application.candidate.name}?
             </p>
@@ -430,7 +436,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               id="rejection-reason"
               class="w-full border rounded-lg p-2 text-sm mb-4"
               rows="3"
-              placeholder="Reason for rejection (required)"
+              placeholder={gettext("Reason for rejection (required)")}
               required
               phx-change="update_rejection_reason"
               phx-hook=".AutoResize"
@@ -461,7 +467,7 @@ defmodule TrebyWeb.PipelineLive.Index do
       >
         <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
           <div class="p-6">
-            <h2 class="text-lg font-semibold mb-2">Mark Interview as Completed</h2>
+            <h2 class="text-lg font-semibold mb-2">{gettext("Mark Interview as Completed")}</h2>
             <p class="text-sm text-base-content/70 mb-4">
               This marks the interview as done. You can now collect scorecards before advancing the candidate.
               The candidate's stage will not change automatically.
@@ -491,7 +497,7 @@ defmodule TrebyWeb.PipelineLive.Index do
       >
         <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4">
           <div class="p-6">
-            <h2 class="text-lg font-semibold mb-4">Send Message Notification?</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Send Message Notification?")}</h2>
             <p class="text-sm text-base-content/70 mb-4">
               <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
                 A stage transition message template exists. A message will be posted to the candidate's portal automatically when you move this candidate. You can preview it below or skip posting.
@@ -502,7 +508,7 @@ defmodule TrebyWeb.PipelineLive.Index do
 
             <div :if={@email_preview} class="p-4 bg-base-200 rounded-lg mb-4">
               <p class="text-sm text-base-content/70 mb-2">
-                <strong>Subject:</strong> {@email_preview.subject}
+                <strong>{gettext("Subject:")}</strong> {@email_preview.subject}
               </p>
               <div class="text-sm text-base-content/70" phx-no-curly-interpolation>
                 {@email_preview.body}
@@ -539,7 +545,9 @@ defmodule TrebyWeb.PipelineLive.Index do
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-xs font-medium text-base-content/70 mb-1">Date</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                      {gettext("Date")}
+                    </label>
                     <input
                       type="date"
                       value={@schedule_date}
@@ -548,7 +556,9 @@ defmodule TrebyWeb.PipelineLive.Index do
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-base-content/70 mb-1">Time</label>
+                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                      {gettext("Time")}
+                    </label>
                     <input
                       type="time"
                       value={@schedule_time}
@@ -590,7 +600,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 phx-click="toggle_schedule"
                 class="px-4 py-2 text-sm text-blue-700 dark:text-blue-100 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 rounded-lg hover:bg-blue-100"
               >
-                {if @show_schedule_picker, do: "Remove Schedule", else: "Schedule"}
+                {if @show_schedule_picker, do: gettext("Remove Schedule"), else: "Schedule"}
               </button>
               <button
                 :if={@show_schedule_picker}
@@ -624,11 +634,11 @@ defmodule TrebyWeb.PipelineLive.Index do
               name="bulk_action"
               class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
             >
-              <option value="">Actions...</option>
-              <option value="move_stage" disabled={@stages == []}>Move to Stage</option>
-              <option value="mark_reviewed">Mark as Reviewed</option>
-              <option value="mark_unreviewed">Mark as New</option>
-              <option value="delete">Delete</option>
+              <option value="">{gettext("Actions...")}</option>
+              <option value="move_stage" disabled={@stages == []}>{gettext("Move to Stage")}</option>
+              <option value="mark_reviewed">{gettext("Mark as Reviewed")}</option>
+              <option value="mark_unreviewed">{gettext("Mark as New")}</option>
+              <option value="delete">{gettext("Delete")}</option>
             </select>
 
             <select
@@ -637,7 +647,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               name="bulk_stage_id"
               class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
             >
-              <option value="">Select stage...</option>
+              <option value="">{gettext("Select stage...")}</option>
               <option :for={stage <- @stages} value={stage.id}>{stage.name}</option>
             </select>
           </.form>
@@ -667,8 +677,13 @@ defmodule TrebyWeb.PipelineLive.Index do
             :if={@bulk_action == "delete"}
             phx-click="confirm_delete"
             phx-value-id="bulk"
-            phx-value-title="Delete candidates"
-            phx-value-message={"Are you sure you want to delete #{length(@selected_ids)} applications? This action cannot be undone."}
+            phx-value-title={gettext("Delete candidates")}
+            phx-value-message={
+              gettext(
+                "Are you sure you want to delete %{count} applications? This action cannot be undone.",
+                count: length(@selected_ids)
+              )
+            }
             class="bg-red-600 text-white text-sm px-4 py-1.5 rounded hover:bg-red-700"
           >
             Delete
@@ -750,12 +765,16 @@ defmodule TrebyWeb.PipelineLive.Index do
             {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
 
           {:error, _changeset} ->
-            {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+            {:noreply, put_flash(socket, :error, gettext("Failed to move candidate"))}
         end
       end
     else
       {:noreply,
-       put_flash(socket, :error, "You are not authorized to move candidates to this stage")}
+       put_flash(
+         socket,
+         :error,
+         gettext("You are not authorized to move candidates to this stage")
+       )}
     end
   end
 
@@ -853,7 +872,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to update review status")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to update review status"))}
     end
   end
 
@@ -897,7 +916,7 @@ defmodule TrebyWeb.PipelineLive.Index do
        bulk_action: nil,
        bulk_stage_id: nil
      )
-     |> put_flash(:info, "#{length(ids)} applications moved")}
+     |> put_flash(:info, gettext("%{count} applications moved", count: length(ids)))}
   end
 
   def handle_event("bulk_execute_mark_reviewed", _params, socket) do
@@ -910,7 +929,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     {:noreply,
      socket
      |> assign(applications_by_stage: applications_by_stage, selected_ids: [], bulk_action: nil)
-     |> put_flash(:info, "#{length(ids)} applications marked as reviewed")}
+     |> put_flash(:info, gettext("%{count} applications marked as reviewed", count: length(ids)))}
   end
 
   def handle_event("bulk_execute_mark_unreviewed", _params, socket) do
@@ -923,7 +942,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     {:noreply,
      socket
      |> assign(applications_by_stage: applications_by_stage, selected_ids: [], bulk_action: nil)
-     |> put_flash(:info, "#{length(ids)} applications marked as new")}
+     |> put_flash(:info, gettext("%{count} applications marked as new", count: length(ids)))}
   end
 
   def handle_event(
@@ -953,7 +972,7 @@ defmodule TrebyWeb.PipelineLive.Index do
        bulk_action: nil,
        confirm_delete: nil
      )
-     |> put_flash(:info, "#{length(ids)} applications deleted")}
+     |> put_flash(:info, gettext("%{count} applications deleted", count: length(ids)))}
   end
 
   def handle_event("clear_selection", _params, socket) do
@@ -978,7 +997,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     application = socket.assigns.rejecting_application
 
     if String.trim(socket.assigns.rejection_reason) == "" do
-      {:noreply, put_flash(socket, :error, "Rejection motivation is required")}
+      {:noreply, put_flash(socket, :error, gettext("Rejection motivation is required"))}
     else
       application = application |> Treby.Repo.preload([:candidate, :job])
       rejection_reason = socket.assigns.rejection_reason
@@ -1002,7 +1021,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 CandidatePortal.create_conversation(%{
                   candidate_id: application.candidate.id,
                   tenant_id: socket.assigns.current_tenant.id,
-                  subject: "Application Update",
+                  subject: gettext("Application Update"),
                   context: "rejection",
                   application_id: application.id
                 })
@@ -1011,7 +1030,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 sender_id: socket.assigns.current_user.id,
                 sender_type: "recruiter",
                 conversation_id: conversation.id,
-                body: "We've decided to move forward with other candidates.",
+                body: gettext("We've decided to move forward with other candidates."),
                 message_type: "rejection",
                 metadata: %{"rejection_reason" => rejection_reason}
               })
@@ -1041,16 +1060,16 @@ defmodule TrebyWeb.PipelineLive.Index do
                rejecting_application: nil,
                rejection_reason: ""
              )
-             |> put_flash(:info, "Candidate rejected")}
+             |> put_flash(:info, gettext("Candidate rejected"))}
 
           {:error, _changeset} ->
-            {:noreply, put_flash(socket, :error, "Failed to reject candidate")}
+            {:noreply, put_flash(socket, :error, gettext("Failed to reject candidate"))}
         end
       else
         {:noreply,
          socket
          |> assign(rejecting_application: nil, rejection_reason: "")
-         |> put_flash(:error, "No rejected stage found in this pipeline")}
+         |> put_flash(:error, gettext("No rejected stage found in this pipeline"))}
       end
     end
   end
@@ -1080,13 +1099,13 @@ defmodule TrebyWeb.PipelineLive.Index do
          socket
          |> assign(applications_by_stage: applications_by_stage)
          |> assign(completing_interview: nil)
-         |> put_flash(:info, "Interview marked as completed")}
+         |> put_flash(:info, gettext("Interview marked as completed"))}
 
       {:error, _changeset} ->
         {:noreply,
          socket
          |> assign(completing_interview: nil)
-         |> put_flash(:error, "Failed to mark interview as completed")}
+         |> put_flash(:error, gettext("Failed to mark interview as completed"))}
     end
   end
 
@@ -1098,7 +1117,7 @@ defmodule TrebyWeb.PipelineLive.Index do
        put_flash(
          socket,
          :error,
-         "No scorecard template configured — create one in Settings → Scorecards"
+         gettext("No scorecard template configured — create one in Settings → Scorecards")
        )}
     else
       existing_scorecard =
@@ -1158,10 +1177,10 @@ defmodule TrebyWeb.PipelineLive.Index do
          socket
          |> assign(show_scorecard_form: false, scorecard_event_id: nil)
          |> assign(applications_by_stage: applications_by_stage)
-         |> put_flash(:info, "Scorecard submitted")}
+         |> put_flash(:info, gettext("Scorecard submitted"))}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to submit scorecard")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to submit scorecard"))}
     end
   end
 
@@ -1174,14 +1193,20 @@ defmodule TrebyWeb.PipelineLive.Index do
       socket.assigns.current_membership.role != "admin" and
           not Pipeline.user_is_advancer?(stage, socket.assigns.current_user.id) ->
         {:noreply,
-         put_flash(socket, :error, "You are not authorized to advance candidates from this stage")}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are not authorized to advance candidates from this stage")
+         )}
 
       stage.stage_type == "interview" and not Pipeline.ready_to_advance?(application) ->
         {:noreply,
          put_flash(
            socket,
            :error,
-           "Mark the interview as completed and all scorecards submitted before advancing"
+           gettext(
+             "Mark the interview as completed and all scorecards submitted before advancing"
+           )
          )}
 
       true ->
@@ -1202,10 +1227,10 @@ defmodule TrebyWeb.PipelineLive.Index do
               {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
 
             {:error, _changeset} ->
-              {:noreply, put_flash(socket, :error, "Failed to advance candidate")}
+              {:noreply, put_flash(socket, :error, gettext("Failed to advance candidate"))}
           end
         else
-          {:noreply, put_flash(socket, :error, "No next stage found in this pipeline")}
+          {:noreply, put_flash(socket, :error, gettext("No next stage found in this pipeline"))}
         end
     end
   end
@@ -1237,10 +1262,10 @@ defmodule TrebyWeb.PipelineLive.Index do
            }
          ) do
       :ok ->
-        move_and_reply(socket, pending, "Candidate moved and message sent")
+        move_and_reply(socket, pending, gettext("Candidate moved and message sent"))
 
       {:error, _reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to post message")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to post message"))}
     end
   end
 
@@ -1251,10 +1276,10 @@ defmodule TrebyWeb.PipelineLive.Index do
            actor: socket.assigns.current_user
          ) do
       {:ok, _application} ->
-        move_and_reply(socket, pending, "Candidate moved without email")
+        move_and_reply(socket, pending, gettext("Candidate moved without email"))
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to move candidate"))}
     end
   end
 
@@ -1262,7 +1287,7 @@ defmodule TrebyWeb.PipelineLive.Index do
     schedule_datetime = socket.assigns.schedule_datetime
 
     if is_nil(schedule_datetime) do
-      {:noreply, put_flash(socket, :error, "Please select a schedule date and time")}
+      {:noreply, put_flash(socket, :error, gettext("Please select a schedule date and time"))}
     else
       pending = socket.assigns.pending_stage_move
       email_preview = socket.assigns.email_preview
@@ -1286,7 +1311,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         }
       )
 
-      move_and_reply(socket, pending, "Candidate moved and message scheduled")
+      move_and_reply(socket, pending, gettext("Candidate moved and message scheduled"))
     end
   end
 
@@ -1306,7 +1331,7 @@ defmodule TrebyWeb.PipelineLive.Index do
          |> put_flash(:info, success_message)}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to move candidate"))}
     end
   end
 

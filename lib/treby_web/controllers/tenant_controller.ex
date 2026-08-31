@@ -14,19 +14,19 @@ defmodule TrebyWeb.TenantController do
           })
 
         conn
-        |> put_flash(:info, "Workspace created")
+        |> put_flash(:info, gettext("Workspace created"))
         |> redirect(to: ~p"/#{tenant.slug}/app")
 
       {:error, _changeset} ->
         conn
-        |> put_flash(:error, "Could not create workspace")
+        |> put_flash(:error, gettext("Could not create workspace"))
         |> redirect(to: ~p"/choose-tenant")
     end
   end
 
   def create(conn, _params) do
     conn
-    |> put_flash(:error, "Name is required")
+    |> put_flash(:error, gettext("Name is required"))
     |> redirect(to: ~p"/choose-tenant")
   end
 end

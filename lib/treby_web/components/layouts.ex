@@ -21,7 +21,7 @@ defmodule TrebyWeb.Layouts do
   ## Examples
 
       <Layouts.app flash={@flash}>
-        <h1>Content</h1>
+        <h1>{gettext("Content")}</h1>
       </Layouts.app>
 
   """
@@ -200,7 +200,7 @@ defmodule TrebyWeb.Layouts do
           |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
         }
         class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-base-100 rounded-lg shadow-lg"
-        aria-label="Toggle navigation"
+        aria-label={gettext("Toggle navigation")}
       >
         <.icon name="hero-bars-3" class="w-6 h-6 text-base-content/80" />
       </button>

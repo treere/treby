@@ -3,7 +3,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
 
   alias Treby.{Accounts, Tenants, Notifications}
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -165,10 +165,10 @@ defmodule TrebyWeb.SettingsLive.Notifications do
         {:noreply,
          socket
          |> assign(preferences: preferences)
-         |> put_flash(:info, "Notification preference updated")}
+         |> put_flash(:info, gettext("Notification preference updated"))}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to update preference")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to update preference"))}
     end
   end
 end

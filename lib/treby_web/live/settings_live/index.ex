@@ -3,7 +3,7 @@ defmodule TrebyWeb.SettingsLive.Index do
 
   alias Treby.{Accounts, Tenants}
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =

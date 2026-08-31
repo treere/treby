@@ -1,5 +1,6 @@
 defmodule TrebyWeb.ScorecardForm do
   use Phoenix.Component
+  use Gettext, backend: TrebyWeb.Gettext
 
   import TrebyWeb.CoreComponents, only: [icon: 1]
   import TrebyWeb.DesignSystem.Button, only: [button: 1]
@@ -17,7 +18,7 @@ defmodule TrebyWeb.ScorecardForm do
       <div class="bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="p-6">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">Scorecard</h2>
+            <h2 class="text-lg font-semibold">{gettext("Scorecard")}</h2>
             <button
               phx-click="close_scorecard"
               class="text-base-content/40 hover:text-base-content/70"
@@ -88,7 +89,9 @@ defmodule TrebyWeb.ScorecardForm do
             </div>
 
             <div class="space-y-1">
-              <label class="block text-sm font-medium text-base-content/80">Recommendation</label>
+              <label class="block text-sm font-medium text-base-content/80">
+                {gettext("Recommendation")}
+              </label>
               <select
                 name="recommendation"
                 class="select w-full"
@@ -127,7 +130,7 @@ defmodule TrebyWeb.ScorecardForm do
             </div>
 
             <div class="space-y-1">
-              <label class="block text-sm font-medium text-base-content/80">Notes</label>
+              <label class="block text-sm font-medium text-base-content/80">{gettext("Notes")}</label>
               <textarea
                 name="notes"
                 rows="3"
@@ -139,7 +142,7 @@ defmodule TrebyWeb.ScorecardForm do
               <.button type="button" phx-click="close_scorecard" class="bg-gray-500">
                 Cancel
               </.button>
-              <.button type="submit">Submit Scorecard</.button>
+              <.button type="submit">{gettext("Submit Scorecard")}</.button>
             </div>
           </.form>
         </div>

@@ -103,6 +103,7 @@ defmodule Treby.MixProject do
       precommit: [
         "format --check-formatted",
         "credo --strict",
+        "treby.check_translations",
         "sobelow --config",
         "compile --warnings-as-errors",
         "test"

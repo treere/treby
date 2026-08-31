@@ -52,13 +52,13 @@ defmodule TrebyWeb.SettingsLive.Language do
         {:noreply,
          socket
          |> assign(current_user: user, locale: locale)
-         |> put_flash(:info, "Language updated successfully")}
+         |> put_flash(:info, gettext("Language updated successfully"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 end

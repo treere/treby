@@ -81,35 +81,34 @@ defmodule TrebyWeb.ScheduleLive.Index do
           >
             &larr; Back to Candidate
           </.link>
-          <h1 class="text-2xl font-bold mt-2">Schedule Interview</h1>
+          <h1 class="text-2xl font-bold mt-2">{gettext("Schedule Interview")}</h1>
           <p class="mt-1 text-base-content/70">
-            Scheduling for <strong>{@application.candidate.name}</strong> — {@application.job.title}
+            {gettext("Scheduling for")}<strong>{@application.candidate.name}</strong> — {@application.job.title}
           </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div class="lg:col-span-2">
             <div class="bg-base-100 rounded-lg shadow p-6">
-              <h2 class="text-lg font-semibold mb-4">Select Interviewer</h2>
+              <h2 class="text-lg font-semibold mb-4">{gettext("Select Interviewer")}</h2>
               <div :if={@users == []} class="space-y-4">
                 <div class="text-center py-4">
                   <p class="text-base-content/50 text-sm">
-                    No team members have set their availability yet.
+                    {gettext("No team members have set their availability yet.")}
                   </p>
                   <p class="text-xs text-base-content/40 mt-1">
-                    Schedule ad-hoc without weekly rules — or
-                    <.link
+                    {gettext("Schedule ad-hoc without weekly rules — or")}<.link
                       navigate={~p"/app/settings/availability"}
                       class="text-blue-600 hover:text-blue-800"
-                    >
-                      Set weekly availability → Settings → Availability
-                    </.link>
+                    >{gettext("Set weekly availability → Settings → Availability")}</.link>
                   </p>
                 </div>
                 <div class="border rounded-lg p-4 bg-base-200/50 space-y-3">
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-xs font-medium text-base-content/70 mb-1">Date</label>
+                      <label class="block text-xs font-medium text-base-content/70 mb-1">
+                        {gettext("Date")}
+                      </label>
                       <input
                         type="date"
                         value={@ad_hoc_date}
@@ -119,7 +118,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     </div>
                     <div>
                       <label class="block text-xs font-medium text-base-content/70 mb-1">
-                        Time (UTC)
+                        {gettext("Time (UTC)")}
                       </label>
                       <input
                         type="time"
@@ -131,10 +130,10 @@ defmodule TrebyWeb.ScheduleLive.Index do
                   </div>
                   <div>
                     <label class="block text-xs font-medium text-base-content/70 mb-1">
-                      Interviewer
+                      {gettext("Interviewer")}
                     </label>
                     <select phx-change="ad_hoc_user" class="select w-full">
-                      <option value="">Select interviewer</option>
+                      <option value="">{gettext("Select interviewer")}</option>
                       <option
                         :for={u <- @fallback_users}
                         value={u.id}
@@ -149,7 +148,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     disabled={is_nil(@ad_hoc_user_id) or @ad_hoc_date == "" or @ad_hoc_time == ""}
                     class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Book Interview
+                    {gettext("Book Interview")}
                   </button>
                 </div>
               </div>
@@ -171,7 +170,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     <span class="text-sm text-base-content/50 ml-2">{user.email}</span>
                     <%= if MapSet.member?(@connected_ids, user.id) do %>
                       <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Google connected
+                        {gettext("Google connected")}
                       </span>
                     <% end %>
                   </button>
@@ -180,7 +179,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
 
               <%= if @selected_user do %>
                 <div class="mt-6 pt-6 border-t">
-                  <h3 class="font-medium mb-3">Available Slots</h3>
+                  <h3 class="font-medium mb-3">{gettext("Available Slots")}</h3>
 
                   <div class="flex items-center gap-4 mb-4">
                     <button
@@ -200,12 +199,14 @@ defmodule TrebyWeb.ScheduleLive.Index do
                       phx-click="next_week"
                       class="px-3 py-1 border rounded hover:bg-base-200"
                     >
-                      Next &rarr;
+                      {gettext("Next &rarr;")}
                     </button>
                   </div>
 
                   <div :if={@slots == []} class="text-center py-8">
-                    <p class="text-base-content/50 text-sm">No available slots for this week</p>
+                    <p class="text-base-content/50 text-sm">
+                      {gettext("No available slots for this week")}
+                    </p>
                   </div>
 
                   <div :if={@slots != []} class="grid grid-cols-7 gap-2">
@@ -232,22 +233,22 @@ defmodule TrebyWeb.ScheduleLive.Index do
 
           <div class="lg:col-span-1">
             <div class="bg-base-100 rounded-lg shadow p-6">
-              <h2 class="text-lg font-semibold mb-4">Details</h2>
+              <h2 class="text-lg font-semibold mb-4">{gettext("Details")}</h2>
               <dl class="space-y-3 text-sm">
                 <div>
-                  <dt class="text-base-content/50">Candidate</dt>
+                  <dt class="text-base-content/50">{gettext("Candidate")}</dt>
                   <dd class="font-medium">{@application.candidate.name}</dd>
                 </div>
                 <div>
-                  <dt class="text-base-content/50">Job</dt>
+                  <dt class="text-base-content/50">{gettext("Job")}</dt>
                   <dd class="font-medium">{@application.job.title}</dd>
                 </div>
                 <div>
-                  <dt class="text-base-content/50">Interview Type</dt>
-                  <dd class="font-medium">Video</dd>
+                  <dt class="text-base-content/50">{gettext("Interview Type")}</dt>
+                  <dd class="font-medium">{gettext("Video")}</dd>
                 </div>
                 <div :if={@selected_slot}>
-                  <dt class="text-base-content/50">Selected Time</dt>
+                  <dt class="text-base-content/50">{gettext("Selected Time")}</dt>
                   <dd class="font-medium">
                     {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                   </dd>
@@ -259,15 +260,19 @@ defmodule TrebyWeb.ScheduleLive.Index do
                   phx-click="book_interview"
                   class="mt-6 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  Book Interview
+                  {gettext("Book Interview")}
                 </button>
               <% end %>
 
               <div class="mt-6 pt-6 border-t">
-                <h3 class="text-sm font-medium text-base-content/80 mb-2">Self-Scheduling</h3>
+                <h3 class="text-sm font-medium text-base-content/80 mb-2">
+                  {gettext("Self-Scheduling")}
+                </h3>
                 <p class="text-xs text-base-content/50">
-                  The candidate can choose their own time slot from their application portal.
-                  Send them a message in the portal to let them know they can book.
+                  {gettext(
+                    "The candidate can choose their own time slot from their application portal.
+                  Send them a message in the portal to let them know they can book."
+                  )}
                 </p>
               </div>
             </div>
@@ -296,10 +301,10 @@ defmodule TrebyWeb.ScheduleLive.Index do
 
     cond do
       is_nil(user_id) or user_id == "" ->
-        {:noreply, put_flash(socket, :error, "Select an interviewer")}
+        {:noreply, put_flash(socket, :error, gettext("Select an interviewer"))}
 
       date_str == "" or time_str == "" ->
-        {:noreply, put_flash(socket, :error, "Select date and time")}
+        {:noreply, put_flash(socket, :error, gettext("Select date and time"))}
 
       true ->
         with {:ok, date} <- Date.from_iso8601(date_str),
@@ -321,8 +326,12 @@ defmodule TrebyWeb.ScheduleLive.Index do
           examiner_emails = if interviewer, do: [interviewer.email], else: []
 
           event_params = %{
-            summary: "Interview with #{app.candidate.name} - #{app.job.title}",
-            description: "Scheduled via Treby",
+            summary:
+              gettext("Interview with %{candidate} - %{job}",
+                candidate: app.candidate.name,
+                job: app.job.title
+              ),
+            description: gettext("Scheduled via Treby"),
             start_at: start_at,
             end_at: end_at,
             timezone: "UTC"
@@ -351,7 +360,10 @@ defmodule TrebyWeb.ScheduleLive.Index do
                 {:error, _} ->
                   {:noreply,
                    socket
-                   |> put_flash(:error, "Failed to create calendar event. Please try again.")}
+                   |> put_flash(
+                     :error,
+                     gettext("Failed to create calendar event. Please try again.")
+                   )}
               end
 
             {:meeting_url, :jitsi} ->
@@ -362,7 +374,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
               book_interview(socket, attrs, app.candidate_id)
           end
         else
-          _ -> {:noreply, put_flash(socket, :error, "Invalid date or time")}
+          _ -> {:noreply, put_flash(socket, :error, gettext("Invalid date or time"))}
         end
     end
   end
@@ -385,7 +397,10 @@ defmodule TrebyWeb.ScheduleLive.Index do
         {:noreply,
          socket
          |> assign(selected_user: user, slots: [], selected_slot: nil)
-         |> put_flash(:error, "Could not load availability: #{inspect(reason)}")}
+         |> put_flash(
+           :error,
+           gettext("Could not load availability: %{reason}", reason: inspect(reason))
+         )}
     end
   end
 
@@ -414,13 +429,17 @@ defmodule TrebyWeb.ScheduleLive.Index do
     %{selected_slot: slot, selected_user: interviewer, application: app} = socket.assigns
 
     unless slot && interviewer do
-      {:noreply, put_flash(socket, :error, "Please select an interviewer and time slot")}
+      {:noreply, put_flash(socket, :error, gettext("Please select an interviewer and time slot"))}
     else
       examiner_ids = [interviewer.id]
 
       event_params = %{
-        summary: "Interview with #{app.candidate.name} - #{app.job.title}",
-        description: "Scheduled via Treby",
+        summary:
+          gettext("Interview with %{candidate} - %{job}",
+            candidate: app.candidate.name,
+            job: app.job.title
+          ),
+        description: gettext("Scheduled via Treby"),
         start_at: slot.start,
         end_at: slot.end,
         timezone: "UTC"
@@ -460,7 +479,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
               {:noreply,
                socket
                |> assign(selected_slot: nil)
-               |> put_flash(:error, "Failed to create calendar event. Please try again.")}
+               |> put_flash(:error, gettext("Failed to create calendar event. Please try again."))}
           end
 
         {:meeting_url, :jitsi} ->
@@ -478,11 +497,11 @@ defmodule TrebyWeb.ScheduleLive.Index do
       {:ok, _event} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Interview scheduled successfully!")
+         |> put_flash(:info, gettext("Interview scheduled successfully!"))
          |> push_navigate(to: ~p"/app/candidates/#{candidate_id}")}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to schedule interview")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to schedule interview"))}
     end
   end
 

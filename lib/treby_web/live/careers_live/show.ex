@@ -176,7 +176,9 @@ defmodule TrebyWeb.CareersLive.Show do
           :if={@job && @job.status != "open"}
           class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center"
         >
-          <h1 class="text-2xl font-bold text-base-content">This position is no longer available</h1>
+          <h1 class="text-2xl font-bold text-base-content">
+            {gettext("This position is no longer available")}
+          </h1>
           <p class="mt-4 text-base-content/70">
             The job you're looking for has been closed or removed.
           </p>
@@ -189,7 +191,7 @@ defmodule TrebyWeb.CareersLive.Show do
         </div>
 
         <div :if={!@job} class="mt-8 bg-base-100 rounded-lg shadow p-8 text-center">
-          <h1 class="text-2xl font-bold text-base-content">Position not found</h1>
+          <h1 class="text-2xl font-bold text-base-content">{gettext("Position not found")}</h1>
           <p class="mt-4 text-base-content/70">
             The job you're looking for doesn't exist or has been removed.
           </p>

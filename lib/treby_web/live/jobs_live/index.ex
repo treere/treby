@@ -5,7 +5,7 @@ defmodule TrebyWeb.JobsLive.Index do
   alias Treby.Jobs.Job
   alias Treby.Repo
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -56,7 +56,7 @@ defmodule TrebyWeb.JobsLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
-          <h1 class="text-2xl font-bold">Jobs</h1>
+          <h1 class="text-2xl font-bold">{gettext("Jobs")}</h1>
           <button
             phx-click="show_create_form"
             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-flex items-center gap-1"
@@ -71,42 +71,42 @@ defmodule TrebyWeb.JobsLive.Index do
             phx-value-filter="all"
             class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "all", do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
           >
-            All
+            {gettext("All")}
           </button>
           <button
             phx-click="filter_jobs"
             phx-value-filter="open"
             class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
           >
-            Open
+            {gettext("Open")}
           </button>
           <button
             phx-click="filter_jobs"
             phx-value-filter="closed"
             class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "closed", do: "bg-base-300 text-base-content/90", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
           >
-            Closed
+            {gettext("Closed")}
           </button>
         </div>
 
         <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
-          <h2 class="text-lg font-semibold mb-4">Create Job</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Create Job")}</h2>
           <.form for={@form} id="job-form" phx-submit="create_job">
-            <.input field={@form[:title]} type="text" label="Title" />
-            <.input field={@form[:description]} type="textarea" label="Description" />
+            <.input field={@form[:title]} type="text" label={gettext("Title")} />
+            <.input field={@form[:description]} type="textarea" label={gettext("Description")} />
             <.input
               field={@form[:salary_range]}
               type="text"
-              label="Salary Range"
+              label={gettext("Salary Range")}
               placeholder="$100k-$150k"
             />
 
             <.input
               field={@form[:pipeline_id]}
               type="select"
-              label="Pipeline"
+              label={gettext("Pipeline")}
               options={Enum.map(@pipelines, &{&1.name, &1.id})}
-              prompt="Default pipeline"
+              prompt={gettext("Default pipeline")}
             />
 
             <div :if={@templates != []} class="mt-3">
@@ -123,7 +123,9 @@ defmodule TrebyWeb.JobsLive.Index do
             </div>
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-3">Additional Information</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">
+                {gettext("Additional Information")}
+              </h3>
               <div :for={field <- @job_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -152,8 +154,10 @@ defmodule TrebyWeb.JobsLive.Index do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit">Create</.button>
-              <.button type="button" phx-click="hide_create_form" class="bg-gray-500">Cancel</.button>
+              <.button type="submit">{gettext("Create")}</.button>
+              <.button type="button" phx-click="hide_create_form" class="bg-gray-500">
+                {gettext("Cancel")}
+              </.button>
             </div>
           </.form>
         </div>
@@ -163,25 +167,25 @@ defmodule TrebyWeb.JobsLive.Index do
             <thead class="bg-base-200">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Title
+                  {gettext("Title")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Salary
+                  {gettext("Salary")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Status
+                  {gettext("Status")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Public
+                  {gettext("Public")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Views
+                  {gettext("Views")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Candidates
+                  {gettext("Candidates")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Actions
+                  {gettext("Actions")}
                 </th>
               </tr>
             </thead>
@@ -214,7 +218,7 @@ defmodule TrebyWeb.JobsLive.Index do
                       name={if job.visible, do: "hero-globe-alt", else: "hero-lock-closed"}
                       class="w-3 h-3"
                     />
-                    {if job.visible, do: "Public", else: "Private"}
+                    {if job.visible, do: gettext("Public"), else: gettext("Private")}
                   </button>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/70">
@@ -223,10 +227,12 @@ defmodule TrebyWeb.JobsLive.Index do
                   <%= if summary.total_views > 0 do %>
                     <span class="inline-flex items-center gap-1 text-xs">
                       <.icon name="hero-eye" class="w-3 h-3 text-base-content/50" />
-                      {summary.total_views} · {summary.views_last_7_days} last 7d
+                      {summary.total_views} · {gettext("%{count} last 7d",
+                        count: summary.views_last_7_days
+                      )}
                     </span>
                   <% else %>
-                    <span class="text-xs text-base-content/40">No views yet</span>
+                    <span class="text-xs text-base-content/40">{gettext("No views yet")}</span>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/70">
@@ -237,7 +243,9 @@ defmodule TrebyWeb.JobsLive.Index do
                     navigate={~p"/app/pipeline/#{job.id}"}
                     class="text-blue-600 hover:text-blue-900 mr-3 inline-flex items-center gap-1"
                   >
-                    <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> Pipeline
+                    <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> {gettext(
+                      "Pipeline"
+                    )}
                   </.link>
                   <button
                     phx-click="toggle_status"
@@ -248,7 +256,7 @@ defmodule TrebyWeb.JobsLive.Index do
                       name={if job.status == "open", do: "hero-x-mark", else: "hero-arrow-path"}
                       class="w-4 h-4"
                     />
-                    {if job.status == "open", do: "Close", else: "Reopen"}
+                    {if job.status == "open", do: gettext("Close"), else: gettext("Reopen")}
                   </button>
                 </td>
               </tr>
@@ -257,8 +265,12 @@ defmodule TrebyWeb.JobsLive.Index do
           <.empty_state
             :if={@jobs == []}
             icon="hero-briefcase"
-            title="No job postings yet"
-            description="Job postings let candidates apply through your career page and help you track applicants through each stage of your hiring pipeline."
+            title={gettext("No job postings yet")}
+            description={
+              gettext(
+                "Job postings let candidates apply through your career page and help you track applicants through each stage of your hiring pipeline."
+              )
+            }
           >
             <:cta>
               <button
@@ -338,7 +350,7 @@ defmodule TrebyWeb.JobsLive.Index do
 
       {:noreply,
        socket
-       |> put_flash(:error, "Please fill in required fields: #{missing}")}
+       |> put_flash(:error, gettext("Please fill in required fields: %{fields}", fields: missing))}
     else
       attrs = Map.put(attrs, "custom_fields", custom_fields_values)
 
@@ -351,13 +363,13 @@ defmodule TrebyWeb.JobsLive.Index do
            socket
            |> assign(jobs: jobs, view_summaries: view_summaries, show_form: false)
            |> assign(form: to_form(Jobs.change_job(%Job{})))
-           |> put_flash(:info, "Job created successfully")}
+           |> put_flash(:info, gettext("Job created successfully"))}
 
         {:error, changeset} ->
           {:noreply,
            socket
            |> assign(form: to_form(changeset))
-           |> put_flash(:error, "Please review the errors below")}
+           |> put_flash(:error, gettext("Please review the errors below"))}
       end
     end
   end
@@ -372,7 +384,7 @@ defmodule TrebyWeb.JobsLive.Index do
         {:noreply, assign(socket, jobs: jobs)}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to update job status")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to update job status"))}
     end
   end
 
@@ -386,7 +398,7 @@ defmodule TrebyWeb.JobsLive.Index do
         {:noreply, assign(socket, jobs: jobs)}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to update visibility")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to update visibility"))}
     end
   end
 

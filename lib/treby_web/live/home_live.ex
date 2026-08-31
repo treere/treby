@@ -15,7 +15,7 @@ defmodule TrebyWeb.HomeLive do
 
       <%!-- Header --%>
       <header class="absolute inset-x-0 top-0 z-10">
-        <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+        <nav class="flex items-center justify-between p-6 lg:px-8" aria-label={gettext("Global")}>
           <div class="flex lg:flex-1">
             <.link navigate={~p"/"} class="-m-1.5 p-1.5">
               <span class="sr-only">Treby</span>
@@ -147,7 +147,7 @@ defmodule TrebyWeb.HomeLive do
 
       <%!-- Footer --%>
       <footer class="bg-base-100" aria-labelledby="footer-heading">
-        <h2 id="footer-heading" class="sr-only">Footer</h2>
+        <h2 id="footer-heading" class="sr-only">{gettext("Footer")}</h2>
         <div class="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8">
           <div class="xl:grid xl:grid-cols-3 xl:gap-8">
             <div>

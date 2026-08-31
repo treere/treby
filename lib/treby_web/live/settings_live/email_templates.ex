@@ -4,7 +4,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
   alias Treby.{Accounts, Tenants, EmailTemplates}
   alias Treby.EmailTemplates.EmailTemplate
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -86,11 +86,11 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                 type="select"
                 label={gettext("Trigger Stage")}
                 options={[
-                  {"New Application", "new"},
-                  {"Interview", "interview"},
-                  {"Offer", "offer"},
-                  {"Hired", "hired"},
-                  {"Rejected", "rejected"}
+                  {gettext("New Application"), "new"},
+                  {gettext("Interview"), "interview"},
+                  {gettext("Offer"), "offer"},
+                  {gettext("Hired"), "hired"},
+                  {gettext("Rejected"), "rejected"}
                 ]}
               />
             </div>
@@ -174,8 +174,12 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                   <button
                     phx-click="confirm_delete"
                     phx-value-id={template.id}
-                    phx-value-title="Delete template"
-                    phx-value-message="Are you sure you want to delete this message template? This action cannot be undone."
+                    phx-value-title={gettext("Delete template")}
+                    phx-value-message={
+                      gettext(
+                        "Are you sure you want to delete this message template? This action cannot be undone."
+                      )
+                    }
                     class="text-red-600 hover:text-red-900"
                   >
                     {gettext("Delete")}
@@ -241,8 +245,8 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
     }
 
     sample_assigns = %{
-      candidate_name: "John Doe",
-      job_title: "Software Engineer",
+      candidate_name: gettext("John Doe"),
+      job_title: gettext("Software Engineer"),
       company_name: socket.assigns.current_tenant.name,
       stage_name: "Interview",
       recruiter_name: socket.assigns.current_user.name
@@ -277,16 +281,16 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         {:noreply,
          socket
          |> assign(templates: templates, show_form: false, editing_template: nil)
-         |> put_flash(:info, "Template saved")}
+         |> put_flash(:info, gettext("Template saved"))}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can manage message templates")}
+        {:noreply, put_flash(socket, :error, gettext("Only admins can manage message templates"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -312,17 +316,19 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         {:noreply,
          socket
          |> assign(templates: templates, confirm_delete: nil)
-         |> put_flash(:info, "Template deleted")}
+         |> put_flash(:info, gettext("Template deleted"))}
 
       {:error, :unauthorized} ->
         {:noreply,
          socket
          |> assign(confirm_delete: nil)
-         |> put_flash(:error, "Only admins can delete message templates")}
+         |> put_flash(:error, gettext("Only admins can delete message templates"))}
 
       {:error, _} ->
         {:noreply,
-         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete template")}
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, gettext("Failed to delete template"))}
     end
   end
 end

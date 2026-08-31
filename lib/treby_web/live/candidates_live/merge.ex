@@ -3,7 +3,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
 
   alias Treby.{Accounts, Tenants, Candidates, Pipeline}
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -34,7 +34,10 @@ defmodule TrebyWeb.CandidatesLive.Merge do
         put_flash(
           socket,
           :info,
-          "Auto-merged #{auto_merged.merged} exact-email duplicate #{plural(auto_merged.merged)}"
+          gettext("Auto-merged %{count} exact-email duplicate %{plural}",
+            count: auto_merged.merged,
+            plural: plural(auto_merged.merged)
+          )
         )
       else
         socket
@@ -56,7 +59,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
             <.link navigate={~p"/app/candidates"} class="text-blue-600 hover:text-blue-900 text-sm">
               &larr; Back to Candidates
             </.link>
-            <h1 class="text-2xl font-bold mt-2">Merge Duplicates</h1>
+            <h1 class="text-2xl font-bold mt-2">{gettext("Merge Duplicates")}</h1>
             <p class="text-sm text-base-content/50 mt-1">
               Candidates that look like they may be the same person. Review the evidence and merge them into a single profile — or dismiss the suggestion.
             </p>
@@ -70,7 +73,9 @@ defmodule TrebyWeb.CandidatesLive.Merge do
           <div class="mx-auto w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
             <.icon name="hero-check-circle" class="w-8 h-8 text-green-600" />
           </div>
-          <h2 class="mt-4 text-lg font-semibold text-base-content">No duplicate candidates</h2>
+          <h2 class="mt-4 text-lg font-semibold text-base-content">
+            {gettext("No duplicate candidates")}
+          </h2>
           <p class="mt-2 text-sm text-base-content/50 max-w-md mx-auto">
             We didn't find any candidates that look like duplicates right now. New candidates are checked automatically as they come in.
           </p>
@@ -106,12 +111,12 @@ defmodule TrebyWeb.CandidatesLive.Merge do
             <table class="w-full text-sm">
               <thead>
                 <tr class="text-left text-xs text-base-content/50 border-b border-base-300">
-                  <th class="py-2 pr-3">Primary</th>
-                  <th class="py-2 pr-3">Name</th>
-                  <th class="py-2 pr-3">Email</th>
-                  <th class="py-2 pr-3">Phone</th>
-                  <th class="py-2 pr-3">LinkedIn</th>
-                  <th class="py-2">Applications</th>
+                  <th class="py-2 pr-3">{gettext("Primary")}</th>
+                  <th class="py-2 pr-3">{gettext("Name")}</th>
+                  <th class="py-2 pr-3">{gettext("Email")}</th>
+                  <th class="py-2 pr-3">{gettext("Phone")}</th>
+                  <th class="py-2 pr-3">{gettext("LinkedIn")}</th>
+                  <th class="py-2">{gettext("Applications")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -199,7 +204,8 @@ defmodule TrebyWeb.CandidatesLive.Merge do
 
     case find_group(socket.assigns.groups, group_id) do
       nil ->
-        {:noreply, put_flash(socket, :error, "Group not found. It may have been merged already.")}
+        {:noreply,
+         put_flash(socket, :error, gettext("Group not found. It may have been merged already."))}
 
       group ->
         primary_id = socket.assigns.selected_primary[group_id] || group.default_primary_id
@@ -216,11 +222,19 @@ defmodule TrebyWeb.CandidatesLive.Merge do
              |> assign(selected_primary: initial_selections(groups))
              |> put_flash(
                :info,
-               "Merged #{length(absorbed) + 1} profiles into #{merged_primary.name}"
+               gettext("Merged %{count} profiles into %{name}",
+                 count: length(absorbed) + 1,
+                 name: merged_primary.name
+               )
              )}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Merge failed: #{format_error(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Merge failed: %{reason}", reason: format_error(reason))
+             )}
         end
     end
   end
@@ -237,10 +251,15 @@ defmodule TrebyWeb.CandidatesLive.Merge do
          socket
          |> assign(groups: groups)
          |> assign(selected_primary: initial_selections(groups))
-         |> put_flash(:info, "Suggestion dismissed")}
+         |> put_flash(:info, gettext("Suggestion dismissed"))}
 
       {:error, changeset} ->
-        {:noreply, put_flash(socket, :error, "Could not dismiss: #{inspect(changeset.errors)}")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           gettext("Could not dismiss: %{reason}", reason: inspect(changeset.errors))
+         )}
     end
   end
 
@@ -267,19 +286,19 @@ defmodule TrebyWeb.CandidatesLive.Merge do
     Map.new(groups, &{&1.id, &1.default_primary_id})
   end
 
-  defp signal_label(:exact_email), do: "Exact email match"
-  defp signal_label(:phone_name), do: "Phone + name match"
-  defp signal_label(:name_local_part), do: "Name + email match"
+  defp signal_label(:exact_email), do: gettext("Exact email match")
+  defp signal_label(:phone_name), do: gettext("Phone + name match")
+  defp signal_label(:name_local_part), do: gettext("Name + email match")
   defp signal_label(_), do: "Match"
 
-  defp format_error(:no_candidates_to_merge), do: "No candidates to merge"
-  defp format_error(:primary_is_tombstoned), do: "The primary profile was already merged"
+  defp format_error(:no_candidates_to_merge), do: gettext("No candidates to merge")
+  defp format_error(:primary_is_tombstoned), do: gettext("The primary profile was already merged")
 
   defp format_error(:cannot_merge_tombstoned_candidate),
-    do: "One of the profiles was already merged"
+    do: gettext("One of the profiles was already merged")
 
   defp format_error(:cannot_merge_with_itself), do: "A profile cannot be merged with itself"
-  defp format_error(:cross_tenant_merge), do: "Profiles belong to different workspaces"
+  defp format_error(:cross_tenant_merge), do: gettext("Profiles belong to different workspaces")
   defp format_error(reason), do: inspect(reason)
 
   defp plural(1), do: "group"

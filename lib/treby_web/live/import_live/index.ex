@@ -4,7 +4,7 @@ defmodule TrebyWeb.ImportLive.Index do
   alias Treby.{Accounts, Tenants, Jobs, Sources, CsvImport}
   alias Treby.Pipeline
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =

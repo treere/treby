@@ -3,7 +3,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
 
   alias Treby.{Accounts, Tenants, Comparison}
 
-  def mount(%{"ids" => ids} = params, session, socket) do
+  def mount(%{"ids" => ids}, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -42,7 +42,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
      |> assign(error: error)}
   end
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =

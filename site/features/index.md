@@ -57,3 +57,6 @@ Full dark theme with a light/dark/system toggle in the navigation.
 
 ## [Workspace Switching](/features/workspace-switching)
 One email, many companies — pick a workspace at login, switch via the header, and create new companies without a new account. Role is per workspace.
+
+## [Language (IT/EN)](/features/i18n)
+Fully bilingual interface — Italian and English — with a per-user language setting in **Settings → Language** and automated guards that prevent untranslated strings from shipping.

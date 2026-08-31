@@ -4,7 +4,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
   alias Treby.{Accounts, Tenants, Customization}
   alias Treby.Customization.CustomField
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -52,9 +52,9 @@ defmodule TrebyWeb.SettingsLive.Fields do
             <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
               &larr; Back to Settings
             </.link>
-            <h1 class="text-2xl font-bold mt-2">Custom Fields</h1>
+            <h1 class="text-2xl font-bold mt-2">{gettext("Custom Fields")}</h1>
             <p class="mt-1 text-base-content/70">
-              Define custom fields for candidates, jobs, and applications
+              {gettext("Define custom fields for candidates, jobs, and applications")}
             </p>
           </div>
           <button
@@ -67,7 +67,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
 
         <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
           <h2 class="text-lg font-semibold mb-4">
-            {if @editing_field, do: "Edit Field", else: "New Field"}
+            {if @editing_field, do: gettext("Edit Field"), else: gettext("New Field")}
           </h2>
           <.form
             for={@form}
@@ -80,37 +80,37 @@ defmodule TrebyWeb.SettingsLive.Fields do
               <.input
                 field={@form[:name]}
                 type="text"
-                label="Field Name"
+                label={gettext("Field Name")}
                 placeholder="e.g. GitHub URL"
               />
               <.input
                 field={@form[:field_type]}
                 type="select"
-                label="Type"
+                label={gettext("Type")}
                 options={[
                   {"Text", "text"},
                   {"Number", "number"},
                   {"Date", "date"},
-                  {"Select (options)", "select"},
+                  {gettext("Select (options)"), "select"},
                   {"URL", "url"}
                 ]}
               />
               <.input
                 field={@form[:applies_to]}
                 type="select"
-                label="Applies To"
+                label={gettext("Applies To")}
                 options={[
                   {"Candidates", "candidate"},
                   {"Jobs", "job"},
                   {"Applications", "application"}
                 ]}
               />
-              <.input field={@form[:position]} type="number" label="Position" />
+              <.input field={@form[:position]} type="number" label={gettext("Position")} />
             </div>
 
             <div :if={@form[:field_type].value == "select"} class="space-y-2">
               <label class="block text-sm font-medium text-base-content/80">
-                Options (one per line)
+                {gettext("Options (one per line)")}
               </label>
               <textarea
                 id="options-textarea"
@@ -121,12 +121,14 @@ defmodule TrebyWeb.SettingsLive.Fields do
             </div>
 
             <div class="flex items-center gap-2">
-              <.input field={@form[:required]} type="checkbox" label="Required" />
+              <.input field={@form[:required]} type="checkbox" label={gettext("Required")} />
             </div>
 
             <div class="flex gap-2">
-              <.button type="submit">Save</.button>
-              <.button type="button" phx-click="cancel_form" class="bg-gray-500">Cancel</.button>
+              <.button type="submit">{gettext("Save")}</.button>
+              <.button type="button" phx-click="cancel_form" class="bg-gray-500">
+                {gettext("Cancel")}
+              </.button>
             </div>
           </.form>
         </div>
@@ -136,19 +138,19 @@ defmodule TrebyWeb.SettingsLive.Fields do
             <thead class="bg-base-200">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Name
+                  {gettext("Name")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Type
+                  {gettext("Type")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Applies To
+                  {gettext("Applies To")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Required
+                  {gettext("Required")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Actions
+                  {gettext("Actions")}
                 </th>
               </tr>
             </thead>
@@ -161,7 +163,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
                 <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{field.applies_to}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <%= if field.required do %>
-                    <span class="text-green-600">Yes</span>
+                    <span class="text-green-600">{gettext("Yes")}</span>
                   <% else %>
                     <span class="text-base-content/40">No</span>
                   <% end %>
@@ -172,23 +174,27 @@ defmodule TrebyWeb.SettingsLive.Fields do
                     phx-value-field_id={field.id}
                     class="text-blue-600 hover:text-blue-900 mr-3"
                   >
-                    Edit
+                    {gettext("Edit")}
                   </button>
                   <button
                     phx-click="confirm_delete"
                     phx-value-id={field.id}
-                    phx-value-title="Delete field"
-                    phx-value-message="Are you sure you want to delete this custom field? This action cannot be undone."
+                    phx-value-title={gettext("Delete field")}
+                    phx-value-message={
+                      gettext(
+                        "Are you sure you want to delete this custom field? This action cannot be undone."
+                      )
+                    }
                     class="text-red-600 hover:text-red-900"
                   >
-                    Delete
+                    {gettext("Delete")}
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
           <div :if={@custom_fields == []} class="p-8 text-center text-base-content/50">
-            No custom fields defined yet. Add your first custom field!
+            {gettext("No custom fields defined yet. Add your first custom field!")}
           </div>
         </div>
       </div>
@@ -270,16 +276,16 @@ defmodule TrebyWeb.SettingsLive.Fields do
            editing_field: nil,
            options_text: ""
          )
-         |> put_flash(:info, "Field saved")}
+         |> put_flash(:info, gettext("Field saved"))}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can manage custom fields")}
+        {:noreply, put_flash(socket, :error, gettext("Only admins can manage custom fields"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -305,17 +311,19 @@ defmodule TrebyWeb.SettingsLive.Fields do
         {:noreply,
          socket
          |> assign(custom_fields: custom_fields, confirm_delete: nil)
-         |> put_flash(:info, "Field deleted")}
+         |> put_flash(:info, gettext("Field deleted"))}
 
       {:error, :unauthorized} ->
         {:noreply,
          socket
          |> assign(confirm_delete: nil)
-         |> put_flash(:error, "Only admins can delete custom fields")}
+         |> put_flash(:error, gettext("Only admins can delete custom fields"))}
 
       {:error, _} ->
         {:noreply,
-         socket |> assign(confirm_delete: nil) |> put_flash(:error, "Failed to delete field")}
+         socket
+         |> assign(confirm_delete: nil)
+         |> put_flash(:error, gettext("Failed to delete field"))}
     end
   end
 end

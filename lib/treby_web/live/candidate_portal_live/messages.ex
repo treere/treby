@@ -42,11 +42,11 @@ defmodule TrebyWeb.CandidatePortalLive.Messages do
       current_candidate={@current_candidate}
     >
       <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Messages</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{gettext("Messages")}</h1>
 
         <%= if @conversations == [] do %>
           <div class="text-center py-12">
-            <p class="text-gray-500 dark:text-gray-400">No messages yet.</p>
+            <p class="text-gray-500 dark:text-gray-400">{gettext("No messages yet.")}</p>
           </div>
         <% else %>
           <div class="space-y-4">

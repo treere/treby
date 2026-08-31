@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Localize the application's user-facing text into the user's selected locale (Italian or English), including auth pages, flash messages, and interpolated strings.
+Localize the entire application's user-facing text into the user's selected locale (Italian or English), covering auth pages, flash messages, interpolated strings, and all authenticated UI (dashboard, jobs, candidates, pipeline, interviews, analytics, settings, candidate portal, career pages).
 
 ## Requirements
 
@@ -38,11 +38,15 @@ The system SHALL translate all flash messages emitted by the auth controllers (r
 - **THEN** the corresponding flash messages are shown in Italian
 
 ### Requirement: Italian translations exist for all auth strings
-The system SHALL ship Italian translations (`msgstr`) for every user-facing string introduced by the auth flow localization in `priv/gettext/it/LC_MESSAGES/default.po`.
+The system SHALL ship Italian translations (`msgstr`) for every user-facing string in the application (not only auth) in `priv/gettext/it/LC_MESSAGES/default.po` and `priv/gettext/it/LC_MESSAGES/errors.po`, so that no Italian user sees untranslated English when the locale is Italian.
 
 #### Scenario: No missing Italian translations
-- **WHEN** the auth flow localization is complete
-- **THEN** every `msgid` in the default catalog that corresponds to an auth page or flash string has a non-empty Italian `msgstr`
+- **WHEN** the bilingual coverage is complete
+- **THEN** every non-header `msgid` in `priv/gettext/default.pot` (and `errors.pot`) has a non-empty Italian `msgstr` in `priv/gettext/it/LC_MESSAGES/default.po` (and `errors.po`)
+
+#### Scenario: Missing translation fails the guard
+- **WHEN** any `msgid` has an empty Italian `msgstr`
+- **THEN** `mix treby.check_translations` fails and CI blocks the change
 
 ### Requirement: Interpolated strings preserve dynamic content
 The system SHALL translate full sentences that contain dynamic values (e.g., verification codes, emails, tenant names) as single units using Gettext interpolation, preserving the dynamic value in the translated output.
@@ -54,3 +58,37 @@ The system SHALL translate full sentences that contain dynamic values (e.g., ver
 #### Scenario: Invite welcome message in Italian
 - **WHEN** a user with the Italian locale accepts an invite for a tenant
 - **THEN** the welcome flash message is shown in Italian with the tenant name preserved
+
+### Requirement: Full-application bilingual UI (IT/EN)
+The system SHALL render every user-facing string in the authenticated application (layouts, navigation, dashboard, jobs, candidates, pipeline, interviews, analytics, settings, candidate portal, career pages, empty states, flash messages) via Gettext (`gettext`/`ngettext`), so that switching the locale between Italian and English translates the entire interface.
+
+#### Scenario: Dashboard renders in Italian
+- **WHEN** a user with the Italian locale visits `/app` (dashboard)
+- **THEN** all dashboard headings, labels, weekly-stats captions, My Actions headings, empty-state titles/descriptions, and onboarding checklist items are shown in Italian
+
+#### Scenario: Dashboard renders in English
+- **WHEN** a user with the English locale visits `/app`
+- **THEN** the same dashboard content is shown in English
+
+#### Scenario: No hardcoded user-facing strings outside Gettext
+- **WHEN** the codebase is scanned for user-facing literals in `lib/treby_web/live/**` and `lib/treby_web/components/**`
+- **THEN** no heading, label, button text, empty-state copy, or flash message is emitted as a raw string literal outside a `gettext` call (excluding brand names and technical identifiers)
+
+#### Scenario: Locale switch persists and applies globally
+- **WHEN** a user changes the language in Settings → Language and navigates to any page (dashboard, jobs, candidates, interviews)
+- **THEN** the selected locale is applied on every subsequent request until changed again
+
+### Requirement: Catalog extraction and Italian translation completeness
+The system SHALL keep `priv/gettext/default.pot` (and `errors.pot`) in sync with source via `mix gettext.extract --merge` and ship complete Italian translations, so that `it` coverage is 100% at all times.
+
+#### Scenario: New string appears in POT after extraction
+- **WHEN** a developer wraps a new UI string with `gettext` and runs `mix gettext.extract --merge`
+- **THEN** a new `msgid` entry appears in `priv/gettext/default.pot` and is merged into `priv/gettext/it/LC_MESSAGES/default.po` with an empty `msgstr` awaiting translation
+
+#### Scenario: Italian catalog is complete
+- **WHEN** `mix treby.check_translations` runs on a complete codebase
+- **THEN** it reports 0 missing Italian translations
+
+#### Scenario: Missing Italian translation is caught
+- **WHEN** `priv/gettext/it/LC_MESSAGES/default.po` contains any `msgid` with an empty `msgstr`
+- **THEN** the guard fails with the list of missing keys

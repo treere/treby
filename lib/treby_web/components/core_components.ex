@@ -94,9 +94,9 @@ defmodule TrebyWeb.CoreComponents do
 
   ## Examples
 
-      <.button>Send!</.button>
-      <.button phx-click="go" variant="primary">Send!</.button>
-      <.button navigate={~p"/"}>Home</.button>
+      <.button>{gettext("Send!")}</.button>
+      <.button phx-click="go" variant="primary">{gettext("Send!")}</.button>
+      <.button navigate={~p"/"}>{gettext("Home")}</.button>
 
   ## Deprecation
 
@@ -397,8 +397,8 @@ defmodule TrebyWeb.CoreComponents do
   ## Examples
 
       <.list>
-        <:item title="Title">{@post.title}</:item>
-        <:item title="Views">{@post.views}</:item>
+        <:item title={gettext("Title")}>{@post.title}</:item>
+        <:item title={gettext("Views")}>{@post.views}</:item>
       </.list>
   """
   slot :item, required: true do
@@ -613,20 +613,23 @@ defmodule TrebyWeb.CoreComponents do
   defp event_color(_), do: "bg-gray-400"
 
   defp format_event(%{action: "application_stage_changed", metadata: meta}) do
-    "Moved from #{meta["old_stage"] || "—"} to #{meta["new_stage"] || "—"}"
+    gettext("Moved from %{old} to %{new}",
+      old: meta["old_stage"] || "—",
+      new: meta["new_stage"] || "—"
+    )
   end
 
-  defp format_event(%{action: "note_created"}), do: "Added a note"
-  defp format_event(%{action: "interview_scheduled"}), do: "Interview scheduled"
-  defp format_event(%{action: "interview_cancelled"}), do: "Interview cancelled"
-  defp format_event(%{action: "candidate_created"}), do: "Candidate created"
-  defp format_event(%{action: "candidate_updated"}), do: "Candidate updated"
+  defp format_event(%{action: "note_created"}), do: gettext("Added a note")
+  defp format_event(%{action: "interview_scheduled"}), do: gettext("Interview scheduled")
+  defp format_event(%{action: "interview_cancelled"}), do: gettext("Interview cancelled")
+  defp format_event(%{action: "candidate_created"}), do: gettext("Candidate created")
+  defp format_event(%{action: "candidate_updated"}), do: gettext("Candidate updated")
 
   defp format_event(%{action: "candidates_merged"}),
-    do: "Merged a duplicate profile into this candidate"
+    do: gettext("Merged a duplicate profile into this candidate")
 
   defp format_event(%{action: "candidates_merge_undone"}),
-    do: "Undid a profile merge"
+    do: gettext("Undid a profile merge")
 
   defp format_event(%{action: action}),
     do: String.replace(action, "_", " ") |> String.capitalize()
@@ -689,7 +692,9 @@ defmodule TrebyWeb.CoreComponents do
             <.icon name="hero-rocket-launch" class="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h3 class="text-base font-semibold text-base-content">Get Started with Treby</h3>
+            <h3 class="text-base font-semibold text-base-content">
+              {gettext("Get Started with Treby")}
+            </h3>
             <p class="text-xs text-base-content/50">{@done} of {@total} steps complete</p>
           </div>
         </div>
@@ -698,7 +703,7 @@ defmodule TrebyWeb.CoreComponents do
           phx-click="dismiss-onboarding"
           phx-value-dismiss="session"
           class="text-base-content/40 hover:text-base-content/70 transition-colors"
-          aria-label="Dismiss checklist"
+          aria-label={gettext("Dismiss checklist")}
         >
           <.icon name="hero-x-mark" class="h-5 w-5" />
         </button>

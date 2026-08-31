@@ -125,7 +125,9 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
       current_candidate={@current_candidate}
     >
       <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Your Applications</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          {gettext("Your Applications")}
+        </h1>
 
         <%= if @selected_application do %>
           <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
@@ -151,7 +153,9 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
             </div>
 
             <div class="bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-4">
-              <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">Where you are</p>
+              <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                {gettext("Where you are")}
+              </p>
               <p class="text-sm text-gray-600 dark:text-gray-300">
                 {candidate_step(@selected_application)}
               </p>
@@ -159,7 +163,7 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               <%= if @selected_action do %>
                 <div class="mt-3 flex items-center justify-between gap-3 rounded-md bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 px-3 py-2">
                   <p class="text-sm text-blue-800 dark:text-blue-200">
-                    <span class="font-medium">Action needed:</span> {@selected_action.label}
+                    <span class="font-medium">{gettext("Action needed:")}</span> {@selected_action.label}
                   </p>
                   <.link
                     navigate={@selected_action.link}
@@ -246,7 +250,7 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                       name="message"
                       value={@selected_draft}
                       phx-change="update_detail_draft"
-                      placeholder="Type a message..."
+                      placeholder={gettext("Type a message...")}
                       class="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
@@ -264,7 +268,7 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
 
         <%= if @applications == [] do %>
           <div class="text-center py-12">
-            <p class="text-gray-500 dark:text-gray-400">No applications yet.</p>
+            <p class="text-gray-500 dark:text-gray-400">{gettext("No applications yet.")}</p>
             <.link
               navigate={"/#{@current_tenant.slug}/careers"}
               class="mt-4 inline-block text-blue-600 hover:text-blue-800"
@@ -331,22 +335,22 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
 
     cond do
       stage.stage_type == "rejected" ->
-        "We're sorry, but we've decided to move forward with other candidates."
+        gettext("We're sorry, but we've decided to move forward with other candidates.")
 
       stage.stage_type == "hired" ->
-        "Congratulations! You've been hired."
+        gettext("Congratulations! You've been hired.")
 
       stage.stage_type == "offer" ->
-        "We've sent you an offer. You can review it in your messages."
+        gettext("We've sent you an offer. You can review it in your messages.")
 
       stage.stage_type == "interview" and interviews.scheduled > 0 and interviews.completed == 0 ->
-        "You have an interview scheduled. We'll share the details and next steps here."
+        gettext("You have an interview scheduled. We'll share the details and next steps here.")
 
       stage.stage_type == "interview" and interviews.completed > 0 ->
-        "Your interview is complete. We'll be in touch with next steps."
+        gettext("Your interview is complete. We'll be in touch with next steps.")
 
       true ->
-        "Your application is under review."
+        gettext("Your application is under review.")
     end
   end
 

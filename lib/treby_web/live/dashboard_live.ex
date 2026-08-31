@@ -5,7 +5,7 @@ defmodule TrebyWeb.DashboardLive do
 
   alias Treby.{Accounts, Tenants, Dashboard, Jobs, Candidates, Careers, Scorecards}
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -120,10 +120,10 @@ defmodule TrebyWeb.DashboardLive do
          socket
          |> assign(data)
          |> assign(show_scorecard_form: false, scorecard_event_id: nil)
-         |> put_flash(:info, "Scorecard submitted")}
+         |> put_flash(:info, gettext("Scorecard submitted"))}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to submit scorecard")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to submit scorecard"))}
     end
   end
 
@@ -131,25 +131,25 @@ defmodule TrebyWeb.DashboardLive do
     [
       %{
         id: :create_job,
-        label: "Create a job posting",
+        label: gettext("Create a job posting"),
         done: Jobs.tenant_has_jobs?(tenant.id),
         href: "/app/jobs"
       },
       %{
         id: :add_candidate,
-        label: "Add your first candidate",
+        label: gettext("Add your first candidate"),
         done: Candidates.tenant_has_candidates?(tenant.id),
         href: "/app/candidates"
       },
       %{
         id: :invite_team,
-        label: "Invite your team",
+        label: gettext("Invite your team"),
         done: Accounts.has_members_besides?(tenant.id, user.id),
         href: "/app/settings/team"
       },
       %{
         id: :brand_career,
-        label: "Customize your career page",
+        label: gettext("Customize your career page"),
         done: Careers.has_branding?(tenant.id),
         href: "/app/settings/branding"
       }
@@ -160,8 +160,10 @@ defmodule TrebyWeb.DashboardLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-7xl mx-auto">
-        <h1 class="text-2xl font-bold mb-2">Dashboard</h1>
-        <p class="text-base-content/70 mb-8">Welcome, {@current_user.name}!</p>
+        <h1 class="text-2xl font-bold mb-2">{gettext("Dashboard")}</h1>
+        <p class="text-base-content/70 mb-8">
+          {gettext("Welcome, %{name}!", name: @current_user.name)}
+        </p>
 
         <.onboarding_checklist
           steps={@onboarding_steps}
@@ -172,37 +174,43 @@ defmodule TrebyWeb.DashboardLive do
         <%!-- Weekly Stats --%>
         <div class="grid grid-cols-4 gap-4 mb-8">
           <div class="bg-base-100 rounded-lg shadow p-4">
-            <p class="text-sm text-base-content/50">Applications This Week</p>
+            <p class="text-sm text-base-content/50">{gettext("Applications This Week")}</p>
             <p class="text-3xl font-bold text-blue-600">{@weekly_stats.applications}</p>
           </div>
           <div class="bg-base-100 rounded-lg shadow p-4">
-            <p class="text-sm text-base-content/50">Interviews This Week</p>
+            <p class="text-sm text-base-content/50">{gettext("Interviews This Week")}</p>
             <p class="text-3xl font-bold text-purple-600">{@weekly_stats.interviews}</p>
           </div>
           <div class="bg-base-100 rounded-lg shadow p-4">
-            <p class="text-sm text-base-content/50">Offers This Week</p>
+            <p class="text-sm text-base-content/50">{gettext("Offers This Week")}</p>
             <p class="text-3xl font-bold text-pink-600">{@weekly_stats.offers}</p>
           </div>
           <div class="bg-base-100 rounded-lg shadow p-4">
-            <p class="text-sm text-base-content/50">Hires This Week</p>
+            <p class="text-sm text-base-content/50">{gettext("Hires This Week")}</p>
             <p class="text-3xl font-bold text-green-600">{@weekly_stats.hires}</p>
           </div>
         </div>
 
         <%!-- My Actions --%>
         <div class="mb-8 bg-base-100 rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">My Actions</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("My Actions")}</h2>
 
           <%!-- Pending scorecards --%>
           <%= if @my_actions.pending_scorecards == [] and @my_actions.waiting_on_others == [] do %>
             <.empty_state
               icon="hero-check-circle"
-              title="All caught up"
-              description="You have no outstanding scorecards right now. Anything you need to do will appear here."
+              title={gettext("All caught up")}
+              description={
+                gettext(
+                  "You have no outstanding scorecards right now. Anything you need to do will appear here."
+                )
+              }
             />
           <% else %>
             <%= if @my_actions.pending_scorecards != [] do %>
-              <h3 class="text-sm font-medium text-base-content/70 mb-2">Scorecards to fill</h3>
+              <h3 class="text-sm font-medium text-base-content/70 mb-2">
+                {gettext("Scorecards to fill")}
+              </h3>
               <div class="space-y-2 mb-4">
                 <div
                   :for={action <- @my_actions.pending_scorecards}
@@ -212,7 +220,9 @@ defmodule TrebyWeb.DashboardLive do
                     <p class="font-medium text-base-content">{action.candidate_name}</p>
                     <p class="text-sm text-base-content/50">{action.job_title}</p>
                     <p class="text-xs text-base-content/40">
-                      Interview {Elixir.Calendar.strftime(action.start_at, "%b %d at %H:%M")}
+                      {gettext("Interview %{date}",
+                        date: Elixir.Calendar.strftime(action.start_at, "%b %d at %H:%M")
+                      )}
                     </p>
                   </div>
                   <button
@@ -220,7 +230,7 @@ defmodule TrebyWeb.DashboardLive do
                     phx-value-event_id={action.event_id}
                     class="flex-shrink-0 px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
                   >
-                    Fill scorecard
+                    {gettext("Fill scorecard")}
                   </button>
                 </div>
               </div>
@@ -228,7 +238,7 @@ defmodule TrebyWeb.DashboardLive do
 
             <%= if @my_actions.waiting_on_others != [] do %>
               <h3 class="text-sm font-medium text-base-content/70 mb-2">
-                Waiting on others
+                {gettext("Waiting on others")}
               </h3>
               <div class="space-y-2">
                 <div
@@ -254,12 +264,16 @@ defmodule TrebyWeb.DashboardLive do
         <div class="grid grid-cols-2 gap-8">
           <%!-- Upcoming Interviews --%>
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Upcoming Interviews (7 days)</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Upcoming Interviews (7 days)")}</h2>
             <.empty_state
               :if={@upcoming_interviews == []}
               icon="hero-calendar"
-              title="No upcoming interviews"
-              description="Interviews you schedule will appear here. Create a job and move candidates through your pipeline to get started."
+              title={gettext("No upcoming interviews")}
+              description={
+                gettext(
+                  "Interviews you schedule will appear here. Create a job and move candidates through your pipeline to get started."
+                )
+              }
             />
             <div :for={interview <- @upcoming_interviews} class="border-b last:border-0 py-3">
               <div class="flex justify-between items-start">
@@ -284,19 +298,23 @@ defmodule TrebyWeb.DashboardLive do
                 </div>
               </div>
               <p class="text-xs text-base-content/40 mt-1">
-                with {interviewer_name(interview)}
+                {gettext("with %{name}", name: interviewer_name(interview))}
               </p>
             </div>
           </div>
 
           <%!-- Stale Candidates --%>
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Stale Candidates (7+ days)</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Stale Candidates (7+ days)")}</h2>
             <.empty_state
               :if={@stale_candidates == []}
               icon="hero-user-group"
-              title="No stale candidates"
-              description="Candidates with no recent activity will show here. Add candidates and move them through your pipeline to track engagement."
+              title={gettext("No stale candidates")}
+              description={
+                gettext(
+                  "Candidates with no recent activity will show here. Add candidates and move them through your pipeline to track engagement."
+                )
+              }
             />
             <div :for={app <- @stale_candidates} class="border-b last:border-0 py-3">
               <div class="flex justify-between items-center">
@@ -309,7 +327,7 @@ defmodule TrebyWeb.DashboardLive do
                     {app.pipeline_stage.name}
                   </span>
                   <p class="text-xs text-base-content/40 mt-1">
-                    Updated {Calendar.strftime(app.updated_at, "%b %d")}
+                    {gettext("Updated %{date}", date: Calendar.strftime(app.updated_at, "%b %d"))}
                   </p>
                 </div>
               </div>
@@ -319,13 +337,17 @@ defmodule TrebyWeb.DashboardLive do
 
         <%!-- Pipeline Snapshot --%>
         <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">Pipeline Overview</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Pipeline Overview")}</h2>
           <.empty_state
             :if={@pipeline_snapshot == []}
             icon="hero-kanban"
-            title="No open jobs yet"
-            description="Job postings let candidates apply through your career page and help you track applicants through each stage."
-            action={%{href: "/app/jobs", label: "Create your first job"}}
+            title={gettext("No open jobs yet")}
+            description={
+              gettext(
+                "Job postings let candidates apply through your career page and help you track applicants through each stage."
+              )
+            }
+            action={%{href: "/app/jobs", label: gettext("Create your first job")}}
           />
           <div :for={job_data <- @pipeline_snapshot} class="mb-6 last:mb-0">
             <h3 class="font-medium text-base-content/90 mb-2">{job_data.job.title}</h3>
@@ -351,9 +373,9 @@ defmodule TrebyWeb.DashboardLive do
         </div>
         <%!-- Recent Activity --%>
         <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Recent Activity")}</h2>
           <div :if={@recent_activities == []} class="text-base-content/50 text-sm">
-            No activity yet.
+            {gettext("No activity yet.")}
           </div>
           <ul class="space-y-3">
             <li :for={activity <- @recent_activities} class="flex items-start gap-3 text-sm">
@@ -380,11 +402,11 @@ defmodule TrebyWeb.DashboardLive do
     """
   end
 
-  defp activity_label(%{action: "new_application"}), do: "New application"
-  defp activity_label(%{action: "interview_scheduled"}), do: "Interview scheduled"
-  defp activity_label(%{action: "application_stage_changed"}), do: "Stage change"
-  defp activity_label(%{action: "candidates_merged"}), do: "Candidates merged"
-  defp activity_label(%{action: "candidate_created"}), do: "Candidate created"
+  defp activity_label(%{action: "new_application"}), do: gettext("New application")
+  defp activity_label(%{action: "interview_scheduled"}), do: gettext("Interview scheduled")
+  defp activity_label(%{action: "application_stage_changed"}), do: gettext("Stage change")
+  defp activity_label(%{action: "candidates_merged"}), do: gettext("Candidates merged")
+  defp activity_label(%{action: "candidate_created"}), do: gettext("Candidate created")
 
   defp activity_label(activity),
     do: activity.action |> String.replace("_", " ") |> String.capitalize()
@@ -393,5 +415,5 @@ defmodule TrebyWeb.DashboardLive do
     user.name
   end
 
-  defp interviewer_name(_), do: "To be determined"
+  defp interviewer_name(_), do: gettext("To be determined")
 end

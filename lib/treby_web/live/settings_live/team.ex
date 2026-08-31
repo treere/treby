@@ -10,14 +10,14 @@ defmodule TrebyWeb.SettingsLive.Team do
       cond do
         params["tenant_slug"] ->
           slug = params["tenant_slug"]
-          tenant = Treby.Tenants.get_tenant_by_slug(slug)
+          tenant = Tenants.get_tenant_by_slug(slug)
           user = Accounts.get_user!(session["user_id"])
           membership = Treby.Memberships.get_membership(user.id, tenant.id)
           {user, tenant, membership}
 
         true ->
           user = Accounts.get_user!(session["user_id"])
-          tenant = Treby.Tenants.get_tenant!(session["tenant_id"])
+          tenant = Tenants.get_tenant!(session["tenant_id"])
           {user, tenant, nil}
       end
 
@@ -57,8 +57,8 @@ defmodule TrebyWeb.SettingsLive.Team do
             >
               &larr; Back to Settings
             </.link>
-            <h1 class="text-2xl font-bold mt-2">Team Management</h1>
-            <p class="mt-1 text-base-content/70">Manage your team members</p>
+            <h1 class="text-2xl font-bold mt-2">{gettext("Team Management")}</h1>
+            <p class="mt-1 text-base-content/70">{gettext("Manage your team members")}</p>
           </div>
           <button
             phx-click="show_invite_form"
@@ -69,7 +69,7 @@ defmodule TrebyWeb.SettingsLive.Team do
         </div>
 
         <div :if={@show_invite_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
-          <h2 class="text-lg font-semibold mb-4">Invite Team Member</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Invite Team Member")}</h2>
           <.form
             for={@invite_form}
             id="invite-form"
@@ -79,40 +79,42 @@ defmodule TrebyWeb.SettingsLive.Team do
             <.input
               field={@invite_form[:email]}
               type="email"
-              label="Email"
+              label={gettext("Email")}
               placeholder="colleague@company.com"
             />
             <.input
               field={@invite_form[:role]}
               type="select"
-              label="Role"
+              label={gettext("Role")}
               options={[{"Member", "member"}, {"Admin", "admin"}]}
             />
             <div class="flex gap-2">
-              <.button type="submit">Send Invite</.button>
-              <.button type="button" phx-click="cancel_invite" class="bg-gray-500">Cancel</.button>
+              <.button type="submit">{gettext("Send Invite")}</.button>
+              <.button type="button" phx-click="cancel_invite" class="bg-gray-500">
+                {gettext("Cancel")}
+              </.button>
             </div>
           </.form>
         </div>
 
         <div class="bg-base-100 rounded-lg shadow overflow-hidden mb-8">
           <div class="px-6 py-4 border-b">
-            <h2 class="text-lg font-semibold">Team Members</h2>
+            <h2 class="text-lg font-semibold">{gettext("Team Members")}</h2>
           </div>
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-base-200">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Name
+                  {gettext("Name")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Email
+                  {gettext("Email")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Role
+                  {gettext("Role")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Actions
+                  {gettext("Actions")}
                 </th>
               </tr>
             </thead>
@@ -131,14 +133,18 @@ defmodule TrebyWeb.SettingsLive.Team do
                     <button
                       phx-click="confirm_delete"
                       phx-value-id={user.id}
-                      phx-value-title="Remove team member"
-                      phx-value-message="Are you sure you want to remove this team member? They will lose access to the account."
+                      phx-value-title={gettext("Remove team member")}
+                      phx-value-message={
+                        gettext(
+                          "Are you sure you want to remove this team member? They will lose access to the account."
+                        )
+                      }
                       class="text-red-600 hover:text-red-900"
                     >
-                      Remove
+                      {gettext("Remove")}
                     </button>
                   <% else %>
-                    <span class="text-base-content/40">You</span>
+                    <span class="text-base-content/40">{gettext("You")}</span>
                   <% end %>
                 </td>
               </tr>
@@ -148,22 +154,22 @@ defmodule TrebyWeb.SettingsLive.Team do
 
         <div :if={@invites != []} class="bg-base-100 rounded-lg shadow overflow-hidden">
           <div class="px-6 py-4 border-b">
-            <h2 class="text-lg font-semibold">Pending Invites</h2>
+            <h2 class="text-lg font-semibold">{gettext("Pending Invites")}</h2>
           </div>
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-base-200">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Email
+                  {gettext("Email")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Role
+                  {gettext("Role")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Expires
+                  {gettext("Expires")}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
-                  Actions
+                  {gettext("Actions")}
                 </th>
               </tr>
             </thead>
@@ -182,11 +188,15 @@ defmodule TrebyWeb.SettingsLive.Team do
                   <button
                     phx-click="confirm_delete"
                     phx-value-id={invite.id}
-                    phx-value-title="Revoke invitation"
-                    phx-value-message="Are you sure you want to revoke this invitation? The invitee will no longer be able to join."
+                    phx-value-title={gettext("Revoke invitation")}
+                    phx-value-message={
+                      gettext(
+                        "Are you sure you want to revoke this invitation? The invitee will no longer be able to join."
+                      )
+                    }
                     class="text-red-600 hover:text-red-900"
                   >
-                    Revoke
+                    {gettext("Revoke")}
                   </button>
                 </td>
               </tr>
@@ -221,14 +231,18 @@ defmodule TrebyWeb.SettingsLive.Team do
         {:noreply,
          socket
          |> assign(invites: invites, show_invite_form: false)
-         |> put_flash(:info, "Invite sent to #{email}")}
+         |> put_flash(:info, gettext("Invite sent to %{email}", email: email))}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can invite team members")}
+        {:noreply, put_flash(socket, :error, gettext("Only admins can invite team members"))}
 
       {:error, _changeset} ->
         {:noreply,
-         put_flash(socket, :error, "Failed to send invite. Email may already be invited.")}
+         put_flash(
+           socket,
+           :error,
+           gettext("Failed to send invite. Email may already be invited.")
+         )}
     end
   end
 
@@ -266,13 +280,13 @@ defmodule TrebyWeb.SettingsLive.Team do
             {:noreply,
              socket
              |> assign(users: users, confirm_delete: nil, confirm_delete_type: nil)
-             |> put_flash(:info, "Team member removed")}
+             |> put_flash(:info, gettext("Team member removed"))}
 
           {:error, _} ->
             {:noreply,
              socket
              |> assign(confirm_delete: nil, confirm_delete_type: nil)
-             |> put_flash(:error, "Failed to remove team member")}
+             |> put_flash(:error, gettext("Failed to remove team member"))}
         end
 
       "invite" ->
@@ -285,19 +299,19 @@ defmodule TrebyWeb.SettingsLive.Team do
             {:noreply,
              socket
              |> assign(invites: invites, confirm_delete: nil, confirm_delete_type: nil)
-             |> put_flash(:info, "Invite revoked")}
+             |> put_flash(:info, gettext("Invite revoked"))}
 
           {:error, :unauthorized} ->
             {:noreply,
              socket
              |> assign(confirm_delete: nil, confirm_delete_type: nil)
-             |> put_flash(:error, "Only admins can revoke invites")}
+             |> put_flash(:error, gettext("Only admins can revoke invites"))}
 
           {:error, _} ->
             {:noreply,
              socket
              |> assign(confirm_delete: nil, confirm_delete_type: nil)
-             |> put_flash(:error, "Failed to revoke invite")}
+             |> put_flash(:error, gettext("Failed to revoke invite"))}
         end
 
       _ ->

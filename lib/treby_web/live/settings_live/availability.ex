@@ -29,7 +29,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
     "Australia/Sydney"
   ]
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -79,8 +79,10 @@ defmodule TrebyWeb.SettingsLive.Availability do
           <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
             &larr; Back to Settings
           </.link>
-          <h1 class="text-2xl font-bold mt-2">Availability</h1>
-          <p class="mt-1 text-base-content/70">Set your available hours for interview scheduling</p>
+          <h1 class="text-2xl font-bold mt-2">{gettext("Availability")}</h1>
+          <p class="mt-1 text-base-content/70">
+            {gettext("Set your available hours for interview scheduling")}
+          </p>
         </div>
 
         <div class="mb-6">
@@ -94,7 +96,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
 
         <div :if={@show_form} class="mb-8 bg-base-100 rounded-lg shadow p-6">
           <h2 class="text-lg font-semibold mb-4">
-            {if @editing_rule, do: "Edit Availability", else: "New Availability"}
+            {if @editing_rule, do: gettext("Edit Availability"), else: "New Availability"}
           </h2>
           <.form
             for={@form}
@@ -106,35 +108,35 @@ defmodule TrebyWeb.SettingsLive.Availability do
             <.input
               field={@form[:day_of_week]}
               type="select"
-              label="Day of Week"
+              label={gettext("Day of Week")}
               options={Enum.map(@days_of_week, fn {val, label} -> {label, val} end)}
             />
             <div class="grid grid-cols-2 gap-4">
-              <.input field={@form[:start_time]} type="time" label="Start Time" />
-              <.input field={@form[:end_time]} type="time" label="End Time" />
+              <.input field={@form[:start_time]} type="time" label={gettext("Start Time")} />
+              <.input field={@form[:end_time]} type="time" label={gettext("End Time")} />
             </div>
             <.input
               field={@form[:timezone]}
               type="select"
-              label="Timezone"
+              label={gettext("Timezone")}
               options={@timezones}
             />
             <div class="grid grid-cols-2 gap-4">
               <.input
                 field={@form[:buffer_before]}
                 type="number"
-                label="Buffer Before (minutes)"
+                label={gettext("Buffer Before (minutes)")}
                 min="0"
               />
               <.input
                 field={@form[:buffer_after]}
                 type="number"
-                label="Buffer After (minutes)"
+                label={gettext("Buffer After (minutes)")}
                 min="0"
               />
             </div>
             <div class="flex gap-4">
-              <.button type="submit">Save</.button>
+              <.button type="submit">{gettext("Save")}</.button>
               <.button type="button" phx-click="cancel_form" class="bg-gray-500 hover:bg-gray-600">
                 Cancel
               </.button>
@@ -189,11 +191,15 @@ defmodule TrebyWeb.SettingsLive.Availability do
                     <button
                       phx-click="confirm_delete"
                       phx-value-id={rule.id}
-                      phx-value-title="Delete rule"
-                      phx-value-message="Are you sure you want to delete this availability rule? This action cannot be undone."
+                      phx-value-title={gettext("Delete rule")}
+                      phx-value-message={
+                        gettext(
+                          "Are you sure you want to delete this availability rule? This action cannot be undone."
+                        )
+                      }
                       class="text-red-600 hover:text-red-900"
                     >
-                      Delete
+                      {gettext("Delete")}
                     </button>
                   </td>
                 </tr>
@@ -274,13 +280,13 @@ defmodule TrebyWeb.SettingsLive.Availability do
         {:noreply,
          socket
          |> assign(rules: rules, show_form: false, editing_rule: nil)
-         |> put_flash(:info, "Availability saved")}
+         |> put_flash(:info, gettext("Availability saved"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -305,7 +311,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
     {:noreply,
      socket
      |> assign(rules: rules, confirm_delete: nil)
-     |> put_flash(:info, "Availability rule deleted")}
+     |> put_flash(:info, gettext("Availability rule deleted"))}
   end
 
   defp day_name(day), do: @days_of_week |> Enum.find(fn {d, _} -> d == day end) |> elem(1)

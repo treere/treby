@@ -17,7 +17,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
       |> assign(:candidate, candidate)
       |> assign(:current_candidate, candidate)
       |> assign(:current_tenant, tenant)
-      |> assign(:page_title, "Schedule Interview")
+      |> assign(:page_title, gettext("Schedule Interview"))
 
     if application do
       stage = Repo.preload(application, :pipeline_stage).pipeline_stage
@@ -92,8 +92,12 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
         end
 
       event_params = %{
-        summary: "Interview with #{app.candidate.name} - #{app.job.title}",
-        description: "Scheduled via candidate portal self-scheduling",
+        summary:
+          gettext("Interview with %{candidate} - %{job}",
+            candidate: app.candidate.name,
+            job: app.job.title
+          ),
+        description: gettext("Scheduled via candidate portal self-scheduling"),
         start_at: slot.start,
         end_at: slot.end,
         timezone: "UTC"
@@ -132,7 +136,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
               {:noreply,
                socket
                |> assign(selected_slot: nil)
-               |> put_flash(:error, "Failed to create calendar event. Please try again.")}
+               |> put_flash(:error, gettext("Failed to create calendar event. Please try again."))}
           end
 
         {:meeting_url, :jitsi} ->
@@ -151,7 +155,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
         {:noreply,
          socket
          |> assign(confirmed: true, meet_link: meet_link)
-         |> put_flash(:info, "Interview scheduled!")}
+         |> put_flash(:info, gettext("Interview scheduled!"))}
 
       {:error, _changeset} ->
         {slots, _examiners} = recompute_slots(socket, socket.assigns.selected_date)
@@ -161,7 +165,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
          |> assign(slots: slots, selected_slot: nil)
          |> put_flash(
            :error,
-           "That time slot is no longer available. Please choose another."
+           gettext("That time slot is no longer available. Please choose another.")
          )}
     end
   end
@@ -189,9 +193,13 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
             <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
               <.icon name="hero-check" class="h-8 w-8 text-green-600" />
             </div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Interview Scheduled!</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              {gettext("Interview Scheduled!")}
+            </h1>
             <p class="mt-2 text-gray-600 dark:text-gray-400">
-              Your interview has been confirmed. You can find the details in your messages.
+              {gettext(
+                "Your interview has been confirmed. You can find the details in your messages."
+              )}
             </p>
             <div :if={@meet_link} class="mt-6">
               <a
@@ -208,7 +216,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
           <%= if @application do %>
             <div class="text-center mb-8">
               <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                Schedule your interview
+                {gettext("Schedule your interview")}
               </h1>
               <p class="mt-2 text-gray-600 dark:text-gray-400">
                 for {@application.job.title}
@@ -217,7 +225,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                Select a time slot
+                {gettext("Select a time slot")}
               </h2>
 
               <div class="flex items-center gap-4 mb-4">
@@ -235,13 +243,13 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
                   phx-click="next_week"
                   class="px-3 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  Next &rarr;
+                  {gettext("Next &rarr;")}
                 </button>
               </div>
 
               <div :if={@slots == []} class="text-center py-8">
                 <p class="text-gray-500 dark:text-gray-400 text-sm">
-                  No available slots for this period
+                  {gettext("No available slots for this period")}
                 </p>
               </div>
 
@@ -271,8 +279,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
               <%= if @selected_slot do %>
                 <div class="mt-6 pt-6 border-t">
                   <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Selected:
-                    <strong>
+                    {gettext("Selected:")}<strong>
                       {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                     </strong>
                   </p>
@@ -280,16 +287,18 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
                     phx-click="confirm_booking"
                     class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    Confirm Booking
+                    {gettext("Confirm Booking")}
                   </button>
                 </div>
               <% end %>
             </div>
           <% else %>
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <h1 class="text-xl font-bold text-gray-900 dark:text-white">Nothing to schedule</h1>
+              <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+                {gettext("Nothing to schedule")}
+              </h1>
               <p class="mt-2 text-gray-600 dark:text-gray-400">
-                You don't have any application in an interview stage right now.
+                {gettext("You don't have any application in an interview stage right now.")}
               </p>
             </div>
           <% end %>
@@ -300,10 +309,12 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
   end
 
   defp meeting_label(link) when is_binary(link) do
-    if String.contains?(link, "meet.jit.si"), do: "Join Jitsi Meeting", else: "Join Meeting"
+    if String.contains?(link, "meet.jit.si"),
+      do: gettext("Join Jitsi Meeting"),
+      else: gettext("Join Meeting")
   end
 
-  defp meeting_label(_), do: "Join Meeting"
+  defp meeting_label(_), do: gettext("Join Meeting")
 
   defp schedulable_application(candidate_id) do
     import Ecto.Query

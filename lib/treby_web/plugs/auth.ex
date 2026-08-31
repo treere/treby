@@ -1,10 +1,11 @@
 defmodule TrebyWeb.Plugs.Auth do
+  use Gettext, backend: TrebyWeb.Gettext
+
   @moduledoc """
   Plug for checking authentication and setting current_user.
   """
 
   import Plug.Conn
-  alias Treby.Accounts
 
   def init(opts), do: opts
 
@@ -12,7 +13,7 @@ defmodule TrebyWeb.Plugs.Auth do
     case get_session(conn, "user_id") do
       nil ->
         conn
-        |> Phoenix.Controller.put_flash(:error, "You must be logged in")
+        |> Phoenix.Controller.put_flash(:error, gettext("You must be logged in"))
         |> Phoenix.Controller.redirect(to: "/login")
         |> halt()
 
@@ -21,7 +22,7 @@ defmodule TrebyWeb.Plugs.Auth do
           nil ->
             conn
             |> delete_session("user_id")
-            |> Phoenix.Controller.put_flash(:error, "User not found")
+            |> Phoenix.Controller.put_flash(:error, gettext("User not found"))
             |> Phoenix.Controller.redirect(to: "/login")
             |> halt()
 

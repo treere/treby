@@ -1,4 +1,6 @@
 defmodule TrebyWeb.Plugs.CandidateAuth do
+  use Gettext, backend: TrebyWeb.Gettext
+
   @moduledoc """
   Plug for authenticating candidates via OTP session.
 
@@ -59,13 +61,13 @@ defmodule TrebyWeb.Plugs.CandidateAuth do
     case conn.path_params do
       %{"tenant_slug" => slug} ->
         conn
-        |> Phoenix.Controller.put_flash(:error, "Please log in to access the portal")
+        |> Phoenix.Controller.put_flash(:error, gettext("Please log in to access the portal"))
         |> Phoenix.Controller.redirect(to: "/#{slug}/portal/login")
         |> halt()
 
       _ ->
         conn
-        |> Phoenix.Controller.put_flash(:error, "Please log in to access the portal")
+        |> Phoenix.Controller.put_flash(:error, gettext("Please log in to access the portal"))
         |> Phoenix.Controller.redirect(to: "/")
         |> halt()
     end

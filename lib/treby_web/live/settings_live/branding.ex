@@ -4,7 +4,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
   alias Treby.{Accounts, Tenants, Careers}
   alias Treby.Careers.CareerPage
 
-  def mount(params, session, socket) do
+  def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant} =
@@ -53,13 +53,13 @@ defmodule TrebyWeb.SettingsLive.Branding do
           <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
             &larr; Back to Settings
           </.link>
-          <h1 class="text-2xl font-bold mt-2">Branding</h1>
-          <p class="mt-1 text-base-content/70">Customize your career page appearance</p>
+          <h1 class="text-2xl font-bold mt-2">{gettext("Branding")}</h1>
+          <p class="mt-1 text-base-content/70">{gettext("Customize your career page appearance")}</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Settings</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Settings")}</h2>
             <.form
               for={@form}
               id="branding-form"
@@ -70,23 +70,25 @@ defmodule TrebyWeb.SettingsLive.Branding do
               <.input
                 field={@form[:title]}
                 type="text"
-                label="Page Title"
-                placeholder="Join our team"
+                label={gettext("Page Title")}
+                placeholder={gettext("Join our team")}
               />
               <.input
                 field={@form[:description]}
                 type="textarea"
-                label="Description"
-                placeholder="Help us build the future..."
+                label={gettext("Description")}
+                placeholder={gettext("Help us build the future...")}
               />
               <.input
                 field={@form[:primary_color]}
                 type="color"
-                label="Primary Color"
+                label={gettext("Primary Color")}
               />
 
               <div>
-                <label class="block text-sm font-medium text-base-content/80 mb-1">Logo</label>
+                <label class="block text-sm font-medium text-base-content/80 mb-1">
+                  {gettext("Logo")}
+                </label>
                 <.live_file_input
                   upload={@uploads.logo}
                   class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:bg-blue-950 file:text-blue-700 dark:text-blue-100 hover:file:bg-blue-100"
@@ -100,16 +102,16 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 <.input
                   field={@form[:published]}
                   type="checkbox"
-                  label="Published"
+                  label={gettext("Published")}
                 />
               </div>
 
-              <.button type="submit" class="w-full">Save Branding</.button>
+              <.button type="submit" class="w-full">{gettext("Save Branding")}</.button>
             </.form>
           </div>
 
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Preview</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Preview")}</h2>
             <div class="border rounded-lg overflow-hidden">
               <div
                 class="p-6 text-center text-white"
@@ -184,18 +186,21 @@ defmodule TrebyWeb.SettingsLive.Branding do
          socket
          |> assign(career_page: career_page)
          |> assign(form: to_form(Careers.change_career_page(career_page)))
-         |> put_flash(:info, "Branding saved")}
+         |> put_flash(:info, gettext("Branding saved"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
-  defp upload_error_to_string(:too_large), do: "File is too large (max 5MB)"
-  defp upload_error_to_string(:not_accepted), do: "File type not accepted (use PNG, JPG, or SVG)"
-  defp upload_error_to_string(:too_many_files), do: "Only one file is allowed"
-  defp upload_error_to_string(err), do: "Upload error: #{inspect(err)}"
+  defp upload_error_to_string(:too_large), do: gettext("File is too large (max 5MB)")
+
+  defp upload_error_to_string(:not_accepted),
+    do: gettext("File type not accepted (use PNG, JPG, or SVG)")
+
+  defp upload_error_to_string(:too_many_files), do: gettext("Only one file is allowed")
+  defp upload_error_to_string(err), do: gettext("Upload error: %{reason}", reason: inspect(err))
 end

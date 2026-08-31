@@ -90,7 +90,7 @@ defmodule TrebyWeb.JobsLive.Show do
                   <.icon name="hero-eye" class="w-3 h-3" /> {@job_view_summary.total_views} views · {@job_view_summary.views_last_7_days} last 7d
                 </span>
               <% else %>
-                <span class="text-xs text-base-content/50">No views yet</span>
+                <span class="text-xs text-base-content/50">{gettext("No views yet")}</span>
               <% end %>
             </div>
           </div>
@@ -126,23 +126,30 @@ defmodule TrebyWeb.JobsLive.Show do
         </div>
 
         <div :if={@editing} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
-          <h2 class="text-lg font-semibold mb-4">Edit Job</h2>
+          <h2 class="text-lg font-semibold mb-4">{gettext("Edit Job")}</h2>
           <.form for={@form} id="job-edit-form" phx-submit="update_job">
-            <.input field={@form[:title]} type="text" label="Title" />
-            <.input field={@form[:description]} type="textarea" label="Description" />
-            <.input field={@form[:salary_range]} type="text" label="Salary Range" />
-            <.input field={@form[:status]} type="select" label="Status" options={["open", "closed"]} />
+            <.input field={@form[:title]} type="text" label={gettext("Title")} />
+            <.input field={@form[:description]} type="textarea" label={gettext("Description")} />
+            <.input field={@form[:salary_range]} type="text" label={gettext("Salary Range")} />
+            <.input
+              field={@form[:status]}
+              type="select"
+              label={gettext("Status")}
+              options={["open", "closed"]}
+            />
 
             <.input
               field={@form[:pipeline_id]}
               type="select"
-              label="Pipeline"
+              label={gettext("Pipeline")}
               options={Enum.map(@pipelines, &{&1.name, &1.id})}
-              prompt="Default pipeline"
+              prompt={gettext("Default pipeline")}
             />
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-3">Custom Fields</h3>
+              <h3 class="text-sm font-medium text-base-content/80 mb-3">
+                {gettext("Custom Fields")}
+              </h3>
               <div :for={field <- @job_fields} class="mb-3">
                 <%= cond do %>
                   <% field.field_type == "select" -> %>
@@ -188,26 +195,28 @@ defmodule TrebyWeb.JobsLive.Show do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit">Save</.button>
-              <.button type="button" phx-click="cancel_editing" class="bg-gray-500">Cancel</.button>
+              <.button type="submit">{gettext("Save")}</.button>
+              <.button type="button" phx-click="cancel_editing" class="bg-gray-500">
+                {gettext("Cancel")}
+              </.button>
             </div>
           </.form>
         </div>
 
         <div class="grid grid-cols-3 gap-6">
           <div class="col-span-2 bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Description</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Description")}</h2>
             <p class="text-base-content/80 whitespace-pre-wrap">{@job.description}</p>
           </div>
           <div class="bg-base-100 rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Details</h2>
+            <h2 class="text-lg font-semibold mb-4">{gettext("Details")}</h2>
             <dl class="space-y-4">
               <div>
-                <dt class="text-sm text-base-content/50">Salary Range</dt>
-                <dd class="text-base-content">{@job.salary_range || "Not specified"}</dd>
+                <dt class="text-sm text-base-content/50">{gettext("Salary Range")}</dt>
+                <dd class="text-base-content">{@job.salary_range || gettext("Not specified")}</dd>
               </div>
               <div>
-                <dt class="text-sm text-base-content/50">Status</dt>
+                <dt class="text-sm text-base-content/50">{gettext("Status")}</dt>
                 <dd>
                   <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if @job.status == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/90"}"}>
                     {@job.status}
@@ -215,12 +224,12 @@ defmodule TrebyWeb.JobsLive.Show do
                 </dd>
               </div>
               <div>
-                <dt class="text-sm text-base-content/50">Created</dt>
+                <dt class="text-sm text-base-content/50">{gettext("Created")}</dt>
                 <dd class="text-base-content">{Calendar.strftime(@job.inserted_at, "%b %d, %Y")}</dd>
               </div>
 
               <div :if={@job_fields != []} class="border-t pt-4">
-                <dt class="text-sm text-base-content/50 mb-2">Custom Fields</dt>
+                <dt class="text-sm text-base-content/50 mb-2">{gettext("Custom Fields")}</dt>
                 <dl class="space-y-2">
                   <div :for={field <- @job_fields}>
                     <dt class="text-xs text-base-content/50">{field.name}</dt>
@@ -244,7 +253,7 @@ defmodule TrebyWeb.JobsLive.Show do
                   ({@total_candidates})
                 </span>
               </h2>
-              <p class="text-sm text-base-content/50">Grouped by pipeline stage</p>
+              <p class="text-sm text-base-content/50">{gettext("Grouped by pipeline stage")}</p>
             </div>
             <div :if={@total_candidates > 0} class="flex items-center gap-2">
               <input
@@ -254,7 +263,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 value={@candidate_search}
                 phx-keyup="search_candidates"
                 phx-debounce="200"
-                placeholder="Search candidates..."
+                placeholder={gettext("Search candidates...")}
                 class="rounded-lg px-3 py-2 text-sm bg-base-200 border border-base-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -366,7 +375,9 @@ defmodule TrebyWeb.JobsLive.Show do
                           )
                         ]}
                       >
-                        {if application.reviewed, do: "Reviewed", else: "Mark reviewed"}
+                        {if application.reviewed,
+                          do: gettext("Reviewed"),
+                          else: gettext("Mark reviewed")}
                       </button>
                       <button
                         :if={can_manage_stage?(stage, @current_user.id)}
@@ -375,8 +386,8 @@ defmodule TrebyWeb.JobsLive.Show do
                         disabled={not @has_rejected_stage}
                         title={
                           if @has_rejected_stage,
-                            do: "Reject candidate",
-                            else: "No rejected stage in this pipeline"
+                            do: gettext("Reject candidate"),
+                            else: gettext("No rejected stage in this pipeline")
                         }
                         class={[
                           "flex-1 text-[11px] px-2 py-1 rounded",
@@ -400,7 +411,7 @@ defmodule TrebyWeb.JobsLive.Show do
         <div class="mt-8 bg-base-100 rounded-lg shadow p-6">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h2 class="text-lg font-semibold">Pipeline</h2>
+              <h2 class="text-lg font-semibold">{gettext("Pipeline")}</h2>
               <p class="text-sm text-base-content/50">
                 {gettext("Stages for this job")}
               </p>
@@ -823,7 +834,7 @@ defmodule TrebyWeb.JobsLive.Show do
         >
           <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4" phx-click="">
             <div class="p-6">
-              <h2 class="text-lg font-semibold mb-2">Reject Candidate</h2>
+              <h2 class="text-lg font-semibold mb-2">{gettext("Reject Candidate")}</h2>
               <p class="text-sm text-base-content/70 mb-4">
                 Are you sure you want to reject {@rejecting_application.candidate.name}?
               </p>
@@ -831,7 +842,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 id="rejection-reason"
                 class="w-full border rounded-lg p-2 text-sm mb-4"
                 rows="3"
-                placeholder="Reason for rejection (required)"
+                placeholder={gettext("Reason for rejection (required)")}
                 required
                 phx-change="update_rejection_reason"
               >{@rejection_reason}</textarea>
@@ -871,7 +882,7 @@ defmodule TrebyWeb.JobsLive.Show do
   end
 
   def handle_event("copy_link_success", _params, socket) do
-    {:noreply, put_flash(socket, :info, "Public link copied to clipboard")}
+    {:noreply, put_flash(socket, :info, gettext("Public link copied to clipboard"))}
   end
 
   def handle_event("start_editing", _, socket) do
@@ -901,17 +912,21 @@ defmodule TrebyWeb.JobsLive.Show do
 
     if source_stage && not can_manage_stage?(source_stage, user.id) do
       {:noreply,
-       put_flash(socket, :error, "Only advancers can move candidates in interview stages")}
+       put_flash(
+         socket,
+         :error,
+         gettext("Only advancers can move candidates in interview stages")
+       )}
     else
       case Pipeline.move_application(application, stage_id, actor: user) do
         {:ok, _application} ->
           {:noreply,
            socket
            |> refresh_workspace()
-           |> put_flash(:info, "Candidate moved")}
+           |> put_flash(:info, gettext("Candidate moved"))}
 
         {:error, _changeset} ->
-          {:noreply, put_flash(socket, :error, "Failed to move candidate")}
+          {:noreply, put_flash(socket, :error, gettext("Failed to move candidate"))}
       end
     end
   end
@@ -921,10 +936,11 @@ defmodule TrebyWeb.JobsLive.Show do
 
     case Pipeline.toggle_reviewed(application) do
       {:ok, _application} ->
-        {:noreply, socket |> refresh_workspace() |> put_flash(:info, "Review state updated")}
+        {:noreply,
+         socket |> refresh_workspace() |> put_flash(:info, gettext("Review state updated"))}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to update review state")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to update review state"))}
     end
   end
 
@@ -955,7 +971,7 @@ defmodule TrebyWeb.JobsLive.Show do
     application = socket.assigns.rejecting_application
 
     if String.trim(socket.assigns.rejection_reason) == "" do
-      {:noreply, put_flash(socket, :error, "Rejection motivation is required")}
+      {:noreply, put_flash(socket, :error, gettext("Rejection motivation is required"))}
     else
       application = application |> Treby.Repo.preload([:candidate, :job])
       rejection_reason = socket.assigns.rejection_reason
@@ -977,7 +993,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 CandidatePortal.create_conversation(%{
                   candidate_id: application.candidate.id,
                   tenant_id: socket.assigns.current_tenant.id,
-                  subject: "Application Update",
+                  subject: gettext("Application Update"),
                   context: "rejection",
                   application_id: application.id
                 })
@@ -986,7 +1002,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 sender_id: socket.assigns.current_user.id,
                 sender_type: "recruiter",
                 conversation_id: conversation.id,
-                body: "We've decided to move forward with other candidates.",
+                body: gettext("We've decided to move forward with other candidates."),
                 message_type: "rejection",
                 metadata: %{"rejection_reason" => rejection_reason}
               })
@@ -1011,16 +1027,16 @@ defmodule TrebyWeb.JobsLive.Show do
              socket
              |> refresh_workspace()
              |> assign(rejecting_application: nil, rejection_reason: "")
-             |> put_flash(:info, "Candidate rejected")}
+             |> put_flash(:info, gettext("Candidate rejected"))}
 
           {:error, _changeset} ->
-            {:noreply, put_flash(socket, :error, "Failed to reject candidate")}
+            {:noreply, put_flash(socket, :error, gettext("Failed to reject candidate"))}
         end
       else
         {:noreply,
          socket
          |> assign(rejecting_application: nil, rejection_reason: "")
-         |> put_flash(:error, "No rejected stage found in this pipeline")}
+         |> put_flash(:error, gettext("No rejected stage found in this pipeline"))}
       end
     end
   end
@@ -1049,7 +1065,7 @@ defmodule TrebyWeb.JobsLive.Show do
 
       {:noreply,
        socket
-       |> put_flash(:error, "Please fill in required fields: #{missing}")}
+       |> put_flash(:error, gettext("Please fill in required fields: %{fields}", fields: missing))}
     else
       attrs = Map.put(job_params, "custom_fields", custom_fields_values)
 
@@ -1061,13 +1077,13 @@ defmodule TrebyWeb.JobsLive.Show do
            |> assign(stages: stages_with_counts(pipeline_id_for(job)))
            |> refresh_overview()
            |> assign(form: to_form(Jobs.change_job(job)))
-           |> put_flash(:info, "Job updated")}
+           |> put_flash(:info, gettext("Job updated"))}
 
         {:error, changeset} ->
           {:noreply,
            socket
            |> assign(form: to_form(changeset))
-           |> put_flash(:error, "Please review the errors below")}
+           |> put_flash(:error, gettext("Please review the errors below"))}
       end
     end
   end
@@ -1088,7 +1104,7 @@ defmodule TrebyWeb.JobsLive.Show do
         %{assigns: %{current_user: %{role: role}}} = socket
       )
       when role != "admin" do
-    {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
+    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
   end
 
   def handle_event(
@@ -1097,7 +1113,7 @@ defmodule TrebyWeb.JobsLive.Show do
         %{assigns: %{current_user: %{role: role}}} = socket
       )
       when role != "admin" do
-    {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
+    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
   end
 
   def handle_event(
@@ -1106,7 +1122,7 @@ defmodule TrebyWeb.JobsLive.Show do
         %{assigns: %{current_user: %{role: role}}} = socket
       )
       when role != "admin" do
-    {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
+    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
   end
 
   def handle_event(
@@ -1115,7 +1131,7 @@ defmodule TrebyWeb.JobsLive.Show do
         %{assigns: %{current_user: %{role: role}}} = socket
       )
       when role != "admin" do
-    {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
+    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
   end
 
   def handle_event(
@@ -1131,7 +1147,7 @@ defmodule TrebyWeb.JobsLive.Show do
              "add_advancer",
              "remove_advancer"
            ] and role != "admin" do
-    {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
+    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
   end
 
   def handle_event("edit_stage", %{"stage_id" => stage_id}, socket) do
@@ -1167,16 +1183,16 @@ defmodule TrebyWeb.JobsLive.Show do
            editing_stage: nil
          )
          |> refresh_overview()
-         |> put_flash(:info, "Stage saved")}
+         |> put_flash(:info, gettext("Stage saved"))}
 
       {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, "Only admins can manage pipeline stages")}
+        {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
 
       {:error, changeset} ->
         {:noreply,
          socket
          |> assign(stage_form: to_form(changeset))
-         |> put_flash(:error, "Please review the errors below")}
+         |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
 
@@ -1188,7 +1204,7 @@ defmodule TrebyWeb.JobsLive.Show do
     cond do
       stage.stage_type == "new" and
           Enum.count(stages, &(&1.stage_type == "new")) == 1 ->
-        {:noreply, put_flash(socket, :error, "Cannot delete the only entry stage.")}
+        {:noreply, put_flash(socket, :error, gettext("Cannot delete the only entry stage."))}
 
       active_count > 0 ->
         deleting_stage = %{id: stage.id, name: stage.name, active_count: active_count}
@@ -1203,10 +1219,11 @@ defmodule TrebyWeb.JobsLive.Show do
              socket
              |> assign(stages: stages)
              |> refresh_overview()
-             |> put_flash(:info, "Stage deleted")}
+             |> put_flash(:info, gettext("Stage deleted"))}
 
           {:error, :unauthorized} ->
-            {:noreply, put_flash(socket, :error, "Only admins can delete pipeline stages")}
+            {:noreply,
+             put_flash(socket, :error, gettext("Only admins can delete pipeline stages"))}
         end
     end
   end
@@ -1220,7 +1237,7 @@ defmodule TrebyWeb.JobsLive.Show do
      socket
      |> assign(stages: stages, deleting_stage: nil)
      |> refresh_overview()
-     |> put_flash(:info, "Candidates reassigned and stage deleted")}
+     |> put_flash(:info, gettext("Candidates reassigned and stage deleted"))}
   end
 
   def handle_event("cancel_delete", _, socket) do

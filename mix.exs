@@ -106,6 +106,7 @@ defmodule Treby.MixProject do
         "format --check-formatted",
         "credo --strict",
         "treby.check_translations",
+        "treby.check_translations --check-pot",
         "treby.check_design_system",
         "sobelow --config",
         "compile --warnings-as-errors",

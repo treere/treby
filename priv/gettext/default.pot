@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 
 #: lib/treby_web/components/core_components.ex:341
-#: lib/treby_web/live/candidates_live/index.ex:239
+#: lib/treby_web/live/candidates_live/index.ex:240
 #: lib/treby_web/live/jobs_live/index.ex:218
 #: lib/treby_web/live/settings_live/email_templates.ex:150
 #: lib/treby_web/live/settings_live/fields.ex:148
@@ -59,7 +59,7 @@ msgstr ""
 #: lib/treby_web/components/layouts.ex:235
 #: lib/treby_web/live/jobs_live/analytics.ex:90
 #: lib/treby_web/live/jobs_live/index.ex:58
-#: lib/treby_web/live/jobs_live/show.ex:81
+#: lib/treby_web/live/jobs_live/show.ex:83
 #, elixir-autogen, elixir-format
 msgid "Jobs"
 msgstr ""
@@ -78,8 +78,8 @@ msgid "Logout"
 msgstr ""
 
 #: lib/treby_web/live/candidates_live/show.ex:213
-#: lib/treby_web/live/jobs_live/show.ex:213
-#: lib/treby_web/live/jobs_live/show.ex:553
+#: lib/treby_web/live/jobs_live/show.ex:215
+#: lib/treby_web/live/jobs_live/show.ex:555
 #: lib/treby_web/live/settings_live/availability.ex:136
 #: lib/treby_web/live/settings_live/email_templates.ex:128
 #: lib/treby_web/live/settings_live/fields.ex:123
@@ -169,8 +169,8 @@ msgstr ""
 #: lib/treby_web/live/candidates_live/show.ex:167
 #: lib/treby_web/live/candidates_live/show.ex:271
 #: lib/treby_web/live/comparison_live/index.ex:207
-#: lib/treby_web/live/jobs_live/show.ex:166
-#: lib/treby_web/live/jobs_live/show.ex:263
+#: lib/treby_web/live/jobs_live/show.ex:168
+#: lib/treby_web/live/jobs_live/show.ex:265
 #: lib/treby_web/live/settings_live/fields.ex:55
 #: lib/treby_web/live/settings_live/index.ex:85
 #, elixir-autogen, elixir-format
@@ -279,13 +279,13 @@ msgstr ""
 msgid "%{count} active jobs"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:567
+#: lib/treby_web/live/jobs_live/show.ex:569
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:134
 #, elixir-autogen, elixir-format
 msgid "%{count} candidates are in \"%{stage}\". Move them to:"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:620
+#: lib/treby_web/live/jobs_live/show.ex:622
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:204
 #, elixir-autogen, elixir-format
 msgid "%{count} examiners"
@@ -297,19 +297,19 @@ msgstr ""
 msgid "%{count} stages"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:629
+#: lib/treby_web/live/jobs_live/show.ex:631
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:222
 #, elixir-autogen, elixir-format
 msgid "%{count}A"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:623
+#: lib/treby_web/live/jobs_live/show.ex:625
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:210
 #, elixir-autogen, elixir-format
 msgid "%{count}E"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:626
+#: lib/treby_web/live/jobs_live/show.ex:628
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:216
 #, elixir-autogen, elixir-format
 msgid "%{count}R"
@@ -320,10 +320,10 @@ msgstr ""
 msgid "Accept Invite & Create Account"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:206
-#: lib/treby_web/live/jobs_live/show.ex:726
-#: lib/treby_web/live/jobs_live/show.ex:768
-#: lib/treby_web/live/jobs_live/show.ex:810
+#: lib/treby_web/live/candidates_live/index.ex:207
+#: lib/treby_web/live/jobs_live/show.ex:728
+#: lib/treby_web/live/jobs_live/show.ex:770
+#: lib/treby_web/live/jobs_live/show.ex:812
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:327
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:367
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:407
@@ -337,7 +337,7 @@ msgstr ""
 msgid "Add Source"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:508
+#: lib/treby_web/live/jobs_live/show.ex:510
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:273
 #, elixir-autogen, elixir-format
 msgid "Add Stage"
@@ -354,7 +354,7 @@ msgstr ""
 msgid "Add to Job (Optional)"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:774
+#: lib/treby_web/live/jobs_live/show.ex:776
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:373
 #, elixir-autogen, elixir-format
 msgid "Advancers"
@@ -365,7 +365,7 @@ msgstr ""
 msgid "Application Confirmation"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:236
+#: lib/treby_web/live/candidates_live/index.ex:237
 #: lib/treby_web/live/candidates_live/merge.ex:110
 #: lib/treby_web/live/candidates_live/show.ex:423
 #: lib/treby_web/live/comparison_live/index.ex:141
@@ -414,15 +414,15 @@ msgstr ""
 msgid "Body (HTML)"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:208
-#: lib/treby_web/live/candidates_live/index.ex:581
+#: lib/treby_web/live/candidates_live/index.ex:209
+#: lib/treby_web/live/candidates_live/index.ex:582
 #: lib/treby_web/live/interviews_live/index.ex:353
 #: lib/treby_web/live/interviews_live/index.ex:388
 #: lib/treby_web/live/jobs_live/index.ex:189
-#: lib/treby_web/live/jobs_live/show.ex:215
-#: lib/treby_web/live/jobs_live/show.ex:555
-#: lib/treby_web/live/jobs_live/show.ex:589
-#: lib/treby_web/live/jobs_live/show.ex:842
+#: lib/treby_web/live/jobs_live/show.ex:217
+#: lib/treby_web/live/jobs_live/show.ex:557
+#: lib/treby_web/live/jobs_live/show.ex:591
+#: lib/treby_web/live/jobs_live/show.ex:844
 #: lib/treby_web/live/pipeline_live/index.ex:417
 #: lib/treby_web/live/pipeline_live/index.ex:435
 #: lib/treby_web/live/settings_live/email_templates.ex:130
@@ -455,7 +455,7 @@ msgstr ""
 msgid "Choose a new password for your account."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:534
+#: lib/treby_web/live/jobs_live/show.ex:536
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:101
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:166
 #, elixir-autogen, elixir-format
@@ -570,10 +570,10 @@ msgstr ""
 msgid "Define evaluation criteria for interviews"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:289
-#: lib/treby_web/live/candidates_live/index.ex:330
-#: lib/treby_web/live/candidates_live/index.ex:402
-#: lib/treby_web/live/jobs_live/show.ex:673
+#: lib/treby_web/live/candidates_live/index.ex:290
+#: lib/treby_web/live/candidates_live/index.ex:331
+#: lib/treby_web/live/candidates_live/index.ex:403
+#: lib/treby_web/live/jobs_live/show.ex:675
 #: lib/treby_web/live/pipeline_live/index.ex:599
 #: lib/treby_web/live/settings_live/availability.ex:199
 #: lib/treby_web/live/settings_live/email_templates.ex:182
@@ -592,8 +592,8 @@ msgstr ""
 msgid "Didn't receive it? Resend code"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:459
-#: lib/treby_web/live/jobs_live/show.ex:817
+#: lib/treby_web/live/jobs_live/show.ex:461
+#: lib/treby_web/live/jobs_live/show.ex:819
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:413
 #, elixir-autogen, elixir-format
 msgid "Done"
@@ -610,7 +610,7 @@ msgstr ""
 msgid "Duplicate"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:658
+#: lib/treby_web/live/jobs_live/show.ex:660
 #: lib/treby_web/live/settings_live/email_templates.ex:169
 #: lib/treby_web/live/settings_live/fields.ex:172
 #: lib/treby_web/live/settings_live/pipeline.ex:117
@@ -621,7 +621,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:514
+#: lib/treby_web/live/jobs_live/show.ex:516
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:81
 #, elixir-autogen, elixir-format
 msgid "Edit Stage"
@@ -634,8 +634,8 @@ msgid "Edit Template"
 msgstr ""
 
 #: lib/treby_web/controllers/invite_html/show.html.heex:92
-#: lib/treby_web/live/candidates_live/index.ex:146
-#: lib/treby_web/live/candidates_live/index.ex:230
+#: lib/treby_web/live/candidates_live/index.ex:147
+#: lib/treby_web/live/candidates_live/index.ex:231
 #: lib/treby_web/live/candidates_live/merge.ex:107
 #: lib/treby_web/live/candidates_live/show.ex:161
 #: lib/treby_web/live/careers_live/apply.ex:143
@@ -693,7 +693,7 @@ msgstr ""
 msgid "Errors"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:690
+#: lib/treby_web/live/jobs_live/show.ex:692
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:293
 #, elixir-autogen, elixir-format
 msgid "Examiners"
@@ -901,41 +901,41 @@ msgstr ""
 msgid "Message Templates"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:540
+#: lib/treby_web/live/jobs_live/show.ex:542
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:107
 #, elixir-autogen, elixir-format
 msgid "Min Examiners Required"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:587
+#: lib/treby_web/live/jobs_live/show.ex:589
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:153
 #, elixir-autogen, elixir-format
 msgid "Move & Delete"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:649
+#: lib/treby_web/live/jobs_live/show.ex:651
 #, elixir-autogen, elixir-format
 msgid "Move down"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:581
+#: lib/treby_web/live/jobs_live/show.ex:583
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:148
 #, elixir-autogen, elixir-format
 msgid "Move to"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:640
+#: lib/treby_web/live/jobs_live/show.ex:642
 #, elixir-autogen, elixir-format
 msgid "Move up"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:145
-#: lib/treby_web/live/candidates_live/index.ex:227
+#: lib/treby_web/live/candidates_live/index.ex:146
+#: lib/treby_web/live/candidates_live/index.ex:228
 #: lib/treby_web/live/candidates_live/merge.ex:106
 #: lib/treby_web/live/candidates_live/show.ex:160
 #: lib/treby_web/live/import_live/index.ex:156
 #: lib/treby_web/live/import_live/index.ex:159
-#: lib/treby_web/live/jobs_live/show.ex:525
+#: lib/treby_web/live/jobs_live/show.ex:527
 #: lib/treby_web/live/settings_live/email_templates.ex:141
 #: lib/treby_web/live/settings_live/fields.ex:136
 #: lib/treby_web/live/settings_live/pipeline.ex:73
@@ -969,7 +969,7 @@ msgstr ""
 msgid "New Pipeline"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:514
+#: lib/treby_web/live/jobs_live/show.ex:516
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:81
 #, elixir-autogen, elixir-format
 msgid "New Stage"
@@ -1013,8 +1013,8 @@ msgstr ""
 msgid "No sources configured yet"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:466
-#: lib/treby_web/live/jobs_live/show.ex:596
+#: lib/treby_web/live/jobs_live/show.ex:468
+#: lib/treby_web/live/jobs_live/show.ex:598
 #, elixir-autogen, elixir-format
 msgid "No stages in this pipeline yet"
 msgstr ""
@@ -1026,7 +1026,7 @@ msgstr ""
 
 #: lib/treby_web/live/import_live/index.ex:262
 #: lib/treby_web/live/import_live/index.ex:281
-#: lib/treby_web/live/jobs_live/show.ex:548
+#: lib/treby_web/live/jobs_live/show.ex:550
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:115
 #, elixir-autogen, elixir-format
 msgid "None"
@@ -1099,8 +1099,8 @@ msgstr ""
 msgid "Password must be at least 6 characters"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:147
-#: lib/treby_web/live/candidates_live/index.ex:233
+#: lib/treby_web/live/candidates_live/index.ex:148
+#: lib/treby_web/live/candidates_live/index.ex:234
 #: lib/treby_web/live/candidates_live/merge.ex:108
 #: lib/treby_web/live/candidates_live/show.ex:162
 #: lib/treby_web/live/careers_live/apply.ex:144
@@ -1141,7 +1141,7 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:565
+#: lib/treby_web/live/jobs_live/show.ex:567
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:132
 #, elixir-autogen, elixir-format
 msgid "Reassign candidates"
@@ -1172,26 +1172,26 @@ msgstr ""
 msgid "Review first 10 rows before importing"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:732
+#: lib/treby_web/live/jobs_live/show.ex:734
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:333
 #, elixir-autogen, elixir-format
 msgid "Reviewers"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:666
+#: lib/treby_web/live/jobs_live/show.ex:668
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:175
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:256
 #, elixir-autogen, elixir-format
 msgid "Roles"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:685
+#: lib/treby_web/live/jobs_live/show.ex:687
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:289
 #, elixir-autogen, elixir-format
 msgid "Roles for"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:546
+#: lib/treby_web/live/jobs_live/show.ex:548
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:113
 #, elixir-autogen, elixir-format
 msgid "Scorecard Template"
@@ -1214,7 +1214,7 @@ msgstr ""
 msgid "Select 2-3 candidates from the list to compare them"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:583
+#: lib/treby_web/live/jobs_live/show.ex:585
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:150
 #, elixir-autogen, elixir-format
 msgid "Select a stage"
@@ -1225,9 +1225,9 @@ msgstr ""
 msgid "Select a template..."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:721
-#: lib/treby_web/live/jobs_live/show.ex:763
-#: lib/treby_web/live/jobs_live/show.ex:805
+#: lib/treby_web/live/jobs_live/show.ex:723
+#: lib/treby_web/live/jobs_live/show.ex:765
+#: lib/treby_web/live/jobs_live/show.ex:807
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:323
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:363
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:403
@@ -1336,7 +1336,7 @@ msgstr ""
 msgid "Stage Type"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:447
+#: lib/treby_web/live/jobs_live/show.ex:449
 #, elixir-autogen, elixir-format
 msgid "Stages for this job"
 msgstr ""
@@ -1349,8 +1349,8 @@ msgstr ""
 
 #: lib/treby_web/live/import_live/index.ex:215
 #: lib/treby_web/live/jobs_live/index.ex:206
-#: lib/treby_web/live/jobs_live/show.ex:152
-#: lib/treby_web/live/jobs_live/show.ex:250
+#: lib/treby_web/live/jobs_live/show.ex:154
+#: lib/treby_web/live/jobs_live/show.ex:252
 #, elixir-autogen, elixir-format
 msgid "Status"
 msgstr ""
@@ -1391,7 +1391,7 @@ msgid "Trigger Stage"
 msgstr ""
 
 #: lib/treby_web/live/candidates_live/show.ex:564
-#: lib/treby_web/live/jobs_live/show.ex:531
+#: lib/treby_web/live/jobs_live/show.ex:533
 #: lib/treby_web/live/settings_live/fields.ex:84
 #: lib/treby_web/live/settings_live/fields.ex:139
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:98
@@ -1520,7 +1520,7 @@ msgstr ""
 msgid "e.g. Standard Engineering Template"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:526
+#: lib/treby_web/live/jobs_live/show.ex:528
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:93
 #, elixir-autogen, elixir-format
 msgid "e.g. Technical Interview"
@@ -1688,7 +1688,7 @@ msgstr ""
 msgid "Log out and continue as %{email}"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:459
+#: lib/treby_web/live/jobs_live/show.ex:461
 #, elixir-autogen, elixir-format
 msgid "Manage Pipeline"
 msgstr ""
@@ -1844,7 +1844,7 @@ msgstr ""
 msgid "%{count} last 7d"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:159
+#: lib/treby_web/live/candidates_live/index.ex:160
 #: lib/treby_web/live/careers_live/apply.ex:161
 #: lib/treby_web/live/jobs_live/index.ex:157
 #, elixir-autogen, elixir-format
@@ -1874,14 +1874,14 @@ msgid "Create Job"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:139
-#: lib/treby_web/live/jobs_live/show.ex:161
+#: lib/treby_web/live/jobs_live/show.ex:163
 #, elixir-autogen, elixir-format
 msgid "Default pipeline"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:94
-#: lib/treby_web/live/jobs_live/show.ex:123
-#: lib/treby_web/live/jobs_live/show.ex:223
+#: lib/treby_web/live/jobs_live/show.ex:125
+#: lib/treby_web/live/jobs_live/show.ex:225
 #: lib/treby_web/live/settings_live/branding.ex:79
 #, elixir-autogen, elixir-format
 msgid "Description"
@@ -1914,7 +1914,7 @@ msgstr ""
 
 #: lib/treby_web/live/jobs_live/analytics.ex:145
 #: lib/treby_web/live/jobs_live/index.ex:265
-#: lib/treby_web/live/jobs_live/show.ex:115
+#: lib/treby_web/live/jobs_live/show.ex:117
 #, elixir-autogen, elixir-format
 msgid "No views yet"
 msgstr ""
@@ -1927,26 +1927,26 @@ msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:137
 #: lib/treby_web/live/jobs_live/index.ex:276
-#: lib/treby_web/live/jobs_live/show.ex:159
-#: lib/treby_web/live/jobs_live/show.ex:445
+#: lib/treby_web/live/jobs_live/show.ex:161
+#: lib/treby_web/live/jobs_live/show.ex:447
 #, elixir-autogen, elixir-format
 msgid "Pipeline"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:638
+#: lib/treby_web/live/candidates_live/index.ex:639
 #: lib/treby_web/live/jobs_live/index.ex:379
-#: lib/treby_web/live/jobs_live/show.ex:1048
+#: lib/treby_web/live/jobs_live/show.ex:1050
 #, elixir-autogen, elixir-format
 msgid "Please fill in required fields: %{fields}"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:701
+#: lib/treby_web/live/candidates_live/index.ex:702
 #: lib/treby_web/live/candidates_live/show.ex:1020
 #: lib/treby_web/live/candidates_live/show.ex:1086
 #: lib/treby_web/live/careers_live/apply.ex:322
 #: lib/treby_web/live/jobs_live/index.ex:398
-#: lib/treby_web/live/jobs_live/show.ex:1066
-#: lib/treby_web/live/jobs_live/show.ex:1175
+#: lib/treby_web/live/jobs_live/show.ex:1068
+#: lib/treby_web/live/jobs_live/show.ex:1177
 #: lib/treby_web/live/settings_live/availability.ex:296
 #: lib/treby_web/live/settings_live/branding.ex:197
 #: lib/treby_web/live/settings_live/email_templates.ex:300
@@ -1984,15 +1984,15 @@ msgid "Salary"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:98
-#: lib/treby_web/live/jobs_live/show.ex:124
-#: lib/treby_web/live/jobs_live/show.ex:230
+#: lib/treby_web/live/jobs_live/show.ex:126
+#: lib/treby_web/live/jobs_live/show.ex:232
 #, elixir-autogen, elixir-format
 msgid "Salary Range"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:93
 #: lib/treby_web/live/jobs_live/index.ex:200
-#: lib/treby_web/live/jobs_live/show.ex:122
+#: lib/treby_web/live/jobs_live/show.ex:124
 #, elixir-autogen, elixir-format
 msgid "Title"
 msgstr ""
@@ -2024,7 +2024,7 @@ msgstr ""
 msgid "Buffer Before (minutes)"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1187
+#: lib/treby_web/live/jobs_live/show.ex:1189
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:482
 #, elixir-autogen, elixir-format
 msgid "Cannot delete the only entry stage."
@@ -2035,7 +2035,7 @@ msgstr ""
 msgid "Could not delete template: %{reason}"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:258
+#: lib/treby_web/live/jobs_live/show.ex:260
 #, elixir-autogen, elixir-format
 msgid "Created"
 msgstr ""
@@ -2045,12 +2045,12 @@ msgstr ""
 msgid "Day of Week"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:280
+#: lib/treby_web/live/candidates_live/index.ex:281
 #, elixir-autogen, elixir-format
 msgid "Delete candidate"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:392
+#: lib/treby_web/live/candidates_live/index.ex:393
 #: lib/treby_web/live/pipeline_live/index.ex:641
 #, elixir-autogen, elixir-format
 msgid "Delete candidates"
@@ -2092,7 +2092,7 @@ msgstr ""
 msgid "Describe what information you need..."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:227
+#: lib/treby_web/live/jobs_live/show.ex:229
 #: lib/treby_web/live/schedule_live/index.ex:239
 #, elixir-autogen, elixir-format
 msgid "Details"
@@ -2103,7 +2103,7 @@ msgstr ""
 msgid "Dismiss checklist"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:120
+#: lib/treby_web/live/jobs_live/show.ex:122
 #, elixir-autogen, elixir-format
 msgid "Edit Job"
 msgstr ""
@@ -2124,7 +2124,7 @@ msgstr ""
 msgid "Failed to cancel interview"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:909
+#: lib/treby_web/live/jobs_live/show.ex:911
 #: lib/treby_web/live/pipeline_live/index.ex:740
 #: lib/treby_web/live/pipeline_live/index.ex:1279
 #: lib/treby_web/live/pipeline_live/index.ex:1331
@@ -2137,7 +2137,7 @@ msgstr ""
 msgid "Failed to post message"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1013
+#: lib/treby_web/live/jobs_live/show.ex:1015
 #: lib/treby_web/live/pipeline_live/index.ex:1038
 #, elixir-autogen, elixir-format
 msgid "Failed to reject candidate"
@@ -2168,7 +2168,7 @@ msgstr ""
 msgid "Failed to update preference"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:923
+#: lib/treby_web/live/jobs_live/show.ex:925
 #, elixir-autogen, elixir-format
 msgid "Failed to update review state"
 msgstr ""
@@ -2198,7 +2198,7 @@ msgstr ""
 msgid "Group not found. It may have been merged already."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:287
+#: lib/treby_web/live/jobs_live/show.ex:289
 #, elixir-autogen, elixir-format
 msgid "Grouped by pipeline stage"
 msgstr ""
@@ -2213,7 +2213,7 @@ msgstr ""
 msgid "Invalid date or time"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:152
+#: lib/treby_web/live/candidates_live/index.ex:153
 #, elixir-autogen, elixir-format
 msgid "Job (optional)"
 msgstr ""
@@ -2223,7 +2223,7 @@ msgstr ""
 msgid "Join our team"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:148
+#: lib/treby_web/live/candidates_live/index.ex:149
 #: lib/treby_web/live/candidates_live/show.ex:163
 #, elixir-autogen, elixir-format
 msgid "LinkedIn URL"
@@ -2256,12 +2256,12 @@ msgstr ""
 msgid "No applications yet"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:298
+#: lib/treby_web/live/candidates_live/index.ex:299
 #, elixir-autogen, elixir-format
 msgid "No candidates yet"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:154
+#: lib/treby_web/live/candidates_live/index.ex:155
 #, elixir-autogen, elixir-format
 msgid "No job — just create profile"
 msgstr ""
@@ -2281,7 +2281,7 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1206
+#: lib/treby_web/live/jobs_live/show.ex:1208
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:498
 #, elixir-autogen, elixir-format
 msgid "Only admins can delete pipeline stages"
@@ -2302,12 +2302,12 @@ msgstr ""
 msgid "Only admins can manage message templates"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1087
-#: lib/treby_web/live/jobs_live/show.ex:1096
-#: lib/treby_web/live/jobs_live/show.ex:1105
-#: lib/treby_web/live/jobs_live/show.ex:1114
-#: lib/treby_web/live/jobs_live/show.ex:1130
-#: lib/treby_web/live/jobs_live/show.ex:1169
+#: lib/treby_web/live/jobs_live/show.ex:1089
+#: lib/treby_web/live/jobs_live/show.ex:1098
+#: lib/treby_web/live/jobs_live/show.ex:1107
+#: lib/treby_web/live/jobs_live/show.ex:1116
+#: lib/treby_web/live/jobs_live/show.ex:1132
+#: lib/treby_web/live/jobs_live/show.ex:1171
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:464
 #, elixir-autogen, elixir-format
 msgid "Only admins can manage pipeline stages"
@@ -2318,7 +2318,7 @@ msgstr ""
 msgid "Only admins can manage scorecard templates"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:898
+#: lib/treby_web/live/jobs_live/show.ex:900
 #, elixir-autogen, elixir-format
 msgid "Only advancers can move candidates in interview stages"
 msgstr ""
@@ -2328,7 +2328,7 @@ msgstr ""
 msgid "Page Title"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:930
+#: lib/treby_web/live/candidates_live/index.ex:931
 #: lib/treby_web/live/pipeline_live/index.ex:1287
 #, elixir-autogen, elixir-format
 msgid "Please select a schedule date and time"
@@ -2354,7 +2354,7 @@ msgstr ""
 msgid "Provide constructive feedback..."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:865
+#: lib/treby_web/live/jobs_live/show.ex:867
 #, elixir-autogen, elixir-format
 msgid "Public link copied to clipboard"
 msgstr ""
@@ -2374,20 +2374,20 @@ msgstr ""
 msgid "Reason"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:837
+#: lib/treby_web/live/jobs_live/show.ex:839
 #: lib/treby_web/live/pipeline_live/index.ex:411
 #, elixir-autogen, elixir-format
 msgid "Reason for rejection (required)"
 msgstr ""
 
 #: lib/treby_web/live/candidates_live/show.ex:800
-#: lib/treby_web/live/jobs_live/show.ex:825
+#: lib/treby_web/live/jobs_live/show.ex:827
 #: lib/treby_web/live/pipeline_live/index.ex:399
 #, elixir-autogen, elixir-format
 msgid "Reject Candidate"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:954
+#: lib/treby_web/live/jobs_live/show.ex:956
 #: lib/treby_web/live/pipeline_live/index.ex:972
 #, elixir-autogen, elixir-format
 msgid "Rejection motivation is required"
@@ -2426,12 +2426,12 @@ msgstr ""
 msgid "Search across all companies..."
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:110
+#: lib/treby_web/live/candidates_live/index.ex:111
 #, elixir-autogen, elixir-format
 msgid "Search by name or email..."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:297
+#: lib/treby_web/live/jobs_live/show.ex:299
 #, elixir-autogen, elixir-format
 msgid "Search candidates..."
 msgstr ""
@@ -2489,7 +2489,7 @@ msgstr ""
 msgid "Type your message..."
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:436
+#: lib/treby_web/live/candidates_live/index.ex:437
 #, elixir-autogen, elixir-format
 msgid "Use {candidate_name} for personalization"
 msgstr ""
@@ -2509,7 +2509,7 @@ msgstr ""
 msgid "Action needed:"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:323
+#: lib/treby_web/live/candidates_live/index.ex:324
 #: lib/treby_web/live/pipeline_live/index.ex:595
 #, elixir-autogen, elixir-format
 msgid "Actions..."
@@ -2525,8 +2525,8 @@ msgstr ""
 msgid "Activity"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:99
-#: lib/treby_web/live/candidates_live/index.ex:143
+#: lib/treby_web/live/candidates_live/index.ex:100
+#: lib/treby_web/live/candidates_live/index.ex:144
 #, elixir-autogen, elixir-format
 msgid "Add Candidate"
 msgstr ""
@@ -2536,7 +2536,7 @@ msgstr ""
 msgid "All Examiners"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:119
+#: lib/treby_web/live/candidates_live/index.ex:120
 #, elixir-autogen, elixir-format
 msgid "All Jobs"
 msgstr ""
@@ -2546,7 +2546,7 @@ msgstr ""
 msgid "All Open Positions"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:130
+#: lib/treby_web/live/candidates_live/index.ex:131
 #, elixir-autogen, elixir-format
 msgid "All Stages"
 msgstr ""
@@ -2596,8 +2596,8 @@ msgstr ""
 msgid "Choose workspace"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:329
-#: lib/treby_web/live/candidates_live/index.ex:385
+#: lib/treby_web/live/candidates_live/index.ex:330
+#: lib/treby_web/live/candidates_live/index.ex:386
 #, elixir-autogen, elixir-format
 msgid "Compare"
 msgstr ""
@@ -2612,7 +2612,7 @@ msgstr ""
 msgid "Daily Views"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:506
+#: lib/treby_web/live/candidates_live/index.ex:507
 #: lib/treby_web/live/pipeline_live/index.ex:506
 #: lib/treby_web/live/schedule_live/index.ex:115
 #, elixir-autogen, elixir-format
@@ -2696,13 +2696,13 @@ msgstr ""
 msgid "Mark Interview as Completed"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:326
+#: lib/treby_web/live/candidates_live/index.ex:327
 #: lib/treby_web/live/pipeline_live/index.ex:598
 #, elixir-autogen, elixir-format
 msgid "Mark as New"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:325
+#: lib/treby_web/live/candidates_live/index.ex:326
 #: lib/treby_web/live/pipeline_live/index.ex:597
 #, elixir-autogen, elixir-format
 msgid "Mark as Reviewed"
@@ -2713,12 +2713,12 @@ msgstr ""
 msgid "Merge Duplicates"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:550
+#: lib/treby_web/live/candidates_live/index.ex:551
 #, elixir-autogen, elixir-format
 msgid "Merge candidates"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:328
+#: lib/treby_web/live/candidates_live/index.ex:329
 #, elixir-autogen, elixir-format
 msgid "Merge into one"
 msgstr ""
@@ -2733,7 +2733,7 @@ msgstr ""
 msgid "Monthly Views (Last 12 Months)"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:324
+#: lib/treby_web/live/candidates_live/index.ex:325
 #: lib/treby_web/live/pipeline_live/index.ex:596
 #, elixir-autogen, elixir-format
 msgid "Move to Stage"
@@ -2774,7 +2774,7 @@ msgstr ""
 msgid "No messages yet."
 msgstr ""
 
-#: lib/treby_web/live/candidate_portal_live/schedule.ex:298
+#: lib/treby_web/live/candidate_portal_live/schedule.ex:299
 #, elixir-autogen, elixir-format
 msgid "Nothing to schedule"
 msgstr ""
@@ -2831,7 +2831,7 @@ msgid "Recommendations"
 msgstr ""
 
 #: lib/treby_web/live/candidates_live/show.ex:828
-#: lib/treby_web/live/jobs_live/show.ex:843
+#: lib/treby_web/live/jobs_live/show.ex:845
 #: lib/treby_web/live/pipeline_live/index.ex:418
 #, elixir-autogen, elixir-format
 msgid "Reject"
@@ -2859,7 +2859,7 @@ msgstr ""
 msgid "Schedule Interview"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:468
+#: lib/treby_web/live/candidates_live/index.ex:469
 #, elixir-autogen, elixir-format
 msgid "Schedule for later"
 msgstr ""
@@ -2892,7 +2892,7 @@ msgstr ""
 msgid "Select interviewer"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:341
+#: lib/treby_web/live/candidates_live/index.ex:342
 #: lib/treby_web/live/pipeline_live/index.ex:608
 #, elixir-autogen, elixir-format
 msgid "Select stage..."
@@ -2908,7 +2908,7 @@ msgstr ""
 msgid "Self-Scheduling"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:411
+#: lib/treby_web/live/candidates_live/index.ex:412
 #: lib/treby_web/live/candidates_live/show.ex:934
 #, elixir-autogen, elixir-format
 msgid "Send"
@@ -2919,7 +2919,7 @@ msgstr ""
 msgid "Send Invite"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:327
+#: lib/treby_web/live/candidates_live/index.ex:328
 #: lib/treby_web/live/candidates_live/show.ex:741
 #, elixir-autogen, elixir-format
 msgid "Send Message"
@@ -2930,7 +2930,7 @@ msgstr ""
 msgid "Send Message Notification?"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:455
+#: lib/treby_web/live/candidates_live/index.ex:456
 #, elixir-autogen, elixir-format
 msgid "Send now"
 msgstr ""
@@ -2975,7 +2975,7 @@ msgstr ""
 msgid "This position is no longer available"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:517
+#: lib/treby_web/live/candidates_live/index.ex:518
 #: lib/treby_web/live/pipeline_live/index.ex:517
 #: lib/treby_web/live/settings_live/audit_log.ex:180
 #, elixir-autogen, elixir-format
@@ -3027,7 +3027,7 @@ msgstr ""
 msgid "Your Applications"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:300
+#: lib/treby_web/live/candidates_live/index.ex:301
 #, elixir-autogen, elixir-format
 msgid "Add candidates manually, import from a CSV file, or let them apply through your career page. Candidates will appear here once added."
 msgstr ""
@@ -3038,7 +3038,7 @@ msgstr ""
 msgid "Book Interview"
 msgstr ""
 
-#: lib/treby_web/live/candidate_portal_live/schedule.ex:290
+#: lib/treby_web/live/candidate_portal_live/schedule.ex:291
 #, elixir-autogen, elixir-format
 msgid "Confirm Booking"
 msgstr ""
@@ -3068,27 +3068,27 @@ msgstr ""
 msgid "Interviewer"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:369
+#: lib/treby_web/live/candidates_live/index.ex:370
 #, elixir-autogen, elixir-format
 msgid "Mark New"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:361
+#: lib/treby_web/live/candidates_live/index.ex:362
 #, elixir-autogen, elixir-format
 msgid "Mark Reviewed"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:584
+#: lib/treby_web/live/candidates_live/index.ex:585
 #, elixir-autogen, elixir-format
 msgid "Merge"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:377
+#: lib/treby_web/live/candidates_live/index.ex:378
 #, elixir-autogen, elixir-format
 msgid "Merge..."
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:353
+#: lib/treby_web/live/candidates_live/index.ex:354
 #, elixir-autogen, elixir-format
 msgid "Move"
 msgstr ""
@@ -3099,7 +3099,7 @@ msgstr ""
 msgid "Next &rarr;"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:500
+#: lib/treby_web/live/candidates_live/index.ex:501
 #, elixir-autogen, elixir-format
 msgid "Next Monday"
 msgstr ""
@@ -3165,17 +3165,17 @@ msgstr ""
 msgid "Time (UTC)"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:492
+#: lib/treby_web/live/candidates_live/index.ex:493
 #, elixir-autogen, elixir-format
 msgid "Tomorrow 14:00"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:484
+#: lib/treby_web/live/candidates_live/index.ex:485
 #, elixir-autogen, elixir-format
 msgid "Tomorrow 9:00"
 msgstr ""
 
-#: lib/treby_web/live/candidate_portal_live/schedule.ex:301
+#: lib/treby_web/live/candidate_portal_live/schedule.ex:302
 #, elixir-autogen, elixir-format
 msgid "You don't have any application in an interview stage right now."
 msgstr ""
@@ -3205,18 +3205,18 @@ msgstr ""
 msgid "Branding saved"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:1078
+#: lib/treby_web/live/candidates_live/index.ex:1079
 #, elixir-autogen, elixir-format
 msgid "Candidate deleted"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:906
+#: lib/treby_web/live/jobs_live/show.ex:908
 #, elixir-autogen, elixir-format
 msgid "Candidate moved"
 msgstr ""
 
 #: lib/treby_web/live/candidates_live/show.ex:1348
-#: lib/treby_web/live/jobs_live/show.ex:1010
+#: lib/treby_web/live/jobs_live/show.ex:1012
 #: lib/treby_web/live/pipeline_live/index.ex:1035
 #, elixir-autogen, elixir-format
 msgid "Candidate rejected"
@@ -3227,7 +3227,7 @@ msgstr ""
 msgid "Candidate updated successfully."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1220
+#: lib/treby_web/live/jobs_live/show.ex:1222
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:511
 #, elixir-autogen, elixir-format
 msgid "Candidates reassigned and stage deleted"
@@ -3260,7 +3260,7 @@ msgstr ""
 msgid "Failed to create calendar event. Please try again."
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:1090
+#: lib/treby_web/live/candidates_live/index.ex:1091
 #, elixir-autogen, elixir-format
 msgid "Failed to delete candidate"
 msgstr ""
@@ -3357,7 +3357,7 @@ msgstr ""
 msgid "Invite sent to %{email}"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1060
+#: lib/treby_web/live/jobs_live/show.ex:1062
 #, elixir-autogen, elixir-format
 msgid "Job updated"
 msgstr ""
@@ -3367,7 +3367,7 @@ msgstr ""
 msgid "Language updated successfully"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:847
+#: lib/treby_web/live/candidates_live/index.ex:848
 #, elixir-autogen, elixir-format
 msgid "Merge failed. Make sure at least two candidates are selected."
 msgstr ""
@@ -3377,7 +3377,7 @@ msgstr ""
 msgid "Merge undone. The absorbed profile has been restored."
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:839
+#: lib/treby_web/live/candidates_live/index.ex:840
 #, elixir-autogen, elixir-format
 msgid "Merged candidates into %{name}"
 msgstr ""
@@ -3419,7 +3419,7 @@ msgid "Name is required"
 msgstr ""
 
 #: lib/treby_web/live/candidates_live/show.ex:1353
-#: lib/treby_web/live/jobs_live/show.ex:1019
+#: lib/treby_web/live/jobs_live/show.ex:1021
 #: lib/treby_web/live/pipeline_live/index.ex:1044
 #, elixir-autogen, elixir-format
 msgid "No rejected stage found in this pipeline"
@@ -3445,7 +3445,7 @@ msgstr ""
 msgid "Notification preference updated"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:1084
+#: lib/treby_web/live/candidates_live/index.ex:1085
 #, elixir-autogen, elixir-format
 msgid "Only admins can delete candidates"
 msgstr ""
@@ -3496,18 +3496,18 @@ msgstr ""
 msgid "Preferences saved"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:920
+#: lib/treby_web/live/jobs_live/show.ex:922
 #, elixir-autogen, elixir-format
 msgid "Review state updated"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1202
+#: lib/treby_web/live/jobs_live/show.ex:1204
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:494
 #, elixir-autogen, elixir-format
 msgid "Stage deleted"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:1166
+#: lib/treby_web/live/jobs_live/show.ex:1168
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:461
 #, elixir-autogen, elixir-format
 msgid "Stage saved"
@@ -3661,7 +3661,7 @@ msgstr ""
 msgid "Access Portal"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:305
+#: lib/treby_web/live/candidates_live/index.ex:306
 #, elixir-autogen, elixir-format
 msgid "Add a candidate"
 msgstr ""
@@ -3672,7 +3672,7 @@ msgid "Added a note"
 msgstr ""
 
 #: lib/treby_web/live/candidates_live/show.ex:1297
-#: lib/treby_web/live/jobs_live/show.ex:976
+#: lib/treby_web/live/jobs_live/show.ex:978
 #: lib/treby_web/live/pipeline_live/index.ex:996
 #, elixir-autogen, elixir-format
 msgid "Application Update"
@@ -3688,12 +3688,12 @@ msgstr ""
 msgid "Are you sure you want to delete %{count} applications? This action cannot be undone."
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:394
+#: lib/treby_web/live/candidates_live/index.ex:395
 #, elixir-autogen, elixir-format
 msgid "Are you sure you want to delete %{count} candidates? This action cannot be undone."
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:282
+#: lib/treby_web/live/candidates_live/index.ex:283
 #, elixir-autogen, elixir-format
 msgid "Are you sure you want to delete %{name}? This action cannot be undone."
 msgstr ""
@@ -3723,13 +3723,13 @@ msgstr ""
 msgid "Auto-merged %{count} exact-email duplicate %{plural}"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:682
-#: lib/treby_web/live/candidates_live/index.ex:688
+#: lib/treby_web/live/candidates_live/index.ex:683
+#: lib/treby_web/live/candidates_live/index.ex:689
 #, elixir-autogen, elixir-format
 msgid "Candidate added"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:687
+#: lib/treby_web/live/candidates_live/index.ex:688
 #, elixir-autogen, elixir-format
 msgid "Candidate added to %{title}"
 msgstr ""
@@ -3815,7 +3815,7 @@ msgstr ""
 msgid "Hired"
 msgstr ""
 
-#: lib/treby_web/live/candidates_live/index.ex:306
+#: lib/treby_web/live/candidates_live/index.ex:307
 #, elixir-autogen, elixir-format
 msgid "Import from CSV"
 msgstr ""
@@ -3863,18 +3863,18 @@ msgstr ""
 msgid "John Doe"
 msgstr ""
 
-#: lib/treby_web/live/candidate_portal_live/schedule.ex:313
+#: lib/treby_web/live/candidate_portal_live/schedule.ex:314
 #, elixir-autogen, elixir-format
 msgid "Join Jitsi Meeting"
 msgstr ""
 
-#: lib/treby_web/live/candidate_portal_live/schedule.ex:314
-#: lib/treby_web/live/candidate_portal_live/schedule.ex:317
+#: lib/treby_web/live/candidate_portal_live/schedule.ex:315
+#: lib/treby_web/live/candidate_portal_live/schedule.ex:318
 #, elixir-autogen, elixir-format
 msgid "Join Meeting"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:411
+#: lib/treby_web/live/jobs_live/show.ex:413
 #: lib/treby_web/live/pipeline_live/index.ex:310
 #, elixir-autogen, elixir-format
 msgid "Mark reviewed"
@@ -3930,7 +3930,7 @@ msgstr ""
 msgid "No candidates to merge"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:421
+#: lib/treby_web/live/jobs_live/show.ex:423
 #, elixir-autogen, elixir-format
 msgid "No rejected stage in this pipeline"
 msgstr ""
@@ -3945,7 +3945,7 @@ msgstr ""
 msgid "Not a fit for the role"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:231
+#: lib/treby_web/live/jobs_live/show.ex:233
 #, elixir-autogen, elixir-format
 msgid "Not specified"
 msgstr ""
@@ -3993,7 +3993,7 @@ msgstr ""
 msgid "Profiles belong to different workspaces"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:420
+#: lib/treby_web/live/jobs_live/show.ex:422
 #, elixir-autogen, elixir-format
 msgid "Reject candidate"
 msgstr ""
@@ -4008,7 +4008,7 @@ msgstr ""
 msgid "Remove Schedule"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:410
+#: lib/treby_web/live/jobs_live/show.ex:412
 #: lib/treby_web/live/pipeline_live/index.ex:310
 #, elixir-autogen, elixir-format
 msgid "Reviewed"
@@ -4061,7 +4061,7 @@ msgstr ""
 msgid "We're sorry, but we've decided to move forward with other candidates."
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:985
+#: lib/treby_web/live/jobs_live/show.ex:987
 #: lib/treby_web/live/pipeline_live/index.ex:1005
 #, elixir-autogen, elixir-format
 msgid "We've decided to move forward with other candidates."
@@ -4135,7 +4135,7 @@ msgid "Careers"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:116
-#: lib/treby_web/live/jobs_live/show.ex:133
+#: lib/treby_web/live/jobs_live/show.ex:135
 #, elixir-autogen, elixir-format
 msgid "Contract"
 msgstr ""
@@ -4146,45 +4146,45 @@ msgid "Discover"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:112
-#: lib/treby_web/live/jobs_live/show.ex:129
-#: lib/treby_web/live/jobs_live/show.ex:238
+#: lib/treby_web/live/jobs_live/show.ex:131
+#: lib/treby_web/live/jobs_live/show.ex:240
 #, elixir-autogen, elixir-format
 msgid "Employment Type"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:114
-#: lib/treby_web/live/jobs_live/show.ex:131
+#: lib/treby_web/live/jobs_live/show.ex:133
 #, elixir-autogen, elixir-format
 msgid "Full-time"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:128
-#: lib/treby_web/live/jobs_live/show.ex:144
+#: lib/treby_web/live/jobs_live/show.ex:146
 #, elixir-autogen, elixir-format
 msgid "Hybrid"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:117
-#: lib/treby_web/live/jobs_live/show.ex:134
+#: lib/treby_web/live/jobs_live/show.ex:136
 #, elixir-autogen, elixir-format
 msgid "Internship"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:105
-#: lib/treby_web/live/jobs_live/show.ex:125
-#: lib/treby_web/live/jobs_live/show.ex:234
+#: lib/treby_web/live/jobs_live/show.ex:127
+#: lib/treby_web/live/jobs_live/show.ex:236
 #, elixir-autogen, elixir-format
 msgid "Location"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:127
-#: lib/treby_web/live/jobs_live/show.ex:143
+#: lib/treby_web/live/jobs_live/show.ex:145
 #, elixir-autogen, elixir-format
 msgid "On-site"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:115
-#: lib/treby_web/live/jobs_live/show.ex:132
+#: lib/treby_web/live/jobs_live/show.ex:134
 #, elixir-autogen, elixir-format
 msgid "Part-time"
 msgstr ""
@@ -4200,7 +4200,7 @@ msgid "Prefilled from your portal profile — you can edit before submitting."
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:129
-#: lib/treby_web/live/jobs_live/show.ex:145
+#: lib/treby_web/live/jobs_live/show.ex:147
 #, elixir-autogen, elixir-format
 msgid "Remote"
 msgstr ""
@@ -4217,8 +4217,8 @@ msgid "View other positions"
 msgstr ""
 
 #: lib/treby_web/live/jobs_live/index.ex:125
-#: lib/treby_web/live/jobs_live/show.ex:141
-#: lib/treby_web/live/jobs_live/show.ex:244
+#: lib/treby_web/live/jobs_live/show.ex:143
+#: lib/treby_web/live/jobs_live/show.ex:246
 #, elixir-autogen, elixir-format
 msgid "Workplace"
 msgstr ""
@@ -4396,7 +4396,7 @@ msgstr ""
 msgid "After"
 msgstr ""
 
-#: lib/treby_web/live/jobs_live/show.ex:830
+#: lib/treby_web/live/jobs_live/show.ex:832
 #, elixir-autogen, elixir-format
 msgid "Are you sure you want to reject"
 msgstr ""

@@ -74,7 +74,7 @@ defmodule Treby.MixProject do
       {:sweet_xml, "~> 0.7"},
       {:finch, "~> 0.19"},
       {:cloak_ecto, "~> 1.3.0"},
-      {:tzdata, "~> 1.1"},
+      {:tz, "~> 0.28"},
       {:nimble_csv, "~> 1.2"},
       {:oban, "~> 2.19"},
       {:phoenix_storybook, "~> 0.9", only: :dev},

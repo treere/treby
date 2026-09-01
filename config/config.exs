@@ -85,7 +85,7 @@ config :treby,
        String.to_integer(Treby.ConfigHelpers.env("JOB_VIEW_DEDUP_MINUTES", "60"))
 
 # Configure timezone database for availability calculations
-config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+config :elixir, :time_zone_database, Tz.TimeZoneDatabase
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

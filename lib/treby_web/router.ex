@@ -27,6 +27,13 @@ defmodule TrebyWeb.Router do
     plug TrebyWeb.Plugs.CandidateAuth
   end
 
+  # Health checks — unauthenticated, tenant-agnostic (k8s liveness/readiness)
+  scope "/", TrebyWeb do
+    get "/health", HealthController, :health
+    get "/healthz", HealthController, :health
+    get "/health/ready", HealthController, :ready
+  end
+
   # URL-scoped authenticated app (new)
   scope "/:tenant_slug/app", TrebyWeb do
     pipe_through [:browser, :require_auth, :require_membership]

@@ -4,7 +4,15 @@ The pipeline is the heart of Treby: a board where you move candidates through hi
 
 ![Pipeline Kanban](/screenshots/07-pipeline-kanban.png)
 
+## Jobs Overview
+
+![Jobs List](/screenshots/05-jobs-list.png)
+
+The **Jobs** page lists every open position with salary, visibility (Public/Private), view counts, and candidate totals — create new jobs from here.
+
 ## Job Detail Page
+
+![Job Detail](/screenshots/22-job-detail.png)
 
 The job detail page is your daily workspace: candidates are **grouped by stage** into columns so you can see at a glance who is where.
 
@@ -83,6 +91,10 @@ The default pipeline has 7 stages:
 | Rejected | red | Candidates not selected (requires a reason) |
 
 You can customize them in **Settings → Pipeline** / **Settings → Pipeline Stages**: names, colors, order, stage type, minimum number of examiners and linked scorecard template, plus managing multiple pipelines per company.
+
+![Settings — Pipeline](/screenshots/12-settings-pipeline.png)
+
+![Pipeline Stages](/screenshots/40-pipeline-stages.png)
 
 ## Pipeline Templates
 

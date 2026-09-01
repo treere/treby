@@ -4,6 +4,8 @@ Candidates have a personal portal where they track their applications without ne
 
 ![Portal Login](/screenshots/26-portal-login.png)
 
+![Portal Code Verification](/screenshots/42-portal-verify.png)
+
 ## Code-Based Access
 
 - Candidates enter their email on the portal login page

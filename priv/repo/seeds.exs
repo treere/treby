@@ -35,6 +35,9 @@ admin =
   })
   |> Repo.insert!()
 
+{:ok, _} =
+  Treby.Memberships.create_membership(%{user_id: admin.id, tenant_id: tenant.id, role: "admin"})
+
 IO.puts("Created admin user: #{admin.email}")
 
 # Create team member
@@ -47,6 +50,9 @@ member =
     role: "member"
   })
   |> Repo.insert!()
+
+{:ok, _} =
+  Treby.Memberships.create_membership(%{user_id: member.id, tenant_id: tenant.id, role: "member"})
 
 IO.puts("Created member user: #{member.email}")
 

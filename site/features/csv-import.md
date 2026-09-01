@@ -2,6 +2,8 @@
 
 Migrate candidates from a spreadsheet in three steps: upload, map, import.
 
+![CSV Import wizard](/screenshots/29-csv-import.png)
+
 ## Steps
 
 Find it under **Import** in the main menu.

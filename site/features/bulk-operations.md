@@ -2,6 +2,8 @@
 
 Act on multiple applications at once, directly from the candidates list or a job page.
 
+![Candidates List with bulk selection](/screenshots/08-candidates-list.png)
+
 ## What You Can Do
 
 | Action | What happens |

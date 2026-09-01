@@ -11,6 +11,8 @@ Treby uses email sparingly: **login codes** and **notification pings**. All real
 
 Email is never used to deliver content (interview details, stage updates, offers, messages). Those live in the portal conversation; the email only tells the candidate to go look.
 
+![Settings — Message Templates](/screenshots/37-settings-emails.png)
+
 ## Message Templates
 
 Instead of stage-based email templates, Treby provides **message templates** configured in **Settings → Message Templates**. When a candidate moves to a stage, the recruiter can post the rendered template into the candidate's portal conversation — immediately, on a schedule, or skip it.

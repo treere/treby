@@ -2,6 +2,8 @@
 
 Structured evaluations for interviews: templates with criteria, per-examiner completion, and advancement gating until all scorecards are in.
 
+![Settings — Scorecard Templates](/screenshots/33-settings-scorecards.png)
+
 ## Templates
 
 Admins configure templates in **Settings → Scorecards**:
@@ -29,6 +31,12 @@ While something is missing:
 - the **Advance** button (and drag & drop to the next stage) stays disabled for non-advancers or when scorecards are incomplete
 
 See also [Kanban Pipeline](/features/pipeline) for the full advancement and rejection flow.
+
+## Interviews Dashboard
+
+![Interviews Dashboard](/screenshots/34-interviews-dashboard.png)
+
+Track every upcoming interview, scorecard completion, and direct action to mark interviews complete or submit a scorecard.
 
 ## Dashboard Link
 

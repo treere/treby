@@ -2,6 +2,8 @@
 
 Add company-specific fields to candidates, applications, or jobs — without code changes.
 
+![Settings — Custom Fields](/screenshots/14-settings-fields.png)
+
 ## Configuration
 
 Admins manage fields in **Settings → Fields**:

@@ -2,6 +2,8 @@
 
 Evaluate 2 or 3 candidates side by side without jumping between profiles.
 
+![Candidate Comparison](/screenshots/30-comparison.png)
+
 ## How to Use It
 
 From the candidates list, select 2 or 3 profiles and choose **Compare**. You can also open the comparison page directly with candidates pre-selected.

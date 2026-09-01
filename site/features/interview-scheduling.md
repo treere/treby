@@ -56,6 +56,8 @@ When a confirmed examiner cancels:
 
 ## Interviews Dashboard
 
+![Interviews Dashboard](/screenshots/34-interviews-dashboard.png)
+
 The interviews dashboard shows all upcoming interviews with:
 
 - All examiner names for multi-examiner events
@@ -68,3 +70,9 @@ The interviews dashboard shows all upcoming interviews with:
 ## Configuration
 
 Google Calendar is **optional** and uses OAuth 2.0 with encrypted token storage — connect it in **Settings → Calendar** to check availability against your real calendar. Everyone can set their weekly availability in **Settings → Availability**. Assign examiners to interview-type stages in **Settings → Pipeline Stages** to enable multi-examiner scheduling. Future calendar providers plug into the same provider abstraction.
+
+![Settings — Calendar](/screenshots/35-settings-calendar.png)
+
+![Settings — Availability](/screenshots/36-settings-availability.png)
+
+![Schedule Interview](/screenshots/41-schedule-page.png)

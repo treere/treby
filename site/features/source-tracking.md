@@ -2,6 +2,8 @@
 
 Understand where candidates come from and compare channels.
 
+![Settings — Sources](/screenshots/31-settings-sources.png)
+
 ## Managing Sources
 
 Admins manage sources in **Settings → Sources**:

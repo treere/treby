@@ -14,7 +14,7 @@ defmodule TrebyWeb.DesignSystem.Button do
   attr :class, :any, default: nil
 
   attr :rest, :global,
-    include: ~w(href navigate patch method download name value disabled form type)
+    include: ~w(href navigate patch method download name value disabled form type target rel)
 
   slot :inner_block
   slot :icon, doc: "icon rendered before the label"

@@ -278,7 +278,8 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
               <%= if @selected_slot do %>
                 <div class="mt-6 pt-6 border-t border-base-300">
                   <p class="text-sm text-base-content/60">
-                    {gettext("Selected:")}<strong class="text-base-content ml-1">
+                    {gettext("Selected:")}
+                    <strong class="text-base-content ml-1">
                       {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                     </strong>
                   </p>

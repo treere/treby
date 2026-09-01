@@ -71,6 +71,8 @@ defmodule TrebyWeb.JobsLive.Show do
     end
   end
 
+  def handle_info(_msg, socket), do: {:noreply, socket}
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>

@@ -78,5 +78,8 @@ jobs:
       - name: Run sobelow
         run: mix sobelow --config
 
+      - name: Audit Hex dependencies (retired/vuln)
+        run: mix hex.audit
+
       - name: Run tests
         run: mix test

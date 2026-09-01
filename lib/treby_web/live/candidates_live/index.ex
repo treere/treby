@@ -91,7 +91,8 @@ defmodule TrebyWeb.CandidatesLive.Index do
               navigate={~p"/app/candidates/merge"}
               class="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-100 hover:bg-amber-100 text-sm font-medium"
             >
-              <.icon name="hero-user-group" class="w-4 h-4" />{gettext("Duplicates")}<span class="bg-amber-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5">
+              <.icon name="hero-user-group" class="w-4 h-4" />{gettext("Duplicates")}
+              <span class="bg-amber-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5">
                 {@duplicate_count}
               </span>
             </.link>

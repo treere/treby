@@ -73,7 +73,7 @@ defmodule TrebyWeb.DesignSystem.Pattern do
 
   defp phx_value_attrs(extra_attrs) do
     Enum.map(extra_attrs, fn {key, value} ->
-      {:"phx-value-#{key}", value}
+      {"phx-value-#{key}", value}
     end)
   end
 

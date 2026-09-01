@@ -1,13 +1,38 @@
 import Config
 
+# Runtime helper - treat empty string as unset (mirrors Treby.ConfigHelpers but available at runtime in releases)
+# Guard against redefinition when config is evaluated twice (e.g. `mix release`)
+unless Code.ensure_loaded?(Treby.RuntimeConfigHelpers) do
+  defmodule Treby.RuntimeConfigHelpers do
+    @moduledoc false
+    def env(var, default) do
+      case System.get_env(var) do
+        nil -> default
+        "" -> default
+        v -> v
+      end
+    end
+
+    def env(var) do
+      case System.get_env(var) do
+        nil -> nil
+        "" -> nil
+        v -> v
+      end
+    end
+  end
+end
+
+alias Treby.RuntimeConfigHelpers, as: Env
+
 config :treby,
        :job_view_dedup_minutes,
-       String.to_integer(Treby.ConfigHelpers.env("JOB_VIEW_DEDUP_MINUTES", "60"))
+       String.to_integer(Env.env("JOB_VIEW_DEDUP_MINUTES", "60"))
 
 # Cloak encryption key (only override if env var is set)
-if Treby.ConfigHelpers.env("CLOAK_KEY") do
+if Env.env("CLOAK_KEY") do
   config :treby,
-    cloak_key: Treby.ConfigHelpers.env("CLOAK_KEY")
+    cloak_key: Env.env("CLOAK_KEY")
 end
 
 # config/runtime.exs is executed for all environments, including
@@ -26,27 +51,26 @@ end
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
-if Treby.ConfigHelpers.env("PHX_SERVER") do
+if Env.env("PHX_SERVER") do
   config :treby, TrebyWeb.Endpoint, server: true
 end
 
-config :treby, TrebyWeb.Endpoint,
-  http: [port: String.to_integer(Treby.ConfigHelpers.env("PORT", "4000"))]
+config :treby, TrebyWeb.Endpoint, http: [port: String.to_integer(Env.env("PORT", "4000"))]
 
 if config_env() == :prod do
   database_url =
-    Treby.ConfigHelpers.env("DATABASE_URL") ||
+    Env.env("DATABASE_URL") ||
       raise """
       environment variable DATABASE_URL is missing.
       For example: ecto://USER:PASS@HOST/DATABASE
       """
 
-  maybe_ipv6 = if Treby.ConfigHelpers.env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
+  maybe_ipv6 = if Env.env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
   config :treby, Treby.Repo,
     # ssl: true,
     url: database_url,
-    pool_size: String.to_integer(Treby.ConfigHelpers.env("POOL_SIZE", "10")),
+    pool_size: String.to_integer(Env.env("POOL_SIZE", "10")),
     # For machines with several cores, consider starting multiple pools of `pool_size`
     # pool_count: 4,
     socket_options: maybe_ipv6
@@ -57,15 +81,15 @@ if config_env() == :prod do
   # to check this value into version control, so we use an environment
   # variable instead.
   secret_key_base =
-    Treby.ConfigHelpers.env("SECRET_KEY_BASE") ||
+    Env.env("SECRET_KEY_BASE") ||
       raise """
       environment variable SECRET_KEY_BASE is missing.
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = Treby.ConfigHelpers.env("PHX_HOST") || "example.com"
+  host = Env.env("PHX_HOST") || "example.com"
 
-  config :treby, :dns_cluster_query, Treby.ConfigHelpers.env("DNS_CLUSTER_QUERY")
+  config :treby, :dns_cluster_query, Env.env("DNS_CLUSTER_QUERY")
 
   config :treby, TrebyWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
@@ -115,7 +139,7 @@ if config_env() == :prod do
     engine: Oban.Engines.Basic,
     queues: [email: 10],
     repo: Treby.Repo,
-    prefix: Treby.ConfigHelpers.env("OBAN_PREFIX")
+    prefix: Env.env("OBAN_PREFIX")
 
   # ## Configuring the mailer
   #
@@ -137,9 +161,9 @@ if config_env() == :prod do
 
   # Configure S3 for production
   config :ex_aws, :s3,
-    scheme: Treby.ConfigHelpers.env("S3_SCHEME", "https://"),
-    host: Treby.ConfigHelpers.env("S3_HOST", "s3.amazonaws.com"),
-    port: String.to_integer(Treby.ConfigHelpers.env("S3_PORT", "443")),
-    access_key_id: Treby.ConfigHelpers.env("S3_ACCESS_KEY_ID"),
-    secret_access_key: Treby.ConfigHelpers.env("S3_SECRET_ACCESS_KEY")
+    scheme: Env.env("S3_SCHEME", "https://"),
+    host: Env.env("S3_HOST", "s3.amazonaws.com"),
+    port: String.to_integer(Env.env("S3_PORT", "443")),
+    access_key_id: Env.env("S3_ACCESS_KEY_ID"),
+    secret_access_key: Env.env("S3_SECRET_ACCESS_KEY")
 end

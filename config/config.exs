@@ -9,12 +9,15 @@ import Config
 
 # Helper to read env vars, treating empty strings as unset (so the
 # default fallback is used). Use `env/1` when no default is wanted.
-defmodule Treby.ConfigHelpers do
-  @moduledoc false
+# Guard against redefinition when config is evaluated twice (e.g. `mix release`)
+unless Code.ensure_loaded?(Treby.ConfigHelpers) do
+  defmodule Treby.ConfigHelpers do
+    @moduledoc false
 
-  def env(var, default), do: if(present?(var), do: System.get_env(var), else: default)
-  def env(var), do: if(present?(var), do: System.get_env(var), else: nil)
-  def present?(var), do: match?(v when is_binary(v) and v != "", System.get_env(var))
+    def env(var, default), do: if(present?(var), do: System.get_env(var), else: default)
+    def env(var), do: if(present?(var), do: System.get_env(var), else: nil)
+    def present?(var), do: match?(v when is_binary(v) and v != "", System.get_env(var))
+  end
 end
 
 config :treby,

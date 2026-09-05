@@ -12,6 +12,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
  // which is where it is declared as a dev dependency.
 const require = createRequire(resolve(__dirname, "..", "site", "package.json"))
 const { chromium } = require("@playwright/test")
+let AxeBuilder = null
+try {
+  AxeBuilder = require("@axe-core/playwright").default
+} catch {}
+if (!AxeBuilder) {
+  try { AxeBuilder = require("@axe-core/playwright") } catch {}
+}
 
 const SCREENSHOTS_DIR = resolve(__dirname, "..", "site", "public", "screenshots")
 const BASE_URL = "http://localhost:4000"
@@ -29,6 +36,7 @@ Options:
                    Also supports --only=28-header-switcher,32-...
   --failed         Retake only failed screenshots (missing or duplicate of login page).
                    Detects auth screenshots identical to 03-login-page.png via hash.
+  --axe            Also run axe-core a11y checks on each page (local only)
   --help, -h       Show this help
   (no args)        Retake all screenshots
 `)
@@ -175,6 +183,7 @@ Options:
                    Also supports --only=28-header-switcher,32-...
   --failed         Retake only failed screenshots (missing or duplicate of login page).
                    Detects auth screenshots identical to 03-login-page.png via hash.
+  --axe            Also run axe-core a11y checks on each page (local only)
   --help, -h       Show this help
   (no args)        Retake all screenshots
 `)
@@ -349,6 +358,9 @@ async function assertNotLogin(page, name) {
   }
 }
 
+let axeEnabled = process.argv.includes("--axe")
+let axeViolations = []
+
 async function capturePage(page, def) {
   const url = def.url()
   console.log(`  ${def.name} -> ${url}`)
@@ -377,6 +389,23 @@ async function capturePage(page, def) {
   await page.screenshot({ path: out, fullPage: false })
   // Post-capture guard: if we thought we were auth but file is login-sized, warn
   console.log(`    ✓ ${def.name}.png`)
+
+  // Axe a11y check (opt-in via --axe, local only)
+  if (axeEnabled && AxeBuilder) {
+    try {
+      const results = await new AxeBuilder({ page }).analyze()
+      const critical = results.violations.filter((v) => ["critical", "serious"].includes(v.impact))
+      if (critical.length > 0) {
+        console.warn(`    ⚠ axe: ${critical.length} serious/critical violations on ${def.name}`)
+        for (const v of critical) console.warn(`      - ${v.id}: ${v.description} (${v.nodes.length} nodes)`)
+        axeViolations.push({ page: def.name, violations: critical })
+      } else if (results.violations.length > 0) {
+        console.log(`    axe: ${results.violations.length} minor/moderate violations (ok)`)
+      }
+    } catch (err) {
+      console.warn(`    axe failed on ${def.name}: ${err.message}`)
+    }
+  }
 }
 
 async function run() {
@@ -525,6 +554,14 @@ async function run() {
     }
 
     await browser.close()
+    if (axeEnabled) {
+      if (axeViolations.length > 0) {
+        console.warn(`\n⚠ axe a11y: ${axeViolations.length} pages with serious/critical violations`)
+        for (const { page, violations } of axeViolations) console.warn(`  - ${page}: ${violations.map((v) => v.id).join(", ")}`)
+      } else {
+        console.log("\n✓ axe a11y: no serious/critical violations")
+      }
+    }
     console.log("\n✓ All screenshots captured and verified (no login-page duplicates)!")
   } finally {
     killServer()

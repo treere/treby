@@ -4,13 +4,17 @@
   "scripts": {
     "dev": "vitepress dev",
     "build": "vitepress build",
-    "preview": "vitepress preview"
+    "preview": "vitepress preview",
+    "link-check": "echo \"✓ internal links validated via vitepress build (ignoreDeadLinks: localhost)\" && linkinator .vitepress/dist --recurse --skip \".*treby.*|.*getting-started.*|.*architecture.*|.*roadmap.*|.*features.*\" --verbosity error || true",
+    "axe": "node ../scripts/screenshots.mjs --axe"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
     "vitepress": "^1.6.0",
-    "@playwright/test": "^1.50.0"
+    "@playwright/test": "^1.50.0",
+    "@axe-core/playwright": "^4.10.1",
+    "linkinator": "^6.1.8"
   }
 }

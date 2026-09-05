@@ -105,13 +105,15 @@ defmodule Treby.MixProject do
         "phx.digest"
       ],
       precommit: [
+        "compile --warnings-as-errors",
         "format --check-formatted",
         "credo --strict",
         "treby.check_translations",
         "treby.check_translations --check-pot",
         "treby.check_design_system",
         "sobelow --config",
-        "compile --warnings-as-errors",
+        "cmd mix hex.audit",
+        "cmd npm audit --prefix assets",
         "test"
       ]
     ]

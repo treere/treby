@@ -99,12 +99,16 @@ config :treby, TrebyWeb.Gettext, default_locale: "en"
 # Configure S3 (RustFS in dev, any S3 provider in prod)
 config :ex_aws,
   json_codec: Jason,
-  http_client: ExAws.Request.Req
+  http_client: ExAws.Request.Req,
+  retries: [max_attempts: 3, base_backoff_in_ms: 100, max_backoff_in_ms: 5_000]
+
+config :ex_aws, :req_opts, receive_timeout: 5_000
 
 config :ex_aws, :s3,
   scheme: "http://",
   host: "localhost",
-  port: 9000
+  port: 9000,
+  http_opts: [receive_timeout: 5_000]
 
 # Google Calendar OAuth
 config :treby,

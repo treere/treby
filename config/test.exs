@@ -64,7 +64,8 @@ config :ex_aws, :s3,
   host: "localhost",
   port: 9000,
   access_key_id: "test",
-  secret_access_key: "test"
+  secret_access_key: "test",
+  http_opts: [receive_timeout: 5_000]
 
 # Route every Req request in tests through a Req.Test stub, never the real network
 config :req,

@@ -80,7 +80,7 @@ defmodule TrebyWeb.HealthController do
   end
 
   defp do_storage_check do
-    case ExAws.S3.list_buckets() |> ExAws.request(timeout: 2000) do
+    case ExAws.S3.list_buckets() |> ExAws.request(http_opts: [receive_timeout: 2000]) do
       {:ok, _} -> "ok"
       {:error, _} -> "error"
     end

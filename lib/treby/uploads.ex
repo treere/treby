@@ -9,7 +9,7 @@ defmodule Treby.Uploads do
   def upload_file(key, file_content, content_type \\ "application/octet-stream") do
     @bucket
     |> ExAws.S3.put_object(key, file_content, content_type: content_type)
-    |> ExAws.request()
+    |> ExAws.request(http_opts: [receive_timeout: 10_000])
   end
 
   def get_presigned_url(key, opts \\ []) do
@@ -22,13 +22,17 @@ defmodule Treby.Uploads do
   def delete_file(key) do
     @bucket
     |> ExAws.S3.delete_object(key)
-    |> ExAws.request()
+    |> ExAws.request(http_opts: [receive_timeout: 5_000])
   end
 
   def ensure_bucket_exists! do
-    case ExAws.S3.head_bucket(@bucket) |> ExAws.request() do
-      {:ok, _} -> :ok
-      {:error, _} -> ExAws.S3.put_bucket(@bucket, "us-east-1") |> ExAws.request()
+    case ExAws.S3.head_bucket(@bucket) |> ExAws.request(http_opts: [receive_timeout: 5_000]) do
+      {:ok, _} ->
+        :ok
+
+      {:error, _} ->
+        ExAws.S3.put_bucket(@bucket, "us-east-1")
+        |> ExAws.request(http_opts: [receive_timeout: 5_000])
     end
   end
 end

@@ -165,5 +165,8 @@ if config_env() == :prod do
     host: Env.env("S3_HOST", "s3.amazonaws.com"),
     port: String.to_integer(Env.env("S3_PORT", "443")),
     access_key_id: Env.env("S3_ACCESS_KEY_ID"),
-    secret_access_key: Env.env("S3_SECRET_ACCESS_KEY")
+    secret_access_key: Env.env("S3_SECRET_ACCESS_KEY"),
+    http_opts: [receive_timeout: 10_000]
+
+  config :ex_aws, :req_opts, receive_timeout: String.to_integer(Env.env("S3_TIMEOUT", "10000"))
 end

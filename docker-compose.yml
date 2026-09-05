@@ -16,7 +16,7 @@ services:
       retries: 5
 
   rustfs:
-    image: rustfs/rustfs:latest
+    image: rustfs/rustfs:1.0.0-rc.5
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -30,10 +30,11 @@ services:
       - rustfs_data:/data
     command: /data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9000/health || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
 volumes:
   postgres_data:

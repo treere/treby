@@ -102,7 +102,8 @@ config :ex_aws, :s3,
   host: Treby.ConfigHelpers.env("S3_HOST", "localhost"),
   port: String.to_integer(Treby.ConfigHelpers.env("S3_PORT", "9000")),
   access_key_id: Treby.ConfigHelpers.env("S3_ACCESS_KEY_ID", "treby"),
-  secret_access_key: Treby.ConfigHelpers.env("S3_SECRET_ACCESS_KEY", "treby_password")
+  secret_access_key: Treby.ConfigHelpers.env("S3_SECRET_ACCESS_KEY", "treby_password"),
+  http_opts: [receive_timeout: 5_000]
 
 # Dev encryption key (32-byte key, base64-encoded).
 # Override with CLOAK_KEY when needed.

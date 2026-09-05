@@ -2,7 +2,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "daisyui": "^5.0.35",
     "sortablejs": "^1.15.3",
     "topbar": "^2.0.0"
   },

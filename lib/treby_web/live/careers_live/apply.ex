@@ -52,7 +52,7 @@ defmodule TrebyWeb.CareersLive.Apply do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-base-200">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-800">
       <div class="max-w-2xl mx-auto py-12 px-4">
         <.link
           navigate={~p"/#{@tenant.slug}/careers/#{@job.id}"}
@@ -62,10 +62,10 @@ defmodule TrebyWeb.CareersLive.Apply do
         </.link>
 
         <.card :if={@duplicate} id="duplicate-notice" class="mt-8 text-center">
-          <h2 class="text-2xl font-bold text-base-content">
+          <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             {gettext("You have already applied")}
           </h2>
-          <p class="mt-4 text-base-content/70">
+          <p class="mt-4 text-zinc-500 dark:text-zinc-400">
             <%= if @duplicate_applied_at do %>
               {gettext("You applied to this position on %{date}.",
                 date: Calendar.strftime(@duplicate_applied_at, "%b %d, %Y")
@@ -90,8 +90,8 @@ defmodule TrebyWeb.CareersLive.Apply do
         </.card>
 
         <.card :if={@submitted} class="mt-8 text-center">
-          <h2 class="text-2xl font-bold text-base-content">{gettext("Thank you!")}</h2>
-          <p class="mt-4 text-base-content/70">
+          <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{gettext("Thank you!")}</h2>
+          <p class="mt-4 text-zinc-500 dark:text-zinc-400">
             {gettext(
               "Your application has been submitted. Check your email — including spam — for a 10-minute code to track your application."
             )}
@@ -118,10 +118,10 @@ defmodule TrebyWeb.CareersLive.Apply do
               id="candidate-help"
               class="mt-8 rounded-lg bg-info/10 border border-info/20 p-4 text-left"
             >
-              <p class="text-sm font-medium text-base-content">
+              <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 {gettext("Need help?")}
               </p>
-              <p class="mt-1 text-sm text-base-content/70">
+              <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 {gettext(
                   "Contact %{company} support or email us at %{email} if you have trouble with your application.",
                   company: @tenant.name,
@@ -133,7 +133,7 @@ defmodule TrebyWeb.CareersLive.Apply do
         </.card>
 
         <.card :if={!@submitted && !@duplicate} class="mt-8">
-          <h2 class="text-2xl font-bold text-base-content">Apply for {@job.title}</h2>
+          <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Apply for {@job.title}</h2>
           <p :if={@prefill != %{}} class="mt-2 text-sm text-primary">
             {gettext("Prefilled from your portal profile — you can edit before submitting.")}
           </p>
@@ -144,7 +144,7 @@ defmodule TrebyWeb.CareersLive.Apply do
             <.input field={@form[:phone]} type="text" label={gettext("Phone")} />
 
             <div :if={@sources != []}>
-              <label class="block text-sm font-medium text-base-content/80 mb-1">
+              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
                 How did you hear about us?
               </label>
               <select
@@ -156,8 +156,11 @@ defmodule TrebyWeb.CareersLive.Apply do
               </select>
             </div>
 
-            <div :if={@application_fields != []} class="border-t border-base-300 pt-4 mt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-3">
+            <div
+              :if={@application_fields != []}
+              class="border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-4"
+            >
+              <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-3">
                 {gettext("Additional Information")}
               </h3>
               <div :for={field <- @application_fields} class="mb-3">
@@ -188,21 +191,21 @@ defmodule TrebyWeb.CareersLive.Apply do
             </div>
 
             <div id="resume-upload">
-              <label class="block text-sm font-medium text-base-content/80 mb-1">
+              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
                 Resume (PDF, DOC, DOCX - max 10MB)
               </label>
               <.live_file_input
                 upload={@uploads.resume}
-                class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 min-h-[44px]"
+                class="block w-full text-sm text-zinc-400 dark:text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 min-h-[44px]"
               />
               <div
                 :for={entry <- @uploads.resume.entries}
-                class="mt-3 flex flex-col gap-2 rounded-lg border border-base-300 bg-base-200 p-3"
+                class="mt-3 flex flex-col gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 p-3"
               >
                 <div class="flex items-center justify-between gap-2">
                   <div class="flex items-center gap-2 min-w-0">
                     <.icon name="hero-document" class="w-5 h-5 text-primary shrink-0" />
-                    <span class="text-sm font-medium text-base-content truncate">
+                    <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
                       {entry.client_name} &mdash; {format_bytes(entry.client_size)}
                     </span>
                     <span :if={entry.done?} class="text-success text-sm">✓</span>
@@ -219,14 +222,14 @@ defmodule TrebyWeb.CareersLive.Apply do
                     {gettext("Remove")}
                   </.button>
                 </div>
-                <div :if={!entry.done?} class="w-full bg-base-300 rounded-full h-2">
+                <div :if={!entry.done?} class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
                   <div
                     class="bg-primary h-2 rounded-full transition-all"
                     style={"width: #{entry.progress}%"}
                   >
                   </div>
                 </div>
-                <p :if={!entry.done?} class="text-xs text-base-content/70">
+                <p :if={!entry.done?} class="text-xs text-zinc-500 dark:text-zinc-400">
                   {entry.progress}% {gettext("uploading...")}
                 </p>
                 <p :for={err <- upload_errors(@uploads.resume, entry)} class="text-error text-sm">
@@ -260,10 +263,10 @@ defmodule TrebyWeb.CareersLive.Apply do
               id="candidate-help"
               class="mt-6 rounded-lg bg-info/10 border border-info/20 p-4"
             >
-              <p class="text-sm font-medium text-base-content">
+              <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 {gettext("Need help?")}
               </p>
-              <p class="mt-1 text-sm text-base-content/70">
+              <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 {gettext(
                   "Contact %{company} support or email us at %{email} if you have trouble with your application.",
                   company: @tenant.name,

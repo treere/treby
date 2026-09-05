@@ -43,8 +43,8 @@ defmodule TrebyWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div class="min-h-screen bg-base-200">
-      <nav class="bg-base-100 shadow">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <nav class="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-zinc-900/80 border-b border-zinc-200 dark:border-zinc-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
             <div class="flex items-center">
@@ -61,7 +61,7 @@ defmodule TrebyWeb.Layouts do
               >
                 <button
                   type="button"
-                  class="flex items-center gap-1 text-sm font-medium text-base-content/80 hover:text-primary"
+                  class="flex items-center gap-1 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
                   phx-click={Phoenix.LiveView.JS.toggle(to: "#workspace-switcher-dropdown")}
                 >
                   <span>{(@current_tenant && @current_tenant.name) || gettext("Workspaces")}</span>
@@ -69,24 +69,25 @@ defmodule TrebyWeb.Layouts do
                 </button>
                 <div
                   id="workspace-switcher-dropdown"
-                  class="hidden absolute left-0 mt-2 w-64 bg-base-100 rounded-md shadow-lg py-1 z-50 border"
+                  class="hidden absolute left-0 mt-2 w-64 bg-white dark:bg-zinc-800 rounded-xl shadow-xl py-1 z-50 border border-zinc-200 dark:border-zinc-700"
                 >
                   <div :for={%{tenant: t, role: r} <- @available_tenants} class="px-2">
                     <.link
                       navigate={"/#{t.slug}/app"}
                       class={[
-                        "flex justify-between items-center px-3 py-2 text-sm rounded hover:bg-base-200",
-                        @current_tenant && @current_tenant.id == t.id && "bg-base-200 font-medium"
+                        "flex justify-between items-center px-3 py-2 text-sm rounded hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                        @current_tenant && @current_tenant.id == t.id &&
+                          "bg-zinc-100 dark:bg-zinc-700 font-medium"
                       ]}
                     >
                       <span>{t.name}</span>
-                      <span class="badge badge-xs">{r}</span>
+                      <span class="inline-flex items-center rounded-full border text-xs font-medium bg-zinc-100 text-zinc-700 border-zinc-200 px-1.5 py-0.5 text-[10px]">{r}</span>
                     </.link>
                   </div>
                   <div class="border-t mt-1 pt-1 px-2">
                     <.link
                       navigate={~p"/choose-tenant"}
-                      class="block px-3 py-2 text-sm text-primary hover:bg-base-200 rounded"
+                      class="block px-3 py-2 text-sm text-primary hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded"
                     >
                       {gettext("Create new company")}
                     </.link>
@@ -99,7 +100,7 @@ defmodule TrebyWeb.Layouts do
                     if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
                   }
                   data-nav="/app/jobs"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-primary"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Jobs")}
                 </.link>
@@ -110,7 +111,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/candidates"
                   }
                   data-nav="/app/candidates"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-primary"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Candidates")}
                 </.link>
@@ -121,7 +122,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/import"
                   }
                   data-nav="/app/import"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-primary"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Import")}
                 </.link>
@@ -132,7 +133,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/interviews"
                   }
                   data-nav="/app/interviews"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-primary"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Interviews")}
                 </.link>
@@ -143,7 +144,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/analytics"
                   }
                   data-nav="/app/analytics"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-primary"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Analytics")}
                 </.link>
@@ -154,7 +155,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/messages-queue"
                   }
                   data-nav="/app/messages-queue"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-primary"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Message Queue")}
                 </.link>
@@ -169,7 +170,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/settings"
                   }
                   data-nav="/app/settings"
-                  class="nav-link inline-flex items-center px-1 pt-1 text-sm font-medium text-base-content border-b-2 border-transparent hover:border-primary"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Settings")}
                 </.link>
@@ -178,13 +179,13 @@ defmodule TrebyWeb.Layouts do
             <div class="hidden sm:flex sm:items-center sm:space-x-4">
               <.theme_toggle />
               <.locale_switcher locale={@locale} />
-              <span :if={@current_scope} class="text-sm text-base-content/70">
+              <span :if={@current_scope} class="text-sm text-zinc-500 dark:text-zinc-400">
                 {@current_scope.name}
               </span>
               <.link
                 href={~p"/session"}
                 method="delete"
-                class="text-sm text-base-content/70 hover:text-base-content"
+                class="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-100"
               >
                 {gettext("Logout")}
               </.link>
@@ -199,17 +200,17 @@ defmodule TrebyWeb.Layouts do
           Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
           |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
         }
-        class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-base-100 rounded-lg shadow-lg"
+        class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700"
         aria-label={gettext("Toggle navigation")}
       >
-        <.icon name="hero-bars-3" class="w-6 h-6 text-base-content/80" />
+        <.icon name="hero-bars-3" class="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
       </button>
 
       <%!-- Mobile navigation drawer --%>
       <div id="mobile-nav-overlay" class="sm:hidden fixed inset-0 bg-black/50 z-40 hidden" />
       <div
         id="mobile-nav-drawer"
-        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-base-100 shadow-xl z-50 transform -translate-x-full transition-transform"
+        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-white dark:bg-zinc-800 shadow-xl z-50 transform -translate-x-full transition-transform"
       >
         <div class="p-4">
           <div class="flex justify-between items-center mb-6">
@@ -221,7 +222,7 @@ defmodule TrebyWeb.Layouts do
               }
               class="p-1"
             >
-              <.icon name="hero-x-mark" class="w-6 h-6 text-base-content/50" />
+              <.icon name="hero-x-mark" class="w-6 h-6 text-zinc-400 dark:text-zinc-500" />
             </button>
           </div>
           <div class="space-y-1">
@@ -230,7 +231,7 @@ defmodule TrebyWeb.Layouts do
                 if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
               }
               data-nav="/app/jobs"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Jobs")}
             </.link>
@@ -241,7 +242,7 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/candidates"
               }
               data-nav="/app/candidates"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Candidates")}
             </.link>
@@ -250,7 +251,7 @@ defmodule TrebyWeb.Layouts do
                 if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
               }
               data-nav="/app/import"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Import")}
             </.link>
@@ -261,7 +262,7 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/interviews"
               }
               data-nav="/app/interviews"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Interviews")}
             </.link>
@@ -272,7 +273,7 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/analytics"
               }
               data-nav="/app/analytics"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Analytics")}
             </.link>
@@ -283,7 +284,7 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/messages-queue"
               }
               data-nav="/app/messages-queue"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Message Queue")}
             </.link>
@@ -298,12 +299,12 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/settings"
               }
               data-nav="/app/settings"
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Settings")}
             </.link>
           </div>
-          <div class="border-t border-base-300 mt-4 pt-4 space-y-1">
+          <div class="border-t border-zinc-200 dark:border-zinc-700 mt-4 pt-4 space-y-1">
             <div class="px-3 py-2 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <.theme_toggle />
@@ -313,7 +314,7 @@ defmodule TrebyWeb.Layouts do
             <.link
               href={~p"/session"}
               method="delete"
-              class="block px-3 py-2 rounded-lg text-base font-medium text-base-content hover:bg-base-200"
+              class="block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Logout")}
             </.link>
@@ -356,8 +357,8 @@ defmodule TrebyWeb.Layouts do
 
   def candidate_portal(assigns) do
     ~H"""
-    <div class="min-h-screen bg-base-200">
-      <nav class="bg-base-100 shadow border-b border-base-300">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <nav class="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-zinc-200 dark:border-zinc-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
             <div class="flex items-center">
@@ -375,23 +376,23 @@ defmodule TrebyWeb.Layouts do
             <div class="hidden sm:flex items-center space-x-4">
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/messages"}
-                class="text-sm font-medium text-base-content/70 hover:text-primary transition-colors"
+                class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors"
               >
                 Messages
               </.link>
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/schedule"}
-                class="text-sm font-medium text-base-content/70 hover:text-primary transition-colors"
+                class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors"
               >
                 Schedule
               </.link>
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/settings"}
-                class="text-sm font-medium text-base-content/70 hover:text-primary transition-colors"
+                class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors"
               >
                 Settings
               </.link>
-              <span class="text-sm text-base-content/50">
+              <span class="text-sm text-zinc-400 dark:text-zinc-500">
                 {@current_candidate.name}
               </span>
               <.form
@@ -402,7 +403,7 @@ defmodule TrebyWeb.Layouts do
               >
                 <button
                   type="submit"
-                  class="text-sm font-medium text-base-content/70 hover:text-primary min-h-[44px] px-2 transition-colors"
+                  class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary min-h-[44px] px-2 transition-colors"
                 >
                   Logout
                 </button>
@@ -416,10 +417,10 @@ defmodule TrebyWeb.Layouts do
                     to: "#candidate-portal-drawer"
                   )
                 }
-                class="p-2 rounded-lg hover:bg-base-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label={gettext("Toggle navigation")}
               >
-                <.icon name="hero-bars-3" class="w-6 h-6 text-base-content/70" />
+                <.icon name="hero-bars-3" class="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
               </button>
             </div>
           </div>
@@ -430,7 +431,7 @@ defmodule TrebyWeb.Layouts do
       </div>
       <div
         id="candidate-portal-drawer"
-        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-base-100 shadow-xl z-50 transform -translate-x-full transition-transform border-r border-base-300"
+        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-white dark:bg-zinc-800 shadow-xl z-50 transform -translate-x-full transition-transform border-r border-zinc-200 dark:border-zinc-700"
       >
         <div class="p-4">
           <div class="flex justify-between items-center mb-6">
@@ -442,34 +443,34 @@ defmodule TrebyWeb.Layouts do
                   to: "#candidate-portal-drawer"
                 )
               }
-              class="p-2 rounded-lg hover:bg-base-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label={gettext("Close navigation")}
             >
-              <.icon name="hero-x-mark" class="w-6 h-6 text-base-content/50" />
+              <.icon name="hero-x-mark" class="w-6 h-6 text-zinc-400 dark:text-zinc-500" />
             </button>
           </div>
           <div class="space-y-1">
             <.link
               navigate={"/#{@current_tenant.slug}/portal/messages"}
-              class="block px-3 py-3 rounded-lg text-base font-medium text-base-content/80 hover:bg-base-200 min-h-[44px]"
+              class="block px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px]"
             >
               Messages
             </.link>
             <.link
               navigate={"/#{@current_tenant.slug}/portal/schedule"}
-              class="block px-3 py-3 rounded-lg text-base font-medium text-base-content/80 hover:bg-base-200 min-h-[44px]"
+              class="block px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px]"
             >
               Schedule
             </.link>
             <.link
               navigate={"/#{@current_tenant.slug}/portal/settings"}
-              class="block px-3 py-3 rounded-lg text-base font-medium text-base-content/80 hover:bg-base-200 min-h-[44px]"
+              class="block px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px]"
             >
               Settings
             </.link>
           </div>
-          <div class="border-t border-base-300 mt-4 pt-4 space-y-1">
-            <div class="px-3 py-2 text-sm text-base-content/50">
+          <div class="border-t border-zinc-200 dark:border-zinc-700 mt-4 pt-4 space-y-1">
+            <div class="px-3 py-2 text-sm text-zinc-400 dark:text-zinc-500">
               {@current_candidate.name}
             </div>
             <.form
@@ -479,7 +480,7 @@ defmodule TrebyWeb.Layouts do
             >
               <button
                 type="submit"
-                class="w-full text-left px-3 py-3 rounded-lg text-base font-medium text-base-content/80 hover:bg-base-200 min-h-[44px]"
+                class="w-full text-left px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px]"
               >
                 Logout
               </button>
@@ -510,7 +511,7 @@ defmodule TrebyWeb.Layouts do
     <div class="relative" id={"locale-switcher#{@id_suffix}"}>
       <button
         type="button"
-        class="flex items-center gap-x-1 text-sm font-medium text-base-content/80 hover:text-primary transition-colors"
+        class="flex items-center gap-x-1 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
         phx-click={JS.toggle(to: "#locale-dropdown#{@id_suffix}")}
       >
         <.icon name="hero-language" class="h-4 w-4" />
@@ -518,12 +519,12 @@ defmodule TrebyWeb.Layouts do
       </button>
       <div
         id={"locale-dropdown#{@id_suffix}"}
-        class="hidden absolute right-0 mt-2 w-32 bg-base-100 rounded-md shadow-lg py-1 z-50"
+        class="hidden absolute right-0 mt-2 w-32 bg-white dark:bg-zinc-800 rounded-md shadow-lg py-1 z-50"
       >
         <.link
           href="/locale/en"
           class={[
-            "block px-4 py-2 text-sm text-base-content/80 hover:bg-base-200",
+            "block px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
             @locale == "en" && "font-bold text-primary"
           ]}
         >
@@ -532,7 +533,7 @@ defmodule TrebyWeb.Layouts do
         <.link
           href="/locale/it"
           class={[
-            "block px-4 py-2 text-sm text-base-content/80 hover:bg-base-200",
+            "block px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800",
             @locale == "it" && "font-bold text-primary"
           ]}
         >
@@ -593,8 +594,8 @@ defmodule TrebyWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
-      <div class="absolute w-1/3 h-full rounded-full border border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
+    <div class="card relative flex flex-row items-center border-2 border-zinc-200 dark:border-zinc-700 bg-zinc-200 dark:bg-zinc-700 rounded-full">
+      <div class="absolute w-1/3 h-full rounded-full border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-800 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
 
       <button
         class="flex p-2 cursor-pointer w-1/3"

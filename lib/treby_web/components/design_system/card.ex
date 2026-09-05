@@ -27,21 +27,25 @@ defmodule TrebyWeb.DesignSystem.Card do
     ~H"""
     <div
       class={[
-        "card",
-        @variant == "bordered" && "card-border",
-        @variant == "elevated" && "card-lg",
-        @variant == "flat" && "bg-transparent shadow-none",
+        "bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm",
+        @variant == "bordered" && "border-zinc-300 dark:border-zinc-600",
+        @variant == "elevated" && "shadow-md",
+        @variant == "flat" &&
+          "bg-transparent dark:bg-transparent shadow-none border-transparent dark:border-transparent",
         @class
       ]}
       {@rest}
     >
-      <div :if={@header != []} class="card-header">
+      <div :if={@header != []} class="px-6 py-4 border-b border-zinc-100 dark:border-zinc-700">
         {render_slot(@header)}
       </div>
-      <div class={["card-body", @header == [] && "pt-6"]}>
+      <div class={["px-6 py-4", @header == [] && "pt-6"]}>
         {render_slot(@inner_block)}
       </div>
-      <div :if={@footer != []} class="card-footer border-t border-base-300 px-6 py-4">
+      <div
+        :if={@footer != []}
+        class="px-6 py-4 border-t border-zinc-100 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-b-xl"
+      >
         {render_slot(@footer)}
       </div>
     </div>

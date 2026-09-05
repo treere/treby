@@ -35,18 +35,27 @@ defmodule TrebyWeb.DesignSystem.Tabs do
   def tabs(assigns) do
     ~H"""
     <div id={@id} {@rest}>
-      <div class={["tabs tabs-box mb-4", @class]}>
+      <div class={[
+        "inline-flex items-center gap-1 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg mb-4",
+        @class
+      ]}>
         <.link
           :for={tab <- @tabs}
           patch={tab[:patch]}
           phx-click={if(!tab[:patch], do: JS.push(@on_change, value: %{tab: tab.key}))}
           class={[
-            "tab",
-            @active_tab == tab.key && "tab-active"
+            "px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+            @active_tab == tab.key &&
+              "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm border border-zinc-200 dark:border-zinc-600",
+            @active_tab != tab.key &&
+              "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
           ]}
         >
           {tab.label}
-          <span :if={tab[:count]} class="badge badge-sm ml-1">{tab.count}</span>
+          <span
+            :if={tab[:count]}
+            class="ml-1 inline-flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-600 text-zinc-700 dark:text-zinc-200 text-xs px-1.5 py-0.5"
+          >{tab.count}</span>
         </.link>
       </div>
       {render_slot(@inner_block)}

@@ -98,44 +98,56 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
         <%!-- KPI Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          <div class="bg-base-100 rounded-lg shadow p-4">
-            <h3 class="text-xs font-medium text-base-content/50 uppercase tracking-wide">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
               Total Views
             </h3>
-            <p class="mt-2 text-2xl font-bold text-base-content">{@summary.total_views}</p>
+            <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              {@summary.total_views}
+            </p>
           </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
-            <h3 class="text-xs font-medium text-base-content/50 uppercase tracking-wide">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
               Unique Views
             </h3>
-            <p class="mt-2 text-2xl font-bold text-base-content">{@summary.unique_views}</p>
+            <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              {@summary.unique_views}
+            </p>
           </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
-            <h3 class="text-xs font-medium text-base-content/50 uppercase tracking-wide">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
               Last 7 Days
             </h3>
-            <p class="mt-2 text-2xl font-bold text-base-content">{@summary.views_last_7_days}</p>
+            <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              {@summary.views_last_7_days}
+            </p>
           </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
-            <h3 class="text-xs font-medium text-base-content/50 uppercase tracking-wide">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
               Last 30 Days
             </h3>
-            <p class="mt-2 text-2xl font-bold text-base-content">{@summary.views_last_30_days}</p>
+            <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              {@summary.views_last_30_days}
+            </p>
           </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
-            <h3 class="text-xs font-medium text-base-content/50 uppercase tracking-wide">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
               Avg / Day
             </h3>
-            <p class="mt-2 text-2xl font-bold text-base-content">
+            <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {if @summary.avg_daily_views == 0.0, do: "N/A", else: "#{@summary.avg_daily_views}"}
             </p>
           </div>
-          <div class="bg-base-100 rounded-lg shadow p-4">
-            <h3 class="text-xs font-medium text-base-content/50 uppercase tracking-wide">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
               Conversion
             </h3>
-            <p class="mt-2 text-2xl font-bold text-base-content">{@funnel.conversion_rate}%</p>
-            <p class="text-xs text-base-content/50">{@funnel.total_applications} applications</p>
+            <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              {@funnel.conversion_rate}%
+            </p>
+            <p class="text-xs text-zinc-400 dark:text-zinc-500">
+              {@funnel.total_applications} applications
+            </p>
           </div>
         </div>
 
@@ -153,7 +165,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
         <div :if={@summary.total_views > 0} class="space-y-8">
           <%!-- Daily chart --%>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-lg font-semibold">{gettext("Daily Views")}</h2>
               <.form
@@ -162,7 +174,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 phx-change="select_period"
                 class="flex items-center gap-2"
               >
-                <label class="text-sm text-base-content/70">{gettext("Period")}</label>
+                <label class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Period")}</label>
                 <select name="period" class="select select-sm">
                   <option value="7" selected={@selected_period == 7}>{gettext("Last 7 days")}</option>
                   <option value="30" selected={@selected_period == 30}>
@@ -177,7 +189,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
             <div
               :if={Enum.all?(@daily_breakdown, &(&1.count == 0))}
-              class="text-center text-base-content/50 py-8"
+              class="text-center text-zinc-400 dark:text-zinc-500 py-8"
             >
               No views in this period
             </div>
@@ -185,10 +197,10 @@ defmodule TrebyWeb.JobsLive.Analytics do
             <div :if={not Enum.all?(@daily_breakdown, &(&1.count == 0))} class="space-y-2">
               <% max = @daily_breakdown |> Enum.map(& &1.count) |> Enum.max() %>
               <div :for={item <- @daily_breakdown} class="flex items-center gap-3 text-sm">
-                <span class="w-24 text-xs text-base-content/60 text-right">
+                <span class="w-24 text-xs text-zinc-500 dark:text-zinc-400 text-right">
                   {Calendar.strftime(item.date, "%b %d")}
                 </span>
-                <div class="flex-1 bg-base-200 rounded-full h-5">
+                <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-5">
                   <div
                     class="h-5 rounded-full bg-blue-500 flex items-center justify-end pr-2"
                     style={"width: #{if max > 0, do: max(item.count / max * 100, item.count > 0 && 8 || 0), else: 0}%"}
@@ -198,27 +210,27 @@ defmodule TrebyWeb.JobsLive.Analytics do
                     </span>
                   </div>
                 </div>
-                <span class="w-8 text-xs text-base-content/60">{item.count}</span>
+                <span class="w-8 text-xs text-zinc-500 dark:text-zinc-400">{item.count}</span>
               </div>
             </div>
           </div>
 
           <%!-- Monthly breakdown --%>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <h2 class="text-lg font-semibold mb-4">{gettext("Monthly Views (Last 12 Months)")}</h2>
             <div
               :if={Enum.all?(@monthly_breakdown, &(&1.count == 0))}
-              class="text-center text-base-content/50 py-8"
+              class="text-center text-zinc-400 dark:text-zinc-500 py-8"
             >
               No monthly data yet
             </div>
             <div :if={not Enum.all?(@monthly_breakdown, &(&1.count == 0))} class="space-y-2">
               <% max_m = @monthly_breakdown |> Enum.map(& &1.count) |> Enum.max() %>
               <div :for={item <- @monthly_breakdown} class="flex items-center gap-3 text-sm">
-                <span class="w-24 text-xs text-base-content/60 text-right">
+                <span class="w-24 text-xs text-zinc-500 dark:text-zinc-400 text-right">
                   {Calendar.strftime(item.month, "%b %Y")}
                 </span>
-                <div class="flex-1 bg-base-200 rounded-full h-5">
+                <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-5">
                   <div
                     class="h-5 rounded-full bg-purple-500 flex items-center justify-end pr-2"
                     style={"width: #{if max_m > 0, do: max(item.count / max_m * 100, item.count > 0 && 8 || 0), else: 0}%"}
@@ -228,21 +240,24 @@ defmodule TrebyWeb.JobsLive.Analytics do
                     </span>
                   </div>
                 </div>
-                <span class="w-8 text-xs text-base-content/60">{item.count}</span>
+                <span class="w-8 text-xs text-zinc-500 dark:text-zinc-400">{item.count}</span>
               </div>
             </div>
           </div>
 
           <%!-- Source breakdown --%>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <h2 class="text-lg font-semibold mb-4">{gettext("Traffic Sources")}</h2>
-            <div :if={@source_breakdown == []} class="text-center text-base-content/50 py-8">
+            <div
+              :if={@source_breakdown == []}
+              class="text-center text-zinc-400 dark:text-zinc-500 py-8"
+            >
               No source data yet
             </div>
             <div :if={@source_breakdown != []} class="space-y-3">
               <div :for={item <- @source_breakdown} class="flex items-center gap-4">
-                <span class="w-32 text-sm font-medium text-base-content/80">{item.source}</span>
-                <div class="flex-1 bg-base-200 rounded-full h-5">
+                <span class="w-32 text-sm font-medium text-zinc-900 dark:text-zinc-100/80">{item.source}</span>
+                <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-5">
                   <div
                     class="h-5 rounded-full bg-green-500 flex items-center justify-end pr-2"
                     style={"width: #{max(item.percentage, 5)}%"}
@@ -250,29 +265,31 @@ defmodule TrebyWeb.JobsLive.Analytics do
                     <span class="text-[11px] font-medium text-white">{item.count}</span>
                   </div>
                 </div>
-                <span class="w-16 text-xs text-base-content/60 text-right">{item.percentage}%</span>
+                <span class="w-16 text-xs text-zinc-500 dark:text-zinc-400 text-right">{item.percentage}%</span>
               </div>
             </div>
           </div>
 
           <%!-- Funnel --%>
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <h2 class="text-lg font-semibold mb-4">{gettext("View → Application Funnel")}</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="text-center p-4 bg-base-200 rounded-lg">
-                <p class="text-xs uppercase tracking-wide text-base-content/50">{gettext("Views")}</p>
+              <div class="text-center p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+                <p class="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+                  {gettext("Views")}
+                </p>
                 <p class="text-2xl font-bold mt-1">{@funnel.total_views}</p>
               </div>
               <div class="flex items-center justify-center">
-                <.icon name="hero-arrow-right" class="w-6 h-6 text-base-content/30" />
-                <span class="ml-2 text-sm font-medium text-base-content/70">
+                <.icon name="hero-arrow-right" class="w-6 h-6 text-zinc-900 dark:text-zinc-100/30" />
+                <span class="ml-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
                   {if @funnel.total_views > 0,
                     do: "#{@funnel.conversion_rate}% converted",
                     else: "0% conversion"}
                 </span>
               </div>
-              <div class="text-center p-4 bg-base-200 rounded-lg">
-                <p class="text-xs uppercase tracking-wide text-base-content/50">
+              <div class="text-center p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+                <p class="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
                   {gettext("Applications")}
                 </p>
                 <p class="text-2xl font-bold mt-1">{@funnel.total_applications}</p>
@@ -280,13 +297,13 @@ defmodule TrebyWeb.JobsLive.Analytics do
             </div>
             <p
               :if={@funnel.tenant_avg_conversion_rate}
-              class="mt-4 text-sm text-base-content/60 text-center"
+              class="mt-4 text-sm text-zinc-500 dark:text-zinc-400 text-center"
             >
               Tenant average conversion: {@funnel.tenant_avg_conversion_rate}% across all jobs
             </p>
             <p
               :if={is_nil(@funnel.tenant_avg_conversion_rate)}
-              class="mt-4 text-sm text-base-content/50 text-center"
+              class="mt-4 text-sm text-zinc-400 dark:text-zinc-500 text-center"
             >
               No tenant average yet — more views needed.
             </p>

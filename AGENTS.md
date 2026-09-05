@@ -70,6 +70,8 @@ custom classes must fully style the input
 - Implement **subtle micro-interactions** (e.g., button hover effects, and smooth transitions)
 - Ensure **clean typography, spacing, and layout balance** for a refined, premium look
 - Focus on **delightful details** like hover effects, loading states, and smooth page transitions
+- **Design system:** All UI MUST use `TrebyWeb.DesignSystem.*` + `assets/css/app.css` SaaS minimal tokens (`zinc-50`/`white`/`zinc-200` light, `zinc-900`/`zinc-800`/`zinc-700` dark, `rounded-xl`/`shadow-sm`, `orange-600` CTA). Never use daisyUI class contract (`btn btn-primary`, `badge badge-*`, `card`, `table-zebra`) or hardcoded `bg-blue-600`/`bg-gray-500` outside `lib/treby_web/components/design_system/*`.
+- **Guardrail:** `grep -R "btn btn-primary\|badge badge-\|table-zebra\|bg-blue-600\|bg-gray-500" lib/treby_web --exclude-dir=design_system` must be clean; additionally run `node scripts/screenshots.mjs --axe` for contrast/a11y.
 
 
 <!-- usage-rules-start -->

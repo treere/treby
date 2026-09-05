@@ -33,7 +33,7 @@ defmodule TrebyWeb.CareersLive.Index do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-base-200">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-800">
       <div class="max-w-4xl mx-auto py-12 px-4">
         <div class="text-center mb-12">
           <img
@@ -42,10 +42,13 @@ defmodule TrebyWeb.CareersLive.Index do
             class="h-16 mx-auto mb-4"
             alt={@tenant.name}
           />
-          <h1 class="text-4xl font-bold text-base-content">
+          <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
             {(@career_page && @career_page.title) || @tenant.name}
           </h1>
-          <p :if={@career_page && @career_page.description} class="mt-4 text-lg text-base-content/70">
+          <p
+            :if={@career_page && @career_page.description}
+            class="mt-4 text-lg text-zinc-500 dark:text-zinc-400"
+          >
             {@career_page.description}
           </p>
         </div>
@@ -88,7 +91,7 @@ defmodule TrebyWeb.CareersLive.Index do
           >
             <.card class="hover:shadow-md transition-shadow">
               <div class="flex items-start justify-between gap-2">
-                <h3 class="text-xl font-semibold text-base-content">{job.title}</h3>
+                <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{job.title}</h3>
                 <.badge
                   :if={MapSet.member?(@applied_job_ids, job.id)}
                   variant="success"
@@ -97,7 +100,7 @@ defmodule TrebyWeb.CareersLive.Index do
                   {gettext("Applied ✓")}
                 </.badge>
               </div>
-              <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-base-content/70">
+              <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                 <span :if={job.salary_range}>{job.salary_range}</span>
                 <span :if={job.location} class="inline-flex items-center gap-1">
                   <.icon name="hero-map-pin" class="w-4 h-4" /> {job.location}

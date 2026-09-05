@@ -11,10 +11,10 @@ defmodule TrebyWeb.ErrorLive.NotFound do
     <Layouts.app flash={@flash} locale={@locale}>
       <div class="max-w-7xl mx-auto px-4 py-24 flex flex-col items-center justify-center text-center">
         <p class="text-7xl font-bold text-blue-600 mb-4">404</p>
-        <h1 class="text-2xl font-bold text-base-content mb-2">
+        <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
           {gettext("Page not found")}
         </h1>
-        <p class="text-base-content/70 mb-8 max-w-md">
+        <p class="text-zinc-500 dark:text-zinc-400 mb-8 max-w-md">
           {gettext("The page or entity you're looking for doesn't exist or has been removed.")}
         </p>
         <div class="flex gap-4">

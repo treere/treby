@@ -44,12 +44,12 @@ defmodule TrebyWeb.SettingsLive.Calendar do
             &larr; Back to Settings
           </.link>
           <h1 class="text-2xl font-bold mt-2">{gettext("Calendar Integration")}</h1>
-          <p class="mt-1 text-base-content/70">
+          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             Connect your Google Calendar to check availability and create interview events
           </p>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
           <%= if @connection do %>
             <div class="flex items-center justify-between">
               <div>
@@ -58,16 +58,16 @@ defmodule TrebyWeb.SettingsLive.Calendar do
                     Connected
                   </span>
                 </div>
-                <p class="mt-2 text-sm text-base-content/70">
+                <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                   Connected as <strong>{@connection.provider_email}</strong>
                 </p>
-                <p class="mt-1 text-xs text-base-content/40">
+                <p class="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
                   Connected {Elixir.Calendar.strftime(@connection.connected_at, "%B %d, %Y")}
                 </p>
               </div>
               <.link
                 href={~p"/auth/google"}
-                class="inline-flex items-center px-4 py-2 border border-base-300 text-sm font-medium rounded-md text-base-content/80 bg-base-100 hover:bg-base-200"
+                class="inline-flex items-center px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-sm font-medium rounded-md text-zinc-900 dark:text-zinc-100/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:bg-zinc-800"
               >
                 Reconnect
               </.link>
@@ -83,11 +83,11 @@ defmodule TrebyWeb.SettingsLive.Calendar do
             </div>
           <% else %>
             <div class="text-center py-8">
-              <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-base-content/40" />
-              <h3 class="mt-2 text-sm font-medium text-base-content">
+              <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-zinc-400 dark:text-zinc-500" />
+              <h3 class="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 {gettext("No calendar connected")}
               </h3>
-              <p class="mt-1 text-sm text-base-content/50">
+              <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
                 Connect your Google Calendar to check availability against your calendar. Interview
                 scheduling works even without it.
               </p>

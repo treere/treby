@@ -61,9 +61,10 @@ defmodule TrebyWeb.DesignSystem.Button do
 
   defp button_classes(assigns) do
     [
-      "btn inline-flex items-center justify-center gap-2 transition-all duration-150",
+      "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
       variant_classes(assigns.variant),
       size_classes(assigns.size),
+      "shadow-sm",
       (assigns.loading or assigns.disabled) && "pointer-events-none opacity-60",
       assigns.class
     ]

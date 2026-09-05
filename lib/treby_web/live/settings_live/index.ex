@@ -48,20 +48,24 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/pipeline"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Pipeline Stages")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Pipeline Stages")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Customize your hiring pipeline stages")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/branding"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Branding")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Branding")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Customize career page appearance")}
             </p>
           </.link>
@@ -69,10 +73,10 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/team"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Team")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{gettext("Team")}</h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Manage team members and invites")}
             </p>
           </.link>
@@ -80,10 +84,12 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/fields"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Custom Fields")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Custom Fields")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Define custom fields for candidates and jobs")}
             </p>
           </.link>
@@ -91,10 +97,12 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/scorecards"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Scorecard Templates")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Scorecard Templates")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Define evaluation criteria for interviews")}
             </p>
           </.link>
@@ -102,10 +110,12 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/emails"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Message Templates")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Message Templates")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Configure message templates for stage transitions")}
             </p>
           </.link>
@@ -113,10 +123,12 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/notifications"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Notifications")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Notifications")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Configure automated email notifications")}
             </p>
           </.link>
@@ -124,50 +136,62 @@ defmodule TrebyWeb.SettingsLive.Index do
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/sources"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Sources")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Sources")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Manage how candidates find you")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/calendar"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Calendar")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Calendar")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Connect Google Calendar for interview scheduling")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/availability"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Availability")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Availability")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Set your available hours for interviews")}
             </p>
           </.link>
 
           <.link
             navigate={~p"/app/settings/language"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Language")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">{gettext("Set your preferred language")}</p>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Language")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+              {gettext("Set your preferred language")}
+            </p>
           </.link>
 
           <.link
             :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/audit-log"}
-            class="card bg-base-100 shadow p-6 hover:shadow-md transition-shadow block"
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
             id="settings-audit-log"
           >
-            <h2 class="text-lg font-semibold text-base-content">{gettext("Audit Log")}</h2>
-            <p class="mt-2 text-sm text-base-content/70">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Audit Log")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Immutable history of all changes in this workspace")}
             </p>
           </.link>

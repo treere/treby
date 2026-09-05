@@ -279,20 +279,20 @@ defmodule TrebyWeb.InterviewsLive.Index do
 
         <div :if={@interviews != []} class="space-y-3">
           <%= for {event, scorecard_status} <- @interviews do %>
-            <div class="bg-base-100 rounded-lg border p-4 hover:shadow-sm transition-shadow">
+            <div class="bg-white dark:bg-zinc-800 rounded-lg border p-4 hover:shadow-sm transition-shadow">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-center gap-3 mb-2">
-                    <h3 class="font-medium text-base-content">
+                    <h3 class="font-medium text-zinc-900 dark:text-zinc-100">
                       {event.application.candidate.name}
                     </h3>
-                    <span class="text-sm text-base-content/50">for</span>
-                    <span class="font-medium text-base-content/80">
+                    <span class="text-sm text-zinc-400 dark:text-zinc-500">for</span>
+                    <span class="font-medium text-zinc-900 dark:text-zinc-100/80">
                       {event.application.job.title}
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-4 text-sm text-base-content/50">
+                  <div class="flex items-center gap-4 text-sm text-zinc-400 dark:text-zinc-500">
                     <span class="flex items-center gap-1">
                       <.icon name="hero-calendar" class="w-4 h-4" />
                       {Elixir.Calendar.strftime(event.start_at_utc, "%B %d, %Y")}

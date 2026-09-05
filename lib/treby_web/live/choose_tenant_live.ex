@@ -39,13 +39,13 @@ defmodule TrebyWeb.ChooseTenantLive do
           <div :for={%{tenant: tenant, role: role} <- @tenants} id={"workspace-#{tenant.slug}"}>
             <.link
               navigate={"/#{tenant.slug}/app"}
-              class="flex justify-between items-center p-4 border rounded-lg hover:bg-base-200"
+              class="flex justify-between items-center p-4 border rounded-lg hover:bg-zinc-50 dark:bg-zinc-800"
             >
               <div>
                 <div class="font-medium">{tenant.name}</div>
-                <div class="text-sm text-base-content/60">{tenant.slug}</div>
+                <div class="text-sm text-zinc-500 dark:text-zinc-400">{tenant.slug}</div>
               </div>
-              <span class="badge badge-sm">{role}</span>
+              <span class="inline-flex items-center rounded-full border text-xs font-medium bg-zinc-100 text-zinc-700 border-zinc-200 px-2 py-0.5">{role}</span>
             </.link>
           </div>
         </div>
@@ -60,7 +60,10 @@ defmodule TrebyWeb.ChooseTenantLive do
                 class="input input-bordered flex-1"
                 required
               />
-              <button type="submit" class="btn btn-primary">{gettext("Create")}</button>
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 shadow-sm"
+              >{gettext("Create")}</button>
             </div>
           </.form>
         </div>

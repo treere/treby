@@ -194,7 +194,10 @@ defmodule TrebyWeb.CoreComponents do
             name={@name}
             value="true"
             checked={@checked}
-            class={@class || "checkbox checkbox-sm"}
+            class={
+              @class ||
+                "rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4"
+            }
             {@rest}
           />{@label}
         </span>
@@ -212,7 +215,11 @@ defmodule TrebyWeb.CoreComponents do
         <select
           id={@id}
           name={@name}
-          class={[@class || "w-full select", @errors != [] && (@error_class || "select-error")]}
+          class={[
+            @class ||
+              "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500",
+            @errors != [] && (@error_class || "select-error")
+          ]}
           multiple={@multiple}
           {@rest}
         >
@@ -234,7 +241,8 @@ defmodule TrebyWeb.CoreComponents do
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
+            @class ||
+              "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500",
             @errors != [] && (@error_class || "textarea-error")
           ]}
           {@rest}
@@ -257,7 +265,8 @@ defmodule TrebyWeb.CoreComponents do
           id={@id}
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
-            @class || "w-full input",
+            @class ||
+              "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500",
             @errors != [] && (@error_class || "input-error")
           ]}
           {@rest}
@@ -271,7 +280,7 @@ defmodule TrebyWeb.CoreComponents do
   # Helper used by inputs to generate form errors
   defp error(assigns) do
     ~H"""
-    <p class="mt-1.5 flex gap-2 items-center text-sm text-error">
+    <p class="mt-1.5 flex gap-2 items-center text-sm text-red-600 dark:text-red-400">
       <.icon name="hero-exclamation-circle" class="size-5" />
       {render_slot(@inner_block)}
     </p>
@@ -292,7 +301,7 @@ defmodule TrebyWeb.CoreComponents do
         <h1 class="text-lg font-semibold leading-8">
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="text-sm text-base-content/70">
+        <p :if={@subtitle != []} class="text-sm text-zinc-500 dark:text-zinc-400">
           {render_slot(@subtitle)}
         </p>
       </div>
@@ -333,34 +342,52 @@ defmodule TrebyWeb.CoreComponents do
       end
 
     ~H"""
-    <table class="table table-zebra">
-      <thead>
-        <tr>
-          <th :for={col <- @col}>{col[:label]}</th>
-          <th :if={@action != []}>
-            <span class="sr-only">{gettext("Actions")}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody id={@id} phx-update={is_struct(@rows, Phoenix.LiveView.LiveStream) && "stream"}>
-        <tr :for={row <- @rows} id={@row_id && @row_id.(row)}>
-          <td
-            :for={col <- @col}
-            phx-click={@row_click && @row_click.(row)}
-            class={@row_click && "hover:cursor-pointer"}
+    <div class="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm">
+      <table class="w-full">
+        <thead class="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
+          <tr>
+            <th
+              :for={col <- @col}
+              class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider"
+            >
+              {col[:label]}
+            </th>
+            <th :if={@action != []} class="px-4 py-3">
+              <span class="sr-only">{gettext("Actions")}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          id={@id}
+          phx-update={is_struct(@rows, Phoenix.LiveView.LiveStream) && "stream"}
+          class="divide-y divide-zinc-100 dark:divide-zinc-700"
+        >
+          <tr
+            :for={row <- @rows}
+            id={@row_id && @row_id.(row)}
+            class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors"
           >
-            {render_slot(col, @row_item.(row))}
-          </td>
-          <td :if={@action != []} class="w-0 font-semibold">
-            <div class="flex gap-4">
-              <%= for action <- @action do %>
-                {render_slot(action, @row_item.(row))}
-              <% end %>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <td
+              :for={col <- @col}
+              phx-click={@row_click && @row_click.(row)}
+              class={[
+                "px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300",
+                @row_click && "hover:cursor-pointer"
+              ]}
+            >
+              {render_slot(col, @row_item.(row))}
+            </td>
+            <td :if={@action != []} class="px-4 py-3 w-0 font-medium">
+              <div class="flex gap-3">
+                <%= for action <- @action do %>
+                  {render_slot(action, @row_item.(row))}
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     """
   end
 
@@ -484,11 +511,11 @@ defmodule TrebyWeb.CoreComponents do
         ]}>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm text-base-content/90">{format_event(event)}</p>
-          <p class="text-xs text-base-content/40">{relative_time(event.inserted_at)}</p>
+          <p class="text-sm text-zinc-900 dark:text-zinc-100/90">{format_event(event)}</p>
+          <p class="text-xs text-zinc-400 dark:text-zinc-500">{relative_time(event.inserted_at)}</p>
         </div>
       </div>
-      <div :if={@events == []} class="text-sm text-base-content/50">
+      <div :if={@events == []} class="text-sm text-zinc-400 dark:text-zinc-500">
         No activity yet.
       </div>
     </div>
@@ -501,7 +528,7 @@ defmodule TrebyWeb.CoreComponents do
       <div class="flex items-center justify-between gap-2">
         <.link
           navigate={@profile_link}
-          class="font-medium text-sm text-base-content hover:text-blue-600 truncate"
+          class="font-medium text-sm text-zinc-900 dark:text-zinc-100 hover:text-blue-600 truncate"
         >
           {@name}
         </.link>
@@ -510,7 +537,7 @@ defmodule TrebyWeb.CoreComponents do
           <.badge :if={@is_duplicate} variant="warning" class="text-[10px]">DUPLICATE</.badge>
         </div>
       </div>
-      <p class="text-xs text-base-content/50 truncate">{@email}</p>
+      <p class="text-xs text-zinc-400 dark:text-zinc-500 truncate">{@email}</p>
       <p :if={@other_positions} class="mt-1 text-[11px] text-blue-700">{@other_positions}</p>
       <%= case @upcoming_interview do %>
         <% [next_interview | _] -> %>
@@ -529,8 +556,8 @@ defmodule TrebyWeb.CoreComponents do
   defp event_color("interview_scheduled"), do: "bg-purple-500"
   defp event_color("interview_cancelled"), do: "bg-red-500"
   defp event_color("candidate_created"), do: "bg-green-500"
-  defp event_color("candidate_updated"), do: "bg-base-300"
-  defp event_color(_), do: "bg-base-300"
+  defp event_color("candidate_updated"), do: "bg-zinc-200 dark:bg-zinc-700"
+  defp event_color(_), do: "bg-zinc-200 dark:bg-zinc-700"
 
   defp format_event(%{action: "application_stage_changed", metadata: meta}) do
     gettext("Moved from %{old} to %{new}",
@@ -582,7 +609,7 @@ defmodule TrebyWeb.CoreComponents do
     <div
       :if={@show && !@all_done}
       id="onboarding-checklist"
-      class="bg-base-100 rounded-lg shadow border border-base-300 p-6 mb-8"
+      class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 mb-8"
     >
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
@@ -590,17 +617,17 @@ defmodule TrebyWeb.CoreComponents do
             <.icon name="hero-rocket-launch" class="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h3 class="text-base font-semibold text-base-content">
+            <h3 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
               {gettext("Get Started with Treby")}
             </h3>
-            <p class="text-xs text-base-content/50">{@done} of {@total} steps complete</p>
+            <p class="text-xs text-zinc-400 dark:text-zinc-500">{@done} of {@total} steps complete</p>
           </div>
         </div>
         <button
           type="button"
           phx-click="dismiss-onboarding"
           phx-value-dismiss="session"
-          class="text-base-content/40 hover:text-base-content/70 transition-colors"
+          class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:text-zinc-400 transition-colors"
           aria-label={gettext("Dismiss checklist")}
         >
           <.icon name="hero-x-mark" class="h-5 w-5" />
@@ -614,13 +641,13 @@ defmodule TrebyWeb.CoreComponents do
             class={[
               "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors group",
               step.done && "bg-green-50 dark:bg-green-900/30",
-              !step.done && "hover:bg-base-200"
+              !step.done && "hover:bg-zinc-50 dark:bg-zinc-800"
             ]}
           >
             <div class={[
               "flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors",
               step.done && "bg-green-500 border-green-500",
-              !step.done && "border-base-300 group-hover:border-blue-400"
+              !step.done && "border-zinc-200 dark:border-zinc-700 group-hover:border-blue-400"
             ]}>
               <.icon
                 :if={step.done}
@@ -630,15 +657,15 @@ defmodule TrebyWeb.CoreComponents do
             </div>
             <span class={[
               "text-sm transition-colors",
-              step.done && "text-base-content/50 line-through",
-              !step.done && "text-base-content/80 group-hover:text-blue-600"
+              step.done && "text-zinc-400 dark:text-zinc-500 line-through",
+              !step.done && "text-zinc-900 dark:text-zinc-100/80 group-hover:text-blue-600"
             ]}>
               {step.label}
             </span>
             <.icon
               :if={!step.done}
               name="hero-arrow-right"
-              class="h-4 w-4 text-base-content/30 group-hover:text-blue-400 ml-auto transition-colors"
+              class="h-4 w-4 text-zinc-900 dark:text-zinc-100/30 group-hover:text-blue-400 ml-auto transition-colors"
             />
           </.link>
         </div>
@@ -646,7 +673,7 @@ defmodule TrebyWeb.CoreComponents do
 
       <div class="flex items-center justify-between">
         <div class="flex-1 mr-4">
-          <div class="h-2 bg-base-200 rounded-full overflow-hidden">
+          <div class="h-2 bg-zinc-50 dark:bg-zinc-800 rounded-full overflow-hidden">
             <div
               class="h-full bg-blue-500 rounded-full transition-all duration-500"
               style={"width: #{if @total > 0, do: div(@done * 100, @total), else: 0}%"}
@@ -658,7 +685,7 @@ defmodule TrebyWeb.CoreComponents do
           type="button"
           phx-click="dismiss-onboarding"
           phx-value-dismiss="permanent"
-          class="text-xs text-base-content/40 hover:text-base-content/70 transition-colors whitespace-nowrap"
+          class="text-xs text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:text-zinc-400 transition-colors whitespace-nowrap"
         >
           Don't show again
         </button>

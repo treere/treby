@@ -64,20 +64,20 @@ defmodule TrebyWeb.CandidatePortalLive.Messages do
             <%= for conversation <- @conversations do %>
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/messages/#{conversation.id}"}
-                class="block p-4 bg-base-100 rounded-lg border border-base-300 hover:border-primary transition-colors shadow-sm"
+                class="block p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-primary transition-colors shadow-sm"
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <p class="font-medium text-base-content">
+                    <p class="font-medium text-zinc-900 dark:text-zinc-100">
                       {conversation.subject || "Conversation"}
                     </p>
                     <%= if last_msg = List.last(conversation.messages) do %>
-                      <p class="text-sm text-base-content/60 mt-1 line-clamp-1">
+                      <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1">
                         {last_msg.body}
                       </p>
                     <% end %>
                   </div>
-                  <span class="text-xs text-base-content/40">
+                  <span class="text-xs text-zinc-400 dark:text-zinc-500">
                     <%= if conversation.last_message_at do %>
                       {Calendar.strftime(conversation.last_message_at, "%b %d")}
                     <% end %>

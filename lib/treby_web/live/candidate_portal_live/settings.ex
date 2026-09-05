@@ -55,7 +55,7 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
         <.page_header title={gettext("Settings")} />
 
         <.card>
-          <h2 class="text-lg font-medium text-base-content mb-4">
+          <h2 class="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-4">
             Notification Preferences
           </h2>
 
@@ -67,18 +67,18 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
             {"important_only", gettext("Important notifications only")}
           ] do %>
               <div class="flex items-center justify-between">
-                <span class="text-sm text-base-content/80">{label}</span>
+                <span class="text-sm text-zinc-900 dark:text-zinc-100/80">{label}</span>
                 <button
                   phx-click="toggle_preference"
                   phx-value-key={key}
                   class={[
                     "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                     @preferences[key] && "bg-primary",
-                    !@preferences[key] && "bg-base-300"
+                    !@preferences[key] && "bg-zinc-200 dark:bg-zinc-700"
                   ]}
                 >
                   <span class={[
-                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-base-100 shadow ring-0 transition duration-200 ease-in-out",
+                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-zinc-800 shadow ring-0 transition duration-200 ease-in-out",
                     @preferences[key] && "translate-x-5",
                     !@preferences[key] && "translate-x-0"
                   ]} />

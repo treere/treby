@@ -1,19 +1,19 @@
-<div class="min-h-screen bg-base-200 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-zinc-50 dark:bg-zinc-800 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-base-content">
+    <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
       {gettext("Join %{tenant_name}", tenant_name: @tenant.name)}
     </h2>
-    <p class="mt-2 text-center text-sm text-base-content/70">
+    <p class="mt-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
       {gettext("You've been invited to join as a team member")}
     </p>
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="bg-base-100 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+    <div class="bg-white dark:bg-zinc-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
       <%= cond do %>
         <% @mismatch -> %>
           <div class="space-y-4 text-center">
-            <p class="text-sm text-base-content/70">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("You are logged in as %{current} but this invite is for %{existing}",
                 current: @current_user.email,
                 existing: @existing_user.email
@@ -29,13 +29,13 @@
                 {gettext("Log out and continue as %{email}", email: @existing_user.email)}
               </.button>
             </div>
-            <p class="text-xs text-base-content/50">
+            <p class="text-xs text-zinc-400 dark:text-zinc-500">
               {gettext("Or log out and log in as the invited email")}
             </p>
           </div>
         <% @needs_login -> %>
           <div class="space-y-4 text-center">
-            <p class="text-sm text-base-content/70">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Please log in as %{email} to accept this invite",
                 email: @existing_user.email
               )}
@@ -53,10 +53,10 @@
             class="space-y-6"
           >
             <div class="text-center">
-              <p class="text-sm text-base-content/70">
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">
                 {gettext("You are logged in as %{email}", email: @existing_user.email)}
               </p>
-              <p class="text-sm text-base-content/70">
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">
                 {gettext("Click below to join %{tenant}", tenant: @tenant.name)}
               </p>
             </div>
@@ -75,7 +75,10 @@
             class="space-y-6"
           >
             <div>
-              <label for="user_name" class="block text-sm font-medium text-base-content/80">
+              <label
+                for="user_name"
+                class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80"
+              >
                 {gettext("Full Name")}
               </label>
               <input
@@ -83,12 +86,15 @@
                 name="user[name]"
                 type="text"
                 required
-                class="mt-1 block w-full rounded-md border-base-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                class="mt-1 block w-full rounded-md border-zinc-200 dark:border-zinc-700 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
               />
             </div>
 
             <div>
-              <label for="user_email" class="block text-sm font-medium text-base-content/80">
+              <label
+                for="user_email"
+                class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80"
+              >
                 {gettext("Email")}
               </label>
               <input
@@ -97,12 +103,15 @@
                 type="email"
                 value={@invite.email}
                 disabled
-                class="mt-1 block w-full rounded-md border-base-300 shadow-sm bg-base-200 sm:text-sm"
+                class="mt-1 block w-full rounded-md border-zinc-200 dark:border-zinc-700 shadow-sm bg-zinc-50 dark:bg-zinc-800 sm:text-sm"
               />
             </div>
 
             <div>
-              <label for="user_password" class="block text-sm font-medium text-base-content/80">
+              <label
+                for="user_password"
+                class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80"
+              >
                 {gettext("Password")}
               </label>
               <input
@@ -110,7 +119,7 @@
                 name="user[password]"
                 type="password"
                 required
-                class="mt-1 block w-full rounded-md border-base-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+                class="mt-1 block w-full rounded-md border-zinc-200 dark:border-zinc-700 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
               />
             </div>
 

@@ -19,20 +19,20 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+    <div class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 px-4">
       <div class="max-w-md w-full">
         <.card class="shadow-sm">
           <div class="text-center mb-6">
-            <h2 class="text-3xl font-bold text-base-content">
+            <h2 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
               Enter your login code
             </h2>
 
             <%= if @has_email? do %>
-              <p class="mt-2 text-sm text-base-content/60">
+              <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                 We sent a 6-digit code to {@email}
               </p>
             <% else %>
-              <p class="mt-2 text-sm text-base-content/60">
+              <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                 Enter your email to receive a login code
               </p>
             <% end %>
@@ -68,10 +68,10 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
               </div>
             </.form>
 
-            <p class="mt-4 text-center text-xs text-base-content/50">
+            <p class="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
               {gettext("Code valid 10 minutes — check spam folder, sender noreply@treby.app.")}
             </p>
-            <p class="mt-1 text-center text-xs text-base-content/50">
+            <p class="mt-1 text-center text-xs text-zinc-400 dark:text-zinc-500">
               {gettext("Didn't receive it? Check spam or correct your email.")}
               <.link
                 navigate={~p"/#{@tenant.slug}/portal/login"}
@@ -80,7 +80,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
                 {gettext("Correct email")}
               </.link>
             </p>
-            <p class="mt-2 text-center text-xs text-base-content/40">
+            <p class="mt-2 text-center text-xs text-zinc-400 dark:text-zinc-500">
               {gettext("You can request a new code after 60 seconds.")}
             </p>
 
@@ -153,7 +153,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
                 </.button>
               </div>
             </.form>
-            <p class="mt-4 text-center text-xs text-base-content/50">
+            <p class="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
               {gettext(
                 "Code valid 10 minutes — check spam folder, sender noreply@treby.app. You can request a new code after 60 seconds."
               )}

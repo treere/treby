@@ -53,14 +53,17 @@ defmodule TrebyWeb.SettingsLive.Fields do
               &larr; Back to Settings
             </.link>
             <h1 class="text-2xl font-bold mt-2">{gettext("Custom Fields")}</h1>
-            <p class="mt-1 text-base-content/70">
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
               {gettext("Define custom fields for candidates, jobs, and applications")}
             </p>
           </div>
           <.button phx-click="show_create_form" variant="primary">+ {gettext("Add Field")}</.button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
+        <div
+          :if={@show_form}
+          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+        >
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_field, do: gettext("Edit Field"), else: gettext("New Field")}
           </h2>
@@ -104,7 +107,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
             </div>
 
             <div :if={@form[:field_type].value == "select"} class="space-y-2">
-              <label class="block text-sm font-medium text-base-content/80">
+              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
                 {gettext("Options (one per line)")}
               </label>
               <textarea
@@ -128,39 +131,43 @@ defmodule TrebyWeb.SettingsLive.Fields do
           </.form>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-base-200">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+            <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Type")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Applies To")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Required")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-base-100 divide-y divide-gray-200">
-              <tr :for={field <- @custom_fields} class="hover:bg-base-200">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
+            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+              <tr :for={field <- @custom_fields} class="hover:bg-zinc-50 dark:bg-zinc-800">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   {field.name}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{field.field_type}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">{field.applies_to}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                  {field.field_type}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                  {field.applies_to}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <%= if field.required do %>
                     <span class="text-green-600">{gettext("Yes")}</span>
                   <% else %>
-                    <span class="text-base-content/40">No</span>
+                    <span class="text-zinc-400 dark:text-zinc-500">No</span>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -188,7 +195,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
               </tr>
             </tbody>
           </table>
-          <div :if={@custom_fields == []} class="p-8 text-center text-base-content/50">
+          <div :if={@custom_fields == []} class="p-8 text-center text-zinc-400 dark:text-zinc-500">
             {gettext("No custom fields defined yet. Add your first custom field!")}
           </div>
         </div>

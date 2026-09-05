@@ -54,11 +54,13 @@ defmodule TrebyWeb.SettingsLive.Branding do
             &larr; Back to Settings
           </.link>
           <h1 class="text-2xl font-bold mt-2">{gettext("Branding")}</h1>
-          <p class="mt-1 text-base-content/70">{gettext("Customize your career page appearance")}</p>
+          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+            {gettext("Customize your career page appearance")}
+          </p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <h2 class="text-lg font-semibold mb-4">{gettext("Settings")}</h2>
             <.form
               for={@form}
@@ -86,12 +88,12 @@ defmodule TrebyWeb.SettingsLive.Branding do
               />
 
               <div>
-                <label class="block text-sm font-medium text-base-content/80 mb-1">
+                <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
                   {gettext("Logo")}
                 </label>
                 <.live_file_input
                   upload={@uploads.logo}
-                  class="block w-full text-sm text-base-content/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:bg-blue-950 file:text-blue-700 dark:text-blue-100 hover:file:bg-blue-100"
+                  class="block w-full text-sm text-zinc-400 dark:text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:bg-blue-950 file:text-blue-700 dark:text-blue-100 hover:file:bg-blue-100"
                 />
                 <p :for={err <- upload_errors(@uploads.logo)} class="text-red-500 text-sm mt-1">
                   {upload_error_to_string(err)}
@@ -112,7 +114,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
             </.form>
           </div>
 
-          <div class="bg-base-100 rounded-lg shadow p-6">
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <h2 class="text-lg font-semibold mb-4">{gettext("Preview")}</h2>
             <div class="border rounded-lg overflow-hidden">
               <div
@@ -129,8 +131,8 @@ defmodule TrebyWeb.SettingsLive.Branding do
                   {@form[:description].value}
                 </p>
               </div>
-              <div class="p-4 bg-base-200">
-                <p class="text-sm text-base-content/50 text-center">
+              <div class="p-4 bg-zinc-50 dark:bg-zinc-800">
+                <p class="text-sm text-zinc-400 dark:text-zinc-500 text-center">
                   Open positions will appear here
                 </p>
               </div>

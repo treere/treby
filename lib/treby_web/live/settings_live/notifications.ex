@@ -43,20 +43,20 @@ defmodule TrebyWeb.SettingsLive.Notifications do
             &larr; {gettext("Back to Settings")}
           </.button>
           <h1 class="text-2xl font-bold mt-2">{gettext("Notification Preferences")}</h1>
-          <p class="mt-1 text-base-content/70">
+          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {gettext("Configure which email notifications are sent automatically")}
           </p>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
-          <div class="divide-y divide-base-300">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+          <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
             <div class="p-6">
               <div class="flex items-center justify-between">
                 <div>
-                  <h3 class="text-sm font-medium text-base-content">
+                  <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {gettext("Stage Change Notifications")}
                   </h3>
-                  <p class="mt-1 text-sm text-base-content/50">
+                  <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
                     {gettext(
                       "Send email to candidates when their application moves to a new pipeline stage"
                     )}
@@ -68,13 +68,13 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   class={[
                     "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                     @preferences["stage_change_candidate"] && "bg-primary",
-                    !@preferences["stage_change_candidate"] && "bg-base-300"
+                    !@preferences["stage_change_candidate"] && "bg-zinc-200 dark:bg-zinc-700"
                   ]}
                   role="switch"
                   aria-checked={to_string(@preferences["stage_change_candidate"])}
                 >
                   <span class={[
-                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-base-100 shadow ring-0 transition duration-200 ease-in-out",
+                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white dark:bg-zinc-800 shadow ring-0 transition duration-200 ease-in-out",
                     @preferences["stage_change_candidate"] && "translate-x-5",
                     !@preferences["stage_change_candidate"] && "translate-x-0"
                   ]} />
@@ -85,10 +85,10 @@ defmodule TrebyWeb.SettingsLive.Notifications do
             <div class="p-6">
               <div class="flex items-center justify-between">
                 <div>
-                  <h3 class="text-sm font-medium text-base-content">
+                  <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {gettext("Application Confirmation")}
                   </h3>
-                  <p class="mt-1 text-sm text-base-content/50">
+                  <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
                     {gettext(
                       "Send confirmation email to candidates after they apply via the career page"
                     )}
@@ -100,13 +100,13 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   class={[
                     "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                     @preferences["new_application_candidate"] && "bg-primary",
-                    !@preferences["new_application_candidate"] && "bg-base-300"
+                    !@preferences["new_application_candidate"] && "bg-zinc-200 dark:bg-zinc-700"
                   ]}
                   role="switch"
                   aria-checked={to_string(@preferences["new_application_candidate"])}
                 >
                   <span class={[
-                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-base-100 shadow ring-0 transition duration-200 ease-in-out",
+                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white dark:bg-zinc-800 shadow ring-0 transition duration-200 ease-in-out",
                     @preferences["new_application_candidate"] && "translate-x-5",
                     !@preferences["new_application_candidate"] && "translate-x-0"
                   ]} />
@@ -117,10 +117,10 @@ defmodule TrebyWeb.SettingsLive.Notifications do
             <div class="p-6">
               <div class="flex items-center justify-between">
                 <div>
-                  <h3 class="text-sm font-medium text-base-content">
+                  <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {gettext("New Application Alerts")}
                   </h3>
-                  <p class="mt-1 text-sm text-base-content/50">
+                  <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
                     {gettext("Notify admins when a new application is submitted for any job")}
                   </p>
                 </div>
@@ -130,13 +130,13 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   class={[
                     "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                     @preferences["new_application_team"] && "bg-primary",
-                    !@preferences["new_application_team"] && "bg-base-300"
+                    !@preferences["new_application_team"] && "bg-zinc-200 dark:bg-zinc-700"
                   ]}
                   role="switch"
                   aria-checked={to_string(@preferences["new_application_team"])}
                 >
                   <span class={[
-                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-base-100 shadow ring-0 transition duration-200 ease-in-out",
+                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white dark:bg-zinc-800 shadow ring-0 transition duration-200 ease-in-out",
                     @preferences["new_application_team"] && "translate-x-5",
                     !@preferences["new_application_team"] && "translate-x-0"
                   ]} />

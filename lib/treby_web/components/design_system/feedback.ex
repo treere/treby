@@ -27,7 +27,7 @@ defmodule TrebyWeb.DesignSystem.Feedback do
         @size == "md" && "size-5",
         @size == "lg" && "size-8"
       ]} />
-      <span :if={render_slot(@inner_block) != []} class="text-sm text-base-content/70">
+      <span :if={render_slot(@inner_block) != []} class="text-sm text-zinc-500 dark:text-zinc-400">
         {render_slot(@inner_block)}
       </span>
     </span>
@@ -56,17 +56,23 @@ defmodule TrebyWeb.DesignSystem.Feedback do
     <div class={[@class]} {@rest}>
       <div
         :if={@variant == "text"}
-        class={["h-4 bg-base-300 rounded animate-pulse", @width || "w-full"]}
+        class={["h-4 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse", @width || "w-full"]}
       />
       <div :if={@variant == "avatar"} class="flex items-center gap-3">
-        <div class="size-10 bg-base-300 rounded-full animate-pulse" />
+        <div class="size-10 bg-zinc-200 dark:bg-zinc-700 rounded-full animate-pulse" />
         <div class="space-y-2 flex-1">
-          <div class="h-3 bg-base-300 rounded w-1/3 animate-pulse" />
-          <div class="h-3 bg-base-300 rounded w-1/2 animate-pulse" />
+          <div class="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-1/3 animate-pulse" />
+          <div class="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-1/2 animate-pulse" />
         </div>
       </div>
-      <div :if={@variant == "card"} class="space-y-3 p-4 border border-base-300 rounded-box">
-        <div :for={_ <- Enum.to_list(1..@lines)} class="h-3 bg-base-300 rounded animate-pulse w-full" />
+      <div
+        :if={@variant == "card"}
+        class="space-y-3 p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-800"
+      >
+        <div
+          :for={_ <- Enum.to_list(1..@lines)}
+          class="h-3 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse w-full"
+        />
       </div>
     </div>
     """
@@ -94,11 +100,15 @@ defmodule TrebyWeb.DesignSystem.Feedback do
     ~H"""
     <div
       class={[
-        "alert flex items-start gap-3 shadow-lg",
-        @kind == :info && "alert-info",
-        @kind == :success && "alert-success",
-        @kind == :warning && "alert-warning",
-        @kind == :error && "alert-error",
+        "flex items-start gap-3 rounded-xl border shadow-lg p-4",
+        @kind == :info &&
+          "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-100",
+        @kind == :success &&
+          "bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-100",
+        @kind == :warning &&
+          "bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-100",
+        @kind == :error &&
+          "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-800 dark:text-red-100",
         @class
       ]}
       {@rest}

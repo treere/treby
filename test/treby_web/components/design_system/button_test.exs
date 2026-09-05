@@ -7,17 +7,17 @@ defmodule TrebyWeb.DesignSystem.ButtonTest do
   describe "button" do
     test "renders primary variant" do
       html = render_component(&button/1, %{variant: "primary"})
-      assert html =~ "btn btn-primary"
+      assert html =~ "bg-orange-600"
     end
 
     test "renders danger variant" do
       html = render_component(&button/1, %{variant: "danger"})
-      assert html =~ "btn btn-error"
+      assert html =~ "bg-red-600"
     end
 
     test "renders with size" do
       html = render_component(&button/1, %{size: "sm"})
-      assert html =~ "btn-sm"
+      assert html =~ "h-8"
     end
 
     test "renders disabled state" do

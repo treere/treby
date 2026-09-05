@@ -33,7 +33,7 @@ defmodule TrebyWeb.DesignSystem.Avatar do
         <img :if={@src} src={@src} alt={@alt} class="object-cover w-full h-full" />
         <div
           :if={!@src && @initials}
-          class="flex items-center justify-center w-full h-full bg-primary text-primary-content text-sm font-semibold"
+          class="flex items-center justify-center w-full h-full bg-zinc-900 dark:bg-zinc-700 text-white dark:text-zinc-100 text-sm font-semibold"
         >
           {@initials}
         </div>

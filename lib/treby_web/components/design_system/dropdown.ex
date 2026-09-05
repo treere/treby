@@ -32,7 +32,7 @@ defmodule TrebyWeb.DesignSystem.Dropdown do
       </div>
       <ul
         tabindex="0"
-        class="dropdown-content menu bg-base-100 rounded-box z-30 w-52 p-2 shadow-lg border border-base-300"
+        class="dropdown-content menu bg-white dark:bg-zinc-800 rounded-xl z-30 w-52 p-2 shadow-xl border border-zinc-200 dark:border-zinc-700"
       >
         <li :for={item <- @item}>
           {render_slot(item)}

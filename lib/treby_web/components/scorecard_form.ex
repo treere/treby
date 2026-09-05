@@ -15,13 +15,13 @@ defmodule TrebyWeb.ScorecardForm do
       :if={@show}
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
     >
-      <div class="bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold">{gettext("Scorecard")}</h2>
             <button
               phx-click="close_scorecard"
-              class="text-base-content/40 hover:text-base-content/70"
+              class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:text-zinc-400"
             >
               <.icon name="hero-x-mark" class="w-6 h-6" />
             </button>
@@ -34,7 +34,7 @@ defmodule TrebyWeb.ScorecardForm do
             class="space-y-4"
           >
             <div :for={criterion <- @criteria} class="space-y-1">
-              <label class="block text-sm font-medium text-base-content/80">
+              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
                 {criterion["name"]}
               </label>
               <%= cond do %>
@@ -49,7 +49,7 @@ defmodule TrebyWeb.ScorecardForm do
                           checked={@form[criterion["name"]].value == to_string(n)}
                           class="sr-only peer"
                         />
-                        <span class="text-2xl peer-checked:text-yellow-500 text-base-content/30 hover:text-yellow-400">
+                        <span class="text-2xl peer-checked:text-yellow-500 text-zinc-900 dark:text-zinc-100/30 hover:text-yellow-400">
                           ★
                         </span>
                       </label>
@@ -89,7 +89,7 @@ defmodule TrebyWeb.ScorecardForm do
             </div>
 
             <div class="space-y-1">
-              <label class="block text-sm font-medium text-base-content/80">
+              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
                 {gettext("Recommendation")}
               </label>
               <select
@@ -130,7 +130,9 @@ defmodule TrebyWeb.ScorecardForm do
             </div>
 
             <div class="space-y-1">
-              <label class="block text-sm font-medium text-base-content/80">{gettext("Notes")}</label>
+              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">{gettext(
+                "Notes"
+              )}</label>
               <textarea
                 name="notes"
                 rows="3"

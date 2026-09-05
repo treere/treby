@@ -93,12 +93,12 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
             <div class={[
               "rounded-lg p-4 max-w-3xl",
               message.sender_type == "candidate" && "bg-primary/10 ml-auto",
-              message.sender_type == "recruiter" && "bg-base-200",
+              message.sender_type == "recruiter" && "bg-zinc-50 dark:bg-zinc-800",
               message.sender_type == "system" &&
-                "bg-base-200/50 mx-auto text-center text-sm text-base-content/50"
+                "bg-zinc-50 dark:bg-zinc-800/50 mx-auto text-center text-sm text-zinc-400 dark:text-zinc-500"
             ]}>
-              <p class="text-base-content">{message.body}</p>
-              <p class="text-xs text-base-content/40 mt-1">
+              <p class="text-zinc-900 dark:text-zinc-100">{message.body}</p>
+              <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                 {Calendar.strftime(message.inserted_at, "%b %d, %H:%M")}
               </p>
             </div>
@@ -120,7 +120,7 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
             </.button>
           </.form>
         <% else %>
-          <p class="text-center text-base-content/50 text-sm">
+          <p class="text-center text-zinc-400 dark:text-zinc-500 text-sm">
             This conversation is closed.
           </p>
         <% end %>

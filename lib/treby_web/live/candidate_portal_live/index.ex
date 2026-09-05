@@ -149,10 +149,10 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
           <.card class="mb-6">
             <div class="flex justify-between items-start mb-4">
               <div>
-                <h2 class="text-xl font-semibold text-base-content">
+                <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
                   {@selected_application.job.title}
                 </h2>
-                <p class="text-sm text-base-content/60">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">
                   {@selected_application.job.description}
                 </p>
               </div>
@@ -171,11 +171,11 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               <.status_badge status={@selected_application.pipeline_stage.name} />
             </div>
 
-            <div class="bg-base-200 rounded-lg border border-base-300 p-4 mb-4">
-              <p class="text-sm font-medium text-base-content mb-1">
+            <div class="bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 mb-4">
+              <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">
                 {gettext("Where you are")}
               </p>
-              <p class="text-sm text-base-content/70">
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">
                 {candidate_step(@selected_application)}
               </p>
 
@@ -194,8 +194,8 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               <% end %>
             </div>
 
-            <div class="border-t border-base-300 pt-4">
-              <div class="flex flex-wrap gap-4 text-sm text-base-content/50">
+            <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4">
+              <div class="flex flex-wrap gap-4 text-sm text-zinc-400 dark:text-zinc-500">
                 <p>
                   Applied {Calendar.strftime(@selected_application.applied_at, "%b %d, %Y")}
                 </p>
@@ -206,8 +206,8 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
             </div>
 
             <%= if @selected_timeline != [] do %>
-              <div class="border-t border-base-300 pt-4 mt-4">
-                <p class="text-sm font-medium text-base-content mb-3">
+              <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-4">
+                <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-3">
                   Timeline
                 </p>
                 <div class="space-y-3">
@@ -215,8 +215,8 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                     <div class="flex items-start gap-3">
                       <div class="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0"></div>
                       <div>
-                        <p class="text-sm text-base-content/80">{entry.body}</p>
-                        <p class="text-xs text-base-content/40">
+                        <p class="text-sm text-zinc-900 dark:text-zinc-100/80">{entry.body}</p>
+                        <p class="text-xs text-zinc-400 dark:text-zinc-500">
                           {Calendar.strftime(entry.inserted_at, "%b %d, %Y")}
                         </p>
                       </div>
@@ -229,9 +229,9 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
             <%= if @selected_conversations != [] do %>
               <% active = Enum.find(@selected_conversations, &(&1.status != "closed")) %>
               <%= if active do %>
-                <div class="border-t border-base-300 pt-4 mt-4">
+                <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4 mt-4">
                   <div class="flex items-center justify-between mb-3">
-                    <p class="text-sm font-medium text-base-content">
+                    <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                       {active.subject || "Conversation"}
                     </p>
                     <.link
@@ -247,12 +247,12 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                       <div class={[
                         "rounded-lg p-3 max-w-3xl",
                         message.sender_type == "candidate" && "bg-primary/10 ml-auto",
-                        message.sender_type == "recruiter" && "bg-base-200",
+                        message.sender_type == "recruiter" && "bg-zinc-50 dark:bg-zinc-800",
                         message.sender_type == "system" &&
-                          "bg-base-200/50 mx-auto text-center text-xs text-base-content/50"
+                          "bg-zinc-50 dark:bg-zinc-800/50 mx-auto text-center text-xs text-zinc-400 dark:text-zinc-500"
                       ]}>
-                        <p class="text-sm text-base-content">{message.body}</p>
-                        <p class="text-xs text-base-content/40 mt-0.5">
+                        <p class="text-sm text-zinc-900 dark:text-zinc-100">{message.body}</p>
+                        <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                           {Calendar.strftime(message.inserted_at, "%b %d, %H:%M")}
                         </p>
                       </div>
@@ -300,14 +300,14 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               <button
                 phx-click="select_application"
                 phx-value-id={application.id}
-                class="w-full text-left p-4 bg-base-100 rounded-lg border border-base-300 hover:border-primary transition-colors shadow-sm"
+                class="w-full text-left p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-primary transition-colors shadow-sm"
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <p class="font-medium text-base-content">
+                    <p class="font-medium text-zinc-900 dark:text-zinc-100">
                       {application.job.title}
                     </p>
-                    <p class="text-sm text-base-content/60 line-clamp-2">
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
                       {application.job.description}
                     </p>
                   </div>

@@ -29,9 +29,9 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-base-200">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-800">
       <div class="max-w-4xl mx-auto py-12 px-4">
-        <h1 class="text-4xl font-bold text-base-content text-center mb-8">
+        <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100 text-center mb-8">
           {gettext("All Open Positions")}
         </h1>
 
@@ -72,13 +72,15 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="flex items-center gap-2">
-                    <h3 class="text-xl font-semibold text-base-content">{job.title}</h3>
+                    <h3 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                      {job.title}
+                    </h3>
                     <.badge :if={MapSet.member?(@applied_job_ids, job.id)} variant="success">
                       {gettext("Applied ✓")}
                     </.badge>
                   </div>
-                  <p class="text-sm text-base-content/50">{job.tenant.name}</p>
-                  <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-base-content/70">
+                  <p class="text-sm text-zinc-400 dark:text-zinc-500">{job.tenant.name}</p>
+                  <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                     <span :if={job.location} class="inline-flex items-center gap-1">
                       <.icon name="hero-map-pin" class="w-4 h-4" /> {job.location}
                     </span>
@@ -90,7 +92,9 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
                     </.badge>
                   </div>
                 </div>
-                <p :if={job.salary_range} class="text-base-content/70 shrink-0">{job.salary_range}</p>
+                <p :if={job.salary_range} class="text-zinc-500 dark:text-zinc-400 shrink-0">
+                  {job.salary_range}
+                </p>
               </div>
             </.card>
           </.link>

@@ -7,12 +7,12 @@ defmodule TrebyWeb.DesignSystem.BadgeTest do
   describe "badge" do
     test "renders default" do
       html = render_component(&badge/1, %{})
-      assert html =~ "badge"
+      assert html =~ "rounded-full"
     end
 
     test "renders success variant" do
       html = render_component(&badge/1, %{variant: "success"})
-      assert html =~ "badge-success"
+      assert html =~ "bg-emerald-50"
     end
   end
 end

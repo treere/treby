@@ -12,7 +12,7 @@ defmodule TrebyWeb.DesignSystem.CoreTest do
   describe "card" do
     test "renders with card class" do
       html = render_component(&card/1, %{})
-      assert html =~ "card"
+      assert html =~ "rounded-xl"
     end
   end
 
@@ -32,7 +32,7 @@ defmodule TrebyWeb.DesignSystem.CoreTest do
           active_tab: "active"
         })
 
-      assert html =~ "tab-active"
+      assert html =~ "bg-white"
     end
   end
 

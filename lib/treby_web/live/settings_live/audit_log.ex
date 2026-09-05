@@ -106,12 +106,12 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
             &larr; {gettext("Back to Settings")}
           </.link>
           <h1 class="text-2xl font-bold mt-2">{gettext("Audit Log")}</h1>
-          <p class="mt-1 text-base-content/70">
+          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {gettext("Immutable history of all changes in this workspace")}
           </p>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow p-4 mb-6">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-6">
           <.form
             for={%{}}
             id="audit-filter-form"
@@ -171,21 +171,21 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
           </div>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-base-200" id="audit-table">
-              <thead class="bg-base-200">
+              <thead class="bg-zinc-50 dark:bg-zinc-800">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-base-content/70 uppercase">
+                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                     {gettext("Time")}
                   </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-base-content/70 uppercase">
+                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                     {gettext("Action")}
                   </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-base-content/70 uppercase">
+                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                     {gettext("Entity")}
                   </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-base-content/70 uppercase">
+                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                     {gettext("Actor")}
                   </th>
                   <th class="px-4 py-3"></th>
@@ -193,10 +193,12 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
               </thead>
               <tbody class="divide-y divide-base-200" id="audit-events" phx-update="stream">
                 <tr :for={{dom_id, event} <- @streams.events} id={dom_id} class="hover:bg-base-50">
-                  <td class="px-4 py-3 text-sm text-base-content/70">
+                  <td class="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
                     {Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M:%S UTC")}
                   </td>
-                  <td class="px-4 py-3"><span class="badge badge-sm">{event.action}</span></td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex items-center rounded-full border text-xs font-medium bg-zinc-100 text-zinc-700 border-zinc-200 px-2 py-0.5">{event.action}</span>
+                  </td>
                   <td class="px-4 py-3 text-sm">
                     {event.entity_type}: {String.slice(event.entity_id, 0, 8)}
                   </td>
@@ -215,13 +217,13 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
                 </tr>
               </tbody>
             </table>
-            <div :if={@events == []} class="text-center py-8 text-base-content/50">
+            <div :if={@events == []} class="text-center py-8 text-zinc-400 dark:text-zinc-500">
               {gettext("No audit events found")}
             </div>
           </div>
 
-          <div class="p-4 flex items-center justify-between border-t border-base-200">
-            <span class="text-sm text-base-content/70">
+          <div class="p-4 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800">
+            <span class="text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Total: %{count}", count: @total)} — {gettext("Page %{page}", page: @page)}
             </span>
             <div class="flex gap-2">
@@ -246,7 +248,7 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
         id="audit-detail-modal"
       >
         <div class="fixed inset-0 bg-black/50" phx-click="close_detail"></div>
-        <div class="relative bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto p-6">
+        <div class="relative bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto p-6">
           <div class="flex justify-between items-start">
             <h3 class="text-lg font-semibold">{@selected.action} — {@selected.entity_type}</h3>
             <button phx-click="close_detail" class="btn btn-ghost btn-sm">✕</button>
@@ -259,7 +261,7 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
               <span class="font-medium">{gettext("Actor:")}</span> {(@selected.actor &&
                                                                        @selected.actor.email) ||
                 @selected.actor_type}
-              <span class="text-base-content/50">({@selected.actor_type})</span>
+              <span class="text-zinc-400 dark:text-zinc-500">({@selected.actor_type})</span>
             </p>
             <p>
               <span class="font-medium">{gettext("Time:")}</span> {Calendar.strftime(
@@ -274,21 +276,21 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
             <div class="mt-4">
               <h4 class="font-medium">{gettext("Metadata")}</h4>
               <pre
-                class="mt-2 bg-base-200 p-3 rounded text-xs overflow-auto"
+                class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto"
                 phx-no-curly-interpolation
               >{Jason.encode!(@selected.metadata, pretty: true)}</pre>
             </div>
             <div :if={@selected.metadata["before"] || @selected.metadata[:before]} class="mt-2">
               <h4 class="font-medium">{gettext("Before")}</h4>
               <pre
-                class="mt-2 bg-base-200 p-3 rounded text-xs overflow-auto"
+                class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto"
                 phx-no-curly-interpolation
               >{Jason.encode!(@selected.metadata["before"] || @selected.metadata[:before] || %{}, pretty: true)}</pre>
             </div>
             <div :if={@selected.metadata["after"] || @selected.metadata[:after]} class="mt-2">
               <h4 class="font-medium">{gettext("After")}</h4>
               <pre
-                class="mt-2 bg-base-200 p-3 rounded text-xs overflow-auto"
+                class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto"
                 phx-no-curly-interpolation
               >{Jason.encode!(@selected.metadata["after"] || @selected.metadata[:after] || %{}, pretty: true)}</pre>
             </div>

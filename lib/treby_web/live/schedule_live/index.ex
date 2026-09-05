@@ -98,20 +98,20 @@ defmodule TrebyWeb.ScheduleLive.Index do
               <h2 class="text-lg font-semibold mb-4">{gettext("Select Interviewer")}</h2>
               <div :if={@users == []} class="space-y-4">
                 <div class="text-center py-4">
-                  <p class="text-base-content/50 text-sm">
+                  <p class="text-zinc-400 dark:text-zinc-500 text-sm">
                     {gettext("No team members have set their availability yet.")}
                   </p>
-                  <p class="text-xs text-base-content/40 mt-1">
+                  <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                     {gettext("Schedule ad-hoc without weekly rules — or")}
                     <.link navigate={~p"/app/settings/availability"} class="link link-primary">
                       {gettext("Set weekly availability → Settings → Availability")}
                     </.link>
                   </p>
                 </div>
-                <div class="border rounded-lg p-4 bg-base-200/50 space-y-3">
+                <div class="border rounded-lg p-4 bg-zinc-50 dark:bg-zinc-800/50 space-y-3">
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-xs font-medium text-base-content/70 mb-1">
+                      <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
                         {gettext("Date")}
                       </label>
                       <input
@@ -122,7 +122,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                       />
                     </div>
                     <div>
-                      <label class="block text-xs font-medium text-base-content/70 mb-1">
+                      <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
                         {gettext("Time (UTC)")}
                       </label>
                       <input
@@ -134,7 +134,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     </div>
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                    <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
                       {gettext("Interviewer")}
                     </label>
                     <select phx-change="ad_hoc_user" class="select w-full">
@@ -168,12 +168,13 @@ defmodule TrebyWeb.ScheduleLive.Index do
                       "w-full text-left px-4 py-3 rounded-lg border transition-colors",
                       if(@selected_user && @selected_user.id == user.id,
                         do: "border-primary bg-primary/10",
-                        else: "border-base-300 hover:border-base-300"
+                        else:
+                          "border-zinc-200 dark:border-zinc-700 hover:border-zinc-200 dark:border-zinc-700"
                       )
                     ]}
                   >
                     <span class="font-medium">{user.name}</span>
-                    <span class="text-sm text-base-content/50 ml-2">{user.email}</span>
+                    <span class="text-sm text-zinc-400 dark:text-zinc-500 ml-2">{user.email}</span>
                     <.badge
                       :if={MapSet.member?(@connected_ids, user.id)}
                       variant="success"
@@ -193,7 +194,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     <.button variant="ghost" size="sm" phx-click="prev_week">
                       &larr; {gettext("Prev")}
                     </.button>
-                    <span class="text-sm text-base-content/70">
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">
                       {Elixir.Calendar.strftime(@selected_date, "%B %d")} - {Date.add(
                         @selected_date,
                         6
@@ -221,7 +222,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                           "px-3 py-2 text-xs rounded border text-center transition-colors",
                           if(@selected_slot && @selected_slot.start == slot.start,
                             do: "border-primary bg-primary text-primary-content",
-                            else: "border-base-300 hover:border-primary/30"
+                            else: "border-zinc-200 dark:border-zinc-700 hover:border-primary/30"
                           )
                         ]}
                       >
@@ -239,19 +240,19 @@ defmodule TrebyWeb.ScheduleLive.Index do
               <h2 class="text-lg font-semibold mb-4">{gettext("Details")}</h2>
               <dl class="space-y-3 text-sm">
                 <div>
-                  <dt class="text-base-content/50">{gettext("Candidate")}</dt>
+                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Candidate")}</dt>
                   <dd><strong>{@application.candidate.name}</strong></dd>
                 </div>
                 <div>
-                  <dt class="text-base-content/50">{gettext("Job")}</dt>
+                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Job")}</dt>
                   <dd class="font-medium">{@application.job.title}</dd>
                 </div>
                 <div>
-                  <dt class="text-base-content/50">{gettext("Interview Type")}</dt>
+                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Interview Type")}</dt>
                   <dd class="font-medium">{gettext("Video")}</dd>
                 </div>
                 <div :if={@selected_slot}>
-                  <dt class="text-base-content/50">{gettext("Selected Time")}</dt>
+                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Selected Time")}</dt>
                   <dd class="font-medium">
                     {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                   </dd>
@@ -268,10 +269,10 @@ defmodule TrebyWeb.ScheduleLive.Index do
               </.button>
 
               <div class="mt-6 pt-6 border-t">
-                <h3 class="text-sm font-medium text-base-content/80 mb-2">
+                <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-2">
                   {gettext("Self-Scheduling")}
                 </h3>
-                <p class="text-xs text-base-content/50">
+                <p class="text-xs text-zinc-400 dark:text-zinc-500">
                   {gettext(
                     "The candidate can choose their own time slot from their application portal. Send them a message in the portal to let them know they can book."
                   )}

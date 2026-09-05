@@ -51,7 +51,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
               &larr; {gettext("Back to Settings")}
             </.link>
             <h1 class="text-2xl font-bold mt-2">{gettext("Message Templates")}</h1>
-            <p class="mt-1 text-base-content/70">
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
               {gettext("Configure message templates for stage transitions")}
             </p>
           </div>
@@ -60,7 +60,10 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
           </.button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
+        <div
+          :if={@show_form}
+          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+        >
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
           </h2>
@@ -113,13 +116,15 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
 
             <div
               :if={@preview_subject != "" || @preview_body != ""}
-              class="p-4 bg-base-200 rounded-lg"
+              class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg"
             >
-              <h3 class="text-sm font-medium text-base-content/80 mb-2">{gettext("Preview")}</h3>
-              <p class="text-sm text-base-content/70 mb-2">
+              <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-2">
+                {gettext("Preview")}
+              </h3>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
                 <strong>{gettext("Subject")}:</strong> {@preview_subject}
               </p>
-              <div class="text-sm text-base-content/70" phx-no-curly-interpolation>
+              <div class="text-sm text-zinc-500 dark:text-zinc-400" phx-no-curly-interpolation>
                 {@preview_body}
               </div>
             </div>
@@ -133,33 +138,35 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
           </.form>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-base-200">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+            <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Stage Type")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Subject")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-base-100 divide-y divide-gray-200">
-              <tr :for={template <- @templates} class="hover:bg-base-200">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
+            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+              <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:bg-zinc-800">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   {template.name}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
+                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                   {template.stage_type}
                 </td>
-                <td class="px-6 py-4 text-base-content/70 max-w-xs truncate">{template.subject}</td>
+                <td class="px-6 py-4 text-zinc-500 dark:text-zinc-400 max-w-xs truncate">
+                  {template.subject}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
                     phx-click="edit_template"
@@ -185,7 +192,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
               </tr>
             </tbody>
           </table>
-          <div :if={@templates == []} class="p-8 text-center text-base-content/50">
+          <div :if={@templates == []} class="p-8 text-center text-zinc-400 dark:text-zinc-500">
             {gettext("No message templates yet. Create your first template!")}
           </div>
         </div>

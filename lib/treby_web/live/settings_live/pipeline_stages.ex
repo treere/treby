@@ -73,10 +73,15 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             &larr; {gettext("Pipelines")}
           </.link>
           <h1 class="text-2xl font-bold mt-2">{@pipeline.name}</h1>
-          <p class="mt-1 text-base-content/70">{gettext("Configure stages for this pipeline")}</p>
+          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+            {gettext("Configure stages for this pipeline")}
+          </p>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
+        <div
+          :if={@show_form}
+          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+        >
           <h2 class="text-lg font-semibold mb-4">
             {if @editing_stage, do: gettext("Edit Stage"), else: gettext("New Stage")}
           </h2>
@@ -127,10 +132,10 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
 
         <div
           :if={@deleting_stage}
-          class="mb-8 p-6 bg-base-100 rounded-lg shadow border-l-4 border-yellow-400"
+          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm border-l-4 border-yellow-400"
         >
           <h2 class="text-lg font-semibold mb-2">{gettext("Reassign candidates")}</h2>
-          <p class="text-base-content/70 mb-4">
+          <p class="text-zinc-500 dark:text-zinc-400 mb-4">
             {gettext("%{count} candidates are in \"%{stage}\". Move them to:",
               count: @deleting_stage.active_count,
               stage: @deleting_stage.name
@@ -158,44 +163,47 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           </.form>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-base-200">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+            <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Color")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Type")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Roles")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-base-100 divide-y divide-gray-200">
-              <tr :for={{stage, idx} <- Enum.with_index(@stages)} class="hover:bg-base-200">
+            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+              <tr
+                :for={{stage, idx} <- Enum.with_index(@stages)}
+                class="hover:bg-zinc-50 dark:bg-zinc-800"
+              >
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="w-6 h-6 rounded-full" style={"background-color: #{stage.color}"} />
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-base-content">
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   {stage.name}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
+                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                   <span
                     :if={stage.stage_type}
-                    class="inline-flex items-center rounded-md bg-base-200 px-2 py-1 text-xs font-medium text-base-content/70"
+                    class="inline-flex items-center rounded-md bg-zinc-50 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-500 dark:text-zinc-400"
                   >
                     {stage.stage_type}
                   </span>
                 </td>
-                <td class="px-6 py-4 text-sm text-base-content/70">
+                <td class="px-6 py-4 text-sm text-zinc-500 dark:text-zinc-400">
                   <div class="flex flex-wrap gap-1">
                     <span
                       :if={stage.stage_type == "interview" && stage.min_examiners > 1}
@@ -228,7 +236,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     :if={idx > 0}
                     phx-click="move_stage_up"
                     phx-value-stage_id={stage.id}
-                    class="text-base-content/70 hover:text-base-content mr-2"
+                    class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
                   >
                     &uarr;
                   </button>
@@ -236,7 +244,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     :if={idx < length(@stages) - 1}
                     phx-click="move_stage_down"
                     phx-value-stage_id={stage.id}
-                    class="text-base-content/70 hover:text-base-content mr-2"
+                    class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
                   >
                     &darr;
                   </button>
@@ -281,7 +289,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           phx-click="close_roles"
         >
           <div
-            class="bg-base-100 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
             phx-click=""
           >
             <div class="p-6">
@@ -290,7 +298,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               </h2>
 
               <div class="mb-6">
-                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Examiners")}</h3>
+                <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                  {gettext("Examiners")}
+                </h3>
                 <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
                   <span
                     :for={examiner <- @editing_roles.examiners}
@@ -330,7 +340,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               </div>
 
               <div class="mb-6">
-                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Reviewers")}</h3>
+                <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                  {gettext("Reviewers")}
+                </h3>
                 <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
                   <span
                     :for={reviewer <- @editing_roles.reviewers}
@@ -370,7 +382,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               </div>
 
               <div class="mb-6">
-                <h3 class="text-sm font-medium text-base-content/70 mb-2">{gettext("Advancers")}</h3>
+                <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                  {gettext("Advancers")}
+                </h3>
                 <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
                   <span
                     :for={advancer <- @editing_roles.advancers}

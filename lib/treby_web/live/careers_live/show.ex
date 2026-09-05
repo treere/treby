@@ -148,7 +148,7 @@ defmodule TrebyWeb.CareersLive.Show do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-base-200">
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-800">
       <div class="max-w-3xl mx-auto py-12 px-4">
         <.link navigate={~p"/#{@tenant.slug}/careers"} class="text-primary hover:text-primary/80">
           &larr; Back to all positions
@@ -163,16 +163,16 @@ defmodule TrebyWeb.CareersLive.Show do
               alt={@tenant.name}
             />
             <div>
-              <h2 class="text-lg font-semibold text-base-content">{@tenant.name}</h2>
-              <p :if={@career_page.description} class="text-sm text-base-content/50">
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{@tenant.name}</h2>
+              <p :if={@career_page.description} class="text-sm text-zinc-400 dark:text-zinc-500">
                 {@career_page.description}
               </p>
             </div>
           </div>
 
-          <h1 class="text-3xl font-bold text-base-content">{@job.title}</h1>
+          <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100">{@job.title}</h1>
 
-          <div class="mt-3 flex flex-wrap items-center gap-3 text-sm text-base-content/70">
+          <div class="mt-3 flex flex-wrap items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
             <span :if={@job.salary_range} class="inline-flex items-center gap-1">
               <.icon name="hero-banknotes" class="w-4 h-4" /> {@job.salary_range}
             </span>
@@ -192,7 +192,7 @@ defmodule TrebyWeb.CareersLive.Show do
           </div>
 
           <div class="mt-8 prose max-w-none">
-            <p class="whitespace-pre-wrap text-base-content/80">{@job.description}</p>
+            <p class="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100/80">{@job.description}</p>
           </div>
 
           <.button
@@ -215,10 +215,10 @@ defmodule TrebyWeb.CareersLive.Show do
         </.card>
 
         <.card :if={@job && @job.status != "open"} class="mt-8 text-center">
-          <h1 class="text-2xl font-bold text-base-content">
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             {gettext("This position is no longer available")}
           </h1>
-          <p class="mt-4 text-base-content/70">
+          <p class="mt-4 text-zinc-500 dark:text-zinc-400">
             The job you're looking for has been closed or removed.
           </p>
           <.button variant="ghost" navigate={~p"/#{@tenant.slug}/careers"} class="mt-6">
@@ -227,8 +227,10 @@ defmodule TrebyWeb.CareersLive.Show do
         </.card>
 
         <.card :if={!@job} class="mt-8 text-center">
-          <h1 class="text-2xl font-bold text-base-content">{gettext("Position not found")}</h1>
-          <p class="mt-4 text-base-content/70">
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+            {gettext("Position not found")}
+          </h1>
+          <p class="mt-4 text-zinc-500 dark:text-zinc-400">
             The job you're looking for doesn't exist or has been removed.
           </p>
           <.button variant="ghost" navigate={~p"/#{@tenant.slug}/careers"} class="mt-6">

@@ -205,10 +205,10 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
             <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
               <.icon name="hero-check" class="h-8 w-8 text-success" />
             </div>
-            <h1 class="text-2xl font-bold text-base-content">
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {gettext("Interview Scheduled!")}
             </h1>
-            <p class="mt-2 text-base-content/60">
+            <p class="mt-2 text-zinc-500 dark:text-zinc-400">
               {gettext(
                 "Your interview has been confirmed. You can find the details in your messages."
               )}
@@ -227,7 +227,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
             />
 
             <.card>
-              <h2 class="text-lg font-semibold mb-4 text-base-content">
+              <h2 class="text-lg font-semibold mb-4 text-zinc-900 dark:text-zinc-100">
                 {gettext("Select a time slot")}
               </h2>
 
@@ -235,7 +235,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
                 <.button variant="ghost" size="sm" phx-click="prev_week">
                   &larr; Prev
                 </.button>
-                <span class="text-sm text-base-content/60">
+                <span class="text-sm text-zinc-500 dark:text-zinc-400">
                   {Elixir.Calendar.strftime(@selected_date, "%B %d")} - {Date.add(@selected_date, 6)
                   |> Elixir.Calendar.strftime("%B %d, %Y")}
                 </span>
@@ -261,7 +261,8 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
                       "px-3 py-2 text-xs rounded border text-center transition-colors",
                       if(@selected_slot && @selected_slot.start == slot.start,
                         do: "border-primary bg-primary text-primary-content",
-                        else: "border-base-300 hover:border-primary/50 bg-base-100"
+                        else:
+                          "border-zinc-200 dark:border-zinc-700 hover:border-primary/50 bg-white dark:bg-zinc-800"
                       )
                     ]}
                   >
@@ -276,10 +277,10 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
               </div>
 
               <%= if @selected_slot do %>
-                <div class="mt-6 pt-6 border-t border-base-300">
-                  <p class="text-sm text-base-content/60">
+                <div class="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
+                  <p class="text-sm text-zinc-500 dark:text-zinc-400">
                     {gettext("Selected:")}
-                    <strong class="text-base-content ml-1">
+                    <strong class="text-zinc-900 dark:text-zinc-100 ml-1">
                       {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                     </strong>
                   </p>
@@ -295,10 +296,10 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
             </.card>
           <% else %>
             <.card class="text-center">
-              <h1 class="text-xl font-bold text-base-content">
+              <h1 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                 {gettext("Nothing to schedule")}
               </h1>
-              <p class="mt-2 text-base-content/60">
+              <p class="mt-2 text-zinc-500 dark:text-zinc-400">
                 {gettext("You don't have any application in an interview stage right now.")}
               </p>
             </.card>

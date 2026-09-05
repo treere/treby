@@ -26,16 +26,16 @@ defmodule TrebyWeb.DesignSystem.Badge do
   '''
   def badge(assigns) do
     ~H"""
-    <span class={[badge_classes(@variant), @class]} {@rest}>
+    <span class={[badge_classes(@variant), "px-2.5 py-0.5", @class]} {@rest}>
       <span
         :if={@dot}
         class={[
           "inline-block size-1.5 rounded-full mr-1",
-          @variant == "default" && "bg-current",
-          @variant == "success" && "bg-success-content",
-          @variant == "warning" && "bg-warning-content",
-          @variant == "danger" && "bg-error-content",
-          @variant == "info" && "bg-info-content"
+          @variant == "default" && "bg-zinc-500",
+          @variant == "success" && "bg-emerald-600",
+          @variant == "warning" && "bg-amber-500",
+          @variant == "danger" && "bg-red-600",
+          @variant == "info" && "bg-blue-600"
         ]}
       />
       {render_slot(@inner_block)}

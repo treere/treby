@@ -67,27 +67,30 @@ defmodule TrebyWeb.JobsLive.Index do
           <button
             phx-click="filter_jobs"
             phx-value-filter="all"
-            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "all", do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
+            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "all", do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:bg-zinc-700"}"}
           >
             {gettext("All")}
           </button>
           <button
             phx-click="filter_jobs"
             phx-value-filter="open"
-            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
+            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "open", do: "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:bg-zinc-700"}"}
           >
             {gettext("Open")}
           </button>
           <button
             phx-click="filter_jobs"
             phx-value-filter="closed"
-            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "closed", do: "bg-base-300 text-base-content/90", else: "bg-base-200 text-base-content/70 hover:bg-base-300"}"}
+            class={"px-3 py-1.5 rounded-lg text-sm font-medium #{if @filter == "closed", do: "bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100/90", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:bg-zinc-700"}"}
           >
             {gettext("Closed")}
           </button>
         </div>
 
-        <div :if={@show_form} class="mb-8 p-6 bg-base-100 rounded-lg shadow">
+        <div
+          :if={@show_form}
+          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+        >
           <h2 class="text-lg font-semibold mb-4">{gettext("Create Job")}</h2>
           <.form for={@form} id="job-form" phx-submit="create_job">
             <.input field={@form[:title]} type="text" label={gettext("Title")} />
@@ -140,7 +143,7 @@ defmodule TrebyWeb.JobsLive.Index do
             />
 
             <div :if={@templates != []} class="mt-3">
-              <label class="block text-sm font-medium text-base-content/80 mb-1">
+              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
                 {gettext("Or start from a template")}
               </label>
               <.input
@@ -153,7 +156,7 @@ defmodule TrebyWeb.JobsLive.Index do
             </div>
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-base-content/80 mb-3">
+              <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-3">
                 {gettext("Additional Information")}
               </h3>
               <div :for={field <- @job_fields} class="mb-3">
@@ -192,35 +195,35 @@ defmodule TrebyWeb.JobsLive.Index do
           </.form>
         </div>
 
-        <div class="bg-base-100 rounded-lg shadow overflow-hidden">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-base-200">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+            <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Title")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Salary")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Status")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Public")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Views")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Candidates")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-base-100 divide-y divide-gray-200">
-              <tr :for={job <- @jobs} class="hover:bg-base-200">
+            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+              <tr :for={job <- @jobs} class="hover:bg-zinc-50 dark:bg-zinc-800">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <.link
                     navigate={~p"/app/jobs/#{job.id}"}
@@ -229,7 +232,7 @@ defmodule TrebyWeb.JobsLive.Index do
                     {job.title}
                   </.link>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-base-content/70">
+                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                   {job.salary_range || "-"}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -242,7 +245,7 @@ defmodule TrebyWeb.JobsLive.Index do
                     phx-click="toggle_visibility"
                     phx-value-job_id={job.id}
                     disabled={job.status != "open"}
-                    class={"inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium #{if job.visible, do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 hover:bg-blue-200", else: "bg-base-200 text-base-content/50 hover:bg-base-300"} #{if job.status != "open", do: "opacity-50 cursor-not-allowed"}"}
+                    class={"inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium #{if job.visible, do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 hover:bg-blue-200", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-700"} #{if job.status != "open", do: "opacity-50 cursor-not-allowed"}"}
                   >
                     <.icon
                       name={if job.visible, do: "hero-globe-alt", else: "hero-lock-closed"}
@@ -251,21 +254,21 @@ defmodule TrebyWeb.JobsLive.Index do
                     {if job.visible, do: gettext("Public"), else: gettext("Private")}
                   </button>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/70">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                   <% summary =
                     Map.get(@view_summaries, job.id, %{total_views: 0, views_last_7_days: 0}) %>
                   <%= if summary.total_views > 0 do %>
                     <span class="inline-flex items-center gap-1 text-xs">
-                      <.icon name="hero-eye" class="w-3 h-3 text-base-content/50" />
+                      <.icon name="hero-eye" class="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
                       {summary.total_views} · {gettext("%{count} last 7d",
                         count: summary.views_last_7_days
                       )}
                     </span>
                   <% else %>
-                    <span class="text-xs text-base-content/40">{gettext("No views yet")}</span>
+                    <span class="text-xs text-zinc-400 dark:text-zinc-500">{gettext("No views yet")}</span>
                   <% end %>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-base-content/70">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                   {Map.get(@candidate_counts, job.id, 0)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">

@@ -132,7 +132,7 @@ defmodule TrebyWeb.PipelineLive.Index do
           <div>
             <.link
               navigate={~p"/app/jobs/#{@job.id}"}
-              class="text-blue-600 hover:text-blue-900 text-sm"
+              class="text-orange-600 hover:text-orange-700 text-sm"
             >
               &larr; Back to Job
             </.link>
@@ -172,13 +172,13 @@ defmodule TrebyWeb.PipelineLive.Index do
           <div
             :for={{stage, applications} <- @applications_by_stage}
             id={"stage-#{stage.id}"}
-            class="flex-shrink-0 w-80 bg-base-200 rounded-lg p-4"
+            class="flex-shrink-0 w-80 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4"
             data-stage-id={stage.id}
           >
             <div class="flex items-center gap-2 mb-4">
               <div class="w-3 h-3 rounded-full" style={"background-color: #{stage.color}"}></div>
-              <h3 class="font-semibold text-base-content/90">{stage.name}</h3>
-              <span class="ml-auto text-sm text-base-content/50 bg-base-300 px-2 py-0.5 rounded-full">
+              <h3 class="font-semibold text-zinc-900 dark:text-zinc-100">{stage.name}</h3>
+              <span class="ml-auto text-sm text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 px-2 py-0.5 rounded-full">
                 {length(applications)}
               </span>
             </div>
@@ -209,14 +209,14 @@ defmodule TrebyWeb.PipelineLive.Index do
                 }
                 id={"application-#{application.id}"}
                 class={[
-                  "bg-base-100 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow relative",
+                  "bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 shadow-sm hover:shadow-md transition-all relative",
                   if(
                     @current_membership.role == "admin" or
                       Pipeline.user_is_advancer?(stage, @current_user.id),
                     do: "cursor-move",
                     else: "cursor-not-allowed opacity-80"
                   ),
-                  application.id in @selected_ids && "ring-2 ring-blue-500"
+                  application.id in @selected_ids && "ring-2 ring-orange-500"
                 ]}
                 title={
                   if @current_membership.role != "admin" and
@@ -232,7 +232,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     phx-click="toggle_application"
                     phx-value-id={application.id}
                     checked={application.id in @selected_ids}
-                    class="checkbox checkbox-sm"
+                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4"
                   />
                 </div>
                 <.candidate_card_info
@@ -291,7 +291,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 <a
                   :if={application.resume_url}
                   href={~p"/app/applications/#{application.id}/resume"}
-                  class="text-xs text-blue-600 hover:text-blue-900 mt-1 inline-block"
+                  class="text-xs text-orange-600 hover:text-orange-700 mt-1 inline-block"
                 >
                   View Resume
                 </a>
@@ -303,7 +303,8 @@ defmodule TrebyWeb.PipelineLive.Index do
                       "text-xs mt-1",
                       if(application.reviewed,
                         do: "text-green-600 hover:text-green-900",
-                        else: "text-base-content/60 hover:text-base-content"
+                        else:
+                          "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100"
                       )
                     ]}
                   >
@@ -324,7 +325,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                         <button
                           phx-click="open_scorecard"
                           phx-value-event_id={my_interview.id}
-                          class="text-xs text-blue-600 hover:text-blue-900 mt-1"
+                          class="text-xs text-orange-600 hover:text-orange-700 mt-1"
                         >
                           Scorecard
                         </button>
@@ -332,7 +333,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                         <button
                           disabled
                           title={gettext("No template — Settings → Scorecards")}
-                          class="text-xs text-base-content/30 cursor-not-allowed mt-1"
+                          class="text-xs text-zinc-900 dark:text-zinc-100/30 cursor-not-allowed mt-1"
                         >
                           Scorecard
                         </button>
@@ -359,7 +360,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                         "text-xs mt-1",
                         if(ready,
                           do: "text-green-600 hover:text-green-900",
-                          else: "text-base-content/30 cursor-not-allowed"
+                          else: "text-zinc-900 dark:text-zinc-100/30 cursor-not-allowed"
                         )
                       ]}
                     >
@@ -400,7 +401,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         close_event="cancel_reject"
         size="lg"
       >
-        <p class="text-sm text-base-content/70 mb-4">
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
           Are you sure you want to reject {@rejecting_application &&
             @rejecting_application.candidate.name}?
         </p>
@@ -426,7 +427,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         close_event="cancel_complete_interview"
         size="lg"
       >
-        <p class="text-sm text-base-content/70 mb-4">
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
           This marks the interview as done. You can now collect scorecards before advancing the candidate.
           The candidate's stage will not change automatically.
         </p>
@@ -449,10 +450,10 @@ defmodule TrebyWeb.PipelineLive.Index do
         :if={@show_email_dialog}
         class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       >
-        <div class="bg-base-100 rounded-lg shadow-xl max-w-lg w-full mx-4">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-lg w-full mx-4">
           <div class="p-6">
             <h2 class="text-lg font-semibold mb-4">{gettext("Send Message Notification?")}</h2>
-            <p class="text-sm text-base-content/70 mb-4">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
               <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
                 A stage transition message template exists. A message will be posted to the candidate's portal automatically when you move this candidate. You can preview it below or skip posting.
               <% else %>
@@ -460,17 +461,17 @@ defmodule TrebyWeb.PipelineLive.Index do
               <% end %>
             </p>
 
-            <div :if={@email_preview} class="p-4 bg-base-200 rounded-lg mb-4">
-              <p class="text-sm text-base-content/70 mb-2">
+            <div :if={@email_preview} class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg mb-4">
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
                 <strong>{gettext("Subject:")}</strong> {@email_preview.subject}
               </p>
-              <div class="text-sm text-base-content/70" phx-no-curly-interpolation>
+              <div class="text-sm text-zinc-500 dark:text-zinc-400" phx-no-curly-interpolation>
                 {@email_preview.body}
               </div>
             </div>
 
             <%= if @show_schedule_picker do %>
-              <div class="space-y-3 p-4 bg-base-200 rounded-lg mb-4">
+              <div class="space-y-3 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg mb-4">
                 <div class="flex flex-wrap gap-2">
                   <.button
                     type="button"
@@ -502,7 +503,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                    <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
                       {gettext("Date")}
                     </label>
                     <input
@@ -513,7 +514,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-base-content/70 mb-1">
+                    <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
                       {gettext("Time")}
                     </label>
                     <input
@@ -529,9 +530,9 @@ defmodule TrebyWeb.PipelineLive.Index do
                     type="checkbox"
                     checked={@schedule_jitter > 0}
                     phx-click="toggle_schedule_jitter"
-                    class="checkbox checkbox-sm"
+                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4"
                   />
-                  <span class="text-sm text-base-content/70">
+                  <span class="text-sm text-zinc-500 dark:text-zinc-400">
                     Add randomness (±{@schedule_jitter} min)
                   </span>
                 </label>
@@ -653,7 +654,7 @@ defmodule TrebyWeb.PipelineLive.Index do
 
           <button
             phx-click="clear_selection"
-            class="text-base-content/40 hover:text-white text-sm"
+            class="text-zinc-400 dark:text-zinc-500 hover:text-white text-sm"
           >
             ✕
           </button>

@@ -7,10 +7,10 @@
 >
   <div class="max-w-6xl mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-base-content">Message Queue</h1>
+      <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Message Queue</h1>
     </div>
 
-    <div class="mb-6 border-b border-base-300">
+    <div class="mb-6 border-b border-zinc-200 dark:border-zinc-700">
       <nav class="flex space-x-8" role="tablist">
         <button
           phx-click="switch_tab"
@@ -19,7 +19,7 @@
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
             @tab == "scheduled" && "border-primary text-primary",
             @tab != "scheduled" &&
-              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+              "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:text-zinc-100/80 hover:border-zinc-200 dark:border-zinc-700"
           ]}
         >
           Scheduled ({@counts.scheduled})
@@ -31,7 +31,7 @@
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
             @tab == "sent" && "border-primary text-primary",
             @tab != "sent" &&
-              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+              "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:text-zinc-100/80 hover:border-zinc-200 dark:border-zinc-700"
           ]}
         >
           Posted ({@counts.sent})
@@ -43,7 +43,7 @@
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
             @tab == "failed" && "border-error text-error",
             @tab != "failed" &&
-              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+              "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:text-zinc-100/80 hover:border-zinc-200 dark:border-zinc-700"
           ]}
         >
           Failed ({@counts.failed})
@@ -53,9 +53,10 @@
           phx-value-tab="cancelled"
           class={[
             "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
-            @tab == "cancelled" && "border-base-300 text-base-content",
+            @tab == "cancelled" &&
+              "border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100",
             @tab != "cancelled" &&
-              "border-transparent text-base-content/50 hover:text-base-content/80 hover:border-base-300"
+              "border-transparent text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:text-zinc-100/80 hover:border-zinc-200 dark:border-zinc-700"
           ]}
         >
           Cancelled ({@counts.cancelled})
@@ -64,8 +65,8 @@
     </div>
 
     <%= if @selected_ids != MapSet.new() do %>
-      <div class="mb-4 flex items-center gap-3 p-3 bg-base-200 rounded-lg border border-base-300">
-        <span class="text-sm text-base-content/70">{MapSet.size(@selected_ids)} selected</span>
+      <div class="mb-4 flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <span class="text-sm text-zinc-500 dark:text-zinc-400">{MapSet.size(@selected_ids)} selected</span>
         <%= if @tab == "scheduled" do %>
           <.button phx-click="bulk_send_now" variant="primary" size="sm">
             Post Selected
@@ -76,16 +77,16 @@
         <% end %>
         <button
           phx-click="deselect_all"
-          class="text-sm px-3 py-1.5 text-base-content/70 hover:text-base-content/90 transition-colors"
+          class="text-sm px-3 py-1.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100/90 transition-colors"
         >
           Clear selection
         </button>
       </div>
     <% end %>
 
-    <div class="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+    <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden">
       <%= if @messages == [] do %>
-        <div class="text-center py-16 text-base-content/50">
+        <div class="text-center py-16 text-zinc-400 dark:text-zinc-500">
           <p class="text-lg font-medium">
             <%= case @tab do %>
               <% "scheduled" -> %>
@@ -112,8 +113,8 @@
           </p>
         </div>
       <% else %>
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-base-200">
+        <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+          <thead class="bg-zinc-50 dark:bg-zinc-800">
             <tr>
               <th class="w-10 px-3 py-3">
                 <input
@@ -130,13 +131,13 @@
                   class="checkbox checkbox-sm"
                 />
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider">
+              <th class="px-4 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                 Body
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden md:table-cell">
+              <th class="px-4 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider hidden md:table-cell">
                 Type
               </th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden md:table-cell">
+              <th class="px-4 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider hidden md:table-cell">
                 <%= if @tab in ~w(scheduled cancelled) do %>
                   Scheduled
                 <% else %>
@@ -144,19 +145,19 @@
                 <% end %>
               </th>
               <%= if @tab == "failed" do %>
-                <th class="px-4 py-3 text-left text-xs font-medium text-base-content/50 uppercase tracking-wider hidden lg:table-cell">
+                <th class="px-4 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider hidden lg:table-cell">
                   Error
                 </th>
               <% end %>
-              <th class="px-4 py-3 text-right text-xs font-medium text-base-content/50 uppercase tracking-wider">
+              <th class="px-4 py-3 text-right text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody class="divide-y divide-zinc-100 dark:divide-zinc-700">
             <%= for message <- @messages do %>
               <tr class={[
-                "hover:bg-base-200 transition-colors",
+                "hover:bg-zinc-50 dark:bg-zinc-800 transition-colors",
                 message.status == "scheduled" && "bg-blue-50 dark:bg-blue-950/30"
               ]}>
                 <td class="w-10 px-3 py-4">
@@ -170,15 +171,15 @@
                     />
                   <% end %>
                 </td>
-                <td class="px-4 py-4 text-sm text-base-content/80 max-w-[320px] truncate">
+                <td class="px-4 py-4 text-sm text-zinc-900 dark:text-zinc-100/80 max-w-[320px] truncate">
                   {message.body}
                 </td>
-                <td class="px-4 py-4 text-sm text-base-content/50 hidden md:table-cell">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-base-200 text-base-content/80">
+                <td class="px-4 py-4 text-sm text-zinc-400 dark:text-zinc-500 hidden md:table-cell">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100/80">
                     {message_type_label(message.message_type)}
                   </span>
                 </td>
-                <td class="px-4 py-4 text-sm text-base-content/50 hidden md:table-cell whitespace-nowrap">
+                <td class="px-4 py-4 text-sm text-zinc-400 dark:text-zinc-500 hidden md:table-cell whitespace-nowrap">
                   <%= cond do %>
                     <% message.status == "sent" -> %>
                       {format_datetime(message.sent_at)}
@@ -253,7 +254,7 @@
                     </button>
                   <% end %>
                   <%= if @tab == "sent" do %>
-                    <span class="text-base-content/40">-</span>
+                    <span class="text-zinc-400 dark:text-zinc-500">-</span>
                   <% end %>
                 </td>
               </tr>
@@ -266,8 +267,10 @@
 
   <%= if @edit_message do %>
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div class="bg-base-100 rounded-xl shadow-xl max-w-lg w-full mx-4 p-6">
-        <h2 class="text-lg font-semibold text-base-content mb-4">Edit Scheduled Message</h2>
+      <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-xl max-w-lg w-full mx-4 p-6">
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+          Edit Scheduled Message
+        </h2>
 
         <.form
           for={@edit_form}
@@ -279,7 +282,7 @@
             <div>
               <label
                 for="scheduled_message_body"
-                class="block text-sm font-medium text-base-content/80 mb-1"
+                class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1"
               >
                 Body
               </label>
@@ -294,7 +297,7 @@
               <div>
                 <label
                   for="scheduled_message_scheduled_at_date"
-                  class="block text-sm font-medium text-base-content/80 mb-1"
+                  class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1"
                 >
                   Date
                 </label>
@@ -309,7 +312,7 @@
               <div>
                 <label
                   for="scheduled_message_scheduled_at_time"
-                  class="block text-sm font-medium text-base-content/80 mb-1"
+                  class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1"
                 >
                   Time
                 </label>

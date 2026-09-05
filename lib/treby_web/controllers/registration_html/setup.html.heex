@@ -1,13 +1,13 @@
-<div class="min-h-screen flex items-center justify-center bg-base-200 relative">
+<div class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 relative">
   <Layouts.auth_toolbar locale={@locale} />
   <div class="max-w-md w-full space-y-8">
     <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-base-content">
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-zinc-900 dark:text-zinc-100">
         {gettext("Create your account")}
       </h2>
-      <p class="mt-2 text-center text-sm text-base-content/70">
+      <p class="mt-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
         {gettext("Email verified:")}
-        <span class="font-medium text-base-content">{@verified_email}</span>
+        <span class="font-medium text-zinc-900 dark:text-zinc-100">{@verified_email}</span>
       </p>
     </div>
 
@@ -62,7 +62,7 @@
           type="checkbox"
           label={gettext("I agree to the")}
         />
-        <p class="ml-7 -mt-4 text-sm text-base-content">
+        <p class="ml-7 -mt-4 text-sm text-zinc-900 dark:text-zinc-100">
           <a href="/terms" class="text-primary hover:text-primary/80">
             {gettext("Terms of Service")}
           </a>

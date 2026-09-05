@@ -44,7 +44,9 @@ defmodule TrebyWeb.SettingsLive.Sources do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <h1 class="text-2xl font-bold">{gettext("Sources")}</h1>
-        <p class="mt-2 text-base-content/70">{gettext("Manage how candidates find you")}</p>
+        <p class="mt-2 text-zinc-500 dark:text-zinc-400">
+          {gettext("Manage how candidates find you")}
+        </p>
 
         <div class="mt-6">
           <.button :if={not @show_form} phx-click="show_create_form" variant="primary">
@@ -58,7 +60,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
           id="source-form"
           phx-submit="save_source"
           phx-change="validate_source"
-          class="mt-6 bg-base-100 rounded-lg shadow p-6"
+          class="mt-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
         >
           <.input field={@form[:name]} type="text" label={gettext("Source Name")} />
           <div class="mt-4 flex gap-2">
@@ -72,13 +74,13 @@ defmodule TrebyWeb.SettingsLive.Sources do
         <div class="mt-8 space-y-4">
           <div
             :for={source <- @sources}
-            class="bg-base-100 rounded-lg shadow p-4 flex items-center justify-between"
+            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 flex items-center justify-between"
           >
             <div>
-              <span class="font-medium text-base-content">{source.name}</span>
+              <span class="font-medium text-zinc-900 dark:text-zinc-100">{source.name}</span>
               <span
                 :if={source.is_default}
-                class="ml-2 text-xs bg-base-200 text-base-content/70 px-2 py-1 rounded"
+                class="ml-2 text-xs bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 px-2 py-1 rounded"
               >
                 {gettext("Default")}
               </span>
@@ -123,7 +125,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
             </div>
           </div>
 
-          <div :if={@sources == []} class="text-center py-8 text-base-content/50">
+          <div :if={@sources == []} class="text-center py-8 text-zinc-400 dark:text-zinc-500">
             {gettext("No sources configured yet")}
           </div>
         </div>

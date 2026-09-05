@@ -97,6 +97,14 @@ config :phoenix, :json_library, Jason
 # Configure Gettext default locale
 config :treby, TrebyWeb.Gettext, default_locale: "en"
 
+# Configure PromEx (Prometheus metrics at /metrics)
+config :treby, Treby.PromEx,
+  disabled: false,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: :disabled,
+  metrics_server: :disabled
+
 # Configure S3 (RustFS in dev, any S3 provider in prod)
 config :ex_aws,
   json_codec: Jason,

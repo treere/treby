@@ -10,6 +10,7 @@ defmodule Treby.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Treby.PromEx,
       Treby.Vault,
       TrebyWeb.Telemetry,
       Treby.Repo,

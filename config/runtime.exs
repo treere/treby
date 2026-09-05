@@ -174,4 +174,16 @@ if config_env() == :prod do
     http_opts: [receive_timeout: 10_000]
 
   config :ex_aws, :req_opts, receive_timeout: String.to_integer(Env.env("S3_TIMEOUT", "10000"))
+
+  # PromEx toggle (disable scraping if needed)
+  if Env.env("PROMEX_DISABLED") in ["true", "1"] do
+    config :treby, Treby.PromEx, disabled: true
+  end
+
+  # Logger format toggle: LOG_FORMAT=json (default) or text
+  if Env.env("LOG_FORMAT", "json") == "text" do
+    config :logger, :default_handler,
+      formatter:
+        {Logger.Formatter, format: "$time $metadata[$level] $message\n", metadata: [:request_id]}
+  end
 end

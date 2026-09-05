@@ -67,6 +67,9 @@ config :ex_aws, :s3,
   secret_access_key: "test",
   http_opts: [receive_timeout: 5_000]
 
+# Disable PromEx in test (no metrics polling)
+config :treby, Treby.PromEx, disabled: true
+
 # Route every Req request in tests through a Req.Test stub, never the real network
 config :req,
   default_options: [plug: {Req.Test, Treby.GoogleApiMock}]

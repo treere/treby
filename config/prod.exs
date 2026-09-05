@@ -15,7 +15,7 @@ config :treby, TrebyWeb.Endpoint,
     rewrite_on: [:x_forwarded_proto],
     exclude: [
       hosts: ["localhost", "127.0.0.1"],
-      paths: ["/health", "/healthz", "/health/ready"]
+      paths: ["/health", "/healthz", "/health/ready", "/metrics"]
     ]
   ]
 
@@ -25,8 +25,14 @@ config :swoosh, api_client: Swoosh.ApiClient.Req
 # Disable Swoosh Local Memory Storage
 config :swoosh, local: false
 
-# Do not print debug messages in production
+# JSON logging in production (request_id propagated, parsable by Loki/Datadog/CloudWatch)
+# Disable via LOG_FORMAT=text for local debugging
 config :logger, level: :info
+
+config :logger, :default_handler,
+  formatter: {LoggerJSON.Formatters.Basic, metadata: [:request_id]}
+
+config :logger_json, encoder: Jason
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

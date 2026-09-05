@@ -70,7 +70,11 @@ if config_env() == :prod do
   config :treby, Treby.Repo,
     # ssl: true,
     url: database_url,
-    pool_size: String.to_integer(Env.env("POOL_SIZE", "10")),
+    pool_size: String.to_integer(Env.env("POOL_SIZE", "20")),
+    queue_target: String.to_integer(Env.env("DB_QUEUE_TARGET", "50")),
+    queue_interval: String.to_integer(Env.env("DB_QUEUE_INTERVAL", "1000")),
+    # Uncomment if using PgBouncer in transaction mode:
+    # prepare: :unnamed,
     # For machines with several cores, consider starting multiple pools of `pool_size`
     # pool_count: 4,
     socket_options: maybe_ipv6
@@ -137,7 +141,8 @@ if config_env() == :prod do
   # Configure Oban for production
   config :treby, Oban,
     engine: Oban.Engines.Basic,
-    queues: [email: 10],
+    queues: [email: 10, messages: 10],
+    plugins: [Oban.Plugins.Pruner, Oban.Plugins.Lifeline],
     repo: Treby.Repo,
     prefix: Env.env("OBAN_PREFIX")
 

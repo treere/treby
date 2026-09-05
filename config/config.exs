@@ -39,6 +39,7 @@ config :treby, TrebyWeb.Endpoint,
 config :treby, Oban,
   engine: Oban.Engines.Basic,
   queues: [email: 10, messages: 10],
+  plugins: [Oban.Plugins.Pruner, Oban.Plugins.Lifeline],
   repo: Treby.Repo
 
 # Candidate portal auth

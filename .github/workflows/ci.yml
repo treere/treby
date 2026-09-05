@@ -81,5 +81,19 @@ jobs:
       - name: Audit Hex dependencies (retired/vuln)
         run: mix hex.audit
 
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: assets/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install JS dependencies
+        run: npm ci --prefix assets
+
+      - name: Audit JS dependencies
+        run: npm audit --prefix assets
+
       - name: Run tests
         run: mix test

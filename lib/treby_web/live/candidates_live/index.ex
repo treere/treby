@@ -103,7 +103,12 @@ defmodule TrebyWeb.CandidatesLive.Index do
         </div>
 
         <div class="mb-6 flex flex-wrap gap-4 items-center">
-          <form phx-change="search" phx-submit="search_submit" class="flex-1 min-w-[200px]">
+          <form
+            id="candidates-search-form"
+            phx-change="search"
+            phx-submit="search_submit"
+            class="flex-1 min-w-[200px]"
+          >
             <input
               type="text"
               name="search"
@@ -112,7 +117,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               class="input w-full"
             />
           </form>
-          <form phx-change="filter_job" class="min-w-[180px]">
+          <form id="candidates-filter-job-form" phx-change="filter_job" class="min-w-[180px]">
             <select
               name="job_id"
               class="select w-full"
@@ -123,7 +128,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               </option>
             </select>
           </form>
-          <form phx-change="filter_stage" class="min-w-[180px]">
+          <form id="candidates-filter-stage-form" phx-change="filter_stage" class="min-w-[180px]">
             <select
               name="stage_id"
               class="select w-full"
@@ -315,7 +320,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
             <span class="text-sm">{length(@selected_ids)} selected</span>
 
             <div class="flex items-center gap-2">
-              <form>
+              <form id="candidates-bulk-action-form">
                 <select
                   phx-change="bulk_select_action"
                   name="bulk_action"
@@ -332,7 +337,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 </select>
               </form>
 
-              <form>
+              <form id="candidates-bulk-stage-form">
                 <select
                   :if={@bulk_action == "move_stage"}
                   phx-change="bulk_select_stage"

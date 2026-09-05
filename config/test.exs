@@ -39,6 +39,13 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
+# Make missing form ids a hard failure so `mix test` catches LiveView warnings
+# instead of letting them hide as soft `warning:` logs
+config :phoenix_live_view, :test_warnings,
+  missing_form_id: :raise,
+  duplicate_id: :warn,
+  missing_id: :warn
+
 # Sort query params output of verified routes for robust url comparisons
 config :phoenix,
   sort_verified_routes_query_params: true

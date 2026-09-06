@@ -3,6 +3,7 @@ defmodule TrebyWeb.DarkThemeContrastTest do
 
   import Phoenix.LiveViewTest
 
+  alias Treby.Jobs.Job
   alias TrebyWeb.DesignSystem
 
   describe "DesignSystem helpers are theme-aware" do
@@ -68,7 +69,7 @@ defmodule TrebyWeb.DarkThemeContrastTest do
       {:ok, job} =
         tenant
         |> Ecto.build_assoc(:jobs)
-        |> Treby.Jobs.Job.changeset(%{
+        |> Job.changeset(%{
           title: "Engineer",
           description: "Desc",
           pipeline_id: pipeline.id

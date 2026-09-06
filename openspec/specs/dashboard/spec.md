@@ -69,7 +69,7 @@ The system SHALL display a "My Actions" panel on the dashboard showing the curre
 - **THEN** the "My Actions" panel shows an empty state instead of an empty list
 
 ### Requirement: Dashboard localization (IT/EN)
-The system SHALL render all dashboard user-facing text via Gettext so that the dashboard is fully bilingual in Italian and English and respects the user's selected locale. This is the reference implementation for the app-wide bilingual rule.
+The system SHALL render all dashboard user-facing text via Gettext so that the dashboard is fully bilingual in Italian and English and respects the user's selected locale. This is the reference implementation for the app-wide bilingual rule. All dashboard headings and stats labels SHALL also carry explicit `dark:text-*` so they remain legible in dark mode (see dark-theme-contrast).
 
 #### Scenario: Dashboard headings and welcome message in Italian
 - **WHEN** a user with the Italian locale visits the dashboard
@@ -99,3 +99,14 @@ The system SHALL render all dashboard user-facing text via Gettext so that the d
 - **WHEN** the dashboard localization is complete
 - **THEN** every `msgid` introduced for dashboard strings has a non-empty `msgstr` in `priv/gettext/it/LC_MESSAGES/default.po`
 - **AND** `mix treby.check_translations` passes for those keys
+
+#### Scenario: Dashboard headings remain legible in dark mode
+- **WHEN** a user views `http://localhost:4000/acme/app` (or `/:tenant_slug/app`) in dark mode with Italian or English locale
+- **THEN** section headings "Le mie azioni" / "My Actions", "Upcoming Interviews (7 days)", "Stale Candidates (7+ days)", "Pipeline Overview", "Recent Activity" each use `text-zinc-900 dark:text-zinc-100` (or at least `dark:text-zinc-100`) and are ≥4.5:1 on `bg-white dark:bg-zinc-800`
+
+
+#### Scenario: Weekly stats and action metadata use canonical muted mapping
+- **WHEN** the same dashboard is viewed in dark mode
+- **THEN** weekly-stats small labels and per-item `job_title` / interview dates / stale counts use `text-zinc-500 dark:text-zinc-400` not the inverted `text-zinc-400 dark:text-zinc-500`, so secondary copy is ≥4.5:1
+
+

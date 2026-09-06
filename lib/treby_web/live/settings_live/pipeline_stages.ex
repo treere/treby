@@ -57,6 +57,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
          |> assign(show_form: false)
          |> assign(editing_stage: nil)
          |> assign(deleting_stage: nil)
+         |> assign(editing_roles: nil)
          |> assign(form: to_form(new_stage_changeset(pipeline_id)))}
     end
   end
@@ -68,11 +69,11 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
         <div class="mb-8">
           <.link
             navigate={~p"/app/settings/pipeline"}
-            class="text-blue-600 hover:text-blue-900 text-sm"
+            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
           >
             &larr; {gettext("Pipelines")}
           </.link>
-          <h1 class="text-2xl font-bold mt-2">{@pipeline.name}</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">{@pipeline.name}</h1>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {gettext("Configure stages for this pipeline")}
           </p>
@@ -82,7 +83,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           :if={@show_form}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
         >
-          <h2 class="text-lg font-semibold mb-4">
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {if @editing_stage, do: gettext("Edit Stage"), else: gettext("New Stage")}
           </h2>
           <.form
@@ -134,7 +135,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           :if={@deleting_stage}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm border-l-4 border-yellow-400"
         >
-          <h2 class="text-lg font-semibold mb-2">{gettext("Reassign candidates")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+            {gettext("Reassign candidates")}
+          </h2>
           <p class="text-zinc-500 dark:text-zinc-400 mb-4">
             {gettext("%{count} candidates are in \"%{stage}\". Move them to:",
               count: @deleting_stage.active_count,
@@ -167,19 +170,19 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Color")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Type")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Roles")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
@@ -187,7 +190,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
               <tr
                 :for={{stage, idx} <- Enum.with_index(@stages)}
-                class="hover:bg-zinc-50 dark:bg-zinc-800"
+                class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
               >
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="w-6 h-6 rounded-full" style={"background-color: #{stage.color}"} />
@@ -251,7 +254,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                   <button
                     phx-click="edit_stage"
                     phx-value-stage_id={stage.id}
-                    class="text-blue-600 hover:text-blue-900 mr-2"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-2"
                   >
                     {gettext("Edit")}
                   </button>
@@ -259,14 +262,14 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                     :if={stage.stage_type == "interview"}
                     phx-click="show_roles"
                     phx-value-stage_id={stage.id}
-                    class="text-green-600 hover:text-green-900 mr-2"
+                    class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-2"
                   >
                     {gettext("Roles")}
                   </button>
                   <button
                     phx-click="delete_stage"
                     phx-value-stage_id={stage.id}
-                    class="text-red-600 hover:text-red-900"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                   >
                     {gettext("Delete")}
                   </button>
@@ -293,7 +296,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             phx-click=""
           >
             <div class="p-6">
-              <h2 class="text-lg font-semibold mb-4">
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
                 {gettext("Roles for")} {@editing_roles.name}
               </h2>
 
@@ -311,7 +314,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                       phx-click="remove_examiner"
                       phx-value-stage_id={@editing_roles.id}
                       phx-value-user_id={examiner.user_id}
-                      class="text-blue-600 hover:text-blue-900"
+                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                     >
                       &times;
                     </button>
@@ -353,7 +356,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                       phx-click="remove_reviewer"
                       phx-value-stage_id={@editing_roles.id}
                       phx-value-user_id={reviewer.user_id}
-                      class="text-green-600 hover:text-green-900"
+                      class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
                     >
                       &times;
                     </button>

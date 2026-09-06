@@ -195,7 +195,7 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
             </div>
 
             <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4">
-              <div class="flex flex-wrap gap-4 text-sm text-zinc-400 dark:text-zinc-500">
+              <div class="flex flex-wrap gap-4 text-sm text-zinc-500 dark:text-zinc-400">
                 <p>
                   Applied {Calendar.strftime(@selected_application.applied_at, "%b %d, %Y")}
                 </p>
@@ -216,7 +216,7 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                       <div class="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0"></div>
                       <div>
                         <p class="text-sm text-zinc-900 dark:text-zinc-100/80">{entry.body}</p>
-                        <p class="text-xs text-zinc-400 dark:text-zinc-500">
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">
                           {Calendar.strftime(entry.inserted_at, "%b %d, %Y")}
                         </p>
                       </div>
@@ -249,10 +249,10 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                         message.sender_type == "candidate" && "bg-primary/10 ml-auto",
                         message.sender_type == "recruiter" && "bg-zinc-50 dark:bg-zinc-800",
                         message.sender_type == "system" &&
-                          "bg-zinc-50 dark:bg-zinc-800/50 mx-auto text-center text-xs text-zinc-400 dark:text-zinc-500"
+                          "bg-zinc-50 dark:bg-zinc-800/50 mx-auto text-center text-xs text-zinc-500 dark:text-zinc-400"
                       ]}>
                         <p class="text-sm text-zinc-900 dark:text-zinc-100">{message.body}</p>
-                        <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                           {Calendar.strftime(message.inserted_at, "%b %d, %H:%M")}
                         </p>
                       </div>
@@ -270,7 +270,7 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                       value={@selected_draft}
                       phx-change="update_detail_draft"
                       placeholder={gettext("Type a message...")}
-                      class="input flex-1"
+                      class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
                     <.button type="submit" variant="primary" size="sm">
                       Send

@@ -53,12 +53,13 @@ defmodule TrebyWeb.CareersLive.Apply do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-zinc-50 dark:bg-zinc-800">
+      <Layouts.public_header locale={@locale} />
       <div class="max-w-2xl mx-auto py-12 px-4">
         <.link
           navigate={~p"/#{@tenant.slug}/careers/#{@job.id}"}
-          class="text-primary hover:text-primary/80"
+          class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium"
         >
-          &larr; Back to job
+          &larr; {gettext("Back to job")}
         </.link>
 
         <.card :if={@duplicate} id="duplicate-notice" class="mt-8 text-center">
@@ -81,7 +82,7 @@ defmodule TrebyWeb.CareersLive.Apply do
             <div>
               <.link
                 navigate={~p"/#{@tenant.slug}/careers"}
-                class="text-primary hover:text-primary/80"
+                class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium"
               >
                 {gettext("View other positions")}
               </.link>
@@ -107,7 +108,7 @@ defmodule TrebyWeb.CareersLive.Apply do
             <div>
               <.link
                 navigate={~p"/#{@tenant.slug}/careers"}
-                class="text-primary hover:text-primary/80"
+                class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium"
               >
                 {gettext("View other positions")}
               </.link>
@@ -149,7 +150,7 @@ defmodule TrebyWeb.CareersLive.Apply do
               </label>
               <select
                 name="application[source]"
-                class="select w-full"
+                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               >
                 <option value="">—</option>
                 <option :for={source <- @sources} value={source.name}>{source.name}</option>
@@ -196,7 +197,7 @@ defmodule TrebyWeb.CareersLive.Apply do
               </label>
               <.live_file_input
                 upload={@uploads.resume}
-                class="block w-full text-sm text-zinc-400 dark:text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 min-h-[44px]"
+                class="block w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 min-h-[44px]"
               />
               <div
                 :for={entry <- @uploads.resume.entries}

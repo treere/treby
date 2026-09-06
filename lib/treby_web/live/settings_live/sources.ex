@@ -43,7 +43,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <h1 class="text-2xl font-bold">{gettext("Sources")}</h1>
+        <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{gettext("Sources")}</h1>
         <p class="mt-2 text-zinc-500 dark:text-zinc-400">
           {gettext("Manage how candidates find you")}
         </p>
@@ -90,7 +90,7 @@ defmodule TrebyWeb.SettingsLive.Sources do
                 :if={@editing_id != source.id}
                 phx-click="edit_source"
                 phx-value-id={source.id}
-                class="text-blue-600 hover:text-blue-800"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
                 {gettext("Edit")}
               </button>
@@ -118,14 +118,14 @@ defmodule TrebyWeb.SettingsLive.Sources do
                     "Are you sure you want to delete this source? This action cannot be undone."
                   )
                 }
-                class="text-red-600 hover:text-red-800"
+                class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
               >
                 {gettext("Delete")}
               </button>
             </div>
           </div>
 
-          <div :if={@sources == []} class="text-center py-8 text-zinc-400 dark:text-zinc-500">
+          <div :if={@sources == []} class="text-center py-8 text-zinc-500 dark:text-zinc-400">
             {gettext("No sources configured yet")}
           </div>
         </div>

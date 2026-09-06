@@ -78,6 +78,17 @@ The system SHALL render every user-facing string in the authenticated applicatio
 - **WHEN** a user changes the language in Settings → Language and navigates to any page (dashboard, jobs, candidates, interviews)
 - **THEN** the selected locale is applied on every subsequent request until changed again
 
+
+#### Scenario: Careers pages are fully translated in Italian
+- **WHEN** a user with the Italian locale visits `/:tenant_slug/careers/:job_id` (e.g., `/acme/careers/8dec86b3-7584-47f0-b9f6-7af6625a55da`) in either light or dark mode
+- **THEN** "← Back to all positions", "View other positions", "This position is no longer available", "Position not found", "The job you're looking for has been closed or removed.", "The job you're looking for doesn't exist or has been removed.", "Apply Now", and "Already applied — View status" are all shown in Italian, with no English/Italian mix
+
+
+#### Scenario: Theme does not affect translation
+- **WHEN** the same Italian user toggles between light, dark, and system themes on `/:tenant_slug/careers/:job_id`
+- **THEN** the language of all strings remains Italian and no string reverts to English in dark mode
+
+
 ### Requirement: Catalog extraction and Italian translation completeness
 The system SHALL keep `priv/gettext/default.pot` (and `errors.pot`) in sync with source via `mix gettext.extract --merge` and ship complete Italian translations, so that `it` coverage is 100% at all times.
 

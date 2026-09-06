@@ -56,7 +56,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
                   pattern="\d{6}"
                   autocomplete="one-time-code"
                   required
-                  class="input w-full text-center text-lg tracking-widest"
+                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-center text-lg tracking-widest"
                   placeholder="000000"
                 />
               </div>
@@ -68,10 +68,10 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
               </div>
             </.form>
 
-            <p class="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
               {gettext("Code valid 10 minutes — check spam folder, sender noreply@treby.app.")}
             </p>
-            <p class="mt-1 text-center text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="mt-1 text-center text-xs text-zinc-500 dark:text-zinc-400">
               {gettext("Didn't receive it? Check spam or correct your email.")}
               <.link
                 navigate={~p"/#{@tenant.slug}/portal/login"}
@@ -80,7 +80,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
                 {gettext("Correct email")}
               </.link>
             </p>
-            <p class="mt-2 text-center text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="mt-2 text-center text-xs text-zinc-500 dark:text-zinc-400">
               {gettext("You can request a new code after 60 seconds.")}
             </p>
 
@@ -142,7 +142,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
                   name="email"
                   type="email"
                   required
-                  class="input w-full"
+                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder={gettext("Email address")}
                 />
               </div>
@@ -153,7 +153,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
                 </.button>
               </div>
             </.form>
-            <p class="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
               {gettext(
                 "Code valid 10 minutes — check spam folder, sender noreply@treby.app. You can request a new code after 60 seconds."
               )}

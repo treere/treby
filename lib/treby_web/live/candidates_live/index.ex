@@ -84,7 +84,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
-          <h1 class="text-2xl font-bold">{gettext("Candidates")}</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{gettext("Candidates")}</h1>
           <div class="flex items-center gap-3">
             <.link
               :if={@duplicate_count > 0}
@@ -114,13 +114,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
               name="search"
               value={@search}
               placeholder={gettext("Search by name or email...")}
-              class="input w-full"
+              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             />
           </form>
           <form id="candidates-filter-job-form" phx-change="filter_job" class="min-w-[180px]">
             <select
               name="job_id"
-              class="select w-full"
+              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             >
               <option value="">{gettext("All Jobs")}</option>
               <option :for={job <- @jobs} value={job.id} selected={job.id == @filter_job_id}>
@@ -131,7 +131,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <form id="candidates-filter-stage-form" phx-change="filter_stage" class="min-w-[180px]">
             <select
               name="stage_id"
-              class="select w-full"
+              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             >
               <option value="">{gettext("All Stages")}</option>
               <option
@@ -149,7 +149,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
           :if={@show_form}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
         >
-          <h2 class="text-lg font-semibold mb-4">{gettext("Add Candidate")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Add Candidate")}
+          </h2>
           <.form for={@form} id="candidate-form" phx-submit="create_candidate">
             <.input field={@form[:name]} type="text" label={gettext("Name")} />
             <.input field={@form[:email]} type="email" label={gettext("Email")} />
@@ -224,27 +226,27 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider w-10">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider w-10">
                   <input
                     type="checkbox"
                     phx-click="toggle_select_all"
                     checked={length(@selected_ids) == length(@candidates) and @candidates != []}
-                    class="checkbox checkbox-sm"
+                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
                   />
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Email")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Phone")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Applications")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
@@ -253,7 +255,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               <tr
                 :for={candidate <- @candidates}
                 class={[
-                  "hover:bg-zinc-50 dark:bg-zinc-800",
+                  "hover:bg-zinc-50 dark:hover:bg-zinc-700/50",
                   candidate.id in @selected_ids && "bg-blue-50 dark:bg-blue-950"
                 ]}
               >
@@ -263,13 +265,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-click="toggle_candidate"
                     phx-value-id={candidate.id}
                     checked={candidate.id in @selected_ids}
-                    class="checkbox checkbox-sm"
+                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
                   />
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   <.link
                     navigate={~p"/app/candidates/#{candidate.id}"}
-                    class="text-blue-600 hover:text-blue-900"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     {candidate.name}
                   </.link>
@@ -295,7 +297,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                         name: candidate.name
                       )
                     }
-                    class="text-red-600 hover:text-red-900"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                   >
                     {gettext("Delete")}
                   </button>
@@ -321,7 +323,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
         <%!-- Bulk Action Bar --%>
         <div :if={@selected_ids != []} class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <div class="bg-gray-900 text-white rounded-lg shadow-2xl p-4 flex items-center gap-4">
+          <div class="bg-zinc-900 dark:bg-zinc-900 text-white rounded-lg shadow-2xl p-4 flex items-center gap-4">
             <span class="text-sm">{length(@selected_ids)} selected</span>
 
             <div class="flex items-center gap-2">
@@ -329,7 +331,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 <select
                   phx-change="bulk_select_action"
                   name="bulk_action"
-                  class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+                  class="bg-zinc-800 dark:bg-zinc-800 text-white text-sm rounded px-3 py-1.5 border border-zinc-700"
                 >
                   <option value="">{gettext("Actions...")}</option>
                   <option value="move_stage">{gettext("Move to Stage")}</option>
@@ -347,7 +349,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   :if={@bulk_action == "move_stage"}
                   phx-change="bulk_select_stage"
                   name="bulk_stage_id"
-                  class="bg-gray-800 text-white text-sm rounded px-3 py-1.5 border border-gray-700"
+                  class="bg-zinc-800 dark:bg-zinc-800 text-white text-sm rounded px-3 py-1.5 border border-zinc-700"
                 >
                   <option value="">{gettext("Select stage...")}</option>
                   <option :for={stage <- @pipeline_stages} value={stage.id}>{stage.name}</option>
@@ -424,7 +426,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
             <button
               phx-click="clear_selection"
-              class="text-zinc-400 dark:text-zinc-500 hover:text-white text-sm"
+              class="text-zinc-500 dark:text-zinc-400 hover:text-white text-sm"
             >
               ✕
             </button>
@@ -449,7 +451,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 phx-change="bulk_email_body_change"
                 name="bulk_email_body"
                 rows={4}
-                class="textarea w-full mb-3"
+                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-3"
               />
 
               <div class="flex gap-4 mb-3">
@@ -522,7 +524,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                       type="date"
                       value={@bulk_email_date}
                       phx-change="bulk_email_schedule_date_change"
-                      class="input w-full"
+                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
                   </div>
                   <div>
@@ -533,7 +535,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                       type="time"
                       value={@bulk_email_time}
                       phx-change="bulk_email_schedule_time_change"
-                      class="input w-full"
+                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
                   </div>
                 </div>
@@ -542,7 +544,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     type="checkbox"
                     checked={@bulk_email_jitter > 0}
                     phx-click="bulk_email_toggle_jitter"
-                    class="checkbox checkbox-sm"
+                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
                   />
                   <span class="text-sm text-zinc-500 dark:text-zinc-400">
                     Add randomness (±{@bulk_email_jitter} min)
@@ -560,8 +562,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
         >
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-lg w-full mx-4">
             <div class="p-6">
-              <h3 class="text-lg font-semibold mb-1">{gettext("Merge candidates")}</h3>
-              <p class="text-sm text-zinc-400 dark:text-zinc-500 mb-4">
+              <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
+                {gettext("Merge candidates")}
+              </h3>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
                 Choose the primary profile. Its data and history are kept; the other {length(
                   @selected_ids
                 ) - 1} profiles are archived into it.
@@ -569,7 +573,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               <div class="space-y-2 max-h-80 overflow-y-auto">
                 <label
                   :for={candidate <- Enum.filter(@candidates, &(&1.id in @selected_ids))}
-                  class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50 dark:bg-zinc-800"
+                  class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
                 >
                   <input
                     type="radio"
@@ -582,9 +586,9 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   />
                   <div class="flex-1">
                     <p class="font-medium text-zinc-900 dark:text-zinc-100">{candidate.name}</p>
-                    <p class="text-sm text-zinc-400 dark:text-zinc-500">{candidate.email}</p>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">{candidate.email}</p>
                   </div>
-                  <span class="text-xs text-zinc-400 dark:text-zinc-500">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">
                     {Map.get(candidate, :application_count, 0)} applications
                   </span>
                 </label>

@@ -174,28 +174,32 @@ defmodule TrebyWeb.DashboardLive do
         <%!-- Weekly Stats --%>
         <div class="grid grid-cols-4 gap-4 mb-8">
           <.card class="shadow">
-            <p class="text-sm text-zinc-400 dark:text-zinc-500">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">
               {gettext("Applications This Week")}
             </p>
-            <p class="text-3xl font-bold text-blue-600">{@weekly_stats.applications}</p>
+            <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              {@weekly_stats.applications}
+            </p>
           </.card>
           <.card class="shadow">
-            <p class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Interviews This Week")}</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Interviews This Week")}</p>
             <p class="text-3xl font-bold text-purple-600">{@weekly_stats.interviews}</p>
           </.card>
           <.card class="shadow">
-            <p class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Offers This Week")}</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Offers This Week")}</p>
             <p class="text-3xl font-bold text-pink-600">{@weekly_stats.offers}</p>
           </.card>
           <.card class="shadow">
-            <p class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Hires This Week")}</p>
-            <p class="text-3xl font-bold text-green-600">{@weekly_stats.hires}</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Hires This Week")}</p>
+            <p class="text-3xl font-bold text-green-600 dark:text-green-400">{@weekly_stats.hires}</p>
           </.card>
         </div>
 
         <%!-- My Actions --%>
         <.card class="shadow mb-8">
-          <h2 class="text-lg font-semibold mb-4">{gettext("My Actions")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("My Actions")}
+          </h2>
 
           <%!-- Pending scorecards --%>
           <%= if @my_actions.pending_scorecards == [] and @my_actions.waiting_on_others == [] do %>
@@ -222,8 +226,8 @@ defmodule TrebyWeb.DashboardLive do
                     <p class="font-medium text-zinc-900 dark:text-zinc-100">
                       {action.candidate_name}
                     </p>
-                    <p class="text-sm text-zinc-400 dark:text-zinc-500">{action.job_title}</p>
-                    <p class="text-xs text-zinc-400 dark:text-zinc-500">
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">{action.job_title}</p>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">
                       {gettext("Interview %{date}",
                         date: Elixir.Calendar.strftime(action.start_at, "%b %d at %H:%M")
                       )}
@@ -251,7 +255,7 @@ defmodule TrebyWeb.DashboardLive do
                   class="border border-zinc-200 dark:border-zinc-700 rounded-lg px-4 py-3"
                 >
                   <p class="font-medium text-zinc-900 dark:text-zinc-100">{waiting.candidate_name}</p>
-                  <p class="text-sm text-zinc-400 dark:text-zinc-500">{waiting.job_title}</p>
+                  <p class="text-sm text-zinc-500 dark:text-zinc-400">{waiting.job_title}</p>
                   <ul class="mt-1 space-y-0.5">
                     <li
                       :for={blocker <- waiting.blockers}
@@ -269,7 +273,9 @@ defmodule TrebyWeb.DashboardLive do
         <div class="grid grid-cols-2 gap-8">
           <%!-- Upcoming Interviews --%>
           <.card class="shadow">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Upcoming Interviews (7 days)")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Upcoming Interviews (7 days)")}
+            </h2>
             <.empty_state
               :if={@upcoming_interviews == []}
               icon="hero-calendar"
@@ -286,7 +292,7 @@ defmodule TrebyWeb.DashboardLive do
                   <p class="font-medium text-zinc-900 dark:text-zinc-100">
                     {interview.application.candidate.name}
                   </p>
-                  <p class="text-sm text-zinc-400 dark:text-zinc-500">
+                  <p class="text-sm text-zinc-500 dark:text-zinc-400">
                     {interview.application.job.title}
                   </p>
                 </div>
@@ -294,7 +300,7 @@ defmodule TrebyWeb.DashboardLive do
                   <p class="text-zinc-900 dark:text-zinc-100/80">
                     {Elixir.Calendar.strftime(interview.start_at_utc, "%b %d")}
                   </p>
-                  <p class="text-zinc-400 dark:text-zinc-500">
+                  <p class="text-zinc-500 dark:text-zinc-400">
                     {Elixir.Calendar.strftime(interview.start_at_utc, "%H:%M")} - {Elixir.Calendar.strftime(
                       interview.end_at_utc,
                       "%H:%M"
@@ -302,7 +308,7 @@ defmodule TrebyWeb.DashboardLive do
                   </p>
                 </div>
               </div>
-              <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 {gettext("with %{name}", name: interviewer_name(interview))}
               </p>
             </div>
@@ -310,7 +316,9 @@ defmodule TrebyWeb.DashboardLive do
 
           <%!-- Stale Candidates --%>
           <.card class="shadow">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Stale Candidates (7+ days)")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Stale Candidates (7+ days)")}
+            </h2>
             <.empty_state
               :if={@stale_candidates == []}
               icon="hero-user-group"
@@ -325,11 +333,11 @@ defmodule TrebyWeb.DashboardLive do
               <div class="flex justify-between items-center">
                 <div>
                   <p class="font-medium text-zinc-900 dark:text-zinc-100">{app.candidate.name}</p>
-                  <p class="text-sm text-zinc-400 dark:text-zinc-500">{app.job.title}</p>
+                  <p class="text-sm text-zinc-500 dark:text-zinc-400">{app.job.title}</p>
                 </div>
                 <div class="text-right">
                   <.badge variant="warning">{app.pipeline_stage.name}</.badge>
-                  <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                     {gettext("Updated %{date}", date: Calendar.strftime(app.updated_at, "%b %d"))}
                   </p>
                 </div>
@@ -340,7 +348,9 @@ defmodule TrebyWeb.DashboardLive do
 
         <%!-- Pipeline Snapshot --%>
         <.card class="shadow mt-8">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Pipeline Overview")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Pipeline Overview")}
+          </h2>
           <.empty_state
             :if={@pipeline_snapshot == []}
             icon="hero-kanban"
@@ -367,7 +377,7 @@ defmodule TrebyWeb.DashboardLive do
                   }
                 >
                 </div>
-                <span class="text-xs text-zinc-400 dark:text-zinc-500 mt-1 truncate w-full text-center">
+                <span class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 truncate w-full text-center">
                   {stage.stage.name}
                 </span>
               </div>
@@ -376,7 +386,9 @@ defmodule TrebyWeb.DashboardLive do
         </.card>
         <%!-- Recent Activity --%>
         <.card class="shadow mt-8">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Recent Activity")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Recent Activity")}
+          </h2>
           <.empty_state
             :if={@recent_activities == []}
             icon="hero-clock"
@@ -388,10 +400,10 @@ defmodule TrebyWeb.DashboardLive do
               <span class="mt-1.5 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0"></span>
               <div>
                 <span class="font-medium text-zinc-900 dark:text-zinc-100">{activity_label(activity)}</span>
-                <span class="text-zinc-400 dark:text-zinc-500">
+                <span class="text-zinc-500 dark:text-zinc-400">
                   {activity.metadata && activity.metadata["candidate_name"]}
                 </span>
-                <div class="text-xs text-zinc-400 dark:text-zinc-500">
+                <div class="text-xs text-zinc-500 dark:text-zinc-400">
                   {Calendar.strftime(activity.inserted_at, "%b %d, %Y at %H:%M")}
                 </div>
               </div>

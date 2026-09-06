@@ -47,10 +47,15 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+            <.link
+              navigate={~p"/app/settings"}
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+            >
               &larr; {gettext("Back to Settings")}
             </.link>
-            <h1 class="text-2xl font-bold mt-2">{gettext("Message Templates")}</h1>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Message Templates")}
+            </h1>
             <p class="mt-1 text-zinc-500 dark:text-zinc-400">
               {gettext("Configure message templates for stage transitions")}
             </p>
@@ -64,7 +69,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
           :if={@show_form}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
         >
-          <h2 class="text-lg font-semibold mb-4">
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
           </h2>
           <.form
@@ -142,22 +147,22 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
           <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Stage Type")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Subject")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:bg-zinc-800">
+              <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   {template.name}
                 </td>
@@ -171,7 +176,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                   <button
                     phx-click="edit_template"
                     phx-value-template_id={template.id}
-                    class="text-blue-600 hover:text-blue-900 mr-3"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
                   >
                     {gettext("Edit")}
                   </button>
@@ -184,7 +189,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                         "Are you sure you want to delete this message template? This action cannot be undone."
                       )
                     }
-                    class="text-red-600 hover:text-red-900"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                   >
                     {gettext("Delete")}
                   </button>
@@ -192,7 +197,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
               </tr>
             </tbody>
           </table>
-          <div :if={@templates == []} class="p-8 text-center text-zinc-400 dark:text-zinc-500">
+          <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
             {gettext("No message templates yet. Create your first template!")}
           </div>
         </div>

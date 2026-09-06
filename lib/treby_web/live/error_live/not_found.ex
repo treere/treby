@@ -10,7 +10,7 @@ defmodule TrebyWeb.ErrorLive.NotFound do
     ~H"""
     <Layouts.app flash={@flash} locale={@locale}>
       <div class="max-w-7xl mx-auto px-4 py-24 flex flex-col items-center justify-center text-center">
-        <p class="text-7xl font-bold text-blue-600 mb-4">404</p>
+        <p class="text-7xl font-bold text-blue-600 dark:text-blue-400 mb-4">404</p>
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
           {gettext("Page not found")}
         </h1>

@@ -41,6 +41,11 @@ The `TrebyWeb.DesignSystem.Button` component SHALL support variants `primary`/`s
 - **WHEN** `navigate` or `href` is passed
 - **THEN** the component renders a `<.link>` with the same visual classes instead of a `<button>`
 
+
+#### Scenario: Secondary/ghost/outline remain legible in dark mode
+- **WHEN** `variant="secondary"`, `"ghost"`, or `"outline"` is rendered on `bg-zinc-50 dark:bg-zinc-900` or inside `bg-white dark:bg-zinc-800` in dark mode
+- **THEN** the computed text/background contrast is ≥4.5:1 (verified by axe `color-contrast`)
+
 ### Requirement: Badge component covers status use cases
 The `TrebyWeb.DesignSystem.Badge` component SHALL support variants `default`/`success`/`warning`/`danger`/`info`, optional `dot` indicator, with SaaS minimal styling (`rounded-full`, `text-xs font-medium`, `border`, muted backgrounds like `bg-zinc-100 text-zinc-700 border-zinc-200` for default, `bg-emerald-50 text-emerald-700` for success, etc.), and be used for all status/flag UI (e.g., NEW, DUPLICATE, role, stage) instead of raw spans.
 
@@ -51,6 +56,12 @@ The `TrebyWeb.DesignSystem.Badge` component SHALL support variants `default`/`su
 #### Scenario: No raw badge spans in app
 - **WHEN** CI scans candidate and pipeline screens
 - **THEN** flags like NEW/DUPLICATE are rendered via `<.badge>` not via `text-[10px] bg-red-100` spans
+
+
+#### Scenario: Badges meet contrast in dark mode
+- **WHEN** any badge variant is rendered inside `bg-white dark:bg-zinc-800` in dark mode
+- **THEN** its text/background contrast is ≥4.5:1 (verified by axe, using the `dark:*` overrides that mirror `Feedback.toast` scale)
+
 
 ### Requirement: Full component catalog is available
 The design system SHALL provide `Card` (variants `default`/`bordered`/`elevated`/`flat` with `header`/`footer` slots, styled as `bg-white rounded-xl border border-zinc-200 shadow-sm` with header `border-b border-zinc-100`), `Modal` (sizes `sm`/`md`/`lg`/`xl`, backdrop + Escape + focus, `rounded-xl shadow-xl`), `Dropdown`, `Tabs`, `Avatar`, `Feedback` (`Spinner` sizes `sm`/`md`/`lg`, `Skeleton` variants `text`/`avatar`/`card`, `Toast` kinds `info`/`success`/`warning`/`error`), and `Pattern` (`ConfirmDialog`, `PageHeader` with breadcrumbs, `EmptyState`, `FilterBar`, `FormSection`, `LoadingOverlay`), each theme-aware and accessible in the SaaS minimal language.

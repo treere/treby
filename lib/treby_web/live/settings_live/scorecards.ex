@@ -45,10 +45,15 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+            <.link
+              navigate={~p"/app/settings"}
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+            >
               &larr; {gettext("Back to Settings")}
             </.link>
-            <h1 class="text-2xl font-bold mt-2">{gettext("Scorecard Templates")}</h1>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Scorecard Templates")}
+            </h1>
             <p class="mt-1 text-zinc-500 dark:text-zinc-400">
               {gettext("Define evaluation criteria for interviews")}
             </p>
@@ -62,7 +67,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
           :if={@show_form}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
         >
-          <h2 class="text-lg font-semibold mb-4">
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
           </h2>
           <form
@@ -80,7 +85,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                 name="name"
                 value={@form_name}
                 placeholder={gettext("e.g. Engineering Interview")}
-                class="input w-full"
+                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               />
             </div>
 
@@ -92,17 +97,17 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                 :for={{criterion, idx} <- Enum.with_index(@criteria)}
                 class="flex gap-2 items-center"
               >
-                <span class="text-sm text-zinc-400 dark:text-zinc-500 w-8">{idx + 1}.</span>
+                <span class="text-sm text-zinc-500 dark:text-zinc-400 w-8">{idx + 1}.</span>
                 <input
                   type="text"
                   name={"criteria[#{idx}][name]"}
                   value={criterion["name"]}
-                  class="input flex-1"
+                  class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   placeholder={gettext("Criterion name")}
                 />
                 <select
                   name={"criteria[#{idx}][type]"}
-                  class="select"
+                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value="number_1_5" selected={criterion["type"] == "number_1_5"}>
                     {gettext("Number (1-5)")}
@@ -118,7 +123,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                   type="button"
                   phx-click="remove_criterion"
                   phx-value-index={idx}
-                  class="text-red-600 hover:text-red-900"
+                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                 >
                   <.icon name="hero-x-mark" class="w-5 h-5" />
                 </button>
@@ -133,11 +138,11 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                   type="text"
                   id="new_criterion_name"
                   placeholder={gettext("New criterion name")}
-                  class="input flex-1"
+                  class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
                 <select
                   id="new_criterion_type"
-                  class="select"
+                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value="number_1_5">{gettext("Number (1-5)")}</option>
                   <option value="yes_no_maybe">{gettext("Yes/No/Maybe")}</option>
@@ -180,19 +185,19 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
           <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Criteria Count")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:bg-zinc-800">
+              <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   {template.name}
                 </td>
@@ -203,7 +208,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                   <button
                     phx-click="edit_template"
                     phx-value-template_id={template.id}
-                    class="text-blue-600 hover:text-blue-900 mr-3"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
                   >
                     {gettext("Edit")}
                   </button>
@@ -216,7 +221,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                         "Are you sure you want to delete this scorecard template? This action cannot be undone."
                       )
                     }
-                    class="text-red-600 hover:text-red-900"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                   >
                     {gettext("Delete")}
                   </button>
@@ -224,7 +229,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
               </tr>
             </tbody>
           </table>
-          <div :if={@templates == []} class="p-8 text-center text-zinc-400 dark:text-zinc-500">
+          <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
             {gettext("No scorecard templates yet. Create your first template!")}
           </div>
         </div>

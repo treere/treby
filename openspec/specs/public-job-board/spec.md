@@ -7,7 +7,7 @@ Serve a global public job board and control per-job visibility on public boards.
 ## Requirements
 
 ### Requirement: Global job board
-The system SHALL serve a global public job board at `/careers` showing all visible open positions across all tenants.
+The system SHALL serve a global public job board at `/careers` showing all visible open positions across all tenants. The board SHALL include the same public header as tenant career pages: a homepage link (Treby brand → `/`) on the left and theme toggle + language switcher on the right, both contrast-compliant in dark mode.
 
 #### Scenario: Global board loads
 - **WHEN** a visitor navigates to `/careers`
@@ -20,6 +20,12 @@ The system SHALL serve a global public job board at `/careers` showing all visib
 #### Scenario: No visible jobs
 - **WHEN** there are no visible open positions across any tenant
 - **THEN** the page displays "No open positions available"
+
+
+#### Scenario: Global board header in dark mode
+- **WHEN** a visitor opens `http://localhost:4000/careers` in dark mode with any locale
+- **THEN** the homepage/brand link and the theme+language controls are visible with ≥4.5:1 contrast on their `bg-white/80 dark:bg-zinc-900/80` header and no axe `color-contrast` violation is reported
+
 
 ### Requirement: Per-job visibility
 The system SHALL allow controlling whether individual jobs appear on public boards via a `visible` flag.

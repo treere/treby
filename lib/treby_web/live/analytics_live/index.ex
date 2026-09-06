@@ -57,7 +57,10 @@ defmodule TrebyWeb.AnalyticsLive.Index do
         >
           <:actions>
             <.form for={%{}} phx-change="select_pipeline" id="pipeline-selector-form">
-              <select name="pipeline_id" class="select">
+              <select
+                name="pipeline_id"
+                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              >
                 <option value="" selected={@selected_pipeline_id == nil}>
                   {gettext("All pipelines")}
                 </option>
@@ -74,7 +77,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
         <%!-- Metrics Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <.card class="shadow">
-            <h3 class="text-sm font-medium text-zinc-400 dark:text-zinc-500">
+            <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               {gettext("Total Candidates")}
             </h3>
             <p class="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -82,7 +85,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
             </p>
           </.card>
           <.card class="shadow">
-            <h3 class="text-sm font-medium text-zinc-400 dark:text-zinc-500">
+            <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               {gettext("Avg. Time to Hire")}
             </h3>
             <p class="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -92,7 +95,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
             </p>
           </.card>
           <.card class="shadow">
-            <h3 class="text-sm font-medium text-zinc-400 dark:text-zinc-500">
+            <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               {gettext("Active Jobs")}
             </h3>
             <p class="mt-2 text-3xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -115,7 +118,9 @@ defmodule TrebyWeb.AnalyticsLive.Index do
 
         <%!-- Source Breakdown --%>
         <.card :if={@source_breakdown != []} class="shadow mb-8">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Candidates by Source")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Candidates by Source")}
+          </h2>
           <div class="space-y-3">
             <div :for={item <- @source_breakdown} class="flex items-center gap-4">
               <div class="w-40 text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
@@ -138,7 +143,9 @@ defmodule TrebyWeb.AnalyticsLive.Index do
 
         <%!-- Pipeline Overview --%>
         <.card class="shadow mb-8">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Pipeline Overview")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Pipeline Overview")}
+          </h2>
           <.empty_state
             :if={@pipeline_counts == []}
             icon="hero-queue-list"
@@ -171,7 +178,9 @@ defmodule TrebyWeb.AnalyticsLive.Index do
 
         <%!-- Time in Stage --%>
         <.card :if={@time_in_stage != []} class="shadow mb-8">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Time in Stage (Avg. Days)")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Time in Stage (Avg. Days)")}
+          </h2>
           <div class="space-y-3">
             <div :for={item <- @time_in_stage} class="flex items-center gap-4">
               <div class="w-32 flex items-center gap-2">
@@ -209,7 +218,9 @@ defmodule TrebyWeb.AnalyticsLive.Index do
 
         <%!-- Hiring Funnel --%>
         <.card class="shadow mb-8">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Hiring Funnel")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Hiring Funnel")}
+          </h2>
           <.empty_state
             :if={@pipeline_counts == []}
             icon="hero-funnel"
@@ -250,11 +261,13 @@ defmodule TrebyWeb.AnalyticsLive.Index do
 
         <%!-- Conversion Rates --%>
         <.card :if={@conversion_rates != []} class="shadow">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Stage Conversion Rates")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Stage Conversion Rates")}
+          </h2>
           <div class="space-y-2">
             <div :for={rate <- @conversion_rates} class="flex items-center gap-3 text-sm">
               <span class="text-zinc-900 dark:text-zinc-100/80">{rate.from.name}</span>
-              <.icon name="hero-arrow-right" class="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
+              <.icon name="hero-arrow-right" class="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
               <span class="text-zinc-900 dark:text-zinc-100/80">{rate.to.name}</span>
               <.badge variant={if rate.rate >= 50, do: "success", else: "danger"} class="ml-auto">
                 {rate.rate}%

@@ -18,10 +18,12 @@ defmodule TrebyWeb.ScorecardForm do
       <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div class="p-6">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">{gettext("Scorecard")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Scorecard")}
+            </h2>
             <button
               phx-click="close_scorecard"
-              class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:text-zinc-400"
+              class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-500 dark:text-zinc-400"
             >
               <.icon name="hero-x-mark" class="w-6 h-6" />
             </button>
@@ -58,7 +60,7 @@ defmodule TrebyWeb.ScorecardForm do
                 <% criterion["type"] == "yes_no_maybe" -> %>
                   <select
                     name={criterion["name"]}
-                    class="select w-full"
+                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   >
                     <option value="" selected={@form[criterion["name"]].value == ""}>
                       Select...
@@ -83,7 +85,7 @@ defmodule TrebyWeb.ScorecardForm do
                   <textarea
                     name={criterion["name"]}
                     rows="2"
-                    class="textarea w-full"
+                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   >{@form[criterion["name"]].value}</textarea>
               <% end %>
             </div>
@@ -94,7 +96,7 @@ defmodule TrebyWeb.ScorecardForm do
               </label>
               <select
                 name="recommendation"
-                class="select w-full"
+                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               >
                 <option value="" selected={@form[:recommendation].value == ""}>
                   Select...
@@ -136,7 +138,7 @@ defmodule TrebyWeb.ScorecardForm do
               <textarea
                 name="notes"
                 rows="3"
-                class="textarea w-full"
+                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
               >{@form[:notes].value}</textarea>
             </div>
 

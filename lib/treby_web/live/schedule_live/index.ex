@@ -95,13 +95,15 @@ defmodule TrebyWeb.ScheduleLive.Index do
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div class="lg:col-span-2">
             <.card class="shadow">
-              <h2 class="text-lg font-semibold mb-4">{gettext("Select Interviewer")}</h2>
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+                {gettext("Select Interviewer")}
+              </h2>
               <div :if={@users == []} class="space-y-4">
                 <div class="text-center py-4">
-                  <p class="text-zinc-400 dark:text-zinc-500 text-sm">
+                  <p class="text-zinc-500 dark:text-zinc-400 text-sm">
                     {gettext("No team members have set their availability yet.")}
                   </p>
-                  <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                     {gettext("Schedule ad-hoc without weekly rules — or")}
                     <.link navigate={~p"/app/settings/availability"} class="link link-primary">
                       {gettext("Set weekly availability → Settings → Availability")}
@@ -118,7 +120,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                         type="date"
                         value={@ad_hoc_date}
                         phx-change="ad_hoc_date"
-                        class="input w-full"
+                        class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
                     <div>
@@ -129,7 +131,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                         type="time"
                         value={@ad_hoc_time}
                         phx-change="ad_hoc_time"
-                        class="input w-full"
+                        class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                       />
                     </div>
                   </div>
@@ -137,7 +139,10 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
                       {gettext("Interviewer")}
                     </label>
-                    <select phx-change="ad_hoc_user" class="select w-full">
+                    <select
+                      phx-change="ad_hoc_user"
+                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    >
                       <option value="">{gettext("Select interviewer")}</option>
                       <option
                         :for={u <- @fallback_users}
@@ -174,7 +179,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                     ]}
                   >
                     <span class="font-medium">{user.name}</span>
-                    <span class="text-sm text-zinc-400 dark:text-zinc-500 ml-2">{user.email}</span>
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400 ml-2">{user.email}</span>
                     <.badge
                       :if={MapSet.member?(@connected_ids, user.id)}
                       variant="success"
@@ -237,22 +242,24 @@ defmodule TrebyWeb.ScheduleLive.Index do
 
           <div class="lg:col-span-1">
             <.card class="shadow">
-              <h2 class="text-lg font-semibold mb-4">{gettext("Details")}</h2>
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+                {gettext("Details")}
+              </h2>
               <dl class="space-y-3 text-sm">
                 <div>
-                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Candidate")}</dt>
+                  <dt class="text-zinc-500 dark:text-zinc-400">{gettext("Candidate")}</dt>
                   <dd><strong>{@application.candidate.name}</strong></dd>
                 </div>
                 <div>
-                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Job")}</dt>
+                  <dt class="text-zinc-500 dark:text-zinc-400">{gettext("Job")}</dt>
                   <dd class="font-medium">{@application.job.title}</dd>
                 </div>
                 <div>
-                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Interview Type")}</dt>
+                  <dt class="text-zinc-500 dark:text-zinc-400">{gettext("Interview Type")}</dt>
                   <dd class="font-medium">{gettext("Video")}</dd>
                 </div>
                 <div :if={@selected_slot}>
-                  <dt class="text-zinc-400 dark:text-zinc-500">{gettext("Selected Time")}</dt>
+                  <dt class="text-zinc-500 dark:text-zinc-400">{gettext("Selected Time")}</dt>
                   <dd class="font-medium">
                     {Elixir.Calendar.strftime(@selected_slot.start, "%B %d, %Y at %H:%M UTC")}
                   </dd>
@@ -272,7 +279,7 @@ defmodule TrebyWeb.ScheduleLive.Index do
                 <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-2">
                   {gettext("Self-Scheduling")}
                 </h3>
-                <p class="text-xs text-zinc-400 dark:text-zinc-500">
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">
                   {gettext(
                     "The candidate can choose their own time slot from their application portal. Send them a message in the portal to let them know they can book."
                   )}

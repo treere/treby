@@ -51,11 +51,13 @@ defmodule TrebyWeb.SettingsLive.Team do
           <div>
             <.link
               navigate={"/#{@current_tenant.slug}/app/settings"}
-              class="text-blue-600 hover:text-blue-900 text-sm"
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
             >
               &larr; Back to Settings
             </.link>
-            <h1 class="text-2xl font-bold mt-2">{gettext("Team Management")}</h1>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Team Management")}
+            </h1>
             <p class="mt-1 text-zinc-500 dark:text-zinc-400">{gettext("Manage your team members")}</p>
           </div>
           <.button variant="primary" phx-click="show_invite_form">
@@ -67,7 +69,9 @@ defmodule TrebyWeb.SettingsLive.Team do
           :if={@show_invite_form}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
         >
-          <h2 class="text-lg font-semibold mb-4">{gettext("Invite Team Member")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Invite Team Member")}
+          </h2>
           <.form
             for={@invite_form}
             id="invite-form"
@@ -97,27 +101,29 @@ defmodule TrebyWeb.SettingsLive.Team do
 
         <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden mb-8">
           <div class="px-6 py-4 border-b">
-            <h2 class="text-lg font-semibold">{gettext("Team Members")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Team Members")}
+            </h2>
           </div>
           <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Name")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Email")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Role")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr :for={user <- @users} class="hover:bg-zinc-50 dark:bg-zinc-800">
+              <tr :for={user <- @users} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   {user.name}
                 </td>
@@ -141,12 +147,12 @@ defmodule TrebyWeb.SettingsLive.Team do
                           "Are you sure you want to remove this team member? They will lose access to the account."
                         )
                       }
-                      class="text-red-600 hover:text-red-900"
+                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                     >
                       {gettext("Remove")}
                     </button>
                   <% else %>
-                    <span class="text-zinc-400 dark:text-zinc-500">{gettext("You")}</span>
+                    <span class="text-zinc-500 dark:text-zinc-400">{gettext("You")}</span>
                   <% end %>
                 </td>
               </tr>
@@ -159,27 +165,29 @@ defmodule TrebyWeb.SettingsLive.Team do
           class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden"
         >
           <div class="px-6 py-4 border-b">
-            <h2 class="text-lg font-semibold">{gettext("Pending Invites")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Pending Invites")}
+            </h2>
           </div>
           <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Email")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Role")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Expires")}
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   {gettext("Actions")}
                 </th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr :for={invite <- @invites} class="hover:bg-zinc-50 dark:bg-zinc-800">
+              <tr :for={invite <- @invites} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
                 <td class="px-6 py-4 whitespace-nowrap text-zinc-900 dark:text-zinc-100">
                   {invite.email}
                 </td>
@@ -188,7 +196,7 @@ defmodule TrebyWeb.SettingsLive.Team do
                     {invite.role}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 dark:text-zinc-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                   {Calendar.strftime(invite.expires_at, "%b %d, %Y")}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -201,7 +209,7 @@ defmodule TrebyWeb.SettingsLive.Team do
                         "Are you sure you want to revoke this invitation? The invitee will no longer be able to join."
                       )
                     }
-                    class="text-red-600 hover:text-red-900"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                   >
                     {gettext("Revoke")}
                   </button>

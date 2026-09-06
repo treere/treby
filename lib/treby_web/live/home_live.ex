@@ -67,7 +67,7 @@ defmodule TrebyWeb.HomeLive do
               <h1 class="text-balance text-5xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-7xl">
                 {gettext("Hire smarter with Treby")}
               </h1>
-              <p class="mt-8 text-pretty text-lg font-medium text-zinc-400 dark:text-zinc-500 sm:text-xl/8">
+              <p class="mt-8 text-pretty text-lg font-medium text-zinc-500 dark:text-zinc-400 sm:text-xl/8">
                 {gettext(
                   "Streamline your hiring process from job posting to offer letter. Manage candidates, schedule interviews, and track your pipeline — all in one place."
                 )}

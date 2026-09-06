@@ -34,7 +34,7 @@ The system SHALL allow users to register with email, password, password confirma
 - **THEN** the user is redirected to the email verification step
 
 ### Requirement: User login
-The system SHALL allow users to log in with email and password. The system SHALL authenticate against the globally unique identity and then resolve the user's memberships.
+The system SHALL allow users to log in with email and password. The system SHALL authenticate against the globally unique identity and then resolve the user's memberships. The login page at `/login` (and sibling unauthenticated pages `/reset-password`, `/register`, invite) SHALL render all `text-primary` links such as "Forgot your password?", "create a new account", and "Back to sign in" with explicit `dark:` overrides so they remain ≥4.5:1 in dark mode on `bg-zinc-50 dark:bg-zinc-800`, and the pages SHALL include a homepage brand link (Treby → `/`) alongside the existing `Layouts.auth_toolbar` theme+language controls.
 
 #### Scenario: Successful login with single membership
 - **WHEN** a user submits a valid email and password and the user has exactly one membership
@@ -59,6 +59,12 @@ The system SHALL allow users to log in with email and password. The system SHALL
 - **WHEN** a user views the login page
 - **THEN** a "Forgot your password?" link is displayed below the password field
 - **AND** the link navigates to `/reset-password`
+
+
+#### Scenario: Password pages show homepage + theme + language
+- **WHEN** a visitor opens `http://localhost:4000/reset-password` (or `/reset-password/edit?token=...`, `/login`, `/register`) in dark mode
+- **THEN** a header with Treby brand → `/` (top-left) and theme+language controls (top-right, via `auth_toolbar`) is visible and contrast-compliant, with no axe `color-contrast` violation
+
 
 ### Requirement: Session management
 The system SHALL manage user sessions via signed cookies. The session SHALL store `user_id` only; the active workspace SHALL be derived from the URL slug `/:tenant_slug`.

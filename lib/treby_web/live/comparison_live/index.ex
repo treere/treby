@@ -78,10 +78,12 @@ defmodule TrebyWeb.ComparisonLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold">{gettext("Compare Candidates")}</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+            {gettext("Compare Candidates")}
+          </h1>
           <.link
             navigate={~p"/app/candidates"}
-            class="text-blue-600 hover:underline text-sm"
+            class="text-blue-600 dark:text-blue-400 hover:underline text-sm"
           >
             {gettext("← Back to candidates")}
           </.link>
@@ -104,7 +106,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
                   class="text-left p-3 border bg-zinc-50 dark:bg-zinc-800 min-w-[250px]"
                 >
                   <div class="font-semibold">{item.candidate.name}</div>
-                  <div class="text-xs text-zinc-400 dark:text-zinc-500">{item.candidate.email}</div>
+                  <div class="text-xs text-zinc-500 dark:text-zinc-400">{item.candidate.email}</div>
                 </th>
               </tr>
             </thead>
@@ -131,7 +133,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
                     :if={item.candidate.linkedin_url}
                     href={item.candidate.linkedin_url}
                     target="_blank"
-                    class="text-blue-600 hover:underline"
+                    class="text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     {gettext("Profile")}
                   </a>
@@ -149,7 +151,7 @@ defmodule TrebyWeb.ComparisonLive.Index do
                 >
                   <div :for={app <- item.applications} class="text-xs">
                     <span class="font-medium">{app.job.title}</span>
-                    <span class="text-zinc-400 dark:text-zinc-500">
+                    <span class="text-zinc-500 dark:text-zinc-400">
                       <span aria-hidden="true">→</span>{app.pipeline_stage.name}
                     </span>
                   </div>
@@ -183,8 +185,8 @@ defmodule TrebyWeb.ComparisonLive.Index do
                 >
                   <div :for={sc <- item.scorecards} class="text-xs">
                     <span class="font-medium">{sc.interviewer && sc.interviewer.name}</span>
-                    <span class="text-zinc-400 dark:text-zinc-500"> — </span>
-                    <span :if={sc.total_score} class="text-blue-600 font-semibold">
+                    <span class="text-zinc-500 dark:text-zinc-400"> — </span>
+                    <span :if={sc.total_score} class="text-blue-600 dark:text-blue-400 font-semibold">
                       {sc.total_score}%
                     </span>
                     <span

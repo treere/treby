@@ -1,4 +1,7 @@
 <div class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 relative">
+  <.link navigate={~p"/"} class="absolute top-4 left-4 z-50 flex items-center">
+    <span class="text-xl font-bold text-primary dark:text-orange-300">Treby</span>
+  </.link>
   <Layouts.auth_toolbar locale={@locale} />
   <div class="max-w-md w-full space-y-8">
     <div>
@@ -63,11 +66,17 @@
           label={gettext("I agree to the")}
         />
         <p class="ml-7 -mt-4 text-sm text-zinc-900 dark:text-zinc-100">
-          <a href="/terms" class="text-primary hover:text-primary/80">
+          <a
+            href="/terms"
+            class="text-primary dark:text-orange-300 hover:text-primary/80 dark:hover:text-orange-200"
+          >
             {gettext("Terms of Service")}
           </a>
           {gettext("and")}
-          <a href="/privacy" class="text-primary hover:text-primary/80">
+          <a
+            href="/privacy"
+            class="text-primary dark:text-orange-300 hover:text-primary/80 dark:hover:text-orange-200"
+          >
             {gettext("Privacy Policy")}
           </a>
         </p>

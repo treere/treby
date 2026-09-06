@@ -42,7 +42,9 @@ defmodule TrebyWeb.SettingsLive.Notifications do
           <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
             &larr; {gettext("Back to Settings")}
           </.button>
-          <h1 class="text-2xl font-bold mt-2">{gettext("Notification Preferences")}</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+            {gettext("Notification Preferences")}
+          </h1>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {gettext("Configure which email notifications are sent automatically")}
           </p>
@@ -56,7 +58,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {gettext("Stage Change Notifications")}
                   </h3>
-                  <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
+                  <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                     {gettext(
                       "Send email to candidates when their application moves to a new pipeline stage"
                     )}
@@ -88,7 +90,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {gettext("Application Confirmation")}
                   </h3>
-                  <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
+                  <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                     {gettext(
                       "Send confirmation email to candidates after they apply via the career page"
                     )}
@@ -120,7 +122,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {gettext("New Application Alerts")}
                   </h3>
-                  <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
+                  <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                     {gettext("Notify admins when a new application is submitted for any job")}
                   </p>
                 </div>

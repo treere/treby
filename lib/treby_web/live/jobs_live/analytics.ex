@@ -99,7 +99,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
         <%!-- KPI Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
-            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+            <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Total Views
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -107,7 +107,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
             </p>
           </div>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
-            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+            <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Unique Views
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -115,7 +115,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
             </p>
           </div>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
-            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+            <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Last 7 Days
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -123,7 +123,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
             </p>
           </div>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
-            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+            <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Last 30 Days
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -131,7 +131,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
             </p>
           </div>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
-            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+            <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Avg / Day
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -139,13 +139,13 @@ defmodule TrebyWeb.JobsLive.Analytics do
             </p>
           </div>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
-            <h3 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+            <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Conversion
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {@funnel.conversion_rate}%
             </p>
-            <p class="text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
               {@funnel.total_applications} applications
             </p>
           </div>
@@ -167,7 +167,9 @@ defmodule TrebyWeb.JobsLive.Analytics do
           <%!-- Daily chart --%>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-semibold">{gettext("Daily Views")}</h2>
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                {gettext("Daily Views")}
+              </h2>
               <.form
                 for={%{}}
                 id="period-selector-form"
@@ -175,7 +177,10 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 class="flex items-center gap-2"
               >
                 <label class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Period")}</label>
-                <select name="period" class="select select-sm">
+                <select
+                  name="period"
+                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 select-sm"
+                >
                   <option value="7" selected={@selected_period == 7}>{gettext("Last 7 days")}</option>
                   <option value="30" selected={@selected_period == 30}>
                     {gettext("Last 30 days")}
@@ -189,7 +194,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
             <div
               :if={Enum.all?(@daily_breakdown, &(&1.count == 0))}
-              class="text-center text-zinc-400 dark:text-zinc-500 py-8"
+              class="text-center text-zinc-500 dark:text-zinc-400 py-8"
             >
               No views in this period
             </div>
@@ -217,10 +222,12 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
           <%!-- Monthly breakdown --%>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Monthly Views (Last 12 Months)")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Monthly Views (Last 12 Months)")}
+            </h2>
             <div
               :if={Enum.all?(@monthly_breakdown, &(&1.count == 0))}
-              class="text-center text-zinc-400 dark:text-zinc-500 py-8"
+              class="text-center text-zinc-500 dark:text-zinc-400 py-8"
             >
               No monthly data yet
             </div>
@@ -247,10 +254,12 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
           <%!-- Source breakdown --%>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Traffic Sources")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Traffic Sources")}
+            </h2>
             <div
               :if={@source_breakdown == []}
-              class="text-center text-zinc-400 dark:text-zinc-500 py-8"
+              class="text-center text-zinc-500 dark:text-zinc-400 py-8"
             >
               No source data yet
             </div>
@@ -272,10 +281,12 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
           <%!-- Funnel --%>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("View → Application Funnel")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("View → Application Funnel")}
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="text-center p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                <p class="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+                <p class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   {gettext("Views")}
                 </p>
                 <p class="text-2xl font-bold mt-1">{@funnel.total_views}</p>
@@ -289,7 +300,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 </span>
               </div>
               <div class="text-center p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                <p class="text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+                <p class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   {gettext("Applications")}
                 </p>
                 <p class="text-2xl font-bold mt-1">{@funnel.total_applications}</p>
@@ -303,7 +314,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
             </p>
             <p
               :if={is_nil(@funnel.tenant_avg_conversion_rate)}
-              class="mt-4 text-sm text-zinc-400 dark:text-zinc-500 text-center"
+              class="mt-4 text-sm text-zinc-500 dark:text-zinc-400 text-center"
             >
               No tenant average yet — more views needed.
             </p>

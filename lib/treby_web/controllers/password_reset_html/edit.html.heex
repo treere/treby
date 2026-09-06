@@ -1,4 +1,7 @@
 <div class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 relative">
+  <.link navigate={~p"/"} class="absolute top-4 left-4 z-50 flex items-center">
+    <span class="text-xl font-bold text-primary dark:text-orange-300">Treby</span>
+  </.link>
   <Layouts.auth_toolbar locale={@locale} />
   <div class="max-w-md w-full space-y-8">
     <div>
@@ -20,7 +23,7 @@
             type="password"
             required
             minlength="6"
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 placeholder-base-content/50 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
             placeholder={gettext("New password (min 6 characters)")}
           />
         </div>
@@ -33,7 +36,10 @@
       </div>
 
       <div class="text-center">
-        <a href="/login" class="font-medium text-primary hover:text-primary/80 text-sm">
+        <a
+          href="/login"
+          class="font-medium text-primary dark:text-orange-300 hover:text-primary/80 dark:hover:text-orange-200 text-sm"
+        >
           {gettext("Back to sign in")}
         </a>
       </div>

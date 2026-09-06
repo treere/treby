@@ -77,7 +77,7 @@ defmodule TrebyWeb.CandidatePortalLive.Messages do
                       </p>
                     <% end %>
                   </div>
-                  <span class="text-xs text-zinc-400 dark:text-zinc-500">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">
                     <%= if conversation.last_message_at do %>
                       {Calendar.strftime(conversation.last_message_at, "%b %d")}
                     <% end %>

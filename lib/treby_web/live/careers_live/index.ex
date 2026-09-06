@@ -34,6 +34,7 @@ defmodule TrebyWeb.CareersLive.Index do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-zinc-50 dark:bg-zinc-800">
+      <Layouts.public_header locale={@locale} />
       <div class="max-w-4xl mx-auto py-12 px-4">
         <div class="text-center mb-12">
           <img
@@ -60,7 +61,7 @@ defmodule TrebyWeb.CareersLive.Index do
               name="query"
               value={@search_query}
               placeholder={gettext("Search positions...")}
-              class="input flex-1"
+              class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
             <.button type="submit" class="px-6">{gettext("Search")}</.button>
           </.form>

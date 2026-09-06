@@ -39,7 +39,7 @@ defmodule TrebyWeb.ChooseTenantLive do
           <div :for={%{tenant: tenant, role: role} <- @tenants} id={"workspace-#{tenant.slug}"}>
             <.link
               navigate={"/#{tenant.slug}/app"}
-              class="flex justify-between items-center p-4 border rounded-lg hover:bg-zinc-50 dark:bg-zinc-800"
+              class="flex justify-between items-center p-4 border rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
             >
               <div>
                 <div class="font-medium">{tenant.name}</div>
@@ -57,7 +57,7 @@ defmodule TrebyWeb.ChooseTenantLive do
               <input
                 name="tenant[name]"
                 placeholder={gettext("Company name")}
-                class="input input-bordered flex-1"
+                class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 input-bordered"
                 required
               />
               <button

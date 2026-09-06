@@ -22,7 +22,9 @@ defmodule TrebyWeb.SettingsLive.Language do
           ← {gettext("Settings")}
         </.button>
 
-        <h1 class="mt-4 text-2xl font-bold">{gettext("Language")}</h1>
+        <h1 class="mt-4 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+          {gettext("Language")}
+        </h1>
         <p class="mt-2 text-zinc-500 dark:text-zinc-400">{gettext("Set your preferred language")}</p>
 
         <.form for={@form} id="language-form" phx-submit="save" class="mt-8">

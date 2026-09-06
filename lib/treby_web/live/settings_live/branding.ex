@@ -50,10 +50,15 @@ defmodule TrebyWeb.SettingsLive.Branding do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="mb-8">
-          <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+          <.link
+            navigate={~p"/app/settings"}
+            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+          >
             &larr; Back to Settings
           </.link>
-          <h1 class="text-2xl font-bold mt-2">{gettext("Branding")}</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+            {gettext("Branding")}
+          </h1>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {gettext("Customize your career page appearance")}
           </p>
@@ -61,7 +66,9 @@ defmodule TrebyWeb.SettingsLive.Branding do
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Settings")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Settings")}
+            </h2>
             <.form
               for={@form}
               id="branding-form"
@@ -93,7 +100,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 </label>
                 <.live_file_input
                   upload={@uploads.logo}
-                  class="block w-full text-sm text-zinc-400 dark:text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:bg-blue-950 file:text-blue-700 dark:text-blue-100 hover:file:bg-blue-100"
+                  class="block w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:bg-blue-950 file:text-blue-700 dark:text-blue-100 hover:file:bg-blue-100"
                 />
                 <p :for={err <- upload_errors(@uploads.logo)} class="text-red-500 text-sm mt-1">
                   {upload_error_to_string(err)}
@@ -115,7 +122,9 @@ defmodule TrebyWeb.SettingsLive.Branding do
           </div>
 
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Preview")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Preview")}
+            </h2>
             <div class="border rounded-lg overflow-hidden">
               <div
                 class="p-6 text-center text-white"
@@ -124,7 +133,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 <div :if={@career_page.logo_url} class="mb-4">
                   <img src={@career_page.logo_url} class="h-12 mx-auto" alt="Logo" />
                 </div>
-                <h3 class="text-xl font-bold">
+                <h3 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                   {@form[:title].value || @current_tenant.name}
                 </h3>
                 <p :if={@form[:description].value} class="mt-2 text-sm opacity-90">
@@ -132,7 +141,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 </p>
               </div>
               <div class="p-4 bg-zinc-50 dark:bg-zinc-800">
-                <p class="text-sm text-zinc-400 dark:text-zinc-500 text-center">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center">
                   Open positions will appear here
                 </p>
               </div>

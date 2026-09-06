@@ -250,7 +250,7 @@ defmodule TrebyWeb.InterviewsLive.Index do
                   <select
                     phx-change="filter_interviewer"
                     name="interviewer_id"
-                    class="select"
+                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   >
                     <option value="">{gettext("All Examiners")}</option>
                     <%= for user <- @users do %>
@@ -286,13 +286,13 @@ defmodule TrebyWeb.InterviewsLive.Index do
                     <h3 class="font-medium text-zinc-900 dark:text-zinc-100">
                       {event.application.candidate.name}
                     </h3>
-                    <span class="text-sm text-zinc-400 dark:text-zinc-500">for</span>
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">for</span>
                     <span class="font-medium text-zinc-900 dark:text-zinc-100/80">
                       {event.application.job.title}
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-4 text-sm text-zinc-400 dark:text-zinc-500">
+                  <div class="flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
                     <span class="flex items-center gap-1">
                       <.icon name="hero-calendar" class="w-4 h-4" />
                       {Elixir.Calendar.strftime(event.start_at_utc, "%B %d, %Y")}

@@ -56,11 +56,16 @@ defmodule TrebyWeb.CandidatesLive.Merge do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link navigate={~p"/app/candidates"} class="text-blue-600 hover:text-blue-900 text-sm">
+            <.link
+              navigate={~p"/app/candidates"}
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+            >
               &larr; Back to Candidates
             </.link>
-            <h1 class="text-2xl font-bold mt-2">{gettext("Merge Duplicates")}</h1>
-            <p class="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Merge Duplicates")}
+            </h1>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               Candidates that look like they may be the same person. Review the evidence and merge them into a single profile — or dismiss the suggestion.
             </p>
           </div>
@@ -71,12 +76,12 @@ defmodule TrebyWeb.CandidatesLive.Merge do
           class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-10 text-center"
         >
           <div class="mx-auto w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
-            <.icon name="hero-check-circle" class="w-8 h-8 text-green-600" />
+            <.icon name="hero-check-circle" class="w-8 h-8 text-green-600 dark:text-green-400" />
           </div>
           <h2 class="mt-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             {gettext("No duplicate candidates")}
           </h2>
-          <p class="mt-2 text-sm text-zinc-400 dark:text-zinc-500 max-w-md mx-auto">
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
             We didn't find any candidates that look like duplicates right now. New candidates are checked automatically as they come in.
           </p>
         </div>
@@ -104,7 +109,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="text-left text-xs text-zinc-400 dark:text-zinc-500 border-b border-zinc-200 dark:border-zinc-700">
+                <tr class="text-left text-xs text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700">
                   <th class="py-2 pr-3">{gettext("Primary")}</th>
                   <th class="py-2 pr-3">{gettext("Name")}</th>
                   <th class="py-2 pr-3">{gettext("Email")}</th>
@@ -146,7 +151,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
                       :if={candidate.linkedin_url}
                       href={candidate.linkedin_url}
                       target="_blank"
-                      class="text-blue-600 hover:text-blue-900"
+                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                     >
                       Profile
                     </a>
@@ -175,7 +180,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
             >
               Dismiss
             </.button>
-            <p class="text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
               The primary profile keeps all applications, email threads, and activity. The others are archived.
             </p>
           </div>

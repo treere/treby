@@ -183,7 +183,7 @@ defmodule TrebyWeb.CoreComponents do
           disabled={@rest[:disabled]}
           form={@rest[:form]}
         />
-        <span class="label">
+        <span class="inline-flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
           <input
             type="checkbox"
             id={@id}
@@ -192,7 +192,7 @@ defmodule TrebyWeb.CoreComponents do
             checked={@checked}
             class={
               @class ||
-                "rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4"
+                "rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
             }
             {@rest}
           />{@label}
@@ -207,7 +207,7 @@ defmodule TrebyWeb.CoreComponents do
     ~H"""
     <div class="fieldset mb-2">
       <label for={@id}>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">{@label}</span>
         <select
           id={@id}
           name={@name}
@@ -232,7 +232,7 @@ defmodule TrebyWeb.CoreComponents do
     ~H"""
     <div class="fieldset mb-2">
       <label for={@id}>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">{@label}</span>
         <textarea
           id={@id}
           name={@name}
@@ -254,7 +254,7 @@ defmodule TrebyWeb.CoreComponents do
     ~H"""
     <div class="fieldset mb-2">
       <label for={@id}>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">{@label}</span>
         <input
           type={@type}
           name={@name}
@@ -508,10 +508,10 @@ defmodule TrebyWeb.CoreComponents do
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm text-zinc-900 dark:text-zinc-100/90">{format_event(event)}</p>
-          <p class="text-xs text-zinc-400 dark:text-zinc-500">{relative_time(event.inserted_at)}</p>
+          <p class="text-xs text-zinc-500 dark:text-zinc-400">{relative_time(event.inserted_at)}</p>
         </div>
       </div>
-      <div :if={@events == []} class="text-sm text-zinc-400 dark:text-zinc-500">
+      <div :if={@events == []} class="text-sm text-zinc-500 dark:text-zinc-400">
         No activity yet.
       </div>
     </div>
@@ -524,7 +524,7 @@ defmodule TrebyWeb.CoreComponents do
       <div class="flex items-center justify-between gap-2">
         <.link
           navigate={@profile_link}
-          class="font-medium text-sm text-zinc-900 dark:text-zinc-100 hover:text-blue-600 truncate"
+          class="font-medium text-sm text-zinc-900 dark:text-zinc-100 hover:text-blue-600 dark:text-blue-400 truncate"
         >
           {@name}
         </.link>
@@ -533,7 +533,7 @@ defmodule TrebyWeb.CoreComponents do
           <.badge :if={@is_duplicate} variant="warning" class="text-[10px]">DUPLICATE</.badge>
         </div>
       </div>
-      <p class="text-xs text-zinc-400 dark:text-zinc-500 truncate">{@email}</p>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400 truncate">{@email}</p>
       <p :if={@other_positions} class="mt-1 text-[11px] text-blue-700">{@other_positions}</p>
       <%= case @upcoming_interview do %>
         <% [next_interview | _] -> %>
@@ -610,20 +610,20 @@ defmodule TrebyWeb.CoreComponents do
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
           <div class="rounded-full bg-blue-100 p-2">
-            <.icon name="hero-rocket-launch" class="h-5 w-5 text-blue-600" />
+            <.icon name="hero-rocket-launch" class="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
             <h3 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
               {gettext("Get Started with Treby")}
             </h3>
-            <p class="text-xs text-zinc-400 dark:text-zinc-500">{@done} of {@total} steps complete</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">{@done} of {@total} steps complete</p>
           </div>
         </div>
         <button
           type="button"
           phx-click="dismiss-onboarding"
           phx-value-dismiss="session"
-          class="text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:text-zinc-400 transition-colors"
+          class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 transition-colors"
           aria-label={gettext("Dismiss checklist")}
         >
           <.icon name="hero-x-mark" class="h-5 w-5" />
@@ -637,7 +637,7 @@ defmodule TrebyWeb.CoreComponents do
             class={[
               "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors group",
               step.done && "bg-green-50 dark:bg-green-900/30",
-              !step.done && "hover:bg-zinc-50 dark:bg-zinc-800"
+              !step.done && "hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
             ]}
           >
             <div class={[
@@ -653,8 +653,9 @@ defmodule TrebyWeb.CoreComponents do
             </div>
             <span class={[
               "text-sm transition-colors",
-              step.done && "text-zinc-400 dark:text-zinc-500 line-through",
-              !step.done && "text-zinc-900 dark:text-zinc-100/80 group-hover:text-blue-600"
+              step.done && "text-zinc-500 dark:text-zinc-400 line-through",
+              !step.done &&
+                "text-zinc-900 dark:text-zinc-100/80 group-hover:text-blue-600 dark:text-blue-400"
             ]}>
               {step.label}
             </span>
@@ -681,7 +682,7 @@ defmodule TrebyWeb.CoreComponents do
           type="button"
           phx-click="dismiss-onboarding"
           phx-value-dismiss="permanent"
-          class="text-xs text-zinc-400 dark:text-zinc-500 hover:text-zinc-500 dark:text-zinc-400 transition-colors whitespace-nowrap"
+          class="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-500 dark:text-zinc-400 transition-colors whitespace-nowrap"
         >
           Don't show again
         </button>

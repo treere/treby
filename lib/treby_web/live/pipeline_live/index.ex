@@ -136,7 +136,7 @@ defmodule TrebyWeb.PipelineLive.Index do
             >
               &larr; Back to Job
             </.link>
-            <h1 class="text-2xl font-bold mt-2">
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
               {gettext("%{title} - Pipeline", title: @job.title)}
             </h1>
           </div>
@@ -302,7 +302,8 @@ defmodule TrebyWeb.PipelineLive.Index do
                     class={[
                       "text-xs mt-1",
                       if(application.reviewed,
-                        do: "text-green-600 hover:text-green-900",
+                        do:
+                          "text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300",
                         else:
                           "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100"
                       )
@@ -359,7 +360,8 @@ defmodule TrebyWeb.PipelineLive.Index do
                       class={[
                         "text-xs mt-1",
                         if(ready,
-                          do: "text-green-600 hover:text-green-900",
+                          do:
+                            "text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300",
                           else: "text-zinc-900 dark:text-zinc-100/30 cursor-not-allowed"
                         )
                       ]}
@@ -371,7 +373,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                     <button
                       phx-click="reject_application"
                       phx-value-id={application.id}
-                      class="text-xs text-red-600 hover:text-red-900 mt-1"
+                      class="text-xs text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 mt-1"
                     >
                       Reject
                     </button>
@@ -452,7 +454,9 @@ defmodule TrebyWeb.PipelineLive.Index do
       >
         <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-lg w-full mx-4">
           <div class="p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Send Message Notification?")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Send Message Notification?")}
+            </h2>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
               <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
                 A stage transition message template exists. A message will be posted to the candidate's portal automatically when you move this candidate. You can preview it below or skip posting.
@@ -510,7 +514,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       type="date"
                       value={@schedule_date}
                       phx-change="update_schedule_date"
-                      class="input w-full"
+                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
                   </div>
                   <div>
@@ -521,7 +525,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       type="time"
                       value={@schedule_time}
                       phx-change="update_schedule_time"
-                      class="input w-full"
+                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
                   </div>
                 </div>
@@ -584,14 +588,14 @@ defmodule TrebyWeb.PipelineLive.Index do
 
       <%!-- Bulk Action Bar --%>
       <div :if={@selected_ids != []} class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-        <div class="bg-gray-900 text-white rounded-lg shadow-2xl p-4 flex items-center gap-4">
+        <div class="bg-zinc-900 dark:bg-zinc-900 text-white rounded-lg shadow-2xl p-4 flex items-center gap-4">
           <span class="text-sm">{length(@selected_ids)} selected</span>
 
           <.form for={@bulk_form} id="bulk-action-form" class="flex items-center gap-2">
             <select
               phx-change="bulk_select_action"
               name="bulk_action"
-              class="select select-sm"
+              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 select-sm"
             >
               <option value="">{gettext("Actions...")}</option>
               <option value="move_stage" disabled={@stages == []}>{gettext("Move to Stage")}</option>
@@ -604,7 +608,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               :if={@bulk_action == "move_stage" && @stages != []}
               phx-change="bulk_select_stage"
               name="bulk_stage_id"
-              class="select select-sm"
+              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 select-sm"
             >
               <option value="">{gettext("Select stage...")}</option>
               <option :for={stage <- @stages} value={stage.id}>{stage.name}</option>
@@ -654,7 +658,7 @@ defmodule TrebyWeb.PipelineLive.Index do
 
           <button
             phx-click="clear_selection"
-            class="text-zinc-400 dark:text-zinc-500 hover:text-white text-sm"
+            class="text-zinc-500 dark:text-zinc-400 hover:text-white text-sm"
           >
             ✕
           </button>

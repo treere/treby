@@ -70,7 +70,7 @@ defmodule TrebyWeb.ImportLive.Index do
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 1 && "bg-blue-100 text-blue-800",
-            @step < 1 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"
+            @step < 1 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
           ]}>
             1. {gettext("Upload")}
           </span>
@@ -78,7 +78,7 @@ defmodule TrebyWeb.ImportLive.Index do
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 2 && "bg-blue-100 text-blue-800",
-            @step < 2 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"
+            @step < 2 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
           ]}>
             2. {gettext("Map")}
           </span>
@@ -86,7 +86,7 @@ defmodule TrebyWeb.ImportLive.Index do
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 3 && "bg-blue-100 text-blue-800",
-            @step < 3 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"
+            @step < 3 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
           ]}>
             3. {gettext("Preview")}
           </span>
@@ -94,7 +94,7 @@ defmodule TrebyWeb.ImportLive.Index do
           <span class={[
             "px-3 py-1 rounded-full",
             @step >= 4 && "bg-blue-100 text-blue-800",
-            @step < 4 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"
+            @step < 4 && "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
           ]}>
             4. {gettext("Import")}
           </span>
@@ -107,19 +107,22 @@ defmodule TrebyWeb.ImportLive.Index do
           >
             <.icon
               name="hero-document-arrow-up"
-              class="w-12 h-12 text-zinc-400 dark:text-zinc-500 mx-auto"
+              class="w-12 h-12 text-zinc-500 dark:text-zinc-400 mx-auto"
             />
             <p class="mt-4 text-zinc-500 dark:text-zinc-400">{gettext("Drop a CSV file here or")}</p>
             <.live_file_input
               upload={@uploads.csv}
-              class="mt-2 text-blue-600 underline cursor-pointer"
+              class="mt-2 text-blue-600 dark:text-blue-400 underline cursor-pointer"
             />
-            <p class="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
               {gettext("Max 10MB, CSV format")}
             </p>
           </div>
 
-          <div :for={err <- upload_errors(@uploads.csv)} class="mt-4 text-red-600 text-sm">
+          <div
+            :for={err <- upload_errors(@uploads.csv)}
+            class="mt-4 text-red-600 dark:text-red-400 text-sm"
+          >
             {upload_error_to_string(err)}
           </div>
 
@@ -138,7 +141,9 @@ defmodule TrebyWeb.ImportLive.Index do
         </.card>
 
         <.card :if={@step == 2} class="shadow mt-8">
-          <h2 class="text-lg font-semibold">{gettext("Map Columns")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            {gettext("Map Columns")}
+          </h2>
           <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             {gettext("Match CSV columns to candidate fields")}
           </p>
@@ -146,11 +151,11 @@ defmodule TrebyWeb.ImportLive.Index do
           <div class="mt-6 space-y-4">
             <div :for={csv_header <- @headers} class="flex items-center gap-4">
               <span class="w-48 text-sm font-mono bg-zinc-50 dark:bg-zinc-800 px-2 py-1 rounded">{csv_header}</span>
-              <span class="text-zinc-400 dark:text-zinc-500">→</span>
+              <span class="text-zinc-500 dark:text-zinc-400">→</span>
               <select
                 phx-change="update_mapping"
                 phx-value-header={csv_header}
-                class="select flex-1"
+                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 flex-1"
               >
                 <option value="">{gettext("Skip this column")}</option>
                 <option
@@ -208,7 +213,7 @@ defmodule TrebyWeb.ImportLive.Index do
         </.card>
 
         <.card :if={@step == 3} class="shadow mt-8">
-          <h2 class="text-lg font-semibold">{gettext("Preview")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{gettext("Preview")}</h2>
           <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             {gettext("Review first 10 rows before importing")}
           </p>
@@ -263,7 +268,10 @@ defmodule TrebyWeb.ImportLive.Index do
               <div class="mt-4 grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm text-zinc-500 dark:text-zinc-400">{gettext("Job")}</label>
-                  <select phx-change="select_job" class="select w-full mt-1">
+                  <select
+                    phx-change="select_job"
+                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mt-1"
+                  >
                     <option value="">{gettext("None")}</option>
                     <option :for={job <- @jobs} value={job.id}>{job.title}</option>
                   </select>
@@ -271,7 +279,10 @@ defmodule TrebyWeb.ImportLive.Index do
 
                 <div :if={@selected_job_id} class="space-y-3">
                   <label class="block text-sm text-zinc-500 dark:text-zinc-400">{gettext("Stage")}</label>
-                  <select phx-change="select_stage" class="select w-full mt-1">
+                  <select
+                    phx-change="select_stage"
+                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mt-1"
+                  >
                     <option value="">{gettext("First stage")}</option>
                     <option :for={stage <- get_stages_for_job(@selected_job_id)} value={stage.id}>
                       {stage.name}
@@ -282,7 +293,10 @@ defmodule TrebyWeb.ImportLive.Index do
 
               <div class="mt-4">
                 <label class="block text-sm text-zinc-500 dark:text-zinc-400">{gettext("Source")}</label>
-                <select phx-change="select_source" class="select w-full mt-1">
+                <select
+                  phx-change="select_source"
+                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mt-1"
+                >
                   <option value="">{gettext("None")}</option>
                   <option :for={source <- @sources} value={source.name}>{source.name}</option>
                 </select>
@@ -301,12 +315,16 @@ defmodule TrebyWeb.ImportLive.Index do
         </.card>
 
         <.card :if={@step == 4 and @import_results} class="shadow mt-8">
-          <h2 class="text-lg font-semibold">{gettext("Import Complete")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            {gettext("Import Complete")}
+          </h2>
 
           <div class="mt-6 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-900 rounded-lg p-6">
             <div class="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div class="text-2xl font-bold text-green-600">{@import_results.imported}</div>
+                <div class="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {@import_results.imported}
+                </div>
                 <.badge variant="success" class="mt-1">{gettext("Imported")}</.badge>
               </div>
               <div>
@@ -314,14 +332,16 @@ defmodule TrebyWeb.ImportLive.Index do
                 <.badge variant="warning" class="mt-1">{gettext("Skipped")}</.badge>
               </div>
               <div>
-                <div class="text-2xl font-bold text-red-600">{length(@import_results.errors)}</div>
+                <div class="text-2xl font-bold text-red-600 dark:text-red-400">
+                  {length(@import_results.errors)}
+                </div>
                 <.badge variant="danger" class="mt-1">{gettext("Errors")}</.badge>
               </div>
             </div>
           </div>
 
           <div :if={@import_results.errors != []} class="mt-6">
-            <h3 class="font-medium text-red-600">{gettext("Errors")}</h3>
+            <h3 class="font-medium text-red-600 dark:text-red-400">{gettext("Errors")}</h3>
             <div
               :for={error <- @import_results.errors}
               class="mt-2 text-sm bg-red-50 dark:bg-red-950 rounded p-3"

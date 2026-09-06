@@ -114,7 +114,7 @@ defmodule TrebyWeb.JobsLive.Show do
               <.icon name="hero-eye" class="w-3 h-3" /> {@job_view_summary.total_views} views · {@job_view_summary.views_last_7_days} last 7d
             </.badge>
           <% else %>
-            <span class="text-xs text-zinc-400 dark:text-zinc-500">{gettext("No views yet")}</span>
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">{gettext("No views yet")}</span>
           <% end %>
         </div>
 
@@ -122,7 +122,9 @@ defmodule TrebyWeb.JobsLive.Show do
           :if={@editing}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
         >
-          <h2 class="text-lg font-semibold mb-4">{gettext("Edit Job")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Edit Job")}
+          </h2>
           <.form for={@form} id="job-edit-form" phx-submit="update_job">
             <.input field={@form[:title]} type="text" label={gettext("Title")} />
             <.input field={@form[:description]} type="textarea" label={gettext("Description")} />
@@ -225,36 +227,40 @@ defmodule TrebyWeb.JobsLive.Show do
 
         <div class="grid grid-cols-3 gap-6">
           <div class="col-span-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Description")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Description")}
+            </h2>
             <p class="text-zinc-900 dark:text-zinc-100/80 whitespace-pre-wrap">{@job.description}</p>
           </div>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold mb-4">{gettext("Details")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Details")}
+            </h2>
             <dl class="space-y-4">
               <div>
-                <dt class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Salary Range")}</dt>
+                <dt class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Salary Range")}</dt>
                 <dd class="text-zinc-900 dark:text-zinc-100">
                   {@job.salary_range || gettext("Not specified")}
                 </dd>
               </div>
               <div :if={@job.location}>
-                <dt class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Location")}</dt>
+                <dt class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Location")}</dt>
                 <dd class="text-zinc-900 dark:text-zinc-100">{@job.location}</dd>
               </div>
               <div :if={@job.employment_type}>
-                <dt class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Employment Type")}</dt>
+                <dt class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Employment Type")}</dt>
                 <dd class="text-zinc-900 dark:text-zinc-100">
                   {Treby.Jobs.Job.employment_type_label(@job.employment_type)}
                 </dd>
               </div>
               <div :if={@job.workplace_type}>
-                <dt class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Workplace")}</dt>
+                <dt class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Workplace")}</dt>
                 <dd class="text-zinc-900 dark:text-zinc-100">
                   {Treby.Jobs.Job.workplace_type_label(@job.workplace_type)}
                 </dd>
               </div>
               <div>
-                <dt class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Status")}</dt>
+                <dt class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Status")}</dt>
                 <dd>
                   <.badge variant={if @job.status == "open", do: "success", else: "default"}>
                     {@job.status}
@@ -262,19 +268,19 @@ defmodule TrebyWeb.JobsLive.Show do
                 </dd>
               </div>
               <div>
-                <dt class="text-sm text-zinc-400 dark:text-zinc-500">{gettext("Created")}</dt>
+                <dt class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Created")}</dt>
                 <dd class="text-zinc-900 dark:text-zinc-100">
                   {Calendar.strftime(@job.inserted_at, "%b %d, %Y")}
                 </dd>
               </div>
 
               <div :if={@job_fields != []} class="border-t pt-4">
-                <dt class="text-sm text-zinc-400 dark:text-zinc-500 mb-2">
+                <dt class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
                   {gettext("Custom Fields")}
                 </dt>
                 <dl class="space-y-2">
                   <div :for={field <- @job_fields}>
-                    <dt class="text-xs text-zinc-400 dark:text-zinc-500">{field.name}</dt>
+                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">{field.name}</dt>
                     <dd class="text-sm text-zinc-900 dark:text-zinc-100">
                       {Map.get(@job.custom_fields || %{}, field.id, "—")}
                     </dd>
@@ -289,16 +295,16 @@ defmodule TrebyWeb.JobsLive.Show do
         <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h2 class="text-lg font-semibold">
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 Candidates
                 <span
                   :if={@total_candidates > 0}
-                  class="text-sm font-normal text-zinc-400 dark:text-zinc-500"
+                  class="text-sm font-normal text-zinc-500 dark:text-zinc-400"
                 >
                   ({@total_candidates})
                 </span>
               </h2>
-              <p class="text-sm text-zinc-400 dark:text-zinc-500">
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">
                 {gettext("Grouped by pipeline stage")}
               </p>
             </div>
@@ -316,7 +322,7 @@ defmodule TrebyWeb.JobsLive.Show do
             </div>
           </div>
 
-          <div :if={@total_candidates == 0} class="text-center text-zinc-400 dark:text-zinc-500 py-8">
+          <div :if={@total_candidates == 0} class="text-center text-zinc-500 dark:text-zinc-400 py-8">
             No candidates yet
           </div>
 
@@ -325,7 +331,7 @@ defmodule TrebyWeb.JobsLive.Show do
               @total_candidates > 0 and @candidate_search != "" and
                 Enum.all?(@filtered_stages, fn {_, apps} -> apps == [] end)
             }
-            class="text-center text-zinc-400 dark:text-zinc-500 py-8"
+            class="text-center text-zinc-500 dark:text-zinc-400 py-8"
           >
             No candidates match "{@candidate_search}"
           </div>
@@ -341,14 +347,14 @@ defmodule TrebyWeb.JobsLive.Show do
                 <h3 class="font-semibold text-sm text-zinc-900 dark:text-zinc-100/90">
                   {stage.name}
                 </h3>
-                <span class="ml-auto text-sm text-zinc-400 dark:text-zinc-500 bg-zinc-200 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
+                <span class="ml-auto text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-200 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
                   {length(applications)}
                 </span>
               </div>
 
               <div
                 :if={applications == []}
-                class="text-center text-zinc-400 dark:text-zinc-500 py-6 text-xs"
+                class="text-center text-zinc-500 dark:text-zinc-400 py-6 text-xs"
               >
                 No candidates
               </div>
@@ -375,14 +381,14 @@ defmodule TrebyWeb.JobsLive.Show do
                   <a
                     :if={application.resume_url}
                     href={~p"/app/applications/#{application.id}/resume"}
-                    class="text-[11px] text-blue-600 hover:text-blue-900 mt-1 inline-block"
+                    class="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mt-1 inline-block"
                   >
                     View Resume
                   </a>
                   <div class="mt-2 space-y-2">
                     <label
                       for={"move-select-#{application.id}"}
-                      class="block text-[10px] uppercase tracking-wide text-zinc-400 dark:text-zinc-500"
+                      class="block text-[10px] uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
                     >
                       Move to stage
                     </label>
@@ -447,7 +453,7 @@ defmodule TrebyWeb.JobsLive.Show do
                           if(@has_rejected_stage,
                             do: "bg-red-50 text-red-700 hover:bg-red-100",
                             else:
-                              "bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
+                              "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 cursor-not-allowed"
                           )
                         ]}
                       >
@@ -465,8 +471,10 @@ defmodule TrebyWeb.JobsLive.Show do
         <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h2 class="text-lg font-semibold">{gettext("Pipeline")}</h2>
-              <p class="text-sm text-zinc-400 dark:text-zinc-500">
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                {gettext("Pipeline")}
+              </h2>
+              <p class="text-sm text-zinc-500 dark:text-zinc-400">
                 {gettext("Stages for this job")}
               </p>
             </div>
@@ -487,7 +495,7 @@ defmodule TrebyWeb.JobsLive.Show do
           <div :if={not @manage_pipeline}>
             <div
               :if={@pipeline_overview == []}
-              class="text-center text-zinc-400 dark:text-zinc-500 py-6"
+              class="text-center text-zinc-500 dark:text-zinc-400 py-6"
             >
               {gettext("No stages in this pipeline yet")}
             </div>
@@ -618,7 +626,7 @@ defmodule TrebyWeb.JobsLive.Show do
               </.form>
             </div>
 
-            <div :if={@stages == []} class="text-center text-zinc-400 dark:text-zinc-500 py-6">
+            <div :if={@stages == []} class="text-center text-zinc-500 dark:text-zinc-400 py-6">
               {gettext("No stages in this pipeline yet")}
             </div>
 
@@ -679,7 +687,7 @@ defmodule TrebyWeb.JobsLive.Show do
                   <button
                     phx-click="edit_stage"
                     phx-value-stage_id={stage.id}
-                    class="text-blue-600 hover:text-blue-900 px-1"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 px-1"
                   >
                     {gettext("Edit")}
                   </button>
@@ -687,14 +695,14 @@ defmodule TrebyWeb.JobsLive.Show do
                     :if={stage.stage_type == "interview"}
                     phx-click="show_roles"
                     phx-value-stage_id={stage.id}
-                    class="text-green-600 hover:text-green-900 px-1"
+                    class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 px-1"
                   >
                     {gettext("Roles")}
                   </button>
                   <button
                     phx-click="delete_stage"
                     phx-value-stage_id={stage.id}
-                    class="text-red-600 hover:text-red-900 px-1"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 px-1"
                   >
                     {gettext("Delete")}
                   </button>
@@ -727,7 +735,7 @@ defmodule TrebyWeb.JobsLive.Show do
                   phx-click="remove_examiner"
                   phx-value-stage_id={@editing_roles.id}
                   phx-value-user_id={examiner.user_id}
-                  class="text-blue-600 hover:text-blue-900 ml-1"
+                  class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 ml-1"
                 >
                   &times;
                 </button>
@@ -771,7 +779,7 @@ defmodule TrebyWeb.JobsLive.Show do
                   phx-click="remove_reviewer"
                   phx-value-stage_id={@editing_roles.id}
                   phx-value-user_id={reviewer.user_id}
-                  class="text-green-600 hover:text-green-900 ml-1"
+                  class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 ml-1"
                 >
                   &times;
                 </button>

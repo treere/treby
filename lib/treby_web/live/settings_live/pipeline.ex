@@ -48,10 +48,15 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+            <.link
+              navigate={~p"/app/settings"}
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+            >
               &larr; {gettext("Settings")}
             </.link>
-            <h1 class="text-2xl font-bold mt-2">{gettext("Pipelines")}</h1>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Pipelines")}
+            </h1>
             <p class="mt-1 text-zinc-500 dark:text-zinc-400">
               {gettext("Manage your hiring pipelines")}
             </p>
@@ -65,7 +70,9 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
           :if={@show_form}
           class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
         >
-          <h2 class="text-lg font-semibold mb-4">{gettext("New Pipeline")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("New Pipeline")}
+          </h2>
           <.form
             for={@form}
             id="pipeline-form"
@@ -94,7 +101,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
           >
             <div class="flex items-center gap-4">
               <div class="flex-shrink-0">
-                <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-zinc-400 dark:text-zinc-500" />
+                <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
               </div>
               <div>
                 <div class="flex items-center gap-2">
@@ -108,7 +115,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                     {gettext("Default")}
                   </span>
                 </div>
-                <p class="text-sm text-zinc-400 dark:text-zinc-500">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">
                   {gettext("%{count} stages", count: length(pipeline.pipeline_stages))} &middot; {gettext(
                     "%{count} active jobs",
                     count: Pipeline.count_active_jobs(pipeline.id)
@@ -119,7 +126,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             <div class="flex items-center gap-2">
               <.link
                 navigate={~p"/app/settings/pipeline/#{pipeline.id}"}
-                class="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium"
               >
                 {gettext("Edit")}
               </.link>
@@ -148,7 +155,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                     "Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
                   )
                 }
-                class="text-red-600 hover:text-red-900 text-sm"
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm"
               >
                 {gettext("Delete")}
               </button>
@@ -160,7 +167,9 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
         <div class="mt-12">
           <div class="flex justify-between items-center mb-6">
             <div>
-              <h2 class="text-xl font-bold">{gettext("Pipeline Templates")}</h2>
+              <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                {gettext("Pipeline Templates")}
+              </h2>
               <p class="mt-1 text-zinc-500 dark:text-zinc-400">
                 {gettext("Reusable pipeline configurations")}
               </p>
@@ -174,7 +183,9 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             :if={@show_template_form}
             class="mb-6 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
           >
-            <h3 class="text-lg font-semibold mb-4">{gettext("New Template")}</h3>
+            <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("New Template")}
+            </h3>
             <.form
               for={@template_form}
               id="template-form"
@@ -200,7 +211,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             :if={@templates == []}
             class="text-center py-8 bg-white dark:bg-zinc-800 rounded-lg border"
           >
-            <p class="text-zinc-400 dark:text-zinc-500">{gettext("No templates yet")}</p>
+            <p class="text-zinc-500 dark:text-zinc-400">{gettext("No templates yet")}</p>
           </div>
 
           <div class="space-y-3">
@@ -210,7 +221,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             >
               <div>
                 <h3 class="font-medium text-zinc-900 dark:text-zinc-100">{template.name}</h3>
-                <p class="text-sm text-zinc-400 dark:text-zinc-500">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">
                   {gettext("%{count} stages", count: length(template.pipeline_stages))}
                 </p>
               </div>
@@ -219,7 +230,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                   phx-click="delete_template"
                   phx-value-id={template.id}
                   data-confirm={gettext("Are you sure you want to delete this template?")}
-                  class="text-red-600 hover:text-red-900 text-sm"
+                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm"
                 >
                   {gettext("Delete")}
                 </button>

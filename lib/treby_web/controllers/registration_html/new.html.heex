@@ -1,4 +1,7 @@
 <div class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 relative">
+  <.link navigate={~p"/"} class="absolute top-4 left-4 z-50 flex items-center">
+    <span class="text-xl font-bold text-primary dark:text-orange-300">Treby</span>
+  </.link>
   <Layouts.auth_toolbar locale={@locale} />
   <div class="max-w-md w-full space-y-8">
     <div>
@@ -7,7 +10,10 @@
       </h2>
       <p class="mt-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
         {gettext("Or")}
-        <a href="/login" class="font-medium text-primary hover:text-primary/80">
+        <a
+          href="/login"
+          class="font-medium text-primary dark:text-orange-300 hover:text-primary/80 dark:hover:text-orange-200"
+        >
           {gettext("sign in to your existing account")}
         </a>
       </p>

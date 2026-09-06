@@ -52,7 +52,7 @@ defmodule TrebyWeb.Layouts do
                 navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app", else: ~p"/app"}
                 class="flex-shrink-0 flex items-center"
               >
-                <span class="text-xl font-bold text-primary">Treby</span>
+                <span class="text-xl font-bold text-primary dark:text-orange-300">Treby</span>
               </.link>
               <div
                 :if={@available_tenants && length(@available_tenants) > 1}
@@ -214,7 +214,7 @@ defmodule TrebyWeb.Layouts do
       >
         <div class="p-4">
           <div class="flex justify-between items-center mb-6">
-            <span class="text-xl font-bold text-primary">Treby</span>
+            <span class="text-xl font-bold text-primary dark:text-orange-300">Treby</span>
             <button
               phx-click={
                 Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
@@ -222,7 +222,7 @@ defmodule TrebyWeb.Layouts do
               }
               class="p-1"
             >
-              <.icon name="hero-x-mark" class="w-6 h-6 text-zinc-400 dark:text-zinc-500" />
+              <.icon name="hero-x-mark" class="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
             </button>
           </div>
           <div class="space-y-1">
@@ -348,6 +348,31 @@ defmodule TrebyWeb.Layouts do
   end
 
   @doc """
+  Public header for unauthenticated/tenant-public pages (careers, password reset).
+  Shows homepage brand link on the left and theme + language controls on the right.
+  """
+
+  attr :locale, :string, default: "en"
+
+  def public_header(assigns) do
+    ~H"""
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-zinc-900/80 border-b border-zinc-200 dark:border-zinc-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <.link navigate={~p"/"} class="flex items-center">
+            <span class="text-xl font-bold text-primary dark:text-orange-300">Treby</span>
+          </.link>
+          <div class="flex items-center gap-2">
+            <.theme_toggle />
+            <.locale_switcher locale={@locale} />
+          </div>
+        </div>
+      </div>
+    </header>
+    """
+  end
+
+  @doc """
   Layout for the candidate portal. Simplified navigation with tenant branding.
   """
   attr :flash, :map, required: true
@@ -369,7 +394,7 @@ defmodule TrebyWeb.Layouts do
                 <%= if @current_tenant.settings["logo_url"] do %>
                   <img src={@current_tenant.settings["logo_url"]} class="h-8 w-8" alt="" />
                 <% else %>
-                  <span class="text-xl font-bold text-primary">{@current_tenant.name}</span>
+                  <span class="text-xl font-bold text-primary dark:text-orange-300">{@current_tenant.name}</span>
                 <% end %>
               </.link>
             </div>
@@ -392,7 +417,7 @@ defmodule TrebyWeb.Layouts do
               >
                 Settings
               </.link>
-              <span class="text-sm text-zinc-400 dark:text-zinc-500">
+              <span class="text-sm text-zinc-500 dark:text-zinc-400">
                 {@current_candidate.name}
               </span>
               <.form
@@ -435,7 +460,7 @@ defmodule TrebyWeb.Layouts do
       >
         <div class="p-4">
           <div class="flex justify-between items-center mb-6">
-            <span class="text-lg font-bold text-primary">{@current_tenant.name}</span>
+            <span class="text-lg font-bold text-primary dark:text-orange-300">{@current_tenant.name}</span>
             <button
               phx-click={
                 Phoenix.LiveView.JS.toggle_class("hidden", to: "#candidate-portal-overlay")
@@ -446,7 +471,7 @@ defmodule TrebyWeb.Layouts do
               class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label={gettext("Close navigation")}
             >
-              <.icon name="hero-x-mark" class="w-6 h-6 text-zinc-400 dark:text-zinc-500" />
+              <.icon name="hero-x-mark" class="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
             </button>
           </div>
           <div class="space-y-1">
@@ -470,7 +495,7 @@ defmodule TrebyWeb.Layouts do
             </.link>
           </div>
           <div class="border-t border-zinc-200 dark:border-zinc-700 mt-4 pt-4 space-y-1">
-            <div class="px-3 py-2 text-sm text-zinc-400 dark:text-zinc-500">
+            <div class="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">
               {@current_candidate.name}
             </div>
             <.form

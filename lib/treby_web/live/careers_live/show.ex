@@ -149,9 +149,13 @@ defmodule TrebyWeb.CareersLive.Show do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen bg-zinc-50 dark:bg-zinc-800">
+      <Layouts.public_header locale={@locale} />
       <div class="max-w-3xl mx-auto py-12 px-4">
-        <.link navigate={~p"/#{@tenant.slug}/careers"} class="text-primary hover:text-primary/80">
-          &larr; Back to all positions
+        <.link
+          navigate={~p"/#{@tenant.slug}/careers"}
+          class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium"
+        >
+          &larr; {gettext("Back to all positions")}
         </.link>
 
         <.card :if={@job && @job.status == "open"} class="mt-8">
@@ -164,7 +168,7 @@ defmodule TrebyWeb.CareersLive.Show do
             />
             <div>
               <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{@tenant.name}</h2>
-              <p :if={@career_page.description} class="text-sm text-zinc-400 dark:text-zinc-500">
+              <p :if={@career_page.description} class="text-sm text-zinc-500 dark:text-zinc-400">
                 {@career_page.description}
               </p>
             </div>
@@ -219,10 +223,10 @@ defmodule TrebyWeb.CareersLive.Show do
             {gettext("This position is no longer available")}
           </h1>
           <p class="mt-4 text-zinc-500 dark:text-zinc-400">
-            The job you're looking for has been closed or removed.
+            {gettext("The job you're looking for has been closed or removed.")}
           </p>
           <.button variant="ghost" navigate={~p"/#{@tenant.slug}/careers"} class="mt-6">
-            View other positions
+            {gettext("View other positions")}
           </.button>
         </.card>
 
@@ -231,10 +235,10 @@ defmodule TrebyWeb.CareersLive.Show do
             {gettext("Position not found")}
           </h1>
           <p class="mt-4 text-zinc-500 dark:text-zinc-400">
-            The job you're looking for doesn't exist or has been removed.
+            {gettext("The job you're looking for doesn't exist or has been removed.")}
           </p>
           <.button variant="ghost" navigate={~p"/#{@tenant.slug}/careers"} class="mt-6">
-            View other positions
+            {gettext("View other positions")}
           </.button>
         </.card>
       </div>

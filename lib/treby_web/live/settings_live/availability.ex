@@ -76,10 +76,15 @@ defmodule TrebyWeb.SettingsLive.Availability do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="mb-8">
-          <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+          <.link
+            navigate={~p"/app/settings"}
+            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+          >
             &larr; Back to Settings
           </.link>
-          <h1 class="text-2xl font-bold mt-2">{gettext("Availability")}</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+            {gettext("Availability")}
+          </h1>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {gettext("Set your available hours for interview scheduling")}
           </p>
@@ -95,7 +100,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
           :if={@show_form}
           class="mb-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
         >
-          <h2 class="text-lg font-semibold mb-4">
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {if @editing_rule, do: gettext("Edit Availability"), else: "New Availability"}
           </h2>
           <.form
@@ -148,19 +153,19 @@ defmodule TrebyWeb.SettingsLive.Availability do
           <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                   Day
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                   Hours
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                   Timezone
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                   Buffer
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase">
+                <th class="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
                   Actions
                 </th>
               </tr>
@@ -171,20 +176,20 @@ defmodule TrebyWeb.SettingsLive.Availability do
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {day_name(rule.day_of_week)}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 dark:text-zinc-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                     {format_time(rule.start_time)} - {format_time(rule.end_time)}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 dark:text-zinc-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                     {rule.timezone}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 dark:text-zinc-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                     {rule.buffer_before}min before / {rule.buffer_after}min after
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       phx-click="edit_rule"
                       phx-value-rule_id={rule.id}
-                      class="text-blue-600 hover:text-blue-900 mr-4"
+                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
                     >
                       Edit
                     </button>
@@ -197,7 +202,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
                           "Are you sure you want to delete this availability rule? This action cannot be undone."
                         )
                       }
-                      class="text-red-600 hover:text-red-900"
+                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                     >
                       {gettext("Delete")}
                     </button>
@@ -205,7 +210,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
                 </tr>
               <% end %>
               <tr :if={@rules == []}>
-                <td colspan="5" class="px-6 py-8 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                <td colspan="5" class="px-6 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
                   No availability rules set. Add your available hours to enable interview scheduling.
                 </td>
               </tr>

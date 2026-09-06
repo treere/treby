@@ -170,7 +170,7 @@ defmodule TrebyWeb.DesignSystem.Pattern do
     ~H"""
     <div class={["flex flex-col items-center justify-center py-16 px-6 text-center", @class]} {@rest}>
       <div class="rounded-full bg-zinc-100 dark:bg-zinc-800 p-4 mb-4">
-        <.icon name={@icon} class="size-8 text-zinc-400 dark:text-zinc-500" />
+        <.icon name={@icon} class="size-8 text-zinc-500 dark:text-zinc-400" />
       </div>
       <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">{@title}</h3>
       <p :if={@description} class="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mb-6">

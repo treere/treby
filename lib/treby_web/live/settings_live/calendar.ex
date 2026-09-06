@@ -40,10 +40,15 @@ defmodule TrebyWeb.SettingsLive.Calendar do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="mb-8">
-          <.link navigate={~p"/app/settings"} class="text-blue-600 hover:text-blue-900 text-sm">
+          <.link
+            navigate={~p"/app/settings"}
+            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+          >
             &larr; Back to Settings
           </.link>
-          <h1 class="text-2xl font-bold mt-2">{gettext("Calendar Integration")}</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+            {gettext("Calendar Integration")}
+          </h1>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             Connect your Google Calendar to check availability and create interview events
           </p>
@@ -61,13 +66,13 @@ defmodule TrebyWeb.SettingsLive.Calendar do
                 <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                   Connected as <strong>{@connection.provider_email}</strong>
                 </p>
-                <p class="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                   Connected {Elixir.Calendar.strftime(@connection.connected_at, "%B %d, %Y")}
                 </p>
               </div>
               <.link
                 href={~p"/auth/google"}
-                class="inline-flex items-center px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-sm font-medium rounded-md text-zinc-900 dark:text-zinc-100/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:bg-zinc-800"
+                class="inline-flex items-center px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-sm font-medium rounded-md text-zinc-900 dark:text-zinc-100/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
               >
                 Reconnect
               </.link>
@@ -76,18 +81,18 @@ defmodule TrebyWeb.SettingsLive.Calendar do
             <div class="mt-6 pt-6 border-t">
               <button
                 phx-click="confirm_disconnect"
-                class="text-red-600 hover:text-red-800 text-sm font-medium"
+                class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium"
               >
                 {gettext("Disconnect Google Calendar")}
               </button>
             </div>
           <% else %>
             <div class="text-center py-8">
-              <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-zinc-400 dark:text-zinc-500" />
+              <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-zinc-500 dark:text-zinc-400" />
               <h3 class="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 {gettext("No calendar connected")}
               </h3>
-              <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
+              <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 Connect your Google Calendar to check availability against your calendar. Interview
                 scheduling works even without it.
               </p>

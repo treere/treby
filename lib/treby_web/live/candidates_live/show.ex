@@ -144,13 +144,18 @@ defmodule TrebyWeb.CandidatesLive.Show do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <.link navigate={@return_path} class="text-blue-600 hover:text-blue-900 text-sm">
+        <.link
+          navigate={@return_path}
+          class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+        >
           &larr; Back to {@return_label}
         </.link>
 
         <div class="mt-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-8">
           <%= if @editing? do %>
-            <h2 class="text-lg font-semibold mb-4">{gettext("Edit Candidate")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Edit Candidate")}
+            </h2>
             <.form
               for={@edit_form}
               id="edit-candidate-form"
@@ -228,7 +233,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   <.link
                     href={@candidate.linkedin_url}
                     target="_blank"
-                    class="text-blue-600 hover:text-blue-900"
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     LinkedIn Profile
                   </.link>
@@ -274,7 +279,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </h3>
               <dl class="grid grid-cols-2 gap-x-4 gap-y-2">
                 <div :for={field <- @candidate_fields}>
-                  <dt class="text-sm text-zinc-400 dark:text-zinc-500">{field.name}</dt>
+                  <dt class="text-sm text-zinc-500 dark:text-zinc-400">{field.name}</dt>
                   <dd class="text-sm text-zinc-900 dark:text-zinc-100">
                     {Map.get(@candidate.custom_fields || %{}, field.id, "—")}
                   </dd>
@@ -324,10 +329,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   </p>
                   <%= for action <- state.next_actions do %>
                     <div class="flex items-center gap-2 text-sm">
-                      <.icon name="hero-arrow-right" class="w-3 h-3 text-zinc-400 dark:text-zinc-500" />
+                      <.icon name="hero-arrow-right" class="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
                       <span>{action.label}</span>
                       <%= if action.assignee do %>
-                        <span class="text-xs text-zinc-400 dark:text-zinc-500">— {action.assignee.name}</span>
+                        <span class="text-xs text-zinc-500 dark:text-zinc-400">— {action.assignee.name}</span>
                       <% end %>
                     </div>
                   <% end %>
@@ -359,8 +364,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       <div class={[
                         "flex items-center gap-4 mt-1 text-sm",
                         interview.status == "cancelled" && "line-through",
-                        interview.status == "cancelled" && "text-zinc-400 dark:text-zinc-500",
-                        interview.status != "cancelled" && "text-zinc-400 dark:text-zinc-500"
+                        interview.status == "cancelled" && "text-zinc-500 dark:text-zinc-400",
+                        interview.status != "cancelled" && "text-zinc-500 dark:text-zinc-400"
                       ]}>
                         <span class="flex items-center gap-1">
                           <.icon name="hero-calendar" class="w-4 h-4" />
@@ -427,7 +432,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100/90 mb-4">
             {gettext("Applications")}
           </h2>
-          <div :if={@applications == []} class="text-zinc-400 dark:text-zinc-500">
+          <div :if={@applications == []} class="text-zinc-500 dark:text-zinc-400">
             No applications yet.
           </div>
           <div
@@ -439,7 +444,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <div class="flex items-center gap-2">
                   <.link
                     navigate={~p"/app/pipeline/#{application.job_id}"}
-                    class="font-medium text-blue-600 hover:text-blue-900"
+                    class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     {application.job.title}
                   </.link>
@@ -447,10 +452,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
                     DUPLICATE APP
                   </.badge>
                 </div>
-                <p class="text-sm text-zinc-400 dark:text-zinc-500">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">
                   Stage: {application.pipeline_stage.name}
                 </p>
-                <p :if={application.source} class="text-sm text-zinc-400 dark:text-zinc-500">
+                <p :if={application.source} class="text-sm text-zinc-500 dark:text-zinc-400">
                   Source: {application.source}
                 </p>
                 <div
@@ -472,17 +477,17 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <a
                   :if={application.resume_url}
                   href={~p"/app/applications/#{application.id}/resume"}
-                  class="text-sm text-blue-600 hover:text-blue-900"
+                  class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                 >
                   View Resume
                 </a>
                 <.link
                   navigate={~p"/app/schedule/#{application.id}"}
-                  class="text-sm text-blue-600 hover:text-blue-900"
+                  class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                 >
                   Schedule Interview
                 </.link>
-                <span class="text-sm text-zinc-400 dark:text-zinc-500">
+                <span class="text-sm text-zinc-500 dark:text-zinc-400">
                   {Calendar.strftime(application.inserted_at, "%b %d, %Y")}
                 </span>
                 <.button
@@ -499,7 +504,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
             <div :if={@application_fields != []} class="mt-3 border-t pt-3">
               <dl class="grid grid-cols-2 gap-x-4 gap-y-1">
                 <div :for={field <- @application_fields}>
-                  <dt class="text-xs text-zinc-400 dark:text-zinc-500">{field.name}</dt>
+                  <dt class="text-xs text-zinc-500 dark:text-zinc-400">{field.name}</dt>
                   <dd class="text-xs text-zinc-900 dark:text-zinc-100">
                     {Map.get(application.custom_fields || %{}, field.id, "—")}
                   </dd>
@@ -526,7 +531,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       <span :if={note.rating} class="text-xs text-yellow-600">
                         {"★" <> to_string(note.rating) <> "/5"}
                       </span>
-                      <span class="text-xs text-zinc-400 dark:text-zinc-500">
+                      <span class="text-xs text-zinc-500 dark:text-zinc-400">
                         {Calendar.strftime(note.inserted_at, "%b %d, %Y at %H:%M")}
                       </span>
                     </div>
@@ -608,7 +613,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
         <%!-- Activity Timeline --%>
         <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-          <h2 class="text-lg font-semibold mb-4">{gettext("Activity")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Activity")}
+          </h2>
           <.activity_timeline events={@activities} />
         </div>
 
@@ -617,7 +624,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
           :if={@scorecards != [] || @aggregate_scores.total_scorecards > 0}
           class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
         >
-          <h2 class="text-lg font-semibold mb-4">{gettext("Scorecards")}</h2>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Scorecards")}
+          </h2>
 
           <%!-- Aggregate View --%>
           <div
@@ -630,7 +639,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </h3>
 
             <div :if={@aggregate_scores.avg_scores != %{}} class="mb-4">
-              <h4 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase mb-2">
+              <h4 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase mb-2">
                 {gettext("Average Scores")}
               </h4>
               <div class="grid grid-cols-2 gap-2">
@@ -645,7 +654,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </div>
 
             <div :if={@aggregate_scores.recommendation_counts != %{}}>
-              <h4 class="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase mb-2">
+              <h4 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase mb-2">
                 {gettext("Recommendations")}
               </h4>
               <div class="flex gap-3">
@@ -665,7 +674,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <div class="flex justify-between items-start mb-2">
                 <div>
                   <span class="font-medium text-zinc-900 dark:text-zinc-100">{scorecard.interviewer.name}</span>
-                  <span class="text-sm text-zinc-400 dark:text-zinc-500 ml-2">
+                  <span class="text-sm text-zinc-500 dark:text-zinc-400 ml-2">
                     {Calendar.strftime(scorecard.inserted_at, "%b %d, %Y")}
                   </span>
                 </div>
@@ -710,7 +719,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
         <%!-- Portal Conversations --%>
         <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
           <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">{gettext("Portal Conversations")}</h2>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Portal Conversations")}
+            </h2>
             <div class="flex items-center gap-2">
               <.badge :if={@conversations != []} variant="info" class="text-xs">
                 {length(@conversations)}
@@ -765,7 +776,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
           <div
             :if={@conversations == [] && !@new_message_form_visible}
-            class="text-zinc-400 dark:text-zinc-500 text-sm"
+            class="text-zinc-500 dark:text-zinc-400 text-sm"
           >
             No conversations yet.
           </div>
@@ -861,7 +872,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
               phx-click=""
             >
               <div class="p-6">
-                <h2 class="text-lg font-semibold mb-2">{gettext("Mark Interview as Completed")}</h2>
+                <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                  {gettext("Mark Interview as Completed")}
+                </h2>
                 <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
                   This marks the interview as done. The candidate's stage will not change automatically;
                   you can collect scorecards before advancing.
@@ -885,7 +898,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   <span class="font-medium text-zinc-900 dark:text-zinc-100">
                     {conversation.subject || "Conversation"}
                   </span>
-                  <span class="text-sm text-zinc-400 dark:text-zinc-500 ml-2">
+                  <span class="text-sm text-zinc-500 dark:text-zinc-400 ml-2">
                     ({length(conversations_messages(conversation))} message{length(
                       conversations_messages(conversation)
                     ) != 1 && "s"})
@@ -898,7 +911,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   >
                     {conversation.status}
                   </.badge>
-                  <span class="text-xs text-zinc-400 dark:text-zinc-500">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">
                     {if conversation.last_message_at do
                       Calendar.strftime(conversation.last_message_at, "%b %d, %Y at %H:%M")
                     end}
@@ -917,14 +930,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   message.sender_type == "recruiter" &&
                     "bg-green-50 dark:bg-green-950 border-l-4 border-green-400 ml-8",
                   message.sender_type == "system" &&
-                    "bg-gray-50 dark:bg-gray-800/50 text-center text-xs text-zinc-400 dark:text-zinc-500"
+                    "bg-gray-50 dark:bg-zinc-800/50 text-center text-xs text-zinc-500 dark:text-zinc-400"
                 ]}
               >
                 <div class="flex justify-between items-center mb-1">
                   <span class="font-medium text-zinc-900 dark:text-zinc-100/80">
                     {String.capitalize(message.sender_type)}
                   </span>
-                  <span class="text-xs text-zinc-400 dark:text-zinc-500">
+                  <span class="text-xs text-zinc-500 dark:text-zinc-400">
                     {Calendar.strftime(message.inserted_at, "%b %d, %Y at %H:%M")}
                   </span>
                 </div>

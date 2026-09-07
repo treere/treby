@@ -77,15 +77,17 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             for={@form}
             id="pipeline-form"
             phx-submit="save_pipeline"
-            class="flex gap-4 items-end"
+            class="flex flex-col gap-4 sm:flex-row sm:items-end"
           >
-            <.input
-              field={@form[:name]}
-              type="text"
-              label={gettext("Name")}
-              placeholder={gettext("e.g. Engineering Pipeline")}
-            />
-            <div class="flex gap-2">
+            <div class="flex-1 min-w-0">
+              <.input
+                field={@form[:name]}
+                type="text"
+                label={gettext("Name")}
+                placeholder={gettext("e.g. Engineering Pipeline")}
+              />
+            </div>
+            <div class="flex gap-2 shrink-0 sm:mb-2">
               <.button type="submit">{gettext("Create")}</.button>
               <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
@@ -190,15 +192,17 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
               for={@template_form}
               id="template-form"
               phx-submit="save_template"
-              class="flex gap-4 items-end"
+              class="flex flex-col gap-4 sm:flex-row sm:items-end"
             >
-              <.input
-                field={@template_form[:name]}
-                type="text"
-                label={gettext("Name")}
-                placeholder={gettext("e.g. Standard Engineering Template")}
-              />
-              <div class="flex gap-2">
+              <div class="flex-1 min-w-0">
+                <.input
+                  field={@template_form[:name]}
+                  type="text"
+                  label={gettext("Name")}
+                  placeholder={gettext("e.g. Standard Engineering Template")}
+                />
+              </div>
+              <div class="flex gap-2 shrink-0 sm:mb-2">
                 <.button type="submit">{gettext("Create")}</.button>
                 <.button type="button" phx-click="cancel_template_form" variant="ghost">
                   {gettext("Cancel")}

@@ -249,7 +249,47 @@ defmodule TrebyWeb.CoreComponents do
     """
   end
 
-  # All other inputs text, datetime-local, url, password, etc. are handled here...
+  # Password inputs render with a show/hide toggle (JS in assets/js/app.js).
+  def input(%{type: "password"} = assigns) do
+    ~H"""
+    <div class="fieldset mb-2">
+      <label for={@id}>
+        <span :if={@label} class="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">{@label}</span>
+        <div class="relative" data-password-wrapper>
+          <input
+            type="password"
+            name={@name}
+            id={@id}
+            value={Phoenix.HTML.Form.normalize_value("password", @value)}
+            class={[
+              @class ||
+                "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 pr-10 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500",
+              @errors != [] && (@error_class || "input-error")
+            ]}
+            data-password-input
+            {@rest}
+          />
+          <button
+            type="button"
+            data-password-toggle
+            data-show-label={gettext("Show password")}
+            data-hide-label={gettext("Hide password")}
+            aria-label={gettext("Show password")}
+            aria-pressed="false"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-200"
+          >
+            <.icon name="hero-eye" class="size-5 password-show-icon" />
+            <.icon name="hero-eye-slash" class="size-5 password-hide-icon hidden" />
+            <span class="sr-only">{gettext("Show password")}</span>
+          </button>
+        </div>
+      </label>
+      <.error :for={msg <- @errors}>{msg}</.error>
+    </div>
+    """
+  end
+
+  # All other inputs text, datetime-local, url, etc. are handled here...
   def input(assigns) do
     ~H"""
     <div class="fieldset mb-2">

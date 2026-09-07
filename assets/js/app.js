@@ -78,6 +78,26 @@ document.getElementById("mobile-nav-overlay")?.addEventListener("click", () => {
   overlay?.classList.add("hidden")
 })
 
+// Password visibility toggle (works on dead views and LiveViews via delegation)
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-password-toggle]")
+  if (!btn) return
+  const wrapper = btn.closest("[data-password-wrapper]")
+  const input = wrapper?.querySelector("[data-password-input]") || wrapper?.querySelector("input")
+  if (!input) return
+  const showing = input.type === "text"
+  input.type = showing ? "password" : "text"
+  const showLabel = btn.getAttribute("data-show-label") || "Show password"
+  const hideLabel = btn.getAttribute("data-hide-label") || "Hide password"
+  const label = showing ? showLabel : hideLabel
+  btn.setAttribute("aria-pressed", String(!showing))
+  btn.setAttribute("aria-label", label)
+  wrapper?.querySelectorAll(".password-show-icon").forEach((el) => el.classList.toggle("hidden", !showing))
+  wrapper?.querySelectorAll(".password-hide-icon").forEach((el) => el.classList.toggle("hidden", showing))
+  const sr = btn.querySelector(".sr-only")
+  if (sr) sr.textContent = label
+})
+
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session

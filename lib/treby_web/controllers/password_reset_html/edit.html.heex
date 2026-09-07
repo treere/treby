@@ -15,7 +15,7 @@
     <.form for={%{}} action={~p"/reset-password/#{@token}"} method="post" class="mt-8 space-y-6">
       <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
       <div class="rounded-md shadow-sm -space-y-px">
-        <div>
+        <div class="relative" data-password-wrapper>
           <label for="password" class="sr-only">{gettext("New password")}</label>
           <input
             id="password"
@@ -23,9 +23,23 @@
             type="password"
             required
             minlength="6"
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-zinc-200 dark:border-zinc-700 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+            data-password-input
+            class="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-zinc-200 dark:border-zinc-700 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm bg-white dark:bg-zinc-800"
             placeholder={gettext("New password (min 6 characters)")}
           />
+          <button
+            type="button"
+            data-password-toggle
+            data-show-label={gettext("Show password")}
+            data-hide-label={gettext("Hide password")}
+            aria-label={gettext("Show password")}
+            aria-pressed="false"
+            class="absolute inset-y-0 right-0 z-10 flex items-center pr-3 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-200"
+          >
+            <.icon name="hero-eye" class="size-5 password-show-icon" />
+            <.icon name="hero-eye-slash" class="size-5 password-hide-icon hidden" />
+            <span class="sr-only">{gettext("Show password")}</span>
+          </button>
         </div>
       </div>
 

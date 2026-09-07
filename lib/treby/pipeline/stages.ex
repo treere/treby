@@ -103,8 +103,13 @@ defmodule Treby.Pipeline.Stages do
   # Templates
 
   def create_template(attrs \\ %{}) do
+    attrs =
+      attrs
+      |> Map.new(fn {k, v} -> {to_string(k), v} end)
+      |> Map.put("is_template", true)
+
     %PipelineDef{}
-    |> PipelineDef.changeset(Map.put(attrs, :is_template, true))
+    |> PipelineDef.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -114,6 +119,14 @@ defmodule Treby.Pipeline.Stages do
     else
       {:error, :not_a_template}
     end
+  end
+
+  def clone_template_to_pipeline(%PipelineDef{} = template, tenant_id)
+      when is_binary(tenant_id) do
+    clone_pipeline(template, %{
+      name: unique_copy_name(tenant_id, template.name),
+      tenant_id: tenant_id
+    })
   end
 
   def clone_template_to_pipeline(%PipelineDef{} = template, new_attrs) do
@@ -126,9 +139,13 @@ defmodule Treby.Pipeline.Stages do
   end
 
   defp clone_pipeline_with_map(%PipelineDef{} = source, new_attrs) do
+    new_attrs =
+      new_attrs
+      |> Map.new(fn {k, v} -> {to_string(k), v} end)
+      |> Map.put("is_template", false)
+
     Repo.transaction(fn ->
-      {:ok, new_pipeline} =
-        create_pipeline(Map.put(new_attrs, :is_template, false))
+      {:ok, new_pipeline} = create_pipeline(new_attrs)
 
       id_map =
         source

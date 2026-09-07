@@ -356,10 +356,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
   end
 
   def handle_event("save_template", %{"pipeline" => params}, socket) do
-    attrs =
-      params
-      |> Map.put("tenant_id", socket.assigns.current_tenant.id)
-      |> Map.put("is_template", true)
+    attrs = Map.put(params, "tenant_id", socket.assigns.current_tenant.id)
 
     case Pipeline.create_template(attrs) do
       {:ok, _template} ->

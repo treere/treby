@@ -406,6 +406,37 @@ defmodule Treby.PipelineTest do
 
       assert errors_on(changeset).name == ["has already been taken"]
     end
+
+    test "create_template accepts string-keyed form params", %{tenant: tenant} do
+      assert {:ok, template} =
+               Pipeline.create_template(%{
+                 "name" => "Form Template",
+                 "tenant_id" => tenant.id
+               })
+
+      assert template.is_template == true
+      assert template.name == "Form Template"
+    end
+
+    test "clone_template_to_pipeline accepts a tenant id and copies stages", %{
+      tenant: tenant
+    } do
+      {:ok, template} = Pipeline.create_template(%{name: "Clone Me", tenant_id: tenant.id})
+
+      {:ok, _stage} =
+        Pipeline.create_pipeline_stage(%{
+          name: "Screen",
+          position: 0,
+          pipeline_id: template.id,
+          tenant_id: tenant.id
+        })
+
+      assert {:ok, clone} = Pipeline.clone_template_to_pipeline(template, tenant.id)
+      assert clone.is_template == false
+      assert clone.name == "Clone Me (Copy)"
+
+      assert [%{name: "Screen"}] = Pipeline.list_pipeline_stages(clone.id)
+    end
   end
 
   defp insert_tenant do

@@ -220,6 +220,26 @@ defmodule Treby.PipelineTest do
     end
   end
 
+  describe "uuid v7 ordering" do
+    test "same-timestamp applications order by descending id", %{tenant: tenant, job: job} do
+      import Ecto.Query
+
+      {:ok, first_candidate} = insert_candidate(tenant.id)
+      {:ok, second_candidate} = insert_candidate(tenant.id)
+      {:ok, _first} = insert_application(tenant.id, job.id, first_candidate.id)
+      {:ok, second} = insert_application(tenant.id, job.id, second_candidate.id)
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Treby.Pipeline.Application
+      |> where([a], a.job_id == ^job.id)
+      |> Repo.update_all(set: [inserted_at: now])
+
+      assert [%{id: newest_id} | _] = Pipeline.list_applications_for_job(job.id)
+      assert newest_id == second.id
+    end
+  end
+
   defp insert_tenant do
     tenant =
       Repo.insert!(%Treby.Tenants.Tenant{

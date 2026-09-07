@@ -77,4 +77,33 @@ defmodule Treby.JobsTest do
       assert Jobs.search_all_visible_jobs("%") == []
     end
   end
+
+  describe "uuid v7 ordering" do
+    test "same-timestamp jobs order by descending id" do
+      import Ecto.Query
+
+      {tenant, _user} = setup_tenant()
+
+      {:ok, _first} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Backend Engineer", description: "Elixir work"})
+        |> Repo.insert()
+
+      {:ok, second} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Frontend Engineer", description: "Phoenix work"})
+        |> Repo.insert()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Job
+      |> where([j], j.tenant_id == ^tenant.id)
+      |> Repo.update_all(set: [inserted_at: now])
+
+      assert [%{id: newest_id} | _] = Jobs.list_jobs(tenant.id)
+      assert newest_id == second.id
+    end
+  end
 end

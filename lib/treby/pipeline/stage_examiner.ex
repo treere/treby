@@ -2,7 +2,7 @@ defmodule Treby.Pipeline.StageExaminer do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:id, :binary_id, autogenerate: true}
+  @primary_key {:id, Ecto.UUID, autogenerate: [version: 7, precision: :monotonic]}
   @foreign_key_type :binary_id
 
   schema "pipeline_stage_examiners" do

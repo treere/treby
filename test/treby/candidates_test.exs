@@ -154,8 +154,36 @@ defmodule Treby.CandidatesTest do
     end
   end
 
-  describe "tenant_has_candidates?/1" do
-    test "returns false when tenant has no candidates" do
+  describe "uuid v7 ordering" do
+    test "same-name candidates order by ascending id" do
+      import Ecto.Query
+
+      {tenant, _user} = setup_tenant()
+
+      {:ok, first} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{name: "Same Name", email: "same-1@example.com"})
+        |> Repo.insert()
+
+      {:ok, second} =
+        tenant
+        |> Ecto.build_assoc(:candidates)
+        |> Candidate.changeset(%{name: "Same Name", email: "same-2@example.com"})
+        |> Repo.insert()
+
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      Candidate
+      |> where([c], c.tenant_id == ^tenant.id)
+      |> Repo.update_all(set: [inserted_at: now])
+
+      assert [%{id: first_id}, %{id: second_id}] = Candidates.list_candidates(tenant.id)
+      assert first_id == first.id and second_id == second.id
+    end
+  end
+
+  describe "tenant_has_candidates?/1" do    test "returns false when tenant has no candidates" do
       {tenant, _user} = setup_tenant()
       refute Candidates.tenant_has_candidates?(tenant.id)
     end

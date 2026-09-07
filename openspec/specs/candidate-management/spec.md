@@ -161,7 +161,6 @@ The system SHALL provide candidate business logic through a delegating facade `T
 - **WHEN** candidate creation or application creation stringifies attribute keys
 - **THEN** both paths use `Treby.Helpers.Map.stringify_keys/1` and no duplicate `defp stringify_keys` remains in `candidates.ex` or `pipeline.ex`
 
-
 ### Requirement: Concurrent duplicate-email safety
 The system SHALL guarantee that concurrent candidate creations with the same tenant and email produce a single active candidate. A partial unique index on active candidates SHALL back the application-level upsert.
 
@@ -181,3 +180,15 @@ Candidate name/email search SHALL remain case-insensitive contains matching and 
 - **WHEN** a user searches candidates with any term (including `%` or partial words)
 - **THEN** results match the previous `ilike` semantics
 - **AND** the query plan uses the trigram index instead of a sequential scan
+
+### Requirement: Time-ordered candidate ids
+Candidate primary keys SHALL be time-ordered UUIDv7, so that for rows created after the switch, descending id order reflects reverse insertion order.
+
+#### Scenario: Same-timestamp candidates order by id
+- **WHEN** two candidates share the same `inserted_at` timestamp
+- **THEN** the candidate list orders them by descending id (newest first)
+
+#### Scenario: Existing ids remain valid
+- **WHEN** records created before the switch (random UUIDv4) are listed
+- **THEN** they appear and remain addressable with no migration or data change
+

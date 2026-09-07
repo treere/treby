@@ -3,9 +3,7 @@
 ## Purpose
 
 Manage job postings including creation, editing, listing, and closing with optional salary ranges.
-
 ## Requirements
-
 ### Requirement: Create job posting
 The system SHALL allow authenticated users to create job postings. The system SHALL associate the job with the user's tenant and handle empty pipeline selection gracefully.
 
@@ -106,3 +104,15 @@ The system SHALL support optional structured fields for location and employment 
 #### Scenario: Edit job structured fields
 - **WHEN** a team member updates `location` or type fields on an existing job
 - **THEN** the changes are persisted and visible on the next load
+
+### Requirement: Time-ordered job ids
+Job primary keys SHALL be time-ordered UUIDv7, so that for rows created after the switch, descending id order reflects reverse insertion order.
+
+#### Scenario: Same-timestamp jobs order by id
+- **WHEN** two jobs share the same `inserted_at` timestamp
+- **THEN** the job list orders them by descending id (newest first)
+
+#### Scenario: Existing ids remain valid
+- **WHEN** records created before the switch (random UUIDv4) are listed
+- **THEN** they appear and remain addressable with no migration or data change
+

@@ -64,3 +64,14 @@ The system SHALL display applications for a specific job in pages of 25 (configu
 - **THEN** the first 25 applications for that job are shown with candidate name and current stage
 - **AND** a pager navigates the remaining applications
 
+### Requirement: Time-ordered application ids
+Application primary keys SHALL be time-ordered UUIDv7, so that for rows created after the switch, descending id order reflects reverse insertion order.
+
+#### Scenario: Same-timestamp applications order by id
+- **WHEN** two applications on the same job share the same `inserted_at` timestamp
+- **THEN** the applicant list orders them by descending id (newest first)
+
+#### Scenario: Existing ids remain valid
+- **WHEN** records created before the switch (random UUIDv4) are listed
+- **THEN** they appear and remain addressable with no migration or data change
+

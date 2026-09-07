@@ -7,7 +7,11 @@ Allow admins to configure and manage pipeline definitions, including stages, def
 ## Requirements
 
 ### Requirement: Pipeline CRUD
-The system SHALL allow admins to create, read, update, and delete pipeline definitions.
+The system SHALL allow admins to create, read, update, and delete pipeline definitions. Pipeline templates no longer exist.
+
+#### Scenario: No templates section in settings
+- **WHEN** an admin navigates to Settings → Pipeline
+- **THEN** only real pipelines are listed (no templates section, no New Template form)
 
 #### Scenario: List pipelines
 - **WHEN** an admin navigates to Settings > Pipeline
@@ -24,7 +28,7 @@ The system SHALL allow admins to create, read, update, and delete pipeline defin
 - **THEN** the new name is saved and reflected in the list
 
 #### Scenario: Duplicate pipeline names rejected
-- **WHEN** an admin creates or renames a pipeline with a name already used by another pipeline or template of the same tenant
+- **WHEN** an admin creates or renames a pipeline with a name already used by another pipeline of the same tenant
 - **THEN** the save is rejected with a "has already been taken" error on the name field
 
 #### Scenario: Delete pipeline
@@ -112,12 +116,23 @@ The system SHALL allow assigning a pipeline when creating or editing a job.
 
 #### Scenario: Create job without pipeline
 - **WHEN** an admin creates a job without selecting a pipeline
-- **THEN** the job uses the tenant's default pipeline
+- **THEN** the job uses the tenant's default pipeline (existing behavior, unchanged)
+
+#### Scenario: No template option in job form
+- **WHEN** an admin creates a job
+- **THEN** no "Or start from a template" option is offered
 
 #### Scenario: Change job pipeline
 - **WHEN** an admin changes a job's pipeline
 - **THEN** the Kanban board for that job updates to show the new pipeline's stages
 - **AND** existing applications retain their `pipeline_stage_id` (candidates may appear in columns that no longer exist for that pipeline)
+
+### Requirement: Detach shared pipeline per job
+The system SHALL give a job its own pipeline copy when its shared pipeline is detached.
+
+#### Scenario: Detach clone names stay unique
+- **WHEN** a shared pipeline is detached for a job and a "<source> (Job)" pipeline already exists
+- **THEN** the clone receives a numbered fallback name ("(Copy)", "(Copy 2)", …) instead of failing on the unique name constraint
 
 ### Requirement: Configure min_examiners on stage
 The system SHALL allow admins to set a minimum number of examiners for interview-type stages.

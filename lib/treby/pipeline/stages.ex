@@ -1,6 +1,6 @@
 defmodule Treby.Pipeline.Stages do
   @moduledoc """
-  Pipeline and stage CRUD, templates, and stage role assignments.
+  Pipeline and stage CRUD and stage role assignments.
 
   Extracted from `Treby.Pipeline` to keep the context focused.
   `Treby.Pipeline` remains the public facade via `defdelegate`.
@@ -19,15 +19,7 @@ defmodule Treby.Pipeline.Stages do
 
   def list_pipelines(tenant_id) do
     PipelineDef
-    |> where([p], p.tenant_id == ^tenant_id and p.is_template == false)
-    |> order_by([p], p.name)
-    |> Repo.all()
-    |> Repo.preload(:pipeline_stages)
-  end
-
-  def list_templates(tenant_id) do
-    PipelineDef
-    |> where([p], p.tenant_id == ^tenant_id and p.is_template == true)
+    |> where([p], p.tenant_id == ^tenant_id)
     |> order_by([p], p.name)
     |> Repo.all()
     |> Repo.preload(:pipeline_stages)
@@ -100,49 +92,13 @@ defmodule Treby.Pipeline.Stages do
     end)
   end
 
-  # Templates
-
-  def create_template(attrs \\ %{}) do
-    attrs =
-      attrs
-      |> Map.new(fn {k, v} -> {to_string(k), v} end)
-      |> Map.put("is_template", true)
-
-    %PipelineDef{}
-    |> PipelineDef.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def delete_template(%PipelineDef{} = pipeline) do
-    if pipeline.is_template do
-      Repo.delete(pipeline)
-    else
-      {:error, :not_a_template}
-    end
-  end
-
-  def clone_template_to_pipeline(%PipelineDef{} = template, tenant_id)
-      when is_binary(tenant_id) do
-    clone_pipeline(template, %{
-      name: unique_copy_name(tenant_id, template.name),
-      tenant_id: tenant_id
-    })
-  end
-
-  def clone_template_to_pipeline(%PipelineDef{} = template, new_attrs) do
-    clone_pipeline(template, new_attrs)
-  end
-
   def clone_pipeline(%PipelineDef{} = source, new_attrs) do
     {:ok, {new_pipeline, _id_map}} = clone_pipeline_with_map(source, new_attrs)
     {:ok, new_pipeline}
   end
 
   defp clone_pipeline_with_map(%PipelineDef{} = source, new_attrs) do
-    new_attrs =
-      new_attrs
-      |> Map.new(fn {k, v} -> {to_string(k), v} end)
-      |> Map.put("is_template", false)
+    new_attrs = Map.new(new_attrs, fn {k, v} -> {to_string(k), v} end)
 
     Repo.transaction(fn ->
       {:ok, new_pipeline} = create_pipeline(new_attrs)
@@ -304,7 +260,7 @@ defmodule Treby.Pipeline.Stages do
 
           {:ok, {new_pipeline, id_map}} =
             clone_pipeline_with_map(source, %{
-              name: "#{source.name} (Job)",
+              name: unique_copy_name(job.tenant_id, "#{source.name} (Job)"),
               tenant_id: job.tenant_id
             })
 

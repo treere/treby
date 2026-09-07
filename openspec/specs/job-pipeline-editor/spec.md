@@ -28,8 +28,8 @@ The system SHALL display a read-only pipeline overview on the job detail page li
 ### Requirement: Job pipeline stays dedicated to the job
 The system SHALL keep the job's pipeline dedicated to that job so stage edits never affect other jobs.
 
-#### Scenario: Job created from a template
-- **WHEN** a job's pipeline was created from a template (already cloned and dedicated)
+#### Scenario: Job with an already-dedicated pipeline
+- **WHEN** a job's pipeline is already dedicated to that job (e.g. previously duplicated or detached)
 - **THEN** editing stages from the job page modifies that pipeline directly without cloning again
 
 #### Scenario: Job using a shared pipeline

@@ -97,14 +97,12 @@ You can customize them in **Settings → Pipeline** / **Settings → Pipeline St
 
 ![Pipeline Stages](/screenshots/40-pipeline-stages.png)
 
-## Pipeline Templates
+## Reusing Pipelines
 
-Create reusable configurations so you don't repeat the same setup for similar jobs.
+Each job gets its own pipeline, so you can customize stages per position without affecting other jobs.
 
-- **Create templates** from scratch in **Settings → Pipeline Templates**
-- **Save as template** from an existing pipeline (copies stages and assignments)
-- **Use a template** when creating a new job
-- Templates copy assignments, minimum examiner count, and scorecard templates
+- **Duplicate** a pipeline in **Settings → Pipeline** to reuse its stages and assignments as a starting point
+- Editing stages from a job page automatically detaches a private copy for that job when the pipeline is shared
 
 ## Tips for Getting the Most Out of It
 

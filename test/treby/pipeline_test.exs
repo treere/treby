@@ -398,44 +398,16 @@ defmodule Treby.PipelineTest do
       assert copy2.name == "Base (Copy 2)"
     end
 
-    test "templates share the tenant name namespace", %{tenant: tenant} do
-      assert {:ok, _} = Pipeline.create_template(%{name: "Standard", tenant_id: tenant.id})
+    test "repeated detaches from the same source get unique names", %{tenant: tenant} do
+      {:ok, job1} = insert_job(tenant.id)
+      {:ok, job2} = insert_job(tenant.id)
+      {:ok, _job3} = insert_job(tenant.id)
 
-      assert {:error, changeset} =
-               Pipeline.create_pipeline(%{name: "Standard", tenant_id: tenant.id})
+      assert {:ok, _, clone1} = Pipeline.detach_job_pipeline(job1)
+      assert {:ok, _, clone2} = Pipeline.detach_job_pipeline(job2)
 
-      assert errors_on(changeset).name == ["has already been taken"]
-    end
-
-    test "create_template accepts string-keyed form params", %{tenant: tenant} do
-      assert {:ok, template} =
-               Pipeline.create_template(%{
-                 "name" => "Form Template",
-                 "tenant_id" => tenant.id
-               })
-
-      assert template.is_template == true
-      assert template.name == "Form Template"
-    end
-
-    test "clone_template_to_pipeline accepts a tenant id and copies stages", %{
-      tenant: tenant
-    } do
-      {:ok, template} = Pipeline.create_template(%{name: "Clone Me", tenant_id: tenant.id})
-
-      {:ok, _stage} =
-        Pipeline.create_pipeline_stage(%{
-          name: "Screen",
-          position: 0,
-          pipeline_id: template.id,
-          tenant_id: tenant.id
-        })
-
-      assert {:ok, clone} = Pipeline.clone_template_to_pipeline(template, tenant.id)
-      assert clone.is_template == false
-      assert clone.name == "Clone Me (Copy)"
-
-      assert [%{name: "Screen"}] = Pipeline.list_pipeline_stages(clone.id)
+      assert clone1.id != clone2.id
+      assert clone1.name != clone2.name
     end
   end
 

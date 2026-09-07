@@ -32,7 +32,6 @@ defmodule TrebyWeb.JobsLive.Index do
 
     job_fields = Customization.list_custom_fields_for(tenant.id, "job")
     pipelines = Pipeline.list_pipelines(tenant.id)
-    templates = Pipeline.list_templates(tenant.id)
     default_pipeline_id = Pipeline.default_pipeline_id(tenant.id)
     candidate_counts = application_counts_by_job(tenant.id)
     view_summaries = JobViews.summaries_for_tenant(tenant.id)
@@ -44,7 +43,6 @@ defmodule TrebyWeb.JobsLive.Index do
      |> assign(view_summaries: view_summaries)
      |> assign(job_fields: job_fields)
      |> assign(pipelines: pipelines)
-     |> assign(templates: templates)
      |> assign(default_pipeline_id: default_pipeline_id)
      |> assign(filter: "all")
      |> assign(show_form: false)
@@ -174,19 +172,6 @@ defmodule TrebyWeb.JobsLive.Index do
               options={Enum.map(@pipelines, &{&1.name, &1.id})}
               prompt={gettext("Default pipeline")}
             />
-
-            <div :if={@templates != []} class="mt-3">
-              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
-                {gettext("Or start from a template")}
-              </label>
-              <.input
-                name="template_id"
-                type="select"
-                options={Enum.map(@templates, &{&1.name, &1.id})}
-                prompt={gettext("Select a template...")}
-                label=""
-              />
-            </div>
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
               <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-3">
@@ -386,24 +371,11 @@ defmodule TrebyWeb.JobsLive.Index do
   def handle_event("create_job", params, socket) do
     job_params = Map.get(params, "job", %{})
     custom_fields_values = Map.get(params, "custom_fields", %{})
-    template_id = Map.get(params, "template_id", "")
 
     pipeline_id =
-      cond do
-        template_id != "" ->
-          # Clone template to create a new pipeline for this job
-          template = Pipeline.get_pipeline!(template_id)
-
-          {:ok, new_pipeline} =
-            Pipeline.clone_template_to_pipeline(template, socket.assigns.current_tenant.id)
-
-          new_pipeline.id
-
-        Map.get(job_params, "pipeline_id") not in [nil, ""] ->
-          Map.get(job_params, "pipeline_id")
-
-        true ->
-          Pipeline.default_pipeline_id(socket.assigns.current_tenant.id)
+      case Map.get(job_params, "pipeline_id") do
+        id when id not in [nil, ""] -> id
+        _ -> Pipeline.default_pipeline_id(socket.assigns.current_tenant.id)
       end
 
     attrs =

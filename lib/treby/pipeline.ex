@@ -18,16 +18,12 @@ defmodule Treby.Pipeline do
   # Stages
 
   defdelegate list_pipelines(tenant_id), to: Stages
-  defdelegate list_templates(tenant_id), to: Stages
   defdelegate get_pipeline!(id), to: Stages
   defdelegate get_pipeline(id), to: Stages
   defdelegate create_pipeline(attrs \\ %{}), to: Stages
   defdelegate update_pipeline(pipeline, attrs), to: Stages
   defdelegate delete_pipeline(pipeline), to: Stages
   defdelegate set_default_pipeline(pipeline), to: Stages
-  defdelegate create_template(attrs \\ %{}), to: Stages
-  defdelegate delete_template(pipeline), to: Stages
-  defdelegate clone_template_to_pipeline(template, new_attrs), to: Stages
   defdelegate clone_pipeline(source, new_attrs), to: Stages
   defdelegate duplicate_pipeline(source_pipeline), to: Stages
   defdelegate default_pipeline_id(tenant_id), to: Stages

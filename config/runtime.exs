@@ -76,6 +76,8 @@ if config_env() == :prod do
     pool_size: String.to_integer(Env.env("POOL_SIZE", "20")),
     queue_target: String.to_integer(Env.env("DB_QUEUE_TARGET", "50")),
     queue_interval: String.to_integer(Env.env("DB_QUEUE_INTERVAL", "1000")),
+    # Advisory lock: table lock self-deadlocks with CONCURRENTLY migrations.
+    migration_lock: :pg_advisory_lock,
     # Uncomment if using PgBouncer in transaction mode:
     # prepare: :unnamed,
     # For machines with several cores, consider starting multiple pools of `pool_size`

@@ -8,7 +8,9 @@ config :treby, Treby.Repo,
   database: "treby_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: 10,
+  # Advisory lock: table lock self-deadlocks with CONCURRENTLY migrations.
+  migration_lock: :pg_advisory_lock
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

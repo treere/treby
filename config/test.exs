@@ -11,7 +11,11 @@ config :treby, Treby.Repo,
   hostname: "localhost",
   database: "treby_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
+  pool_size: System.schedulers_online() * 2,
+  # Advisory (session-level) lock: the default table lock wraps the whole
+  # migration run in a transaction, which self-deadlocks with
+  # CREATE INDEX CONCURRENTLY migrations.
+  migration_lock: :pg_advisory_lock
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

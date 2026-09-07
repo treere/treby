@@ -46,12 +46,11 @@ defmodule TrebyWeb.CareersLive.Index do
           <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
             {(@career_page && @career_page.title) || @tenant.name}
           </h1>
-          <p
+          <.markdown
             :if={@career_page && @career_page.description}
-            class="mt-4 text-lg text-zinc-500 dark:text-zinc-400"
-          >
-            {@career_page.description}
-          </p>
+            text={@career_page.description}
+            class="mt-4 text-lg text-zinc-500 dark:text-zinc-400 md-lead"
+          />
         </div>
 
         <div class="mb-8">

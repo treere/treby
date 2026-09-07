@@ -168,9 +168,11 @@ defmodule TrebyWeb.CareersLive.Show do
             />
             <div>
               <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{@tenant.name}</h2>
-              <p :if={@career_page.description} class="text-sm text-zinc-500 dark:text-zinc-400">
-                {@career_page.description}
-              </p>
+              <.markdown
+                :if={@career_page.description}
+                text={@career_page.description}
+                class="text-sm text-zinc-500 dark:text-zinc-400 md-sm"
+              />
             </div>
           </div>
 
@@ -195,9 +197,7 @@ defmodule TrebyWeb.CareersLive.Show do
             </span>
           </div>
 
-          <div class="mt-8 prose max-w-none">
-            <p class="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100/80">{@job.description}</p>
-          </div>
+          <.markdown text={@job.description} class="mt-8" />
 
           <.button
             :if={!@already_applied}

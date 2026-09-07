@@ -88,6 +88,9 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 label={gettext("Description")}
                 placeholder={gettext("Help us build the future...")}
               />
+              <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                {gettext("Supports Markdown formatting")}
+              </p>
               <.input
                 field={@form[:primary_color]}
                 type="color"

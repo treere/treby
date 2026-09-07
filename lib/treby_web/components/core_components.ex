@@ -324,6 +324,22 @@ defmodule TrebyWeb.CoreComponents do
   end
 
   @doc """
+  Renders user-authored Markdown (company and job descriptions) as sanitized HTML.
+
+  ## Examples
+
+      <.markdown text={@job.description} />
+  """
+  attr :text, :string, default: nil
+  attr :class, :any, default: nil, doc: "extra classes for the wrapper"
+
+  def markdown(assigns) do
+    ~H"""
+    <div class={["md-content", @class]}>{TrebyWeb.Markdown.to_safe_html(@text)}</div>
+    """
+  end
+
+  @doc """
   Renders a header with title.
   """
   slot :inner_block, required: true

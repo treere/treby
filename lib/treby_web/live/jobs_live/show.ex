@@ -130,6 +130,9 @@ defmodule TrebyWeb.JobsLive.Show do
           <.form for={@form} id="job-edit-form" phx-submit="update_job">
             <.input field={@form[:title]} type="text" label={gettext("Title")} />
             <.input field={@form[:description]} type="textarea" label={gettext("Description")} />
+            <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              {gettext("Supports Markdown formatting")}
+            </p>
             <.input field={@form[:salary_range]} type="text" label={gettext("Salary Range")} />
             <.input field={@form[:location]} type="text" label={gettext("Location")} />
             <.input
@@ -232,7 +235,7 @@ defmodule TrebyWeb.JobsLive.Show do
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Description")}
             </h2>
-            <p class="text-zinc-900 dark:text-zinc-100/80 whitespace-pre-wrap">{@job.description}</p>
+            <.markdown text={@job.description} />
           </div>
           <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">

@@ -125,7 +125,14 @@ defmodule TrebyWeb.JobsLive.Index do
           </h2>
           <.form for={@form} id="job-form" phx-submit="create_job">
             <.input field={@form[:title]} type="text" label={gettext("Title")} />
-            <.input field={@form[:description]} type="textarea" label={gettext("Description")} />
+            <.input
+              field={@form[:description]}
+              type="textarea"
+              label={gettext("Description")}
+            />
+            <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              {gettext("Supports Markdown formatting")}
+            </p>
             <.input
               field={@form[:salary_range]}
               type="text"

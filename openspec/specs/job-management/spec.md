@@ -127,3 +127,10 @@ A job posting SHALL NOT be markable visible while its status is closed; attempti
 - **WHEN** a user sets visible on a job whose status is open
 - **THEN** validation passes
 
+### Requirement: Job description authoring
+The job description is authored as plain Markdown in a regular textarea with a short hint that Markdown is supported. No toolbar or preview is offered.
+
+#### Scenario: Author job in Markdown
+- **WHEN** an admin writes `**bold**` or a `- list` in the job description
+- **THEN** the text is stored as-is and rendered as HTML wherever displayed
+

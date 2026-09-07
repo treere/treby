@@ -21,5 +21,6 @@ defmodule Treby.Pipeline.Pipeline do
     pipeline
     |> cast(attrs, [:name, :is_default, :is_template, :tenant_id])
     |> validate_required([:name])
+    |> unique_constraint(:name, name: :pipelines_tenant_id_name_index)
   end
 end

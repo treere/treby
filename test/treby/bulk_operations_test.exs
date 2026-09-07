@@ -43,7 +43,11 @@ defmodule Treby.BulkOperationsTest do
       })
 
     {:ok, pipeline} =
-      Pipeline.create_pipeline(%{name: "Default", tenant_id: tenant.id, is_default: true})
+      Pipeline.create_pipeline(%{
+        name: "Bulk Test Pipeline",
+        tenant_id: tenant.id,
+        is_default: true
+      })
 
     {:ok, stage} =
       Pipeline.create_pipeline_stage(%{

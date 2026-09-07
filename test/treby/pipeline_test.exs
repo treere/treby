@@ -351,6 +351,63 @@ defmodule Treby.PipelineTest do
     end
   end
 
+  describe "pipeline name uniqueness and rename" do
+    test "rejects duplicate pipeline names within a tenant", %{tenant: tenant} do
+      assert {:ok, _} =
+               Pipeline.create_pipeline(%{name: "Engineering", tenant_id: tenant.id})
+
+      assert {:error, changeset} =
+               Pipeline.create_pipeline(%{name: "Engineering", tenant_id: tenant.id})
+
+      assert errors_on(changeset).name == ["has already been taken"]
+    end
+
+    test "allows the same name in different tenants", %{tenant: tenant} do
+      {:ok, other_tenant} =
+        Repo.insert(%Treby.Tenants.Tenant{
+          name: "Other Tenant",
+          slug: "other-#{System.unique_integer([:positive])}"
+        })
+
+      assert {:ok, _} = Pipeline.create_pipeline(%{name: "Shared", tenant_id: tenant.id})
+
+      assert {:ok, _} =
+               Pipeline.create_pipeline(%{name: "Shared", tenant_id: other_tenant.id})
+    end
+
+    test "rename to a taken name fails, rename to a free name works", %{tenant: tenant} do
+      {:ok, first} = Pipeline.create_pipeline(%{name: "One", tenant_id: tenant.id})
+      {:ok, second} = Pipeline.create_pipeline(%{name: "Two", tenant_id: tenant.id})
+
+      assert {:error, changeset} = Pipeline.update_pipeline(second, %{name: "One"})
+      assert errors_on(changeset).name == ["has already been taken"]
+
+      assert {:ok, renamed} = Pipeline.update_pipeline(second, %{name: "Two v2"})
+      assert renamed.name == "Two v2"
+
+      assert {:ok, same} = Pipeline.update_pipeline(first, %{name: "One"})
+      assert same.name == "One"
+    end
+
+    test "duplicate_pipeline generates unique copy names", %{tenant: tenant} do
+      {:ok, pipeline} = Pipeline.create_pipeline(%{name: "Base", tenant_id: tenant.id})
+      {:ok, copy1} = Pipeline.duplicate_pipeline(pipeline)
+      {:ok, copy2} = Pipeline.duplicate_pipeline(pipeline)
+
+      assert copy1.name == "Base (Copy)"
+      assert copy2.name == "Base (Copy 2)"
+    end
+
+    test "templates share the tenant name namespace", %{tenant: tenant} do
+      assert {:ok, _} = Pipeline.create_template(%{name: "Standard", tenant_id: tenant.id})
+
+      assert {:error, changeset} =
+               Pipeline.create_pipeline(%{name: "Standard", tenant_id: tenant.id})
+
+      assert errors_on(changeset).name == ["has already been taken"]
+    end
+  end
+
   defp insert_tenant do
     tenant =
       Repo.insert!(%Treby.Tenants.Tenant{

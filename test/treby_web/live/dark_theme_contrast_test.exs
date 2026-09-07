@@ -62,7 +62,11 @@ defmodule TrebyWeb.DarkThemeContrastTest do
         })
 
       {:ok, pipeline} =
-        Treby.Pipeline.create_pipeline(%{name: "Default", tenant_id: tenant.id, is_default: true})
+        Treby.Pipeline.create_pipeline(%{
+          name: "Contrast Pipeline",
+          tenant_id: tenant.id,
+          is_default: true
+        })
 
       {:ok, job} =
         tenant

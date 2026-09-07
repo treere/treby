@@ -44,7 +44,7 @@ defmodule Treby.JobsTest do
 
       {:ok, pipeline} =
         Treby.Pipeline.create_pipeline(%{
-          name: "Default",
+          name: "Jobs Test Pipeline",
           tenant_id: tenant.id,
           is_default: true
         })

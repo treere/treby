@@ -23,6 +23,10 @@ The system SHALL allow admins to create, read, update, and delete pipeline defin
 - **WHEN** an admin renames a pipeline
 - **THEN** the new name is saved and reflected in the list
 
+#### Scenario: Duplicate pipeline names rejected
+- **WHEN** an admin creates or renames a pipeline with a name already used by another pipeline or template of the same tenant
+- **THEN** the save is rejected with a "has already been taken" error on the name field
+
 #### Scenario: Delete pipeline
 - **WHEN** an admin deletes a pipeline with no active jobs
 - **THEN** the pipeline and its stages are removed
@@ -59,6 +63,7 @@ The system SHALL allow admins to duplicate an existing pipeline, including role 
 #### Scenario: Duplicate pipeline
 - **WHEN** an admin duplicates a pipeline
 - **THEN** a new pipeline is created with "(Copy)" appended to the name
+- **AND** if a copy with that name already exists, a numbered suffix is used ("(Copy 2)", "(Copy 3)", ...)
 - **AND** all stages from the original are copied with the same names, positions, colors, stage_types, min_examiners, and scorecard template associations
 - **AND** all examiner, reviewer, and advancer assignments are copied to the new pipeline
 - **AND** the new pipeline is not marked as default

@@ -287,7 +287,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
       {:ok, pipeline} =
         Treby.Pipeline.create_pipeline(%{
-          name: "Default",
+          name: "Bulk Test Pipeline",
           tenant_id: tenant.id,
           is_default: true
         })

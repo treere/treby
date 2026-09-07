@@ -68,7 +68,7 @@ defmodule TrebyWeb.DashboardLiveTest do
 
       {:ok, pipeline} =
         Treby.Pipeline.create_pipeline(%{
-          name: "Default",
+          name: "Dashboard Pipeline",
           tenant_id: tenant.id,
           is_default: true
         })
@@ -98,7 +98,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       # Create a job
       {:ok, pipeline} =
         Treby.Pipeline.create_pipeline(%{
-          name: "Default",
+          name: "Dashboard Pipeline",
           tenant_id: tenant.id,
           is_default: true
         })

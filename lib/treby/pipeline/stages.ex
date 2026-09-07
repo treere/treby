@@ -197,11 +197,23 @@ defmodule Treby.Pipeline.Stages do
   def duplicate_pipeline(%PipelineDef{} = source_pipeline) do
     {:ok, {new_pipeline, _id_map}} =
       clone_pipeline_with_map(source_pipeline, %{
-        name: "#{source_pipeline.name} (Copy)",
+        name: unique_copy_name(source_pipeline.tenant_id, source_pipeline.name),
         tenant_id: source_pipeline.tenant_id
       })
 
     {:ok, new_pipeline}
+  end
+
+  defp unique_copy_name(tenant_id, base_name, n \\ 1) do
+    candidate =
+      if n == 1, do: "#{base_name} (Copy)", else: "#{base_name} (Copy #{n})"
+
+    exists? =
+      PipelineDef
+      |> where([p], p.tenant_id == ^tenant_id and p.name == ^candidate)
+      |> Repo.exists?()
+
+    if exists?, do: unique_copy_name(tenant_id, base_name, n + 1), else: candidate
   end
 
   def default_pipeline_id(tenant_id) do

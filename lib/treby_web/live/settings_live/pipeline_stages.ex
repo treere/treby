@@ -55,6 +55,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
          |> assign(stages: stages_with_counts)
          |> assign(users: users)
          |> assign(show_form: false)
+         |> assign(rename_form: to_form(Pipeline.change_pipeline(pipeline)))
          |> assign(editing_stage: nil)
          |> assign(deleting_stage: nil)
          |> assign(editing_roles: nil)
@@ -73,7 +74,23 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           >
             &larr; {gettext("Pipelines")}
           </.link>
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">{@pipeline.name}</h1>
+          <.form
+            for={@rename_form}
+            id="pipeline-rename-form"
+            phx-submit="save_pipeline_name"
+            class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end"
+          >
+            <div class="flex-1 min-w-0">
+              <.input
+                field={@rename_form[:name]}
+                type="text"
+                label={gettext("Name")}
+              />
+            </div>
+            <div class="flex gap-2 shrink-0 sm:mb-2">
+              <.button type="submit" variant="primary">{gettext("Save")}</.button>
+            </div>
+          </.form>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
             {gettext("Configure stages for this pipeline")}
           </p>
@@ -435,6 +452,22 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
       </div>
     </Layouts.app>
     """
+  end
+
+  def handle_event("save_pipeline_name", %{"pipeline" => params}, socket) do
+    case Pipeline.update_pipeline(socket.assigns.pipeline, params) do
+      {:ok, pipeline} ->
+        {:noreply,
+         socket
+         |> assign(pipeline: pipeline, rename_form: to_form(Pipeline.change_pipeline(pipeline)))
+         |> put_flash(:info, gettext("Pipeline renamed"))}
+
+      {:error, changeset} ->
+        {:noreply,
+         socket
+         |> assign(rename_form: to_form(changeset))
+         |> put_flash(:error, gettext("Please review the errors below"))}
+    end
   end
 
   def handle_event("show_create_form", _, socket) do

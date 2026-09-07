@@ -7,33 +7,55 @@ defmodule TrebyWeb.SettingsLive.Team do
     socket = set_locale_from_session(socket, session)
     # Support both slug and legacy session
     {user, tenant, membership} =
-      if params["tenant_slug"] do
-        slug = params["tenant_slug"]
-        tenant = Tenants.get_tenant_by_slug(slug)
-        user = Accounts.get_user!(session["user_id"])
-        membership = Treby.Memberships.get_membership(user.id, tenant.id)
-        {user, tenant, membership}
-      else
-        user = Accounts.get_user!(session["user_id"])
-        tenant = Tenants.get_tenant!(session["tenant_id"])
-        {user, tenant, nil}
+      cond do
+        params["tenant_slug"] ->
+          slug = params["tenant_slug"]
+          tenant = Tenants.get_tenant_by_slug(slug)
+          user = Accounts.get_user!(session["user_id"])
+          membership = Treby.Memberships.get_membership(user.id, tenant.id)
+          {user, tenant, membership}
+
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant,
+           socket.assigns[:current_membership]}
+
+        session["user_id"] && session["tenant_id"] ->
+          user = Accounts.get_user!(session["user_id"])
+          tenant = Tenants.get_tenant!(session["tenant_id"])
+          membership = Treby.Memberships.get_membership(user.id, tenant.id)
+          {user, tenant, membership}
+
+        session["user_id"] ->
+          user = Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(user.id) do
+            [%{tenant: tenant, membership: membership} | _] -> {user, tenant, membership}
+            _ -> {user, nil, nil}
+          end
+
+        true ->
+          {nil, nil, nil}
       end
 
-    # Prefer memberships list with roles
-    memberships = Treby.Memberships.list_members_for_tenant(tenant.id)
-    # Keep users assign for backwards compat, but also memberships
-    users = Enum.map(memberships, & &1.user)
-    invites = Invites.list_invites(tenant.id)
+    if is_nil(tenant) do
+      {:ok, redirect(socket, to: "/choose-tenant")}
+    else
+      # Prefer memberships list with roles
+      memberships = Treby.Memberships.list_members_for_tenant(tenant.id)
+      # Keep users assign for backwards compat, but also memberships
+      users = Enum.map(memberships, & &1.user)
+      invites = Invites.list_invites(tenant.id)
 
-    {:ok,
-     socket
-     |> assign(current_user: user, current_tenant: tenant, current_membership: membership)
-     |> assign(memberships: memberships, users: users)
-     |> assign(invites: invites)
-     |> assign(show_invite_form: false)
-     |> assign(invite_form: to_form(%{"email" => "", "role" => "member"}))
-     |> assign(confirm_delete: nil)
-     |> assign(confirm_delete_type: nil)}
+      {:ok,
+       socket
+       |> assign(current_user: user, current_tenant: tenant, current_membership: membership)
+       |> assign(memberships: memberships, users: users)
+       |> assign(invites: invites)
+       |> assign(show_invite_form: false)
+       |> assign(invite_form: to_form(%{"email" => "", "role" => "member"}))
+       |> assign(confirm_delete: nil)
+       |> assign(confirm_delete_type: nil)}
+    end
   end
 
   def render(assigns) do

@@ -81,7 +81,7 @@ config :tailwind,
 # Configure Elixir's Logger
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  metadata: [:request_id, :application_id, :error]
 
 # Job view deduplication window (minutes)
 config :treby,

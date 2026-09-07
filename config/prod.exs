@@ -30,7 +30,7 @@ config :swoosh, local: false
 config :logger, level: :info
 
 config :logger, :default_handler,
-  formatter: {LoggerJSON.Formatters.Basic, metadata: [:request_id]}
+  formatter: {LoggerJSON.Formatters.Basic, metadata: [:request_id, :application_id, :error]}
 
 config :logger_json, encoder: Jason
 

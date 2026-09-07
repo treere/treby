@@ -329,7 +329,7 @@ defmodule Treby.PipelineTest do
         )
         |> Enum.map(fn {:ok, result} -> result end)
 
-      assert [({:ok, updated1, p1}), ({:ok, updated2, p2})] = results
+      assert [{:ok, updated1, p1}, {:ok, updated2, p2}] = results
 
       # Exactly one clone: whichever detach ran second found the pipeline
       # no longer shared and correctly became a no-op

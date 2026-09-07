@@ -130,7 +130,8 @@ defmodule Treby.JobsTest do
     end
   end
 
-  describe "uuid v7 ordering" do    test "same-timestamp jobs order by descending id" do
+  describe "uuid v7 ordering" do
+    test "same-timestamp jobs order by descending id" do
       import Ecto.Query
 
       {tenant, _user} = setup_tenant()

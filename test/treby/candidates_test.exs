@@ -3,6 +3,8 @@ defmodule Treby.CandidatesTest do
 
   alias Ecto.Adapters.SQL.Sandbox
   alias Treby.{Tenants, Candidates, Repo}
+  alias Treby.Candidates.Queries
+  alias Ecto.Adapters.SQL
   alias Treby.Accounts.User
   alias Treby.Candidates.Candidate
 
@@ -137,7 +139,7 @@ defmodule Treby.CandidatesTest do
       import Ecto.Query
 
       {_tenant, _user} = setup_tenant()
-      pattern = "%#{Treby.Candidates.Queries.escape_like("smith")}%"
+      pattern = "%#{Queries.escape_like("smith")}%"
 
       # Name-only shape: proves the trigram operator class serves the
       # pattern (combined tenant+search plans are cost-based and may prefer
@@ -147,7 +149,7 @@ defmodule Treby.CandidatesTest do
       # Tiny tables invite seq scans; disable them so the plan reveals
       # index usability.
       Repo.query!("SET LOCAL enable_seqscan = off")
-      plan = Ecto.Adapters.SQL.explain(Repo, :all, query)
+      plan = SQL.explain(Repo, :all, query)
 
       assert is_binary(plan)
       assert plan =~ "candidates_name_trgm_idx"
@@ -183,7 +185,8 @@ defmodule Treby.CandidatesTest do
     end
   end
 
-  describe "tenant_has_candidates?/1" do    test "returns false when tenant has no candidates" do
+  describe "tenant_has_candidates?/1" do
+    test "returns false when tenant has no candidates" do
       {tenant, _user} = setup_tenant()
       refute Candidates.tenant_has_candidates?(tenant.id)
     end

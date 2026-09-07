@@ -187,6 +187,8 @@ if config_env() == :prod do
   if Env.env("LOG_FORMAT", "json") == "text" do
     config :logger, :default_handler,
       formatter:
-        {Logger.Formatter, format: "$time $metadata[$level] $message\n", metadata: [:request_id]}
+        {Logger.Formatter,
+         format: "$time $metadata[$level] $message\n",
+         metadata: [:request_id, :application_id, :error]}
   end
 end

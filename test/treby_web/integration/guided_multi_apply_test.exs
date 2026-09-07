@@ -43,12 +43,12 @@ defmodule TrebyWeb.GuidedMultiApplyTest do
         "candidate_expires_at" => expires
       })
 
-    {:ok, view, html} = live(conn, ~p"/#{tenant.slug}/careers/#{job.id}/apply")
+    {:ok, _view, html} = live(conn, ~p"/#{tenant.slug}/careers/#{job.id}/apply")
     assert html =~ candidate.name
     assert html =~ candidate.email
     assert html =~ "Prefilled from your portal profile"
     # anonymous should see empty
-    {:ok, view2, html2} = live(build_conn(), ~p"/#{tenant.slug}/careers/#{job.id}/apply")
+    {:ok, _view2, html2} = live(build_conn(), ~p"/#{tenant.slug}/careers/#{job.id}/apply")
     refute html2 =~ "Prefilled from your portal profile"
   end
 

@@ -1,8 +1,6 @@
 defmodule TrebyWeb.DarkThemeContrastTest do
   use TrebyWeb.ConnCase, async: false
 
-  import Phoenix.LiveViewTest
-
   alias Treby.Jobs.Job
   alias TrebyWeb.DesignSystem
 

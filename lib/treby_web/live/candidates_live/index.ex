@@ -33,28 +33,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
     filter_job_id = params["job_id"] || ""
     filter_stage_id = params["stage_id"] || ""
 
-    candidates =
-      Candidates.list_candidates(tenant.id, %{
-        search: search,
-        job_id: filter_job_id,
-        stage_id: filter_stage_id
-      })
-
     candidate_fields = Customization.list_custom_fields_for(tenant.id, "candidate")
     jobs = Jobs.list_jobs(tenant.id)
     pipeline_stages = list_all_stages(tenant.id)
     duplicate_count = length(Candidates.list_suggestion_groups(tenant.id))
 
-    candidates_with_counts =
-      Enum.map(candidates, fn candidate ->
-        applications = Pipeline.list_applications_for_candidate(tenant.id, candidate.id)
-        Map.put(candidate, :application_count, length(applications))
-      end)
-
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
-     |> assign(candidates: candidates_with_counts)
      |> assign(candidate_fields: candidate_fields)
      |> assign(jobs: jobs)
      |> assign(pipeline_stages: pipeline_stages)
@@ -77,6 +63,49 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> assign(bulk_summary: nil)
      |> assign(confirm_delete: nil)
      |> assign(form: to_form(Candidates.change_candidate(%Candidate{})))}
+  end
+
+  def handle_params(params, uri, socket) do
+    request_path = URI.parse(uri).path || "/app/candidates"
+
+    {:noreply,
+     socket
+     |> assign(request_path: request_path)
+     |> load_page(params["page"] || 1)}
+  end
+
+  defp load_page(socket, page) do
+    %{current_tenant: tenant, search: search, filter_job_id: job_id, filter_stage_id: stage_id} =
+      socket.assigns
+
+    {entries, page_info} =
+      Candidates.list_candidates(tenant.id, %{
+        search: search,
+        job_id: job_id,
+        stage_id: stage_id,
+        page: page
+      })
+
+    counts = Pipeline.candidate_application_counts(tenant.id, Enum.map(entries, & &1.id))
+
+    candidates =
+      Enum.map(entries, fn candidate ->
+        Map.put(candidate, :application_count, Map.get(counts, candidate.id, 0))
+      end)
+
+    socket
+    |> assign(candidates: candidates)
+    |> assign(page_info: page_info)
+    |> assign(page: page_info.page)
+  end
+
+  defp page_url(path, search, job_id, stage_id, page) do
+    params =
+      %{page: page, search: search, job_id: job_id, stage_id: stage_id}
+      |> Enum.reject(fn {_k, v} -> v in [nil, ""] end)
+      |> Map.new()
+
+    "#{path}?#{URI.encode_query(params)}"
   end
 
   def render(assigns) do
@@ -319,6 +348,20 @@ defmodule TrebyWeb.CandidatesLive.Index do
               %{href: ~p"/app/import", label: gettext("Import from CSV")}
             ]}
           />
+          <div class="mt-4">
+            <.pagination
+              id="pagination"
+              page={@page_info.page}
+              total_pages={@page_info.total_pages}
+              total_count={@page_info.total_count}
+              page_size={@page_info.page_size}
+              patch={
+                fn p ->
+                  page_url(@request_path, @search, @filter_job_id, @filter_stage_id, p)
+                end
+              }
+            />
+          </div>
         </div>
 
         <%!-- Bulk Action Bar --%>
@@ -685,14 +728,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
             end
           end
 
-          candidates =
-            Candidates.list_candidates(socket.assigns.current_tenant.id)
-            |> Enum.map(fn c ->
-              apps =
-                Pipeline.list_applications_for_candidate(socket.assigns.current_tenant.id, c.id)
-
-              Map.put(c, :application_count, length(apps))
-            end)
+          socket = load_page(socket, socket.assigns.page)
 
           flash_msg =
             if job_id in [nil, ""] do
@@ -707,7 +743,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
           {:noreply,
            socket
-           |> assign(candidates: candidates, show_form: false)
+           |> assign(show_form: false)
            |> assign(form: to_form(Candidates.change_candidate(%Candidate{})))
            |> put_flash(:info, flash_msg)}
 
@@ -771,11 +807,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
     {:ok, _} = BulkOperations.bulk_delete_candidates(application_ids, tenant.id)
 
-    candidates = filter_candidates(socket.assigns, %{})
-
     {:noreply,
      socket
-     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil, confirm_delete: nil)
+     |> load_page(socket.assigns.page)
+     |> assign(selected_ids: [], bulk_action: nil, confirm_delete: nil)
      |> put_flash(:info, "#{length(ids)} candidates deleted")}
   end
 
@@ -837,18 +872,19 @@ defmodule TrebyWeb.CandidatesLive.Index do
     %{selected_ids: ids, merge_primary_id: primary_id, current_tenant: tenant} = socket.assigns
     actor = socket.assigns.current_user
 
-    candidates = Candidates.list_candidates(tenant.id)
-    primary = Enum.find(candidates, &(&1.id == primary_id))
-    absorbed = Enum.filter(candidates, &(&1.id in ids and &1.id != primary_id))
+    primary = Candidates.get_candidate!(tenant.id, primary_id)
 
-    case primary && Candidates.merge_candidates(primary, absorbed, actor) do
+    absorbed =
+      ids
+      |> Enum.reject(&(&1 == primary_id))
+      |> Enum.map(&Candidates.get_candidate!(tenant.id, &1))
+
+    case Candidates.merge_candidates(primary, absorbed, actor) do
       {:ok, %{primary: merged_primary}} ->
-        candidates = Candidates.list_candidates(tenant.id)
-
         {:noreply,
          socket
+         |> load_page(socket.assigns.page)
          |> assign(
-           candidates: candidates,
            selected_ids: [],
            bulk_action: nil,
            merge_modal_open: false
@@ -880,11 +916,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
     BulkOperations.bulk_move_stage(application_ids, stage_id, tenant.id)
 
     # Re-fetch candidates
-    candidates = filter_candidates(socket.assigns, %{})
-
     {:noreply,
      socket
-     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil, bulk_stage_id: nil)
+     |> load_page(socket.assigns.page)
+     |> assign(selected_ids: [], bulk_action: nil, bulk_stage_id: nil)
      |> put_flash(:info, "#{length(ids)} candidates moved")}
   end
 
@@ -900,11 +935,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
     BulkOperations.bulk_mark_reviewed(application_ids, tenant.id)
 
-    candidates = filter_candidates(socket.assigns, %{})
-
     {:noreply,
      socket
-     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil)
+     |> load_page(socket.assigns.page)
+     |> assign(selected_ids: [], bulk_action: nil)
      |> put_flash(:info, "#{length(ids)} candidates marked as reviewed")}
   end
 
@@ -920,11 +954,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
     BulkOperations.bulk_mark_unreviewed(application_ids, tenant.id)
 
-    candidates = filter_candidates(socket.assigns, %{})
-
     {:noreply,
      socket
-     |> assign(candidates: candidates, selected_ids: [], bulk_action: nil)
+     |> load_page(socket.assigns.page)
+     |> assign(selected_ids: [], bulk_action: nil)
      |> put_flash(:info, "#{length(ids)} candidates marked as new")}
   end
 
@@ -1031,6 +1064,15 @@ defmodule TrebyWeb.CandidatesLive.Index do
     {:noreply, assign(socket, bulk_email_jitter: if(current > 0, do: 0, else: 5))}
   end
 
+  def handle_event("paginate", %{"page" => page}, socket) do
+    %{search: search, filter_job_id: job_id, filter_stage_id: stage_id} = socket.assigns
+
+    {:noreply,
+     push_patch(socket,
+       to: page_url(socket.assigns.request_path, search, job_id, stage_id, page)
+     )}
+  end
+
   def handle_event("search", %{"search" => search}, socket) do
     {:noreply, apply_search(socket, search)}
   end
@@ -1040,46 +1082,23 @@ defmodule TrebyWeb.CandidatesLive.Index do
   end
 
   def handle_event("filter_job", %{"job_id" => job_id}, socket) do
-    candidates = filter_candidates(socket.assigns, job_id: job_id)
-
     {:noreply,
      socket
      |> assign(filter_job_id: job_id)
-     |> assign(candidates: candidates)}
+     |> load_page(1)}
   end
 
   def handle_event("filter_stage", %{"stage_id" => stage_id}, socket) do
-    candidates = filter_candidates(socket.assigns, stage_id: stage_id)
-
     {:noreply,
      socket
      |> assign(filter_stage_id: stage_id)
-     |> assign(candidates: candidates)}
+     |> load_page(1)}
   end
 
   defp apply_search(socket, search) do
-    candidates = filter_candidates(socket.assigns, search: search)
-
     socket
     |> assign(search: search)
-    |> assign(candidates: candidates)
-  end
-
-  defp filter_candidates(assigns, overrides) do
-    filters = %{
-      search: overrides[:search] || assigns.search,
-      job_id: overrides[:job_id] || assigns.filter_job_id,
-      stage_id: overrides[:stage_id] || assigns.filter_stage_id
-    }
-
-    candidates = Candidates.list_candidates(assigns.current_tenant.id, filters)
-
-    Enum.map(candidates, fn candidate ->
-      applications =
-        Pipeline.list_applications_for_candidate(assigns.current_tenant.id, candidate.id)
-
-      Map.put(candidate, :application_count, length(applications))
-    end)
+    |> load_page(1)
   end
 
   defp delete_candidate(socket, candidate_id) do
@@ -1087,11 +1106,10 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
     case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
       {:ok, _candidate} ->
-        candidates = Candidates.list_candidates(socket.assigns.current_tenant.id)
-
         {:noreply,
          socket
-         |> assign(candidates: candidates, confirm_delete: nil)
+         |> load_page(socket.assigns.page)
+         |> assign(confirm_delete: nil)
          |> put_flash(:info, gettext("Candidate deleted"))}
 
       {:error, :unauthorized} ->

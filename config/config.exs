@@ -119,6 +119,24 @@ config :ex_aws, :s3,
   port: 9000,
   http_opts: [receive_timeout: 5_000]
 
+# S3 bucket for uploads (overridden in runtime.exs via S3_BUCKET)
+config :treby, :s3_bucket, "treby-uploads"
+
+# Default page size for paginated listings (max 100)
+config :treby, :default_page_size, 25
+
+# Rate limits {scale_ms, limit} per bucket (overridden in runtime.exs)
+config :treby, :rate_limits,
+  login_ip: {60_000, 5},
+  login_email: {3_600_000, 10},
+  otp_request_ip: {60_000, 5},
+  otp_request_email: {3_600_000, 5},
+  otp_verify_ip: {60_000, 10}
+
+# Hammer ETS backend (single node; see design note for multi-node Redis)
+config :hammer,
+  backend: {Hammer.Backend.ETS, [expiry_ms: 1000 * 60 * 60, cleanup_interval_ms: 1000 * 60 * 10]}
+
 # Google Calendar OAuth
 config :treby,
   google_client_id: Treby.ConfigHelpers.env("GOOGLE_CLIENT_ID"),

@@ -35,6 +35,9 @@ if Env.env("CLOAK_KEY") do
     cloak_key: Env.env("CLOAK_KEY")
 end
 
+# S3 bucket for uploads (S3_BUCKET takes precedence, TREBY_S3_BUCKET as fallback)
+config :treby, :s3_bucket, Env.env("S3_BUCKET") || Env.env("TREBY_S3_BUCKET") || "treby-uploads"
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration

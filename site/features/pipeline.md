@@ -8,7 +8,7 @@ The pipeline is the heart of Treby: a board where you move candidates through hi
 
 ![Jobs List](/screenshots/05-jobs-list.png)
 
-The **Jobs** page lists every open position with salary, visibility (Public/Private), view counts, and candidate totals — create new jobs from here.
+The **Jobs** page lists every open position with salary, visibility (Public/Private), view counts, and candidate totals — create new jobs from here. The list shows 25 jobs per page with a pager at the bottom; the Open/Closed filter resets to page 1.
 
 ## Job Detail Page
 
@@ -34,6 +34,7 @@ The pipeline section on the job page is read-only by default: it shows stages in
 - **Drag & drop** to move candidates between stages
 - **Real-time sync**: every team member sees moves instantly
 - **Counters** in each column header
+- **Paging**: the board shows 25 applications per page with a pager below the columns; drag & drop and bulk actions apply to the visible page
 
 ## Card Indicators
 

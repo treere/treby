@@ -62,4 +62,19 @@ defmodule Treby.JobsTest do
       assert Jobs.tenant_has_jobs?(tenant.id)
     end
   end
+
+  describe "search with LIKE wildcards" do
+    test "% matches literally, not as a wildcard" do
+      {tenant, _user} = setup_tenant()
+
+      {:ok, _job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Backend Engineer", description: "Elixir work"})
+        |> Repo.insert()
+
+      assert Jobs.search_visible_jobs(tenant.id, "%") == []
+      assert Jobs.search_all_visible_jobs("%") == []
+    end
+  end
 end

@@ -4,6 +4,7 @@ defmodule Treby.Audit do
   """
 
   import Ecto.Query, warn: false
+  alias Treby.Candidates.Queries
   alias Treby.Repo
   alias Treby.Audit.AuditEvent
 
@@ -111,6 +112,34 @@ defmodule Treby.Audit do
   end
 
   @doc """
+  Build audit attrs from a Plug connection: request IP and user-agent.
+
+  Merges with `attrs_from_scope/2`-compatible extra attrs. Safe to call on
+  any conn; missing values become `nil` (schema-accepted).
+  """
+  @spec attrs_from_conn(Plug.Conn.t(), map()) :: map()
+  def attrs_from_conn(conn, extra \\ %{}) do
+    base = %{ip: peer_ip(conn), user_agent: user_agent(conn)}
+    Map.merge(base, Enum.into(extra, %{}))
+  end
+
+  defp peer_ip(%{remote_ip: remote_ip}) when is_tuple(remote_ip) do
+    case :inet.ntoa(remote_ip) do
+      {:error, _} -> nil
+      ip -> to_string(ip)
+    end
+  end
+
+  defp peer_ip(_), do: nil
+
+  defp user_agent(conn) do
+    case Plug.Conn.get_req_header(conn, "user-agent") do
+      [agent | _] -> agent
+      [] -> nil
+    end
+  end
+
+  @doc """
   List audit events for a tenant with filters and pagination.
 
   Options: :actor_id, :action (prefix), :entity_type, :entity_id, :from, :to, :search, :page, :page_size
@@ -171,7 +200,7 @@ defmodule Treby.Audit do
   defp maybe_search(q, ""), do: q
 
   defp maybe_search(q, s) do
-    pattern = "%#{s}%"
+    pattern = "%#{Queries.escape_like(s)}%"
     where(q, [a], ilike(a.action, ^pattern) or ilike(a.entity_type, ^pattern))
   end
 

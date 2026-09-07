@@ -938,7 +938,10 @@ defmodule TrebyWeb.JobsLive.Show do
          gettext("Only advancers can move candidates in interview stages")
        )}
     else
-      case Pipeline.move_application(application, stage_id, actor: user) do
+      case Pipeline.move_application(application, stage_id,
+             actor: user,
+             audit: TrebyWeb.LiveAudit.attrs_from_socket(socket)
+           ) do
         {:ok, _application} ->
           {:noreply,
            socket
@@ -1005,7 +1008,8 @@ defmodule TrebyWeb.JobsLive.Show do
 
         case Pipeline.move_application(application, rejected_stage.id,
                actor: socket.assigns.current_user,
-               attrs: attrs
+               attrs: attrs,
+               audit: TrebyWeb.LiveAudit.attrs_from_socket(socket)
              ) do
           {:ok, _application} ->
             try do

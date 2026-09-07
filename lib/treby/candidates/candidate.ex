@@ -35,5 +35,6 @@ defmodule Treby.Candidates.Candidate do
     ])
     |> validate_required([:name, :email])
     |> validate_format(:email, ~r/@/)
+    |> unique_constraint(:email, name: :candidates_tenant_email_unique_active)
   end
 end

@@ -16,47 +16,14 @@ defmodule TrebyWeb.PipelineLive.Index do
         {:ok, redirect(socket, to: ~p"/404")}
 
       job ->
-        applications_by_stage = Pipeline.list_applications_by_stage(job_id)
         stages = Pipeline.list_pipeline_stages_for_job(job.id)
         Pipeline.subscribe_to_pipeline(job.id)
-
-        candidate_ids =
-          applications_by_stage
-          |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.candidate_id) end)
-          |> Enum.uniq()
-
-        application_counts =
-          Pipeline.candidate_application_counts(tenant.id, candidate_ids)
-
-        # Load upcoming interviews for this job's applications
-        application_ids =
-          applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
-
-        upcoming_interviews =
-          if application_ids != [] do
-            import Ecto.Query
-
-            Treby.Interviews.InterviewEvent
-            |> where(
-              [e],
-              e.application_id in ^application_ids and e.status == "scheduled" and
-                e.start_at_utc > ^DateTime.utc_now()
-            )
-            |> order_by([e], asc: e.start_at_utc)
-            |> Treby.Repo.all()
-            |> Enum.group_by(& &1.application_id)
-          else
-            []
-          end
 
         {:ok,
          socket
          |> assign(current_user: user, current_tenant: tenant)
          |> assign(job: job)
-         |> assign(applications_by_stage: applications_by_stage)
          |> assign(stages: stages)
-         |> assign(application_counts: application_counts)
-         |> assign(upcoming_interviews: upcoming_interviews)
          |> assign(review_filter: "all")
          |> assign(show_email_dialog: false)
          |> assign(pending_stage_move: nil)
@@ -82,28 +49,33 @@ defmodule TrebyWeb.PipelineLive.Index do
     end
   end
 
-  def handle_info({:email, _email}, socket) do
-    {:noreply, socket}
+  def handle_params(params, uri, socket) do
+    request_path = URI.parse(uri).path || "/app/pipeline/#{socket.assigns.job.id}"
+
+    {:noreply,
+     socket
+     |> assign(request_path: request_path)
+     |> load_board(params["page"] || 1)}
   end
 
-  def handle_info({:pipeline_updated, job_id}, socket) do
-    applications_by_stage = Pipeline.list_applications_by_stage(job_id)
+  defp load_board(socket, page) do
+    import Ecto.Query
+
+    %{job: job, current_tenant: tenant} = socket.assigns
+
+    {grouped, page_info} = Pipeline.list_applications_by_stage(job.id, page: page)
 
     candidate_ids =
-      applications_by_stage
+      grouped
       |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.candidate_id) end)
       |> Enum.uniq()
 
-    application_counts =
-      Pipeline.candidate_application_counts(socket.assigns.current_tenant.id, candidate_ids)
+    application_counts = Pipeline.candidate_application_counts(tenant.id, candidate_ids)
 
-    application_ids =
-      applications_by_stage |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
+    application_ids = grouped |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.id) end)
 
     upcoming_interviews =
       if application_ids != [] do
-        import Ecto.Query
-
         Treby.Interviews.InterviewEvent
         |> where(
           [e],
@@ -114,14 +86,27 @@ defmodule TrebyWeb.PipelineLive.Index do
         |> Treby.Repo.all()
         |> Enum.group_by(& &1.application_id)
       else
-        %{}
+        []
       end
 
-    {:noreply,
-     socket
-     |> assign(applications_by_stage: applications_by_stage)
-     |> assign(application_counts: application_counts)
-     |> assign(upcoming_interviews: upcoming_interviews)}
+    socket
+    |> assign(applications_by_stage: grouped)
+    |> assign(page_info: page_info)
+    |> assign(page: page_info.page)
+    |> assign(application_counts: application_counts)
+    |> assign(upcoming_interviews: upcoming_interviews)
+  end
+
+  defp page_url(path, page) do
+    "#{path}?#{URI.encode_query(%{page: page})}"
+  end
+
+  def handle_info({:email, _email}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_info({:pipeline_updated, _job_id}, socket) do
+    {:noreply, load_board(socket, socket.assigns.page)}
   end
 
   def render(assigns) do
@@ -394,6 +379,16 @@ defmodule TrebyWeb.PipelineLive.Index do
             )
           }
         />
+        <div class="mt-4">
+          <.pagination
+            id="pagination"
+            page={@page_info.page}
+            total_pages={@page_info.total_pages}
+            total_count={@page_info.total_count}
+            page_size={@page_info.page_size}
+            patch={fn p -> page_url(@request_path, p) end}
+          />
+        </div>
       </div>
 
       <.modal
@@ -684,6 +679,10 @@ defmodule TrebyWeb.PipelineLive.Index do
     """
   end
 
+  def handle_event("paginate", %{"page" => page}, socket) do
+    {:noreply, push_patch(socket, to: page_url(socket.assigns.request_path, page))}
+  end
+
   def handle_event(
         "move_candidate",
         %{"application_id" => application_id, "stage_id" => stage_id},
@@ -736,9 +735,13 @@ defmodule TrebyWeb.PipelineLive.Index do
          |> assign(schedule_jitter: 5)}
       else
         # No email template, move directly
-        case Pipeline.move_application(application, stage_id, actor: socket.assigns.current_user) do
+        case Pipeline.move_application(application, stage_id,
+               actor: socket.assigns.current_user,
+               audit: TrebyWeb.LiveAudit.attrs_from_socket(socket)
+             ) do
           {:ok, _application} ->
-            applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+            socket = load_board(socket, socket.assigns.page)
+            applications_by_stage = socket.assigns.applications_by_stage
             {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
 
           {:error, _changeset} ->
@@ -845,7 +848,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     case Pipeline.toggle_reviewed(application) do
       {:ok, _app} ->
-        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+        socket = load_board(socket, socket.assigns.page)
+        applications_by_stage = socket.assigns.applications_by_stage
         {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
 
       {:error, _} ->
@@ -883,7 +887,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     BulkOperations.bulk_move_stage(ids, stage_id, tenant.id)
 
-    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+    socket = load_board(socket, socket.assigns.page)
+    applications_by_stage = socket.assigns.applications_by_stage
 
     {:noreply,
      socket
@@ -901,7 +906,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     BulkOperations.bulk_mark_reviewed(ids, tenant.id)
 
-    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+    socket = load_board(socket, socket.assigns.page)
+    applications_by_stage = socket.assigns.applications_by_stage
 
     {:noreply,
      socket
@@ -914,7 +920,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     BulkOperations.bulk_mark_unreviewed(ids, tenant.id)
 
-    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+    socket = load_board(socket, socket.assigns.page)
+    applications_by_stage = socket.assigns.applications_by_stage
 
     {:noreply,
      socket
@@ -939,7 +946,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     {:ok, _} = BulkOperations.bulk_delete_candidates(ids, tenant.id)
 
-    applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+    socket = load_board(socket, socket.assigns.page)
+    applications_by_stage = socket.assigns.applications_by_stage
 
     {:noreply,
      socket
@@ -1028,7 +1036,8 @@ defmodule TrebyWeb.PipelineLive.Index do
               _ -> :ok
             end
 
-            applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+            socket = load_board(socket, socket.assigns.page)
+            applications_by_stage = socket.assigns.applications_by_stage
 
             {:noreply,
              socket
@@ -1070,7 +1079,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     case Treby.Interviews.complete_interview(interview, socket.assigns.current_user) do
       {:ok, _interview} ->
-        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+        socket = load_board(socket, socket.assigns.page)
+        applications_by_stage = socket.assigns.applications_by_stage
 
         {:noreply,
          socket
@@ -1148,7 +1158,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     case Treby.Scorecards.submit_scorecard(event_id, socket.assigns.current_user.id, attrs) do
       {:ok, _scorecard} ->
-        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+        socket = load_board(socket, socket.assigns.page)
+        applications_by_stage = socket.assigns.applications_by_stage
 
         {:noreply,
          socket
@@ -1200,7 +1211,8 @@ defmodule TrebyWeb.PipelineLive.Index do
                  actor: socket.assigns.current_user
                ) do
             {:ok, _application} ->
-              applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+              socket = load_board(socket, socket.assigns.page)
+              applications_by_stage = socket.assigns.applications_by_stage
               {:noreply, assign(socket, applications_by_stage: applications_by_stage)}
 
             {:error, _changeset} ->
@@ -1324,7 +1336,8 @@ defmodule TrebyWeb.PipelineLive.Index do
   defp move_and_reply(socket, pending, success_message) do
     case Pipeline.move_application(pending.application, pending.stage.id, skip_notification: true) do
       {:ok, _application} ->
-        applications_by_stage = Pipeline.list_applications_by_stage(socket.assigns.job.id)
+        socket = load_board(socket, socket.assigns.page)
+        applications_by_stage = socket.assigns.applications_by_stage
 
         {:noreply,
          socket

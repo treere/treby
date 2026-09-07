@@ -31,12 +31,13 @@ The system SHALL allow authenticated users to edit job postings.
 - **THEN** the job is updated with the new values
 
 ### Requirement: List jobs
-The system SHALL display all jobs for the current tenant.
+The system SHALL display jobs for the current tenant in pages of 25 (configurable default) instead of all rows at once.
 
 #### Scenario: Job listing page
 - **WHEN** a user navigates to the jobs page
-- **THEN** all jobs for their tenant are displayed with title, status, and salary range
+- **THEN** the first 25 jobs for their tenant are displayed with title, status, and salary range
 - **AND** clicking a job title navigates to the job detail page
+- **AND** a pager shows the result count and navigation controls
 
 #### Scenario: Filter by status
 - **WHEN** a user filters jobs by status (open/closed)

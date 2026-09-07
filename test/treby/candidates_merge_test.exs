@@ -63,18 +63,6 @@ defmodule Treby.CandidatesMergeTest do
     candidate
   end
 
-  defp create_candidate(tenant, attrs, %DateTime{} = inserted_at) do
-    {:ok, candidate} =
-      tenant
-      |> Ecto.build_assoc(:candidates)
-      |> Candidate.changeset(attrs)
-      |> Ecto.Changeset.force_change(:inserted_at, inserted_at)
-      |> Ecto.Changeset.force_change(:updated_at, inserted_at)
-      |> Repo.insert()
-
-    candidate
-  end
-
   defp create_application(tenant, job, stage, candidate) do
     {:ok, application} =
       Pipeline.create_application(%{
@@ -275,16 +263,18 @@ defmodule Treby.CandidatesMergeTest do
       assert Duplicates.normalize_name("Renè Martìnez") == "rene martinez"
     end
 
-    test "groups exact email duplicates with high confidence and auto_merge" do
+    test "rejects exact email duplicates at insert (unique index)" do
       {tenant, _user, _job, _stage} = setup_tenant()
       _c1 = create_candidate(tenant, %{name: "First Person", email: "dup@example.com"})
-      _c2 = create_candidate(tenant, %{name: "Second Person", email: " DUP@example.com "})
 
-      [group] = Candidates.list_duplicate_groups(tenant.id)
-      assert group.signal == :exact_email
-      assert group.confidence == :high
-      assert group.auto_merge == true
-      assert length(group.candidates) == 2
+      assert {:error, changeset} =
+               tenant
+               |> Ecto.build_assoc(:candidates)
+               |> Candidate.changeset(%{name: "Second Person", email: " DUP@example.com "})
+               |> Repo.insert()
+
+      assert {"has already been taken", _} = changeset.errors[:email]
+      assert Candidates.list_duplicate_groups(tenant.id) == []
     end
 
     test "groups normalized phone + name matches" do
@@ -332,13 +322,15 @@ defmodule Treby.CandidatesMergeTest do
 
     test "assigns each candidate to at most one group (strongest signal wins)" do
       {tenant, _user, _job, _stage} = setup_tenant()
-      _a = create_candidate(tenant, %{name: "Same Name", email: "same@example.com", phone: "111"})
-      _b = create_candidate(tenant, %{name: "Same Name", email: "same@example.com", phone: "222"})
-      _c = create_candidate(tenant, %{name: "Same Name", email: "same@example.com", phone: "333"})
+      # Same phone+name AND same name+local-part: phone_name (high) wins.
+      _a = create_candidate(tenant, %{name: "Same Name", email: "same@one.com", phone: "111"})
+      _b = create_candidate(tenant, %{name: "Same Name", email: "same@two.com", phone: "111"})
+      _c = create_candidate(tenant, %{name: "Same Name", email: "same@three.com", phone: "111"})
 
       groups = Candidates.list_duplicate_groups(tenant.id)
 
       assert length(groups) == 1
+      assert List.first(groups).signal == :phone_name
       assert length(List.first(groups).candidates) == 3
     end
   end
@@ -500,21 +492,21 @@ defmodule Treby.CandidatesMergeTest do
   end
 
   describe "auto_merge_exact_email/2" do
-    test "merges exact-email duplicates into the oldest candidate and logs the merge" do
+    test "finds nothing to merge when exact-email duplicates are blocked by the unique index" do
       {tenant, user, _job, _stage} = setup_tenant()
 
-      # Explicit, ordered `inserted_at` values: two fast sequential inserts can
-      # land in the same microsecond and produce identical timestamps, which
-      # would make the "oldest wins" assertion depend on arbitrary ordering.
-      base = DateTime.truncate(DateTime.utc_now(), :second)
-      older = create_candidate(tenant, %{name: "Older Person", email: "Same@Example.com"}, base)
+      # Exact-email duplicates can no longer be created: the partial unique
+      # index rejects the second insert, so there is nothing to auto-merge.
+      _older =
+        create_candidate(tenant, %{name: "Older Person", email: "Same@Example.com"})
 
-      newer =
-        create_candidate(
-          tenant,
-          %{name: "Newer Person", email: "same@example.com"},
-          DateTime.add(base, 1, :second)
-        )
+      assert {:error, changeset} =
+               tenant
+               |> Ecto.build_assoc(:candidates)
+               |> Candidate.changeset(%{name: "Newer Person", email: "same@example.com"})
+               |> Repo.insert()
+
+      assert {"has already been taken", _} = changeset.errors[:email]
 
       unrelated =
         create_candidate(tenant, %{
@@ -523,14 +515,12 @@ defmodule Treby.CandidatesMergeTest do
           phone: "555-0123"
         })
 
-      assert %{merged: 1, skipped: 0} = Candidates.auto_merge_exact_email(tenant.id, user)
+      assert %{merged: 0, skipped: 0} = Candidates.auto_merge_exact_email(tenant.id, user)
 
-      assert Repo.get!(Candidate, older.id).merged_into_id |> is_nil()
-      assert Repo.get!(Candidate, newer.id).merged_into_id == older.id
       assert Repo.get!(Candidate, unrelated.id).merged_into_id |> is_nil()
 
-      events = Activities.list_events_for_entity("candidate", older.id, 50)
-      assert Enum.any?(events, &(&1.action == "candidates_merged"))
+      events = Activities.list_events_for_entity("candidate", unrelated.id, 50)
+      refute Enum.any?(events, &(&1.action == "candidates_merged"))
     end
 
     test "leaves suggestion-only groups (phone + name) untouched" do

@@ -15,6 +15,8 @@ The candidates page shows:
 - Bulk actions, including **Merge into one** with a primary picker
 - Delete action
 
+The list shows 25 candidates per page with a pager at the bottom ("Showing X–Y of Z", page numbers, Prev/Next). Search and job/stage filters combine with paging and reset to page 1; the page number is kept in the URL so filtered views can be shared.
+
 ## Adding Candidates
 
 ![Add Candidate Form](/screenshots/21-add-candidate-form.png)

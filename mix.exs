@@ -79,6 +79,7 @@ defmodule Treby.MixProject do
       {:tz, "~> 0.28"},
       {:nimble_csv, "~> 1.2"},
       {:oban, "~> 2.19"},
+      {:hammer, "~> 6.0"},
       {:phoenix_storybook, "~> 1.3", only: :dev},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}

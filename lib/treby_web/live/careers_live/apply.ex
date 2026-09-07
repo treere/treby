@@ -360,7 +360,7 @@ defmodule TrebyWeb.CareersLive.Apply do
              key = "#{tenant.id}/resumes/#{candidate.id}/#{Path.basename(path)}"
              content = File.read!(path)
 
-             case Treby.Uploads.upload_file(key, content, "application/pdf") do
+             case Treby.Uploads.upload_file(tenant.id, key, content, "application/pdf") do
                {:ok, _} -> {:ok, key}
                _ -> {:ok, nil}
              end

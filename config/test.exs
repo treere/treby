@@ -77,6 +77,16 @@ config :ex_aws, :s3,
 # Disable PromEx in test (no metrics polling)
 config :treby, Treby.PromEx, disabled: true
 
+# Generous rate limits in test so unrelated tests sharing 127.0.0.1 never
+# trip throttling; dedicated throttle tests override per-test with on_exit
+# restore (integration files run async: false, i.e. sequentially).
+config :treby, :rate_limits,
+  login_ip: {60_000, 1_000},
+  login_email: {3_600_000, 1_000},
+  otp_request_ip: {60_000, 1_000},
+  otp_request_email: {3_600_000, 1_000},
+  otp_verify_ip: {60_000, 1_000}
+
 # Route every Req request in tests through a Req.Test stub, never the real network
 config :req,
   default_options: [plug: {Req.Test, Treby.GoogleApiMock}]

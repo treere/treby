@@ -1346,7 +1346,8 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
         # Update application status to rejected
         Pipeline.move_application(application, rejected_stage.id, %{
-          rejection_reason: reason
+          rejection_reason: reason,
+          audit: TrebyWeb.LiveAudit.attrs_from_socket(socket)
         })
 
         # Send rejection notification email

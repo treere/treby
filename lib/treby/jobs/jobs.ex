@@ -4,15 +4,37 @@ defmodule Treby.Jobs do
   """
 
   import Ecto.Query, warn: false
+  alias Treby.Candidates.Queries
   alias Treby.Repo
   alias Treby.Jobs.Job
 
-  def list_jobs(tenant_id) do
-    Job
-    |> where([j], j.tenant_id == ^tenant_id)
-    |> order_by([j], desc: j.inserted_at)
-    |> Repo.all()
+  @doc """
+  Lists jobs for a tenant, newest first.
+
+  Without `:page` in `opts` returns the full list; with `:page` returns
+  `{entries, page_info}` (see `Treby.Candidates.Queries.paginate/3`).
+  `:status` in `opts` (`"open"`/`"closed"`) filters by status.
+  """
+  def list_jobs(tenant_id, opts \\ []) do
+    opts = Enum.into(opts, %{})
+
+    query =
+      Job
+      |> where([j], j.tenant_id == ^tenant_id)
+      |> apply_status_filter(opts[:status])
+      |> order_by([j], desc: j.inserted_at, desc: j.id)
+
+    case opts[:page] do
+      nil -> Repo.all(query)
+      page -> Queries.paginate(query, page, opts[:page_size])
+    end
   end
+
+  defp apply_status_filter(query, status) when status in ["open", "closed"] do
+    where(query, [j], j.status == ^status)
+  end
+
+  defp apply_status_filter(query, _), do: query
 
   def list_open_jobs(tenant_id) do
     Job
@@ -38,7 +60,7 @@ defmodule Treby.Jobs do
   end
 
   def search_visible_jobs(tenant_id, query) do
-    ilike_query = "%#{query}%"
+    ilike_query = "%#{Queries.escape_like(query)}%"
 
     Job
     |> where(
@@ -52,7 +74,7 @@ defmodule Treby.Jobs do
   end
 
   def search_all_visible_jobs(query) do
-    ilike_query = "%#{query}%"
+    ilike_query = "%#{Queries.escape_like(query)}%"
 
     Job
     |> join(:inner, [j], t in assoc(j, :tenant))

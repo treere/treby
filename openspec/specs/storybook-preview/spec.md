@@ -22,7 +22,7 @@ The system SHALL integrate `phoenix_storybook` (https://github.com/phenixdigital
 - **THEN** the storybook route is not mounted and no test depends on it
 
 ### Requirement: Storybook shows every design-system component
-The storybook SHALL define a story for each design-system component — `Button`, `Badge`, `Card`, `Modal`, `Dropdown`, `Tabs`, `Avatar`, `Feedback` (`Spinner`/`Skeleton`/`Toast`), and `Pattern` (`ConfirmDialog`, `PageHeader`, `EmptyState`, `FilterBar`, `FormSection`, `LoadingOverlay`) — with controls for variants, sizes, and boolean props, and with usage notes.
+The storybook SHALL define a story for each design-system component — `Button`, `Badge`, `Card`, `Modal`, `Dropdown`, `Tabs`, `Avatar`, `Feedback` (`Spinner`/`Skeleton`/`Toast`), `Pagination`, and `Pattern` (`ConfirmDialog`, `PageHeader`, `EmptyState`, `FilterBar`, `FormSection`, `LoadingOverlay`) — with controls for variants, sizes, and boolean props, and with usage notes.
 
 #### Scenario: Button story covers variants and states
 - **WHEN** a developer opens the Button story
@@ -30,7 +30,11 @@ The storybook SHALL define a story for each design-system component — `Button`
 
 #### Scenario: All components have stories
 - **WHEN** the storybook index is viewed
-- **THEN** entries exist for Badge, Card, Modal, Dropdown, Tabs, Avatar, Spinner, Skeleton, Toast, ConfirmDialog, PageHeader, EmptyState, FilterBar, FormSection, and LoadingOverlay
+- **THEN** entries exist for Badge, Card, Modal, Dropdown, Tabs, Avatar, Spinner, Skeleton, Toast, Pagination, ConfirmDialog, PageHeader, EmptyState, FilterBar, FormSection, and LoadingOverlay
+
+#### Scenario: Pagination story covers states
+- **WHEN** a developer opens the Pagination story
+- **THEN** controls allow switching `page`/`total_pages`, and states for first page (Prev disabled), last page (Next disabled), and single page (hidden) are previewable
 
 ### Requirement: Storybook reuses app styling and theming
 The storybook SHALL render components with the app's `assets/css/app.css` (Tailwind v4 + daisyUI theme vars + `--ds-*` tokens) and respect `data-theme` (light/dark/system), so previews match production rendering.

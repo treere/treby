@@ -114,6 +114,16 @@ defmodule Treby.AuditTest do
       assert hd(events).action == "job.created"
     end
 
+    test "search treats _ as a literal character" do
+      {tenant, _} = setup_tenant()
+
+      {:ok, _} =
+        Audit.log_event("job.created", "job", Ecto.UUID.generate(), %{tenant_id: tenant.id})
+
+      {events, _} = Audit.list_events(tenant.id, search: "job_created")
+      assert events == []
+    end
+
     test "pagination" do
       {tenant, _} = setup_tenant()
       # clear existing audit events for this tenant to make pagination deterministic

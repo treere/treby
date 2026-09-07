@@ -17,7 +17,7 @@ defmodule TrebyWeb.CandidatePortalSecurityTest do
     tenant
   end
 
-  defp setup_candidate(tenant, email_suffix \\ nil) do
+  defp setup_candidate(tenant, email_suffix) do
     email = "cand-#{email_suffix || System.unique_integer([:positive])}@test.com"
 
     {:ok, candidate} =
@@ -43,11 +43,11 @@ defmodule TrebyWeb.CandidatePortalSecurityTest do
   end
 
   defp setup_application(tenant, candidate, job) do
-    pipeline_id =
-      Pipeline.default_pipeline_id(tenant.id) ||
-        Treby.Pipeline.create_default_pipeline_stages(tenant).id
-
     # ensure pipeline exists
+    if is_nil(Pipeline.default_pipeline_id(tenant.id)) do
+      Treby.Pipeline.create_default_pipeline_stages(tenant)
+    end
+
     pipeline_id = Pipeline.default_pipeline_id(tenant.id)
     [first_stage | _] = Pipeline.list_pipeline_stages(pipeline_id)
 
@@ -132,6 +132,50 @@ defmodule TrebyWeb.CandidatePortalSecurityTest do
 
       # plug should redirect to candidate's real tenant portal
       assert redirected_to(conn) =~ "/#{tenant_a.slug}/portal"
+    end
+  end
+
+  describe "portal logout CSRF" do
+    # Note: Phoenix.ConnTest sets :plug_skip_csrf_protection, so enforcement
+    # is verified with a raw Plug.Test conn below instead.
+    test "DELETE without CSRF token raises (protect_from_forgery active)", %{
+      conn: _conn
+    } do
+      tenant = setup_tenant("csrf")
+
+      conn =
+        Plug.Test.conn(:delete, "/#{tenant.slug}/portal/logout")
+        |> Plug.Test.init_test_session(%{})
+        |> Map.put(
+          :secret_key_base,
+          TrebyWeb.Endpoint.config(:secret_key_base)
+        )
+
+      assert_raise Plug.CSRFProtection.InvalidCSRFTokenError, fn ->
+        TrebyWeb.Endpoint.call(conn, TrebyWeb.Endpoint.init([]))
+      end
+    end
+
+    test "portal layout renders logout as DELETE form with CSRF token", %{
+      conn: conn
+    } do
+      tenant = setup_tenant("csrf-ok")
+      candidate = setup_candidate(tenant, "logout")
+      expires = DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.to_unix()
+
+      conn =
+        init_test_session(conn, %{
+          "candidate_id" => candidate.id,
+          "candidate_tenant_id" => tenant.id,
+          "candidate_expires_at" => expires
+        })
+
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/portal")
+
+      assert html =~ "/#{tenant.slug}/portal/logout"
+      assert html =~ "_method"
+      assert html =~ ~s(value="delete")
+      assert html =~ "_csrf_token"
     end
   end
 

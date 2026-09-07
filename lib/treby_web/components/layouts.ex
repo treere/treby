@@ -423,7 +423,7 @@ defmodule TrebyWeb.Layouts do
               <.form
                 for={%{}}
                 action={~p"/#{@current_tenant.slug}/portal/logout"}
-                method="post"
+                method="delete"
                 class="inline"
               >
                 <button
@@ -501,7 +501,7 @@ defmodule TrebyWeb.Layouts do
             <.form
               for={%{}}
               action={~p"/#{@current_tenant.slug}/portal/logout"}
-              method="post"
+              method="delete"
             >
               <button
                 type="submit"

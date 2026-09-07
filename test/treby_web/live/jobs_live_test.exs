@@ -93,6 +93,51 @@ defmodule TrebyWeb.JobsLive.IndexTest do
     end
   end
 
+  describe "pagination" do
+    test "shows pager with result count and navigates pages", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+      base = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      for i <- 1..30 do
+        # Explicit staggered timestamps: fast inserts share the same second,
+        # which would leave newest-first ordering to chance.
+        inserted_at = DateTime.add(base, i, :second)
+
+        {:ok, _} =
+          tenant
+          |> Ecto.build_assoc(:jobs)
+          |> Job.changeset(%{
+            title: "Paged Job #{String.pad_leading(to_string(i), 2, "0")}",
+            description: "Work",
+            pipeline_id: pipeline_id
+          })
+          |> Ecto.Changeset.force_change(:inserted_at, inserted_at)
+          |> Ecto.Changeset.force_change(:updated_at, inserted_at)
+          |> Repo.insert()
+      end
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/jobs")
+
+      assert has_element?(view, "#pagination")
+      html = render(view)
+      assert html =~ "Showing 1–25 of 30"
+      assert html =~ "Paged Job 30"
+      refute html =~ "Paged Job 01"
+
+      html =
+        view
+        |> element("#pagination a", "2")
+        |> render_click()
+
+      assert html =~ "Showing 26–30 of 30"
+      assert html =~ "Paged Job 01"
+      refute html =~ "Paged Job 30"
+    end
+  end
+
   describe "form validation" do
     test "shows flash error when creating job with empty title", %{conn: conn} do
       {_tenant, user} = setup_tenant()

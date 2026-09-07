@@ -14,7 +14,7 @@ defmodule TrebyWeb.ResumeController do
         |> redirect(to: ~p"/app/candidates/#{application.candidate_id}")
 
       s3_key ->
-        presigned_url = Treby.Uploads.get_presigned_url(s3_key, expires_in: 300)
+        presigned_url = Treby.Uploads.get_presigned_url(tenant.id, s3_key, expires_in: 300)
 
         conn
         |> redirect(external: presigned_url)

@@ -179,7 +179,7 @@ defmodule TrebyWeb.AnalyticsLive.Index do
         <%!-- Time in Stage --%>
         <.card :if={@time_in_stage != []} class="shadow mb-8">
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {gettext("Time in Stage (Avg. Days)")}
+            {gettext("Time in Stage (Avg. Days, last 90 days)")}
           </h2>
           <div class="space-y-3">
             <div :for={item <- @time_in_stage} class="flex items-center gap-4">

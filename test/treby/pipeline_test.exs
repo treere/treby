@@ -2,6 +2,8 @@ defmodule Treby.PipelineTest do
   use Treby.DataCase, async: true
 
   alias Treby.Pipeline
+  alias Treby.Pipeline.Analytics
+  alias Treby.Pipeline.Stages
   alias Treby.Repo
 
   setup do
@@ -146,6 +148,56 @@ defmodule Treby.PipelineTest do
       app = Repo.reload(app) |> Repo.preload(:pipeline_stage)
       assert Pipeline.interview_completed?(app)
       refute Pipeline.ready_to_advance?(app)
+    end
+  end
+
+  describe "analytics tenant scoping parity" do
+    test "tenant-scoped delegates match unscoped for explicit pipeline", %{
+      tenant: tenant,
+      job: job
+    } do
+      pipeline_id = job.pipeline_id || Pipeline.default_pipeline_id(tenant.id)
+
+      assert Pipeline.pipeline_counts_per_stage(tenant.id, pipeline_id) ==
+               Pipeline.pipeline_counts_per_stage(pipeline_id)
+
+      assert Pipeline.average_time_to_hire(tenant.id, pipeline_id) ==
+               Pipeline.average_time_to_hire(pipeline_id)
+
+      assert Pipeline.stage_conversion_rates(tenant.id, pipeline_id) ==
+               Pipeline.stage_conversion_rates(pipeline_id)
+
+      assert Pipeline.source_breakdown(tenant.id, pipeline_id) ==
+               Pipeline.source_breakdown(pipeline_id)
+    end
+
+    test "facade delegates to submodules", %{tenant: tenant} do
+      assert Pipeline.list_pipelines(tenant.id) ==
+               Stages.list_pipelines(tenant.id)
+
+      assert Pipeline.pipeline_counts_per_stage(nil) ==
+               Analytics.pipeline_counts_per_stage(nil)
+    end
+
+    test "grouped stage counts match independent per-stage counts", %{
+      tenant: tenant,
+      job: job
+    } do
+      import Ecto.Query
+
+      pipeline_id = job.pipeline_id || Pipeline.default_pipeline_id(tenant.id)
+
+      counts = Pipeline.pipeline_counts_per_stage(pipeline_id)
+      assert Enum.map(counts, & &1.count) |> Enum.sum() == 1
+
+      for %{stage: stage, count: count} <- counts do
+        expected =
+          Treby.Pipeline.Application
+          |> where([a], a.pipeline_stage_id == ^stage.id)
+          |> Treby.Repo.aggregate(:count)
+
+        assert count == expected
+      end
     end
   end
 

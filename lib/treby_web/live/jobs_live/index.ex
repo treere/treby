@@ -28,7 +28,6 @@ defmodule TrebyWeb.JobsLive.Index do
           {nil, nil}
       end
 
-    jobs = Jobs.list_jobs(tenant.id)
     job_fields = Customization.list_custom_fields_for(tenant.id, "job")
     pipelines = Pipeline.list_pipelines(tenant.id)
     templates = Pipeline.list_templates(tenant.id)
@@ -39,7 +38,6 @@ defmodule TrebyWeb.JobsLive.Index do
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
-     |> assign(jobs: jobs)
      |> assign(candidate_counts: candidate_counts)
      |> assign(view_summaries: view_summaries)
      |> assign(job_fields: job_fields)
@@ -49,6 +47,37 @@ defmodule TrebyWeb.JobsLive.Index do
      |> assign(filter: "all")
      |> assign(show_form: false)
      |> assign(form: to_form(Jobs.change_job(%Job{})))}
+  end
+
+  def handle_params(params, uri, socket) do
+    request_path = URI.parse(uri).path || "/app/jobs"
+
+    {:noreply,
+     socket
+     |> assign(request_path: request_path)
+     |> load_page(params["page"] || 1)}
+  end
+
+  defp load_page(socket, page) do
+    %{current_tenant: tenant, filter: filter} = socket.assigns
+
+    status = if filter in ["open", "closed"], do: filter, else: nil
+
+    {entries, page_info} = Jobs.list_jobs(tenant.id, status: status, page: page)
+
+    socket
+    |> assign(jobs: entries)
+    |> assign(page_info: page_info)
+    |> assign(page: page_info.page)
+  end
+
+  defp page_url(path, filter, page) do
+    params =
+      %{page: page, filter: filter}
+      |> Enum.reject(fn {_k, v} -> v in [nil, "", "all"] end)
+      |> Map.new()
+
+    "#{path}?#{URI.encode_query(params)}"
   end
 
   def render(assigns) do
@@ -300,6 +329,16 @@ defmodule TrebyWeb.JobsLive.Index do
               </tr>
             </tbody>
           </table>
+          <div class="mt-4">
+            <.pagination
+              id="pagination"
+              page={@page_info.page}
+              total_pages={@page_info.total_pages}
+              total_count={@page_info.total_count}
+              page_size={@page_info.page_size}
+              patch={fn p -> page_url(@request_path, @filter, p) end}
+            />
+          </div>
           <.empty_state
             :if={@jobs == []}
             icon="hero-briefcase"
@@ -330,17 +369,16 @@ defmodule TrebyWeb.JobsLive.Index do
     {:noreply, assign(socket, show_form: false)}
   end
 
+  def handle_event("paginate", %{"page" => page}, socket) do
+    {:noreply,
+     push_patch(socket, to: page_url(socket.assigns.request_path, socket.assigns.filter, page))}
+  end
+
   def handle_event("filter_jobs", %{"filter" => filter}, socket) do
-    jobs = Jobs.list_jobs(socket.assigns.current_tenant.id)
-
-    filtered_jobs =
-      case filter do
-        "open" -> Enum.filter(jobs, &(&1.status == "open"))
-        "closed" -> Enum.filter(jobs, &(&1.status == "closed"))
-        _ -> jobs
-      end
-
-    {:noreply, assign(socket, jobs: filtered_jobs, filter: filter)}
+    {:noreply,
+     socket
+     |> assign(filter: filter)
+     |> load_page(1)}
   end
 
   def handle_event("create_job", params, socket) do
@@ -390,12 +428,12 @@ defmodule TrebyWeb.JobsLive.Index do
 
       case Jobs.create_job(attrs) do
         {:ok, _job} ->
-          jobs = Jobs.list_jobs(socket.assigns.current_tenant.id)
           view_summaries = JobViews.summaries_for_tenant(socket.assigns.current_tenant.id)
 
           {:noreply,
            socket
-           |> assign(jobs: jobs, view_summaries: view_summaries, show_form: false)
+           |> load_page(socket.assigns.page)
+           |> assign(view_summaries: view_summaries, show_form: false)
            |> assign(form: to_form(Jobs.change_job(%Job{})))
            |> put_flash(:info, gettext("Job created successfully"))}
 
@@ -414,8 +452,7 @@ defmodule TrebyWeb.JobsLive.Index do
 
     case Jobs.update_job(job, %{status: new_status}) do
       {:ok, _job} ->
-        jobs = Jobs.list_jobs(socket.assigns.current_tenant.id)
-        {:noreply, assign(socket, jobs: jobs)}
+        {:noreply, load_page(socket, socket.assigns.page)}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, gettext("Failed to update job status"))}
@@ -428,8 +465,7 @@ defmodule TrebyWeb.JobsLive.Index do
 
     case Jobs.update_job(job, %{visible: new_visible}) do
       {:ok, _job} ->
-        jobs = Jobs.list_jobs(socket.assigns.current_tenant.id)
-        {:noreply, assign(socket, jobs: jobs)}
+        {:noreply, load_page(socket, socket.assigns.page)}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, gettext("Failed to update visibility"))}

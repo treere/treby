@@ -161,13 +161,14 @@ defmodule TrebyWeb.SettingsLive.Branding do
   def handle_event("save_branding", %{"career_page" => page_params}, socket) do
     logo_url =
       case consume_uploaded_entries(socket, :logo, fn %{path: path}, _entry ->
-             key = "#{socket.assigns.current_tenant.id}/logos/#{Path.basename(path)}"
+             tenant_id = socket.assigns.current_tenant.id
+             key = "#{tenant_id}/logos/#{Path.basename(path)}"
              content = File.read!(path)
              ext = Path.extname(path) |> String.trim_leading(".")
              content_type = "image/#{if ext == "jpg", do: "jpeg", else: ext}"
 
-             case Treby.Uploads.upload_file(key, content, content_type) do
-               {:ok, _} -> {:ok, Treby.Uploads.get_presigned_url(key)}
+             case Treby.Uploads.upload_file(tenant_id, key, content, content_type) do
+               {:ok, _} -> {:ok, Treby.Uploads.get_presigned_url(tenant_id, key)}
                _ -> {:ok, nil}
              end
            end) do

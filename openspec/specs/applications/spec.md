@@ -57,9 +57,10 @@ The system SHALL store resume URL on the application record.
 - **AND** the application.resume_url points to the S3 key
 
 ### Requirement: List applications for a job
-The system SHALL display all applications for a specific job.
+The system SHALL display applications for a specific job in pages of 25 (configurable default) instead of all rows at once.
 
 #### Scenario: Job applications view
 - **WHEN** a user views a job's pipeline
-- **THEN** all applications for that job are shown with candidate name and current stage
+- **THEN** the first 25 applications for that job are shown with candidate name and current stage
+- **AND** a pager navigates the remaining applications
 

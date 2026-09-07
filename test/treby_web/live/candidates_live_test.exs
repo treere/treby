@@ -492,4 +492,66 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       refute Repo.get(Candidate, candidate.id)
     end
   end
+
+  describe "pagination" do
+    test "shows pager with result count and navigates pages", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      for i <- 1..30 do
+        create_candidate(
+          tenant,
+          "Paged #{String.pad_leading(to_string(i), 2, "0")}",
+          "paged-#{i}@example.com"
+        )
+      end
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      assert has_element?(view, "#pagination")
+      html = render(view)
+      assert html =~ "Showing 1–25 of 30"
+      assert html =~ "Paged 01"
+      refute html =~ "Paged 30"
+
+      html =
+        view
+        |> element("#pagination a", "2")
+        |> render_click()
+
+      assert html =~ "Showing 26–30 of 30"
+      assert html =~ "Paged 30"
+      refute html =~ "Paged 01"
+    end
+
+    test "filter resets to page 1", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+
+      for i <- 1..30 do
+        create_candidate(
+          tenant,
+          "Paged #{String.pad_leading(to_string(i), 2, "0")}",
+          "paged-#{i}@example.com"
+        )
+      end
+
+      for i <- 1..5 do
+        create_candidate(tenant, "Other #{i}", "other-#{i}@example.com")
+      end
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/candidates?page=2")
+
+      assert render(view) =~ "Showing 26–35 of 35"
+
+      html =
+        view
+        |> form("#candidates-search-form", %{"search" => "Paged"})
+        |> render_change()
+
+      assert html =~ "Showing 1–25 of 30"
+      assert html =~ "Paged 01"
+      refute html =~ "Paged 30"
+    end
+  end
 end

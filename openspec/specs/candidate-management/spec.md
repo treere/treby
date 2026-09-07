@@ -29,11 +29,21 @@ The system SHALL allow creating candidates with contact information. The system 
 - **AND** the absorbed candidate remains absorbed
 
 ### Requirement: List candidates
-The system SHALL display all candidates for the current tenant.
+The system SHALL display candidates for the current tenant in pages of 25 (configurable default) instead of all rows at once. Search and job/stage filters SHALL combine with pagination and reset to page 1 on change.
 
 #### Scenario: Candidate listing page
 - **WHEN** a user navigates to the candidates page
-- **THEN** all candidates for their tenant are displayed with name, email, and application count
+- **THEN** the first 25 candidates for their tenant are displayed with name, email, and application count
+- **AND** a pager shows the result count and navigation controls
+
+#### Scenario: Pager navigation
+- **WHEN** a user clicks a page number or Next/Prev in the pager
+- **THEN** that page of candidates is shown
+- **AND** the URL updates with `?page=N` so the page is deep-linkable
+
+#### Scenario: Filter resets pagination
+- **WHEN** a user changes search text or job/stage filters
+- **THEN** the listing returns to page 1
 
 ### Requirement: View candidate profile
 The system SHALL display detailed candidate information, using the candidate's master anagrafica. The system SHALL redirect absorbed candidate profiles to their primary and SHALL show the master anagrafica on the profile. The system SHALL load the candidate profile without crashing regardless of whether the candidate has interviews, and SHALL correctly preload interview examiners.
@@ -136,3 +146,38 @@ The system SHALL allow using the candidate profile's portal actions (send messag
 - **THEN** the message is created without an application reference
 - **AND** no error is raised
 
+### Requirement: Candidates context facade and query centralization
+The system SHALL provide candidate business logic through a delegating facade `Treby.Candidates` that forwards listing/search/filter to `Candidates.Queries` and merge/undo to `Candidates.Merge`, with no inline `import Ecto.Query` inside functions and with `stringify_keys` centralized in `Treby.Helpers.Map`. Tenant isolation and search/filter behavior SHALL remain identical.
+
+#### Scenario: Facade preserves public API
+- **WHEN** existing code calls `Treby.Candidates.list_candidates/2` or `Treby.Candidates.merge_candidates/3`
+- **THEN** the call succeeds via `defdelegate` to `Candidates.Queries` or `Candidates.Merge` without requiring call-site changes
+
+#### Scenario: Query helpers centralized
+- **WHEN** `list_candidates/2` is invoked with `search`, `job_id`, or `stage_id` filters
+- **THEN** results match pre-refactor behavior because `apply_search`, `apply_job_filter`, and `apply_stage_filter` are defined once in `Candidates.Queries` and reused
+
+#### Scenario: Shared helper deduplication
+- **WHEN** candidate creation or application creation stringifies attribute keys
+- **THEN** both paths use `Treby.Helpers.Map.stringify_keys/1` and no duplicate `defp stringify_keys` remains in `candidates.ex` or `pipeline.ex`
+
+
+### Requirement: Concurrent duplicate-email safety
+The system SHALL guarantee that concurrent candidate creations with the same tenant and email produce a single active candidate. A partial unique index on active candidates SHALL back the application-level upsert.
+
+#### Scenario: Concurrent creates return one candidate
+- **WHEN** two requests create a candidate with the same tenant and email at the same time
+- **THEN** exactly one active candidate exists afterwards
+- **AND** both requests return `{:ok, candidate}` for that same record
+
+#### Scenario: Merged candidates do not block reuse
+- **WHEN** the only matching email belongs to an absorbed (merged) candidate
+- **THEN** creation succeeds with a new candidate (tombstoned rows are excluded from uniqueness)
+
+### Requirement: Indexed search
+Candidate name/email search SHALL remain case-insensitive contains matching and SHALL be served by trigram (GIN) indexes so leading-wildcard queries avoid sequential scans.
+
+#### Scenario: Search uses trigram index
+- **WHEN** a user searches candidates with any term (including `%` or partial words)
+- **THEN** results match the previous `ilike` semantics
+- **AND** the query plan uses the trigram index instead of a sequential scan

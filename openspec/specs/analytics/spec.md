@@ -38,16 +38,16 @@ The system SHALL calculate conversion rates for the selected pipeline(s).
 - **THEN** conversion rates are aggregated across all pipelines by stage type
 
 ### Requirement: Time-in-stage metrics
-The system SHALL track and display how long candidates spend in each pipeline stage.
+The system SHALL track and display how long candidates spend in each pipeline stage over the trailing 90 days (labeled as such), computed efficiently via a single grouped query path.
 
 #### Scenario: Average time per stage
 - **WHEN** a user views analytics
-- **THEN** the average time (in days) candidates spend in each stage is displayed
+- **THEN** the average time (in days) candidates spend in each stage over the last 90 days is displayed
 - **AND** stages with no completed transitions show "N/A"
 
 #### Scenario: Time-in-stage per pipeline
 - **WHEN** a user selects a specific pipeline in analytics
-- **THEN** the time-in-stage metrics reflect only that pipeline's data
+- **THEN** the time-in-stage metrics reflect only that pipeline's data over the last 90 days
 
 #### Scenario: Bottleneck indicator
 - **WHEN** a user views time-in-stage metrics
@@ -90,3 +90,10 @@ The system SHALL scope all analytics queries by tenant_id so one tenant cannot s
 - **WHEN** tenant A has 2 candidates and tenant B has 3 candidates
 - **THEN** tenant A's analytics shows 2 total candidates and tenant B shows 3, not 5
 
+
+### Requirement: Single-query stage counts
+The system SHALL compute per-stage candidate counts with one grouped database query instead of one count per stage, returning identical results.
+
+#### Scenario: Counts match grouped computation
+- **WHEN** a user views stage counts for any scope (global, tenant, or pipeline)
+- **THEN** the numbers equal the previous per-stage computation for the same data

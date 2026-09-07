@@ -155,7 +155,10 @@ IO.puts("Created second application: #{alice.name} for #{second_job.title}")
 duplicates =
   [
     %{name: "Frank Miller", email: "frank@example.com", phone: "555-0120"},
-    %{name: "Frank M.", email: "frank@example.com", phone: "555-0121"},
+    # NOTE: same-email duplicates are rejected by the
+    # candidates_tenant_email_unique_active index; the merge-center demo
+    # keeps a Frank group via the phone+name signal instead.
+    %{name: "Frank Miller", email: "frank.m@example.com", phone: "555-0120"},
     %{name: "Grace Hopper", email: "grace.hopper@company.com", phone: "555-0122"},
     %{name: "Grace Hopper", email: "grace.hopper@gmail.com", phone: "+39 555-0122"},
     %{name: "Heidi Lee", email: "heidi.lee@acme.com", phone: "555-0123"},

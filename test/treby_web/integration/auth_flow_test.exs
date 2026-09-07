@@ -64,6 +64,31 @@ defmodule TrebyWeb.AuthFlowTest do
       assert redirected_to(conn) == "/login"
     end
 
+    test "throttles excessive login attempts with 429 and rate-limit banner", %{
+      conn: conn
+    } do
+      {_tenant, user} = setup_tenant()
+      old_limits = Application.get_env(:treby, :rate_limits)
+
+      on_exit(fn -> Application.put_env(:treby, :rate_limits, old_limits) end)
+
+      Application.put_env(
+        :treby,
+        :rate_limits,
+        Keyword.merge(old_limits, login_ip: {60_000, 2}, login_email: {3_600_000, 100})
+      )
+
+      conn = %{conn | remote_ip: unique_test_ip()}
+      params = %{"user" => %{"email" => user.email, "password" => "wrongpassword"}}
+
+      assert redirected_to(post(conn, ~p"/session", params)) == "/login"
+      assert redirected_to(post(conn, ~p"/session", params)) == "/login"
+
+      denied = post(conn, ~p"/session", params)
+      assert denied.status == 429
+      assert denied.resp_body =~ "rate-limit-error"
+    end
+
     test "user can log out", %{conn: conn} do
       {_tenant, user} = setup_tenant()
 
@@ -210,5 +235,10 @@ defmodule TrebyWeb.AuthFlowTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Codice non valido o scaduto. Riprova."
     end
+  end
+
+  defp unique_test_ip do
+    n = System.unique_integer([:positive])
+    {10, rem(div(n, 65_536), 256), rem(div(n, 256), 256), rem(n, 254) + 1}
   end
 end

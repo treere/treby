@@ -11,7 +11,7 @@ Track hiring progress with a dedicated dashboard.
 - **Active positions** — number of open jobs
 - **Pipeline overview** — horizontal bars with candidate counts per stage
 - **Conversion rates** — percentage of candidates moving from one stage to the next
-- **Time in stage** — average days spent in each stage
+- **Time in stage** — average days spent in each stage over the last 90 days
 - **Sources** — where candidates come from (see [Sources](/features/source-tracking))
 
 ## Pipeline Filter

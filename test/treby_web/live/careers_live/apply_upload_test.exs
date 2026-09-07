@@ -3,7 +3,7 @@ defmodule TrebyWeb.CareersLive.ApplyUploadTest do
 
   import Phoenix.LiveViewTest
 
-  alias Treby.{Tenants, Jobs, Pipeline, Repo}
+  alias Treby.{Tenants, Pipeline, Repo}
   alias Treby.Jobs.Job
   alias Treby.Pipeline.PipelineStage
 

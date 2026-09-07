@@ -13,7 +13,24 @@ defmodule TrebyWeb.CandidateOtpController do
   def create(conn, %{"tenant_slug" => slug, "email" => email}) do
     tenant = Tenants.get_tenant_by_slug!(slug)
     email = email |> String.trim() |> String.downcase()
+    ip = Treby.Audit.attrs_from_conn(conn)[:ip] || "unknown"
 
+    with :allow <- Treby.RateLimit.check(:otp_request_ip, ip),
+         :allow <- Treby.RateLimit.check(:otp_request_email, "#{tenant.id}:#{email}") do
+      do_create(conn, tenant, slug, email)
+    else
+      {:deny, _retry_after_ms} ->
+        conn
+        |> put_session("otp_email", email)
+        |> put_flash(
+          :rate_limit,
+          gettext("Too many code requests. Please wait a few minutes and try again.")
+        )
+        |> redirect(to: "/#{slug}/portal/login")
+    end
+  end
+
+  defp do_create(conn, tenant, slug, email) do
     result =
       case Candidates.list_candidates(tenant.id, %{search: email}) do
         [candidate | _] ->
@@ -58,7 +75,23 @@ defmodule TrebyWeb.CandidateOtpController do
   def verify(conn, %{"tenant_slug" => slug} = params) do
     email = get_session(conn, "otp_email") || Map.get(params, "email", "")
     tenant = Tenants.get_tenant_by_slug!(slug)
+    ip = Treby.Audit.attrs_from_conn(conn)[:ip] || "unknown"
 
+    case Treby.RateLimit.check(:otp_verify_ip, ip) do
+      :allow ->
+        do_verify(conn, tenant, slug, email, params)
+
+      {:deny, _retry_after_ms} ->
+        conn
+        |> put_flash(
+          :rate_limit,
+          gettext("Too many verification attempts. Please wait a minute and try again.")
+        )
+        |> redirect(to: "/#{slug}/portal/verify")
+    end
+  end
+
+  defp do_verify(conn, tenant, slug, email, params) do
     case Candidates.list_candidates(tenant.id, %{search: email}) do
       [candidate | _] ->
         code = Map.get(params, "code", "")

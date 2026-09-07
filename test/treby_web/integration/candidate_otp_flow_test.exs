@@ -30,6 +30,11 @@ defmodule TrebyWeb.CandidateOtpFlowTest do
     code
   end
 
+  defp unique_test_ip do
+    n = System.unique_integer([:positive])
+    {10, rem(div(n, 65_536), 256), rem(div(n, 256), 256), rem(n, 254) + 1}
+  end
+
   defp capture_email do
     assert_received {:email, email}
     email
@@ -89,6 +94,41 @@ defmodule TrebyWeb.CandidateOtpFlowTest do
       assert redirected_to(conn) == "/#{tenant.slug}/portal"
       assert get_session(conn, "candidate_id") == candidate.id
       assert get_session(conn, "candidate_expires_at") != nil
+    end
+
+    test "throttles excessive OTP requests with rate-limit banner", %{conn: conn} do
+      {tenant, _candidate} = setup_tenant_and_candidate()
+      old_limits = Application.get_env(:treby, :rate_limits)
+
+      on_exit(fn -> Application.put_env(:treby, :rate_limits, old_limits) end)
+
+      Application.put_env(
+        :treby,
+        :rate_limits,
+        Keyword.merge(old_limits,
+          otp_request_ip: {60_000, 2},
+          otp_request_email: {3_600_000, 100}
+        )
+      )
+
+      conn = %{conn | remote_ip: unique_test_ip()}
+      email = "throttled-#{System.unique_integer([:positive])}@test.com"
+      path = ~p"/#{tenant.slug}/portal/login"
+
+      assert redirected_to(post(conn, path, %{"email" => email})) ==
+               "/#{tenant.slug}/portal/verify"
+
+      assert redirected_to(post(conn, path, %{"email" => email})) ==
+               "/#{tenant.slug}/portal/verify"
+
+      denied = post(conn, path, %{"email" => email})
+      assert redirected_to(denied) == "/#{tenant.slug}/portal/login"
+
+      assert Phoenix.Flash.get(denied.assigns.flash, :rate_limit) =~
+               "Too many code requests"
+
+      login_page = get(denied, "/#{tenant.slug}/portal/login")
+      assert html_response(login_page, 200) =~ "rate-limit-error"
     end
 
     test "rejects an invalid code", %{conn: conn} do

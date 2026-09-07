@@ -925,4 +925,68 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       assert html =~ "No scorecard template" or html =~ "Scorecard"
     end
   end
+
+  describe "pagination" do
+    test "shows pager with result count and navigates pages", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Applied", position: 0, stage_type: "applied"})
+        |> Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "Paged Board Job",
+          description: "Work",
+          pipeline_id: pipeline_id
+        })
+        |> Repo.insert()
+
+      base = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      for i <- 1..30 do
+        {:ok, candidate} =
+          tenant
+          |> Ecto.build_assoc(:candidates)
+          |> Candidate.changeset(%{
+            name: "Board #{String.pad_leading(to_string(i), 2, "0")}",
+            email: "board-#{i}@example.com"
+          })
+          |> Repo.insert()
+
+        {:ok, _} =
+          Treby.Pipeline.create_application(%{
+            tenant_id: tenant.id,
+            job_id: job.id,
+            candidate_id: candidate.id,
+            pipeline_stage_id: stage.id,
+            applied_at: DateTime.add(base, i, :second)
+          })
+      end
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      assert has_element?(view, "#pagination")
+      html = render(view)
+      assert html =~ "Showing 1–25 of 30"
+      assert html =~ "Board 30"
+      refute html =~ "Board 01"
+
+      html =
+        view
+        |> element("#pagination a", "2")
+        |> render_click()
+
+      assert html =~ "Showing 26–30 of 30"
+      assert html =~ "Board 01"
+      refute html =~ "Board 30"
+    end
+  end
 end

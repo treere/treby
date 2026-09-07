@@ -1,6 +1,9 @@
-defmodule Treby.Candidates do
+defmodule Treby.Candidates.Merge do
   @moduledoc """
-  The Candidates context.
+  Candidate merge/undo and duplicate suggestion handling.
+
+  Extracted from `Treby.Candidates`. Calls `recompute_duplicate_flags`
+  via the `Treby.Pipeline` facade to avoid direct submodule cross-imports.
   """
 
   import Ecto.Query, warn: false
@@ -12,200 +15,9 @@ defmodule Treby.Candidates do
   alias Treby.CandidatePortal.Conversation
   alias Treby.Activities.ActivityLog
   alias Treby.Pipeline.Application
+  alias Treby.Helpers.Map, as: HelpersMap
 
   @auto_merge_max_candidates 5_000
-
-  def list_candidates(tenant_id, filters \\ %{}) do
-    Candidate
-    |> where([c], c.tenant_id == ^tenant_id and is_nil(c.merged_into_id))
-    |> apply_search(filters[:search])
-    |> apply_job_filter(filters[:job_id])
-    |> apply_stage_filter(filters[:stage_id])
-    |> order_by([c], c.name)
-    |> Repo.all()
-  end
-
-  defp apply_search(query, nil), do: query
-  defp apply_search(query, ""), do: query
-
-  defp apply_search(query, search) do
-    pattern = "%#{search}%"
-
-    query
-    |> where([c], ilike(c.name, ^pattern) or ilike(c.email, ^pattern))
-  end
-
-  defp apply_job_filter(query, nil), do: query
-  defp apply_job_filter(query, ""), do: query
-
-  defp apply_job_filter(query, job_id) do
-    import Ecto.Query
-
-    subquery =
-      Treby.Pipeline.Application
-      |> where([a], a.job_id == ^job_id)
-      |> select([a], a.candidate_id)
-
-    where(query, [c], c.id in subquery(subquery))
-  end
-
-  defp apply_stage_filter(query, nil), do: query
-  defp apply_stage_filter(query, ""), do: query
-
-  defp apply_stage_filter(query, stage_id) do
-    import Ecto.Query
-
-    subquery =
-      Treby.Pipeline.Application
-      |> where([a], a.pipeline_stage_id == ^stage_id)
-      |> select([a], a.candidate_id)
-
-    where(query, [c], c.id in subquery(subquery))
-  end
-
-  def get_candidate!(id), do: Repo.get!(Candidate, id)
-
-  def get_candidate!(tenant_id, id) do
-    Candidate
-    |> where([c], c.tenant_id == ^tenant_id and c.id == ^id and is_nil(c.merged_into_id))
-    |> Repo.one!()
-  end
-
-  @doc """
-  Returns a candidate regardless of merge state (including absorbed/tombstoned
-  candidates), or `nil`. Used to detect and redirect away from absorbed profiles.
-  """
-  def get_candidate(tenant_id, id) do
-    Candidate
-    |> where([c], c.tenant_id == ^tenant_id and c.id == ^id)
-    |> Repo.one()
-  end
-
-  @doc """
-  Create a candidate or find the existing active candidate with the same
-  normalized email. When no email is present the candidate is always created.
-  Absorbed (tombstoned) candidates are never matched. This is the single entry
-  point for candidate creation that must not produce duplicates (career page
-  applications, CSV import, manual add).
-  """
-  def create_or_find(tenant_id, attrs) do
-    attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
-    email = attrs["email"] || ""
-    email = email |> String.trim() |> String.downcase()
-
-    candidate =
-      if email == "" do
-        nil
-      else
-        Candidate
-        |> where(
-          [c],
-          c.tenant_id == ^tenant_id and is_nil(c.merged_into_id) and
-            fragment("lower(trim(?)) = ?", c.email, ^email)
-        )
-        |> Repo.one()
-      end
-
-    case candidate do
-      nil -> create_candidate(Map.put(attrs, "tenant_id", tenant_id))
-      candidate -> {:ok, candidate}
-    end
-  end
-
-  def create_candidate(attrs \\ %{}) do
-    tenant_id = attrs["tenant_id"] || attrs[:tenant_id]
-
-    result =
-      %Candidate{tenant_id: tenant_id}
-      |> Candidate.changeset(attrs)
-      |> Repo.insert()
-
-    case result do
-      {:ok, candidate} ->
-        Treby.Activities.log_event(
-          "candidate_created",
-          "candidate",
-          candidate.id,
-          %{tenant_id: candidate.tenant_id}
-        )
-
-        Treby.Audit.log_event("candidate.created", "candidate", candidate.id, %{
-          tenant_id: candidate.tenant_id,
-          actor_id: attrs["actor_id"] || attrs[:actor_id],
-          metadata: %{after: %{name: candidate.name, email: candidate.email}}
-        })
-
-        {:ok, candidate}
-
-      error ->
-        error
-    end
-  end
-
-  def update_candidate(%Candidate{} = candidate, attrs, metadata \\ %{}) do
-    before = Map.take(candidate, [:name, :email, :phone])
-
-    result =
-      candidate
-      |> Candidate.changeset(attrs)
-      |> Repo.update()
-
-    case result do
-      {:ok, updated} ->
-        Treby.Activities.log_event(
-          "candidate_updated",
-          "candidate",
-          updated.id,
-          Map.merge(metadata, %{tenant_id: updated.tenant_id})
-        )
-
-        Treby.Audit.log_event("candidate.updated", "candidate", updated.id, %{
-          tenant_id: updated.tenant_id,
-          actor_id: metadata[:actor_id] || metadata["actor_id"],
-          metadata: %{
-            before: before,
-            after: Map.take(updated, [:name, :email, :phone])
-          }
-        })
-
-        {:ok, updated}
-
-      error ->
-        error
-    end
-  end
-
-  def delete_candidate(%Candidate{} = candidate, actor \\ nil) do
-    if actor && actor.role != "admin" do
-      {:error, :unauthorized}
-    else
-      case Repo.delete(candidate) do
-        {:ok, deleted} ->
-          Treby.Audit.log_event("candidate.deleted", "candidate", deleted.id, %{
-            tenant_id: deleted.tenant_id,
-            actor_id: actor && actor.id,
-            metadata: %{before: %{name: deleted.name, email: deleted.email}}
-          })
-
-          {:ok, deleted}
-
-        error ->
-          error
-      end
-    end
-  end
-
-  def change_candidate(%Candidate{} = candidate, attrs \\ %{}) do
-    Candidate.changeset(candidate, attrs)
-  end
-
-  def tenant_has_candidates?(tenant_id) do
-    Candidate
-    |> where([c], c.tenant_id == ^tenant_id)
-    |> Repo.exists?()
-  end
-
-  # Merge & split
 
   @doc """
   Merge a list of `absorbed_list` candidates into `primary`. All applications,
@@ -283,9 +95,9 @@ defmodule Treby.Candidates do
         tenant_id: primary.tenant_id,
         actor_id: actor && actor.id,
         merged_at: now,
-        application_mapping: stringify_keys(application_mapping),
-        thread_mapping: stringify_keys(conversation_mapping),
-        activity_mapping: stringify_keys(activity_mapping)
+        application_mapping: HelpersMap.stringify_keys(application_mapping),
+        thread_mapping: HelpersMap.stringify_keys(conversation_mapping),
+        activity_mapping: HelpersMap.stringify_keys(activity_mapping)
       })
       |> Repo.insert()
 
@@ -408,10 +220,6 @@ defmodule Treby.Candidates do
       {:ok, id} -> [id]
       :error -> []
     end)
-  end
-
-  defp stringify_keys(mapping) do
-    Map.new(mapping, fn {k, v} -> {to_string(k), to_string(v)} end)
   end
 
   @doc """

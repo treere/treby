@@ -38,6 +38,13 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
             <% end %>
           </div>
 
+          <p
+            :if={Phoenix.Flash.get(@flash, :rate_limit)}
+            id="rate-limit-error"
+            class="mb-4 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 px-3 py-2 text-sm text-red-700 dark:text-red-200"
+          >
+            {Phoenix.Flash.get(@flash, :rate_limit)}
+          </p>
           <%= if @has_email? do %>
             <.form
               for={%{}}

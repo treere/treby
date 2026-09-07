@@ -39,8 +39,19 @@ defmodule Treby.Jobs.Job do
     ])
     |> validate_required([:title, :description])
     |> validate_inclusion(:status, ~w(open closed))
+    |> validate_visible_requires_open()
     |> validate_employment_type()
     |> validate_workplace_type()
+  end
+
+  defp validate_visible_requires_open(changeset) do
+    # Only trigger when visible is explicitly turned on: merely closing an
+    # open visible job (status change alone) must keep working.
+    if get_change(changeset, :visible) == true and get_field(changeset, :status) == "closed" do
+      add_error(changeset, :visible, "cannot be visible when the job is closed")
+    else
+      changeset
+    end
   end
 
   defp validate_employment_type(changeset) do

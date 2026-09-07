@@ -710,14 +710,17 @@ defmodule TrebyWeb.CandidatesLive.Index do
               stage = Pipeline.list_pipeline_stages_for_job(job.id) |> List.first()
 
               if stage do
-                Pipeline.create_application(%{
-                  tenant_id: socket.assigns.current_tenant.id,
-                  job_id: job.id,
-                  candidate_id: candidate.id,
-                  pipeline_stage_id: stage.id,
-                  applied_at: DateTime.utc_now(),
-                  source: "manual"
-                })
+                Pipeline.create_application(
+                  %{
+                    tenant_id: socket.assigns.current_tenant.id,
+                    job_id: job.id,
+                    candidate_id: candidate.id,
+                    pipeline_stage_id: stage.id,
+                    applied_at: DateTime.utc_now(),
+                    source: "manual"
+                  },
+                  candidate: candidate
+                )
 
                 Phoenix.PubSub.broadcast(
                   Treby.PubSub,

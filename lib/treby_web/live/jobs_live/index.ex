@@ -1,6 +1,8 @@
 defmodule TrebyWeb.JobsLive.Index do
   use TrebyWeb, :live_view
 
+  import Ecto.Query, warn: false
+
   alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline, JobViews}
   alias Treby.Jobs.Job
   alias Treby.Repo
@@ -473,8 +475,6 @@ defmodule TrebyWeb.JobsLive.Index do
   end
 
   defp application_counts_by_job(tenant_id) do
-    import Ecto.Query
-
     Treby.Pipeline.Application
     |> where([a], a.tenant_id == ^tenant_id)
     |> group_by([a], a.job_id)

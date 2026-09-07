@@ -426,6 +426,37 @@ defmodule Treby.CandidatesMergeTest do
       assert Repo.reload!(absorbed_app).candidate_id == primary.id
       assert Repo.reload!(absorbed_app).is_duplicate
     end
+
+    test "recompute_duplicate_flags with no duplicates clears flags in one query" do
+      {tenant, _user, job, stage} = setup_tenant()
+      candidate = create_candidate(tenant, %{name: "Solo Person", email: "solo@example.com"})
+
+      app = create_application(tenant, job, stage, candidate)
+
+      assert :ok = Treby.Pipeline.recompute_duplicate_flags(candidate.id)
+      refute Repo.reload!(app).is_duplicate
+    end
+
+    test "create_application with preloaded candidate skips the fetch" do
+      {tenant, _user, job, stage} = setup_tenant()
+      candidate = create_candidate(tenant, %{name: "DB Name", email: "stale@example.com"})
+
+      # In-memory name differs from the DB row: if the snapshot uses it,
+      # no fetch happened.
+      {:ok, app} =
+        Pipeline.create_application(
+          %{
+            tenant_id: tenant.id,
+            job_id: job.id,
+            candidate_id: candidate.id,
+            pipeline_stage_id: stage.id,
+            applied_at: DateTime.utc_now()
+          },
+          candidate: %{candidate | name: "In-Memory Name"}
+        )
+
+      assert Repo.reload!(app).anagrafica["name"] == "In-Memory Name"
+    end
   end
 
   describe "list_candidates/1" do

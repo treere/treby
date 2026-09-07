@@ -6,6 +6,7 @@ defmodule Treby.Pipeline.Applications do
   """
 
   import Ecto.Query, warn: false
+  require Logger
   alias Treby.Candidates.Queries
   alias Treby.Repo
   alias Treby.Pipeline.PipelineStage
@@ -352,11 +353,11 @@ defmodule Treby.Pipeline.Applications do
     |> Repo.one()
   end
 
-  def create_application(attrs \\ %{}) do
+  def create_application(attrs \\ %{}, opts \\ []) do
     result =
       attrs
       |> HelpersMap.stringify_keys()
-      |> ensure_anagrafica()
+      |> ensure_anagrafica(opts)
       |> set_duplicate_flag()
       |> then(fn attrs ->
         %Application{}
@@ -395,13 +396,16 @@ defmodule Treby.Pipeline.Applications do
     |> Map.new()
   end
 
-  defp ensure_anagrafica(attrs) do
+  defp ensure_anagrafica(attrs, opts) do
     if Map.get(attrs, "anagrafica") || Map.get(attrs, :anagrafica) do
       attrs
     else
-      case Map.get(attrs, "candidate_id") || Map.get(attrs, :candidate_id) do
+      case opts[:candidate] || Map.get(attrs, "candidate_id") || Map.get(attrs, :candidate_id) do
         nil ->
           attrs
+
+        %Treby.Candidates.Candidate{} = candidate ->
+          Map.put(attrs, "anagrafica", build_anagrafica(candidate))
 
         candidate_id ->
           case Repo.get(Treby.Candidates.Candidate, candidate_id) do
@@ -441,13 +445,15 @@ defmodule Treby.Pipeline.Applications do
       |> Enum.flat_map(fn {_job_id, job_apps} -> Enum.drop(job_apps, 1) end)
       |> Enum.map(& &1.id)
 
-    from(a in Application, where: a.candidate_id == ^candidate_id)
-    |> Repo.update_all(set: [is_duplicate: false])
-
-    if duplicate_ids != [] do
-      from(a in Application, where: a.id in ^duplicate_ids)
-      |> Repo.update_all(set: [is_duplicate: true])
-    end
+    from(a in Application,
+      where: a.candidate_id == ^candidate_id,
+      update: [
+        set: [
+          is_duplicate: fragment("CASE WHEN ? THEN true ELSE false END", a.id in ^duplicate_ids)
+        ]
+      ]
+    )
+    |> Repo.update_all([])
 
     :ok
   end
@@ -486,14 +492,49 @@ defmodule Treby.Pipeline.Applications do
 
         log_stage_moved(app, old_stage, new_stage, old_stage_id, stage_id, opts)
 
-        # Send stage change notification email if not skipped (non-blocking)
+        # Send stage change notification email if not skipped (non-blocking:
+        # failures are logged + metered, never fail the move; :skip throws
+        # are deliberate preference skips and stay silent)
         unless opts[:skip_notification] do
+          notify_fn = opts[:notify_fn] || (&Treby.Notifications.notify_stage_change/2)
+
           try do
-            Treby.Notifications.notify_stage_change(app, opts[:actor])
+            notify_fn.(app, opts[:actor])
           rescue
-            _ -> :ok
+            e ->
+              error = Exception.message(e)
+
+              Logger.warning("[pipeline] notify_stage_change failed",
+                application_id: app.id,
+                error: error
+              )
+
+              :telemetry.execute(
+                [:treby, :pipeline, :notify_failed],
+                %{count: 1},
+                %{application_id: app.id, error: error}
+              )
+
+              :ok
           catch
-            _ -> :ok
+            :throw, :skip ->
+              :ok
+
+            kind, reason ->
+              error = "#{inspect(kind)}: #{inspect(reason)}"
+
+              Logger.warning("[pipeline] notify_stage_change failed",
+                application_id: app.id,
+                error: error
+              )
+
+              :telemetry.execute(
+                [:treby, :pipeline, :notify_failed],
+                %{count: 1},
+                %{application_id: app.id, error: error}
+              )
+
+              :ok
           end
         end
 

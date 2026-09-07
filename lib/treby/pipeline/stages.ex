@@ -259,21 +259,38 @@ defmodule Treby.Pipeline.Stages do
   def detach_job_pipeline(%Treby.Jobs.Job{} = job) do
     effective_id = job_effective_pipeline_id(job)
 
-    if pipeline_shared?(effective_id) do
-      source = get_pipeline!(effective_id)
+    transaction_result =
+      Repo.transaction(fn ->
+        # Serialize concurrent detaches: the share check, clone, remap and
+        # repoint below execute atomically. Attaches write job rows (not the
+        # pipeline row), so they may still land mid-detach — safe, because
+        # detach clones instead of mutating the shared pipeline.
+        PipelineDef
+        |> where([p], p.id == ^effective_id)
+        |> lock("FOR UPDATE")
+        |> Repo.one!()
 
-      {:ok, {new_pipeline, id_map}} =
-        clone_pipeline_with_map(source, %{
-          name: "#{source.name} (Job)",
-          tenant_id: job.tenant_id
-        })
+        if pipeline_shared?(effective_id) do
+          source = get_pipeline!(effective_id)
 
-      remap_job_applications(job.id, id_map)
+          {:ok, {new_pipeline, id_map}} =
+            clone_pipeline_with_map(source, %{
+              name: "#{source.name} (Job)",
+              tenant_id: job.tenant_id
+            })
 
-      {:ok, updated_job} = Treby.Jobs.update_job(job, %{pipeline_id: new_pipeline.id})
-      {:ok, updated_job, new_pipeline}
-    else
-      {:ok, job, get_pipeline!(effective_id)}
+          remap_job_applications(job.id, id_map)
+
+          {:ok, updated_job} = Treby.Jobs.update_job(job, %{pipeline_id: new_pipeline.id})
+          {:ok, updated_job, new_pipeline}
+        else
+          {:ok, job, get_pipeline!(effective_id)}
+        end
+      end)
+
+    case transaction_result do
+      {:ok, result} -> result
+      {:error, _} = error -> error
     end
   end
 

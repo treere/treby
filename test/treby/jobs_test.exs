@@ -78,8 +78,59 @@ defmodule Treby.JobsTest do
     end
   end
 
-  describe "uuid v7 ordering" do
-    test "same-timestamp jobs order by descending id" do
+  describe "visible requires open status" do
+    test "closed job cannot be made visible" do
+      {tenant, _user} = setup_tenant()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Backend Engineer", description: "Elixir work", visible: false})
+        |> Repo.insert()
+
+      {:ok, closed} = job |> Job.changeset(%{status: "closed"}) |> Repo.update()
+
+      assert {:error, changeset} =
+               closed |> Job.changeset(%{visible: true}) |> Repo.update()
+
+      assert {"cannot be visible when the job is closed", []} = changeset.errors[:visible]
+    end
+
+    test "closing an open visible job keeps working" do
+      {tenant, _user} = setup_tenant()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Backend Engineer", description: "Elixir work"})
+        |> Repo.insert()
+
+      assert {:ok, closed} = job |> Job.changeset(%{status: "closed"}) |> Repo.update()
+      assert closed.status == "closed"
+    end
+
+    test "open job stays publishable" do
+      {tenant, _user} = setup_tenant()
+
+      assert {:ok, job} =
+               tenant
+               |> Ecto.build_assoc(:jobs)
+               |> Job.changeset(%{
+                 title: "Backend Engineer",
+                 description: "Elixir work",
+                 status: "closed",
+                 visible: false
+               })
+               |> Repo.insert()
+
+      assert {:ok, opened} =
+               job |> Job.changeset(%{status: "open", visible: true}) |> Repo.update()
+
+      assert opened.visible == true
+    end
+  end
+
+  describe "uuid v7 ordering" do    test "same-timestamp jobs order by descending id" do
       import Ecto.Query
 
       {tenant, _user} = setup_tenant()

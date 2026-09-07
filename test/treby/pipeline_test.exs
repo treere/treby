@@ -240,6 +240,117 @@ defmodule Treby.PipelineTest do
     end
   end
 
+  describe "notification failure observability" do
+    test "failed notification keeps the move and is logged + metered", %{app: app} do
+      import Ecto.Query
+      import ExUnit.CaptureLog
+
+      app = Repo.reload(app) |> Repo.preload(:pipeline_stage)
+
+      new_stage =
+        Repo.one!(
+          from s in Treby.Pipeline.PipelineStage,
+            where:
+              s.pipeline_id == ^app.pipeline_stage.pipeline_id and
+                s.id != ^app.pipeline_stage_id,
+            limit: 1
+        )
+
+      test_pid = self()
+      handler_id = "test-notify-failed-#{System.unique_integer([:positive])}"
+
+      :telemetry.attach(
+        handler_id,
+        [:treby, :pipeline, :notify_failed],
+        fn event, measurements, metadata, _ ->
+          send(test_pid, {:notify_failed, event, measurements, metadata})
+        end,
+        nil
+      )
+
+      try do
+        log =
+          capture_log(fn ->
+            assert {:ok, moved} =
+                     Pipeline.move_application(app, new_stage.id,
+                       notify_fn: fn _, _ -> raise "mail boom" end
+                     )
+
+            assert moved.pipeline_stage_id == new_stage.id
+          end)
+
+        assert log =~ "notify_stage_change failed"
+
+        assert_received {:notify_failed, [:treby, :pipeline, :notify_failed], %{count: 1},
+                         %{application_id: app_id, error: error}}
+
+        assert app_id == app.id
+        assert error =~ "mail boom"
+      after
+        :telemetry.detach(handler_id)
+      end
+    end
+  end
+
+  describe "race-safe pipeline detach" do
+    test "concurrent detaches give each job its own clone, shared pipeline untouched", %{
+      tenant: tenant,
+      job: job,
+      app: app
+    } do
+      import Ecto.Query
+      alias Ecto.Adapters.SQL.Sandbox
+
+      {:ok, job2} = insert_job(tenant.id)
+      {:ok, candidate2} = insert_candidate(tenant.id)
+      {:ok, app2} = insert_application(tenant.id, job2.id, candidate2.id)
+
+      original_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+      stage_ids = fn pipeline_id ->
+        from(s in Treby.Pipeline.PipelineStage, where: s.pipeline_id == ^pipeline_id)
+        |> Repo.all()
+        |> MapSet.new(& &1.id)
+      end
+
+      original_stages = stage_ids.(original_id)
+
+      test_pid = self()
+
+      results =
+        [job, job2]
+        |> Task.async_stream(
+          fn j ->
+            Sandbox.allow(Repo, test_pid, self())
+            Pipeline.detach_job_pipeline(Repo.reload!(j))
+          end,
+          max_concurrency: 2,
+          timeout: 30_000
+        )
+        |> Enum.map(fn {:ok, result} -> result end)
+
+      assert [({:ok, updated1, p1}), ({:ok, updated2, p2})] = results
+
+      # Exactly one clone: whichever detach ran second found the pipeline
+      # no longer shared and correctly became a no-op
+      assert [clone] = Enum.reject([p1, p2], &(&1.id == original_id))
+      assert Enum.find([updated1, updated2], &(&1.pipeline_id == clone.id))
+      assert Enum.find([updated1, updated2], &(&1.pipeline_id == original_id))
+
+      # Shared pipeline untouched; each application's stage follows its job
+      assert stage_ids.(original_id) == original_stages
+
+      job_apps = %{updated1.id => app, updated2.id => app2}
+
+      for updated <- [updated1, updated2] do
+        expected_stages =
+          if updated.pipeline_id == original_id, do: original_stages, else: stage_ids.(clone.id)
+
+        assert Repo.reload!(job_apps[updated.id]).pipeline_stage_id in expected_stages
+      end
+    end
+  end
+
   defp insert_tenant do
     tenant =
       Repo.insert!(%Treby.Tenants.Tenant{

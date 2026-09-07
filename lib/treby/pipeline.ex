@@ -80,7 +80,7 @@ defmodule Treby.Pipeline do
   defdelegate get_application!(tenant_id, id), to: Applications
   defdelegate get_application_for_candidate!(tenant_id, candidate_id, id), to: Applications
   defdelegate get_application_for_candidate(tenant_id, candidate_id, id), to: Applications
-  defdelegate create_application(attrs \\ %{}), to: Applications
+  defdelegate create_application(attrs \\ %{}, opts \\ []), to: Applications
   defdelegate build_anagrafica(candidate), to: Applications
   defdelegate recompute_duplicate_flags(candidate_id), to: Applications
   defdelegate move_application(application, stage_id, opts \\ []), to: Applications

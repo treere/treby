@@ -1,6 +1,8 @@
 defmodule TrebyWeb.JobsLive.Show do
   use TrebyWeb, :live_view
 
+  import Ecto.Query, warn: false
+
   alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline, CandidatePortal, JobViews}
   alias Treby.Notifications.Email, as: NotificationEmail
 
@@ -1487,8 +1489,6 @@ defmodule TrebyWeb.JobsLive.Show do
   defp load_upcoming_interviews([]), do: %{}
 
   defp load_upcoming_interviews(application_ids) do
-    import Ecto.Query
-
     Treby.Interviews.InterviewEvent
     |> where(
       [e],

@@ -1,6 +1,7 @@
 defmodule TrebyWeb.CandidatesLive.Show do
   use TrebyWeb, :live_view
 
+  import Ecto.Query, warn: false
   import TrebyWeb.ScorecardForm, only: [scorecard_form: 1]
 
   alias Treby.{
@@ -79,8 +80,6 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
     interviews =
       if application_ids != [] do
-        import Ecto.Query
-
         Treby.Interviews.InterviewEvent
         |> where([e], e.application_id in ^application_ids)
         |> order_by([e], desc: e.start_at_utc)
@@ -1606,8 +1605,6 @@ defmodule TrebyWeb.CandidatesLive.Show do
   end
 
   defp load_interviews_for_candidate(candidate_id) do
-    import Ecto.Query
-
     application_ids =
       Treby.Pipeline.Application
       |> where([a], a.candidate_id == ^candidate_id)

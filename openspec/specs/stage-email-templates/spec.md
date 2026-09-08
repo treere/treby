@@ -117,4 +117,5 @@ The system SHALL show a preview of message templates in the settings page.
 
 #### Scenario: Preview with sample data
 - **WHEN** an admin views the message template settings
-- **THEN** a preview of each template is shown with sample variable values
+- **THEN** an Edit/Preview tab switcher is shown while creating or editing a template
+- **AND** the Preview tab shows subject and body with sample variable values, body rendered as HTML

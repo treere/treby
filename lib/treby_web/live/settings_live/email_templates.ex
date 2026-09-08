@@ -38,6 +38,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
      |> assign(form: to_form(EmailTemplate.changeset(%EmailTemplate{}, %{}), as: :email_template))
      |> assign(preview_subject: "")
      |> assign(preview_body: "")
+     |> assign(template_tab: :edit)
      |> assign(confirm_delete: nil)}
   end
 
@@ -72,75 +73,102 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
           </h2>
-          <.form
-            for={@form}
-            id="email-template-form"
-            phx-submit="save_template"
-            phx-change="preview_template"
-            class="space-y-4"
-          >
-            <div class="grid grid-cols-2 gap-4">
-              <.input
-                field={@form[:name]}
-                type="text"
-                label={gettext("Template Name")}
-                placeholder={gettext("e.g. Rejection Message")}
-              />
-              <.input
-                field={@form[:stage_type]}
-                type="select"
-                label={gettext("Trigger Stage")}
-                options={[
-                  {gettext("New Application"), "new"},
-                  {gettext("Interview"), "interview"},
-                  {gettext("Offer"), "offer"},
-                  {gettext("Hired"), "hired"},
-                  {gettext("Rejected"), "rejected"}
-                ]}
-              />
-            </div>
-
-            <.input
-              field={@form[:subject]}
-              type="text"
-              label={gettext("Subject")}
-              placeholder={gettext("e.g. Update on your application for {job_title}")}
-            />
-
-            <.input
-              field={@form[:body]}
-              type="textarea"
-              label={gettext("Body (HTML)")}
-              rows="8"
-              placeholder={
-                gettext(
-                  "Use variables: {candidate_name}, {job_title}, {company_name}, {stage_name}, {recruiter_name}"
+          <div class="mb-4 flex gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-700 p-1 w-fit">
+            <button
+              type="button"
+              phx-click="switch_template_tab"
+              phx-value-tab="edit"
+              class={[
+                "rounded-md px-4 py-1.5 text-sm font-medium",
+                if(@template_tab == :edit,
+                  do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                  else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
                 )
-              }
-            />
-
-            <div
-              :if={@preview_subject != "" || @preview_body != ""}
-              class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg"
+              ]}
             >
-              <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-2">
-                {gettext("Preview")}
-              </h3>
-              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
-                <strong>{gettext("Subject")}:</strong> {@preview_subject}
-              </p>
-              <div class="text-sm text-zinc-500 dark:text-zinc-400" phx-no-curly-interpolation>
-                {@preview_body}
-              </div>
-            </div>
+              {gettext("Edit")}
+            </button>
+            <button
+              type="button"
+              phx-click="switch_template_tab"
+              phx-value-tab="preview"
+              class={[
+                "rounded-md px-4 py-1.5 text-sm font-medium",
+                if(@template_tab == :preview,
+                  do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                  else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                )
+              ]}
+            >
+              {gettext("Preview")}
+            </button>
+          </div>
 
-            <div class="flex gap-2">
-              <.button type="submit">{gettext("Save")}</.button>
-              <.button type="button" phx-click="cancel_form" variant="ghost">
-                {gettext("Cancel")}
-              </.button>
+          <div :if={@template_tab == :edit}>
+            <.form
+              for={@form}
+              id="email-template-form"
+              phx-submit="save_template"
+              phx-change="preview_template"
+              class="space-y-4"
+            >
+              <div class="grid grid-cols-2 gap-4">
+                <.input
+                  field={@form[:name]}
+                  type="text"
+                  label={gettext("Template Name")}
+                  placeholder={gettext("e.g. Rejection Message")}
+                />
+                <.input
+                  field={@form[:stage_type]}
+                  type="select"
+                  label={gettext("Trigger Stage")}
+                  options={[
+                    {gettext("New Application"), "new"},
+                    {gettext("Interview"), "interview"},
+                    {gettext("Offer"), "offer"},
+                    {gettext("Hired"), "hired"},
+                    {gettext("Rejected"), "rejected"}
+                  ]}
+                />
+              </div>
+
+              <.input
+                field={@form[:subject]}
+                type="text"
+                label={gettext("Subject")}
+                placeholder={gettext("e.g. Update on your application for {job_title}")}
+              />
+
+              <.input
+                field={@form[:body]}
+                type="textarea"
+                label={gettext("Body (HTML)")}
+                rows="8"
+                placeholder={
+                  gettext(
+                    "Use variables: {candidate_name}, {job_title}, {company_name}, {stage_name}, {recruiter_name}"
+                  )
+                }
+              />
+
+              <div class="flex gap-2">
+                <.button type="submit">{gettext("Save")}</.button>
+                <.button type="button" phx-click="cancel_form" variant="ghost">
+                  {gettext("Cancel")}
+                </.button>
+              </div>
+            </.form>
+          </div>
+
+          <div :if={@template_tab == :preview} class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+              <strong>{gettext("Subject")}:</strong> {@preview_subject}
+            </p>
+            <div class="text-sm text-zinc-900 dark:text-zinc-100">
+              {@preview_body}
             </div>
-          </.form>
+          </div>
         </div>
 
         <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
@@ -230,11 +258,15 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         as: :email_template
       )
 
-    {:noreply, assign(socket, show_form: true, editing_template: nil, form: form)}
+    {:noreply, assign(socket, show_form: true, editing_template: nil, form: form, template_tab: :edit)}
   end
 
   def handle_event("cancel_form", _, socket) do
     {:noreply, assign(socket, show_form: false, editing_template: nil)}
+  end
+
+  def handle_event("switch_template_tab", %{"tab" => tab}, socket) do
+    {:noreply, assign(socket, template_tab: String.to_existing_atom(tab))}
   end
 
   def handle_event("edit_template", %{"template_id" => template_id}, socket) do
@@ -252,15 +284,15 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         as: :email_template
       )
 
-    {:noreply, assign(socket, show_form: true, editing_template: template, form: form)}
+    {:noreply, assign(socket, show_form: true, editing_template: template, form: form, template_tab: :edit)}
   end
 
   def handle_event("preview_template", params, socket) do
     template_params = Map.get(params, "email_template", %{})
 
     preview_template = %EmailTemplate{
-      subject: Map.get(template_params, "subject", ""),
-      body: Map.get(template_params, "body", "")
+      subject: Map.get(template_params, "subject", "") || "",
+      body: Map.get(template_params, "body", "") || ""
     }
 
     sample_assigns = %{
@@ -274,7 +306,13 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
     {preview_subject, preview_body} =
       EmailTemplates.render_email(preview_template, sample_assigns)
 
-    {:noreply, assign(socket, preview_subject: preview_subject, preview_body: preview_body)}
+    {:noreply,
+     socket
+     |> assign(form: to_form(template_params, as: :email_template))
+     |> assign(
+       preview_subject: preview_subject,
+       preview_body: Phoenix.HTML.raw(preview_body || "")
+     )}
   end
 
   def handle_event("save_template", params, socket) do

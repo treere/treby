@@ -104,39 +104,49 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             for={@form}
             id="stage-form"
             phx-submit="save_stage"
-            class="flex gap-4 items-end flex-wrap"
+            class="flex flex-col gap-4 sm:flex-row sm:items-end flex-wrap"
           >
-            <.input
-              field={@form[:name]}
-              type="text"
-              label={gettext("Name")}
-              placeholder={gettext("e.g. Technical Interview")}
-            />
-            <.input
-              field={@form[:stage_type]}
-              type="select"
-              label={gettext("Type")}
-              options={stage_type_options()}
-            />
-            <.input field={@form[:color]} type="color" label={gettext("Color")} />
-
-            <div :if={@form[:stage_type].value == "interview"} class="w-full">
+            <div class="flex-1 min-w-[180px]">
               <.input
-                field={@form[:min_examiners]}
-                type="number"
-                label={gettext("Min Examiners Required")}
-                min="1"
-              />
-              <.input
-                field={@form[:scorecard_template_id]}
-                type="select"
-                label={gettext("Scorecard Template")}
-                options={scorecard_template_options(@current_tenant.id)}
-                prompt={gettext("None")}
+                field={@form[:name]}
+                type="text"
+                label={gettext("Name")}
+                placeholder={gettext("e.g. Technical Interview")}
               />
             </div>
+            <div class="flex-1 min-w-[160px]">
+              <.input
+                field={@form[:stage_type]}
+                type="select"
+                label={gettext("Type")}
+                options={stage_type_options()}
+              />
+            </div>
+            <div class="shrink-0">
+              <.input field={@form[:color]} type="color" label={gettext("Color")} />
+            </div>
 
-            <div class="flex gap-2">
+            <div :if={@form[:stage_type].value == "interview"} class="w-full flex flex-col gap-4 sm:flex-row sm:items-end">
+              <div class="flex-1">
+                <.input
+                  field={@form[:min_examiners]}
+                  type="number"
+                  label={gettext("Min Examiners Required")}
+                  min="1"
+                />
+              </div>
+              <div class="flex-1">
+                <.input
+                  field={@form[:scorecard_template_id]}
+                  type="select"
+                  label={gettext("Scorecard Template")}
+                  options={scorecard_template_options(@current_tenant.id)}
+                  prompt={gettext("None")}
+                />
+              </div>
+            </div>
+
+            <div class="flex gap-2 shrink-0 sm:mb-2">
               <.button type="submit" variant="primary">{gettext("Save")}</.button>
               <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
@@ -162,16 +172,18 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             for={%{}}
             id="reassign-form"
             phx-submit="confirm_reassign"
-            class="flex gap-4 items-end"
+            class="flex flex-col gap-4 sm:flex-row sm:items-end"
           >
-            <.input
-              name="target_stage_id"
-              type="select"
-              label={gettext("Move to")}
-              options={Enum.map(@stages, &{&1.name, &1.id})}
-              prompt={gettext("Select a stage")}
-            />
-            <div class="flex gap-2">
+            <div class="flex-1">
+              <.input
+                name="target_stage_id"
+                type="select"
+                label={gettext("Move to")}
+                options={Enum.map(@stages, &{&1.name, &1.id})}
+                prompt={gettext("Select a stage")}
+              />
+            </div>
+            <div class="flex gap-2 shrink-0 sm:mb-2">
               <.button type="submit" variant="primary">{gettext("Move & Delete")}</.button>
               <.button type="button" phx-click="cancel_delete" variant="ghost">
                 {gettext("Cancel")}
@@ -338,19 +350,21 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                   for={%{}}
                   id="add-examiner-form"
                   phx-submit="add_examiner"
-                  class="flex gap-2"
+                  class="flex gap-2 items-end"
                 >
                   <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <.input
-                    name="user_id"
-                    type="select"
-                    options={
-                      Enum.map(available_users(@users, @editing_roles.examiners), &{&1.name, &1.id})
-                    }
-                    prompt={gettext("Select user...")}
-                    label=""
-                  />
-                  <.button type="submit" variant="primary" size="sm">
+                  <div class="flex-1">
+                    <.input
+                      name="user_id"
+                      type="select"
+                      options={
+                        Enum.map(available_users(@users, @editing_roles.examiners), &{&1.name, &1.id})
+                      }
+                      prompt={gettext("Select user...")}
+                      label=""
+                    />
+                  </div>
+                  <.button type="submit" variant="primary" size="sm" class="shrink-0">
                     {gettext("Add")}
                   </.button>
                 </.form>
@@ -380,19 +394,21 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                   for={%{}}
                   id="add-reviewer-form"
                   phx-submit="add_reviewer"
-                  class="flex gap-2"
+                  class="flex gap-2 items-end"
                 >
                   <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <.input
-                    name="user_id"
-                    type="select"
-                    options={
-                      Enum.map(available_users(@users, @editing_roles.reviewers), &{&1.name, &1.id})
-                    }
-                    prompt={gettext("Select user...")}
-                    label=""
-                  />
-                  <.button type="submit" variant="primary" size="sm">
+                  <div class="flex-1">
+                    <.input
+                      name="user_id"
+                      type="select"
+                      options={
+                        Enum.map(available_users(@users, @editing_roles.reviewers), &{&1.name, &1.id})
+                      }
+                      prompt={gettext("Select user...")}
+                      label=""
+                    />
+                  </div>
+                  <.button type="submit" variant="primary" size="sm" class="shrink-0">
                     {gettext("Add")}
                   </.button>
                 </.form>
@@ -422,19 +438,21 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                   for={%{}}
                   id="add-advancer-form"
                   phx-submit="add_advancer"
-                  class="flex gap-2"
+                  class="flex gap-2 items-end"
                 >
                   <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <.input
-                    name="user_id"
-                    type="select"
-                    options={
-                      Enum.map(available_users(@users, @editing_roles.advancers), &{&1.name, &1.id})
-                    }
-                    prompt={gettext("Select user...")}
-                    label=""
-                  />
-                  <.button type="submit" variant="secondary" size="sm">
+                  <div class="flex-1">
+                    <.input
+                      name="user_id"
+                      type="select"
+                      options={
+                        Enum.map(available_users(@users, @editing_roles.advancers), &{&1.name, &1.id})
+                      }
+                      prompt={gettext("Select user...")}
+                      label=""
+                    />
+                  </div>
+                  <.button type="submit" variant="secondary" size="sm" class="shrink-0">
                     {gettext("Add")}
                   </.button>
                 </.form>

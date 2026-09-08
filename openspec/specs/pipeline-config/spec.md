@@ -54,7 +54,7 @@ The system SHALL designate exactly one pipeline as the default per tenant. The d
 - **AND** the new default is indicated in the pipeline list
 
 #### Scenario: New jobs use default pipeline
-- **WHEN** a job is created without specifying a pipeline
+- **WHEN** a user creates a job without changing the preselected pipeline
 - **THEN** the job uses the tenant's default pipeline
 
 #### Scenario: Rejected stage in default pipeline

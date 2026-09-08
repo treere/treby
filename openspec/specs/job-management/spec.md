@@ -13,9 +13,9 @@ The system SHALL allow authenticated users to create job postings. The system SH
 - **AND** the job is associated with the user's tenant
 
 #### Scenario: Job creation with default pipeline
-- **WHEN** a user submits a job with the "Default pipeline" prompt selected (empty pipeline_id)
-- **THEN** the job is created without a specific pipeline association (pipeline_id is nil)
-- **AND** the job is associated with the user's tenant
+- **WHEN** a user opens the new job form
+- **THEN** the pipeline selector shows only existing pipelines with the tenant's default pipeline preselected
+- **AND** when the job is created without changing the selection, the job is created with that default pipeline's id
 
 #### Scenario: Missing required fields
 - **WHEN** a user submits a job without title or description

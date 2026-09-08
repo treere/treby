@@ -716,8 +716,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     job_id: job.id,
                     candidate_id: candidate.id,
                     pipeline_stage_id: stage.id,
-                    applied_at: DateTime.utc_now(),
-                    source: "manual"
+                    applied_at: DateTime.utc_now()
                   },
                   candidate: candidate
                 )

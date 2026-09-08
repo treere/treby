@@ -199,9 +199,6 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                 <p>
                   Applied {Calendar.strftime(@selected_application.applied_at, "%b %d, %Y")}
                 </p>
-                <%= if @selected_application.source do %>
-                  <p>Via {String.capitalize(@selected_application.source)}</p>
-                <% end %>
               </div>
             </div>
 

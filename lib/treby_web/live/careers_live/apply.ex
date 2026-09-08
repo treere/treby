@@ -8,7 +8,6 @@ defmodule TrebyWeb.CareersLive.Apply do
     Pipeline,
     Careers,
     Customization,
-    Sources,
     CandidatePortal
   }
 
@@ -26,7 +25,6 @@ defmodule TrebyWeb.CareersLive.Apply do
         stages = Pipeline.list_pipeline_stages(pipeline_id)
         first_stage = List.first(stages)
         application_fields = Customization.list_custom_fields_for(tenant.id, "application")
-        sources = Sources.list_sources(tenant.id)
         prefill = prefill_from_session(session, tenant.id)
 
         {:ok,
@@ -36,7 +34,6 @@ defmodule TrebyWeb.CareersLive.Apply do
          |> assign(career_page: career_page)
          |> assign(first_stage: first_stage)
          |> assign(application_fields: application_fields)
-         |> assign(sources: sources)
          |> assign(prefill: prefill)
          |> assign(form: to_form(prefill, as: :application))
          |> assign(submitted: false)
@@ -143,19 +140,6 @@ defmodule TrebyWeb.CareersLive.Apply do
             <.input field={@form[:name]} type="text" label={gettext("Full Name")} required />
             <.input field={@form[:email]} type="email" label={gettext("Email")} required />
             <.input field={@form[:phone]} type="text" label={gettext("Phone")} />
-
-            <div :if={@sources != []}>
-              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
-                How did you hear about us?
-              </label>
-              <select
-                name="application[source]"
-                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              >
-                <option value="">—</option>
-                <option :for={source <- @sources} value={source.name}>{source.name}</option>
-              </select>
-            </div>
 
             <div
               :if={@application_fields != []}
@@ -377,7 +361,6 @@ defmodule TrebyWeb.CareersLive.Apply do
       "resume_url" => resume_url,
       "custom_fields" => custom_fields_values,
       "reviewed" => false,
-      "source" => application_params["source"],
       "anagrafica" => %{
         "name" => application_params["name"],
         "email" => application_params["email"],

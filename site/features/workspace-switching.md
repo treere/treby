@@ -36,7 +36,7 @@ The role is **per company**, not global.
 
 | You are | In that company you can |
 |---|---|
-| **Admin** | Manage **Settings → Pipeline**, **Team**, **Fields**, **Sources**, branding, invitations |
+| **Admin** | Manage **Settings → Pipeline**, **Team**, **Fields**, branding, invitations |
 | **Member** | Use jobs, candidates, applications, notes, interviews, and scorecards according to stage permissions |
 
 You only see workspaces you have been invited to.

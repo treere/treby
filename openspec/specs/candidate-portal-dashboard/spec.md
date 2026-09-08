@@ -26,7 +26,7 @@ The system SHALL allow candidates to view details of a specific application, inc
 
 #### Scenario: Application detail view
 - **WHEN** candidate clicks on an application card
-- **THEN** the system displays: job title, current stage (human label + badge), application date, source, and a timeline of status changes (system messages)
+- **THEN** the system displays: job title, current stage (human label + badge), application date, and a timeline of status changes (system messages)
 
 #### Scenario: Progress panel shows current step and what is next
 - **WHEN** candidate views an application with no action pending on them

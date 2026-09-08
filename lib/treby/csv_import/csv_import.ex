@@ -143,7 +143,6 @@ defmodule Treby.CsvImport do
   def execute_import(rows, mapping, tenant_id, opts \\ []) do
     job_id = opts[:job_id]
     pipeline_stage_id = opts[:pipeline_stage_id]
-    source = opts[:source]
 
     results =
       rows
@@ -175,7 +174,6 @@ defmodule Treby.CsvImport do
                       "pipeline_stage_id" => pipeline_stage_id,
                       "applied_at" => DateTime.utc_now(),
                       "tenant_id" => tenant_id,
-                      "source" => source,
                       "anagrafica" =>
                         Map.take(candidate_attrs, [
                           "name",

@@ -56,7 +56,6 @@ export default defineConfig({
           { text: "CSV Import", link: "/features/csv-import" },
           { text: "Bulk Operations", link: "/features/bulk-operations" },
           { text: "Candidate Comparison", link: "/features/comparison" },
-          { text: "Source Tracking", link: "/features/source-tracking" },
           { text: "Custom Fields", link: "/features/custom-fields" },
           { text: "Dark Mode", link: "/features/dark-mode" },
           { text: "Workspace Switching", link: "/features/workspace-switching" },

@@ -454,9 +454,6 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <p class="text-sm text-zinc-500 dark:text-zinc-400">
                   Stage: {application.pipeline_stage.name}
                 </p>
-                <p :if={application.source} class="text-sm text-zinc-500 dark:text-zinc-400">
-                  Source: {application.source}
-                </p>
                 <div
                   :if={
                     application.anagrafica && anagrafica_differs?(application.anagrafica, @candidate)

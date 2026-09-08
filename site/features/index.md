@@ -26,7 +26,7 @@ Self-scheduling inside the candidate portal with an always-active internal calen
 Structured evaluation templates with criteria, per-examiner submission, and advancement gating for interview stages.
 
 ## [Analytics Dashboard](/features/analytics)
-Hiring metrics, conversion rates, time-in-stage, and source breakdown — with a per-pipeline selector.
+Hiring metrics, conversion rates, and time-in-stage — with a per-pipeline selector.
 
 ## [Job Analytics](/features/job-analytics)
 Per-position view tracking — total and unique views, daily (7/30/90d) and monthly (12m) trends, traffic source breakdown, and view→application funnel — reachable from each job’s detail via **Analytics**.
@@ -38,16 +38,13 @@ Email is used for login codes (OTP) and short notification pings only — all co
 Schedule portal messages for later with jitter, retries, and a full queue manager (Oban).
 
 ## [CSV Import](/features/csv-import)
-Migrate from spreadsheets: upload CSV, auto-detected column mapping, job/stage/source assignment, duplicate handling.
+Migrate from spreadsheets: upload CSV, auto-detected column mapping, job/stage assignment, duplicate handling.
 
 ## [Bulk Operations](/features/bulk-operations)
 Select many applications at once to move stages, mark reviewed/unreviewed, or delete.
 
 ## [Candidate Comparison](/features/comparison)
 Side-by-side evaluation of 2–3 candidates with their applications, notes and scorecards.
-
-## [Source Tracking](/features/source-tracking)
-Tag and analyse where candidates come from — per-source breakdown in Analytics.
 
 ## [Custom Fields](/features/custom-fields)
 Dynamic per-entity fields (candidate / application / job) configured in Settings.

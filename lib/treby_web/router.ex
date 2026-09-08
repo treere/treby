@@ -78,7 +78,6 @@ defmodule TrebyWeb.Router do
       live "/settings/language", SettingsLive.Language
       live "/settings/scorecards", SettingsLive.Scorecards
       live "/settings/emails", SettingsLive.EmailTemplates
-      live "/settings/sources", SettingsLive.Sources
       live "/settings/notifications", SettingsLive.Notifications
       live "/settings/audit-log", SettingsLive.AuditLog
     end
@@ -128,7 +127,6 @@ defmodule TrebyWeb.Router do
       live "/settings/language", SettingsLive.Language
       live "/settings/scorecards", SettingsLive.Scorecards
       live "/settings/emails", SettingsLive.EmailTemplates
-      live "/settings/sources", SettingsLive.Sources
       live "/settings/notifications", SettingsLive.Notifications
       live "/settings/audit-log", SettingsLive.AuditLog
     end

@@ -600,8 +600,7 @@ defmodule Treby.CandidatesMergeTest do
       {:ok, results} =
         CsvImport.execute_import(parsed.rows, mapping, tenant.id, %{
           job_id: job.id,
-          pipeline_stage_id: stage.id,
-          source: "csv_test"
+          pipeline_stage_id: stage.id
         })
 
       assert results.imported == 1

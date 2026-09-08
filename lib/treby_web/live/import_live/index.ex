@@ -1,7 +1,7 @@
 defmodule TrebyWeb.ImportLive.Index do
   use TrebyWeb, :live_view
 
-  alias Treby.{Accounts, Tenants, Jobs, Sources, CsvImport}
+  alias Treby.{Accounts, Tenants, Jobs, CsvImport}
   alias Treby.Pipeline
 
   def mount(_params, session, socket) do
@@ -28,12 +28,11 @@ defmodule TrebyWeb.ImportLive.Index do
       end
 
     jobs = Jobs.list_jobs(tenant.id)
-    sources = Sources.list_sources(tenant.id)
 
     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
-     |> assign(jobs: jobs, sources: sources)
+     |> assign(jobs: jobs)
      |> assign(step: 1)
      |> assign(upload_errors: [])
      |> assign(rows: [])
@@ -42,7 +41,6 @@ defmodule TrebyWeb.ImportLive.Index do
      |> assign(preview: [])
      |> assign(selected_job_id: nil)
      |> assign(selected_stage_id: nil)
-     |> assign(selected_source: nil)
      |> assign(import_form: to_form(%{}))
      |> assign(import_results: nil)
      |> assign(import_log: nil)
@@ -290,17 +288,6 @@ defmodule TrebyWeb.ImportLive.Index do
                   </select>
                 </div>
               </div>
-
-              <div class="mt-4">
-                <label class="block text-sm text-zinc-500 dark:text-zinc-400">{gettext("Source")}</label>
-                <select
-                  phx-change="select_source"
-                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mt-1"
-                >
-                  <option value="">{gettext("None")}</option>
-                  <option :for={source <- @sources} value={source.name}>{source.name}</option>
-                </select>
-              </div>
             </.form>
           </.card>
 
@@ -427,11 +414,6 @@ defmodule TrebyWeb.ImportLive.Index do
     {:noreply, assign(socket, selected_stage_id: stage_id)}
   end
 
-  def handle_event("select_source", %{"source" => source}, socket) do
-    source = if source == "", do: nil, else: source
-    {:noreply, assign(socket, selected_source: source)}
-  end
-
   def handle_event("execute_import", _params, socket) do
     %{rows: rows, mapping: mapping} = socket.assigns
     tenant_id = socket.assigns.current_tenant.id
@@ -454,8 +436,7 @@ defmodule TrebyWeb.ImportLive.Index do
     {:ok, results} =
       CsvImport.execute_import(rows, mapping, tenant_id,
         job_id: socket.assigns.selected_job_id,
-        pipeline_stage_id: pipeline_stage_id,
-        source: socket.assigns.selected_source
+        pipeline_stage_id: pipeline_stage_id
       )
 
     # Log the import

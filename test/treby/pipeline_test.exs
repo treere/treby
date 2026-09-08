@@ -166,9 +166,6 @@ defmodule Treby.PipelineTest do
 
       assert Pipeline.stage_conversion_rates(tenant.id, pipeline_id) ==
                Pipeline.stage_conversion_rates(pipeline_id)
-
-      assert Pipeline.source_breakdown(tenant.id, pipeline_id) ==
-               Pipeline.source_breakdown(pipeline_id)
     end
 
     test "facade delegates to submodules", %{tenant: tenant} do

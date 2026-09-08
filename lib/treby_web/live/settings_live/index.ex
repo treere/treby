@@ -134,19 +134,6 @@ defmodule TrebyWeb.SettingsLive.Index do
           </.link>
 
           <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/sources"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Sources")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Manage how candidates find you")}
-            </p>
-          </.link>
-
-          <.link
             navigate={~p"/app/settings/calendar"}
             class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >

@@ -12,7 +12,6 @@ Track hiring progress with a dedicated dashboard.
 - **Pipeline overview** — horizontal bars with candidate counts per stage
 - **Conversion rates** — percentage of candidates moving from one stage to the next
 - **Time in stage** — average days spent in each stage over the last 90 days
-- **Sources** — where candidates come from (see [Sources](/features/source-tracking))
 
 ## Pipeline Filter
 
@@ -23,4 +22,4 @@ At the top you'll find a selector to pick a specific pipeline. Choose "All pipel
 - Spot bottlenecks: where do candidates stay the longest?
 - Understand drop-off: which stages have the highest abandonment rate?
 - Evaluate timing: how long does it take on average to close a position?
-- Compare channels: which sources actually lead to hires?
+- Track progress: are candidates advancing or stalling?

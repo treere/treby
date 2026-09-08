@@ -282,7 +282,6 @@ const screenshotDefs = [
     },
     auth: true,
   },
-  { name: "31-settings-sources", url: () => `${BASE_URL}/${tenant}/app/settings/sources`, auth: true },
   { name: "32-settings-language", url: () => `${BASE_URL}/${tenant}/app/settings/language`, auth: true },
   { name: "33-settings-scorecards", url: () => `${BASE_URL}/${tenant}/app/settings/scorecards`, auth: true },
   { name: "34-interviews-dashboard", url: () => `${BASE_URL}/${tenant}/app/interviews`, auth: true },

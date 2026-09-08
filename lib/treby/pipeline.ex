@@ -97,8 +97,6 @@ defmodule Treby.Pipeline do
   defdelegate time_in_stage_metrics(tenant_id, pipeline_id), to: Analytics
   defdelegate per_pipeline_conversion_rates(tenant_id, pipeline_id), to: Analytics
   defdelegate all_pipelines_conversion_rates(tenant_id), to: Analytics
-  defdelegate source_breakdown(arg), to: Analytics
-  defdelegate source_breakdown(tenant_id, pipeline_id), to: Analytics
 
   # Keep schema aliases available for callers that rely on them transitively.
   # Unused aliases are intentional for documentation; silence warnings.

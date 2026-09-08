@@ -108,38 +108,13 @@ defmodule TrebyWeb.AnalyticsLive.Index do
         </div>
 
         <.empty_state
-          :if={@pipeline_counts == [] and @source_breakdown == []}
+          :if={@pipeline_counts == []}
           icon="hero-chart-bar"
           title={gettext("No analytics data yet")}
           description={
             gettext("Add candidates and move them through your pipeline to see analytics.")
           }
         />
-
-        <%!-- Source Breakdown --%>
-        <.card :if={@source_breakdown != []} class="shadow mb-8">
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {gettext("Candidates by Source")}
-          </h2>
-          <div class="space-y-3">
-            <div :for={item <- @source_breakdown} class="flex items-center gap-4">
-              <div class="w-40 text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
-                {item.source || "Unknown"}
-              </div>
-              <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-6">
-                <div
-                  class="h-6 rounded-full bg-blue-500 flex items-center justify-end pr-2"
-                  style={"width: #{if @total_candidates > 0, do: max(item.count / @total_candidates * 100, 5), else: 5}%"}
-                >
-                  <span :if={item.count > 0} class="text-xs font-medium text-white">
-                    {item.count}
-                  </span>
-                </div>
-              </div>
-              <.badge variant="default" class="w-10 justify-center">{item.count}</.badge>
-            </div>
-          </div>
-        </.card>
 
         <%!-- Pipeline Overview --%>
         <.card class="shadow mb-8">
@@ -287,10 +262,6 @@ defmodule TrebyWeb.AnalyticsLive.Index do
     time_in_stage = Pipeline.time_in_stage_metrics(tenant_id, pipeline_id)
     conversion_rates = Pipeline.stage_conversion_rates(tenant_id, pipeline_id)
 
-    # Source breakdown
-    source_breakdown = Pipeline.source_breakdown(tenant_id, pipeline_id)
-    total_candidates = Enum.reduce(source_breakdown, 0, fn %{count: c}, acc -> acc + c end)
-
     avg_time =
       if time_in_stage != [] do
         time_in_stage |> Enum.map(& &1.avg_days) |> Enum.sum() |> Kernel./(length(time_in_stage))
@@ -309,7 +280,5 @@ defmodule TrebyWeb.AnalyticsLive.Index do
     |> assign(avg_hire_days: avg_hire_days)
     |> assign(time_in_stage: time_in_stage)
     |> assign(conversion_rates: conversion_rates)
-    |> assign(source_breakdown: source_breakdown)
-    |> assign(total_candidates: total_candidates)
   end
 end

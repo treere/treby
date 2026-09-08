@@ -71,10 +71,6 @@ The system SHALL import candidates from the mapped CSV.
 - **WHEN** no target job is selected
 - **THEN** candidates are created without applications
 
-#### Scenario: Import with source
-- **WHEN** the user selects a source during import
-- **THEN** all imported applications are tagged with that source
-
 #### Scenario: Deduplication by email
 - **WHEN** a CSV row has an email that matches an existing candidate in the tenant
 - **THEN** the candidate is NOT created again

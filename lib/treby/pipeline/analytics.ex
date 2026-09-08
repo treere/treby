@@ -357,31 +357,6 @@ defmodule Treby.Pipeline.Analytics do
     end)
   end
 
-  # Source breakdown
-
-  def source_breakdown(nil) do
-    do_source_breakdown(nil)
-  end
-
-  def source_breakdown(pipeline_id) do
-    Application
-    |> join(:inner, [a], ps in PipelineStage, on: a.pipeline_stage_id == ps.id)
-    |> where([a, ps], ps.pipeline_id == ^pipeline_id)
-    |> select([a], %{source: fragment("COALESCE(?, 'Unknown')", a.source), count: count(a.id)})
-    |> group_by([a], fragment("COALESCE(?, 'Unknown')", a.source))
-    |> order_by([a], desc: count(a.id))
-    |> Repo.all()
-  end
-
-  defp do_source_breakdown(tenant_id) do
-    Application
-    |> maybe_tenant_filter(tenant_id)
-    |> select([a], %{source: fragment("COALESCE(?, 'Unknown')", a.source), count: count(a.id)})
-    |> group_by([a], fragment("COALESCE(?, 'Unknown')", a.source))
-    |> order_by([a], desc: count(a.id))
-    |> Repo.all()
-  end
-
   # Tenant-scoped analytics (all pipelines for a tenant)
 
   def pipeline_counts_per_stage(tenant_id, nil) do
@@ -406,13 +381,5 @@ defmodule Treby.Pipeline.Analytics do
 
   def stage_conversion_rates(_tenant_id, pipeline_id) when not is_nil(pipeline_id) do
     stage_conversion_rates(pipeline_id)
-  end
-
-  def source_breakdown(tenant_id, nil) do
-    do_source_breakdown(tenant_id)
-  end
-
-  def source_breakdown(_tenant_id, pipeline_id) when not is_nil(pipeline_id) do
-    source_breakdown(pipeline_id)
   end
 end

@@ -45,6 +45,21 @@ defmodule Treby.Notifications do
   end
 
   @doc """
+  Flips a notification preference, reloading the tenant first so rapid
+  successive toggles never compare against stale settings.
+  Returns `{:ok, tenant, new_value}` with the freshly updated tenant.
+  """
+  def toggle_notification_preference(tenant_id, key) do
+    tenant = Repo.get!(Tenant, tenant_id)
+    new_value = !Map.get(notification_preferences(tenant), key, true)
+
+    case set_notification_preference(tenant, key, new_value) do
+      {:ok, updated} -> {:ok, updated, new_value}
+      error -> error
+    end
+  end
+
+  @doc """
   Notify the candidate when their application moves to a new pipeline stage.
   Resolves the email template for the target stage type, renders it with
   variables, and sends it via Swoosh.

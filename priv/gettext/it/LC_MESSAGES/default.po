@@ -732,8 +732,7 @@ msgstr "Prima fase"
 #: lib/treby_web/controllers/registration_html/new.html.heex:23
 #, elixir-autogen, elixir-format
 msgid "First, verify your email address. We'll send you a one-time code."
-msgstr "First, verify your email address. We'll send you a one-time code."
-"Prima, verifica il tuo indirizzo email. Ti invieremo un codice monouso."
+msgstr "Prima, verifica il tuo indirizzo email. Ti invieremo un codice monouso."
 
 #: lib/treby_web/controllers/session_html/new.html.heex:75
 #, elixir-autogen, elixir-format
@@ -764,8 +763,7 @@ msgstr "Accetto i"
 #: lib/treby_web/controllers/password_reset_controller.ex:14
 #, elixir-autogen, elixir-format
 msgid "If an account exists with that email, you'll receive a reset link shortly"
-msgstr "If an account exists with that email, you'll receive a reset link shortly"
-"Se esiste un account con questa email, riceverai a breve un link di "
+msgstr "Se esiste un account con questa email, riceverai a breve un link di "
 "reimpostazione"
 
 #: lib/treby_web/components/layouts.ex:127
@@ -1047,8 +1045,7 @@ msgstr "Notifiche"
 #: lib/treby_web/live/settings_live/notifications.ex:126
 #, elixir-autogen, elixir-format
 msgid "Notify admins when a new application is submitted for any job"
-msgstr "Notify admins when a new application is submitted for any job"
-"Avvisa gli amministratori quando viene inviata una nuova candidatura per "
+msgstr "Avvisa gli amministratori quando viene inviata una nuova candidatura per "
 "qualsiasi lavoro"
 
 #: lib/treby_web/live/settings_live/scorecards.ex:113
@@ -1215,15 +1212,13 @@ msgstr "Seleziona utente..."
 #: lib/treby_web/live/settings_live/notifications.ex:94
 #, elixir-autogen, elixir-format
 msgid "Send confirmation email to candidates after they apply via the career page"
-msgstr "Send confirmation email to candidates after they apply via the career page"
-"Invia email di conferma ai candidati dopo che si candidano tramite la pagina"
+msgstr "Invia email di conferma ai candidati dopo che si candidano tramite la pagina"
 " carriere"
 
 #: lib/treby_web/live/settings_live/notifications.ex:62
 #, elixir-autogen, elixir-format
 msgid "Send email to candidates when their application moves to a new pipeline stage"
-msgstr "Send email to candidates when their application moves to a new pipeline stage"
-"Invia email ai candidati quando la loro candidatura passa a una nuova fase "
+msgstr "Invia email ai candidati quando la loro candidatura passa a una nuova fase "
 "della pipeline"
 
 #: lib/treby_web/controllers/password_reset_html/new.html.heex:33

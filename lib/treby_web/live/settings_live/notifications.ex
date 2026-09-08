@@ -153,20 +153,15 @@ defmodule TrebyWeb.SettingsLive.Notifications do
   end
 
   def handle_event("toggle_preference", %{"key" => key}, socket) do
-    current_value = Map.get(socket.assigns.preferences, key, true)
-    new_value = !current_value
-
-    case Notifications.set_notification_preference(
-           socket.assigns.current_tenant,
-           key,
-           new_value
+    case Notifications.toggle_notification_preference(
+           socket.assigns.current_tenant.id,
+           key
          ) do
-      {:ok, _tenant} ->
-        preferences = Map.put(socket.assigns.preferences, key, new_value)
-
+      {:ok, tenant, _new_value} ->
         {:noreply,
          socket
-         |> assign(preferences: preferences)
+         |> assign(current_tenant: tenant)
+         |> assign(preferences: Notifications.notification_preferences(tenant))
          |> put_flash(:info, gettext("Notification preference updated"))}
 
       {:error, _changeset} ->

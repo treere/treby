@@ -70,6 +70,11 @@ The system SHALL allow tenant admins to configure which notification types are e
 - **THEN** the settings are persisted in the tenant's settings JSON
 - **AND** future notifications respect the updated preferences
 
+#### Scenario: Toggle switch shows state
+- **WHEN** an admin looks at Settings > Notifications
+- **THEN** each enabled preference shows its switch in the ON position with the accent background, and each disabled one in the OFF position
+- **AND** clicking a switch flips its position immediately and persists the new value
+
 ### Requirement: Email activity logging
 The system SHALL log all notification emails in the activity audit trail.
 

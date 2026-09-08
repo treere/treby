@@ -7,11 +7,16 @@ Serve a public, branded career page with job listings and an application form.
 ## Requirements
 
 ### Requirement: Public career page
-The system SHALL serve a public career page at `/:tenant_slug/careers`. The page SHALL include a consistent public header that contains a brand/homepage link (navigates to `/`) on the left and the theme toggle plus language switcher on the right, rendered with `dark:` overrides so the header remains ≥4.5:1 in dark mode. The header SHALL be visible regardless of theme or locale.
+The system SHALL serve a public career page at `/:tenant_slug/careers`. The page SHALL include a consistent public header that contains a brand/homepage link (navigates to `/`) on the left and the theme toggle plus language switcher on the right, rendered with `dark:` overrides so the header remains ≥4.5:1 in dark mode. The header SHALL be visible regardless of theme or locale. The public career branding block is neutral: company name, centered short subtitle, and a left-aligned Markdown about block below it. No logo, no color band. Branding always applies (no published gating).
 
 #### Scenario: Career page loads
 - **WHEN** a visitor navigates to `/:tenant_slug/careers`
-- **THEN** the page displays the tenant's logo, name, and open job listings
+- **THEN** the page displays the tenant's name, subtitle, about block, and open job listings with no logo or color band
+
+#### Scenario: Company story block
+- **WHEN** the career page has an about text
+- **THEN** it is shown left-aligned under the header, rendered from Markdown
+- **AND** when empty, no block is shown
 
 #### Scenario: Closed jobs hidden
 - **WHEN** the career page loads
@@ -22,7 +27,7 @@ The system SHALL show job details on the career page including company branding.
 
 #### Scenario: Click job listing
 - **WHEN** a visitor clicks on a job listing
-- **THEN** the full job description, salary range, company logo, company name, company description, and "Apply" button are shown
+- **THEN** the full job description, salary range, company name, company description, and "Apply" button are shown with a neutral header (no logo)
 
 #### Scenario: Closed job detail
 - **WHEN** a visitor navigates to a job detail page for a closed job

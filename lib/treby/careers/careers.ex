@@ -11,12 +11,6 @@ defmodule Treby.Careers do
     Repo.get_by(CareerPage, tenant_id: tenant_id)
   end
 
-  def get_published_career_page_by_tenant(tenant_id) do
-    CareerPage
-    |> where([cp], cp.tenant_id == ^tenant_id and cp.published == true)
-    |> Repo.one()
-  end
-
   def create_career_page(attrs \\ %{}) do
     %CareerPage{}
     |> CareerPage.changeset(attrs)

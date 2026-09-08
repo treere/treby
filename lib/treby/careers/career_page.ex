@@ -8,6 +8,7 @@ defmodule Treby.Careers.CareerPage do
   schema "career_pages" do
     field :title, :string
     field :description, :string
+    field :about, :string
     field :logo_url, :string
     field :primary_color, :string, default: "#3b82f6"
     field :published, :boolean, default: false
@@ -20,7 +21,15 @@ defmodule Treby.Careers.CareerPage do
   @doc false
   def changeset(career_page, attrs) do
     career_page
-    |> cast(attrs, [:title, :description, :logo_url, :primary_color, :published])
+    |> cast(attrs, [
+      :title,
+      :description,
+      :about,
+      :logo_url,
+      :primary_color,
+      :published,
+      :tenant_id
+    ])
     |> validate_required([:title])
   end
 end

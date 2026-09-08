@@ -8,15 +8,15 @@ Each tenant can publish a branded career page for external applicants—no accou
 
 Career pages are live at `/:tenant_slug/careers` and show:
 
-- Company title and description
+- Company title, subtitle, and company story
 - All open job postings with salary ranges
-- Styled with the tenant's brand color
 
 ## Job Detail Page
 
 ![Public Job Detail](/screenshots/17-public-job-detail.png)
 
-Clicking a job shows the full description and a meta row with salary, location, employment type (Full-time/Part-time/Contract/Internship), workplace (On-site/Hybrid/Remote), and posted date, plus an **Apply Now** button. If you already applied while logged into the portal, the button becomes **Already applied — View status**.
+Clicking a job shows the full description (supports Markdown formatting when
+written in **Jobs**) and a meta row with salary, location, employment type (Full-time/Part-time/Contract/Internship), workplace (On-site/Hybrid/Remote), and posted date, plus an **Apply Now** button. If you already applied while logged into the portal, the button becomes **Already applied — View status**.
 
 Job cards in the listings also show location and type badges, and an **Applied ✓** badge appears on positions you've already applied to when you're logged into the portal.
 
@@ -49,12 +49,11 @@ When the candidate portal is active, the application flow gains additional featu
 
 ## Branding
 
-Configure your career page look in **Settings → Branding**:
+Configure your career page content in **Settings → Branding**:
 
 - **Page Title** — heading displayed on the careers page
-- **Description** — company description
-- **Primary Color** — accent color (color picker)
-- **Logo** — upload PNG/JPG/SVG (max 5MB)
-- **Published** — toggle visibility
+- **Subtitle** — short tagline under your company name
+- **About** — your company story, rendered below the header (supports Markdown formatting)
 
-A live preview panel shows how the page header will look with your current settings.
+Everything is live as soon as you save. Use the **Edit** / **Preview** tabs to
+write and check the final result before saving.

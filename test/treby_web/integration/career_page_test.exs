@@ -48,6 +48,48 @@ defmodule TrebyWeb.CareerPageTest do
       assert html_response(conn, 200) =~ job.title
     end
 
+    test "shows branding even when not published", %{conn: conn} do
+      {:ok, tenant} =
+        Tenants.create_tenant(%{
+          name: "Unpublished Corp",
+          slug: "unpub-#{System.unique_integer([:positive])}"
+        })
+
+      {:ok, _} =
+        tenant
+        |> Ecto.build_assoc(:career_pages)
+        |> CareerPage.changeset(%{title: "Always Live", description: "Tagline"})
+        |> Repo.insert()
+
+      conn = get(conn, ~p"/#{tenant.slug}/careers")
+
+      assert html_response(conn, 200) =~ "Always Live"
+      assert html_response(conn, 200) =~ "Tagline"
+    end
+
+    test "renders about markdown on career index", %{conn: conn} do
+      {:ok, tenant} =
+        Tenants.create_tenant(%{
+          name: "About Corp",
+          slug: "about-#{System.unique_integer([:positive])}"
+        })
+
+      {:ok, _} =
+        tenant
+        |> Ecto.build_assoc(:career_pages)
+        |> CareerPage.changeset(%{
+          title: "About Us",
+          about: "# Our Story\n\n- one\n- two"
+        })
+        |> Repo.insert()
+
+      html = conn |> get(~p"/#{tenant.slug}/careers") |> html_response(200)
+
+      assert html =~ "Our Story"
+      assert html =~ "<ul>"
+      refute html =~ "<img"
+    end
+
     test "public career page shows job detail", %{conn: conn} do
       {tenant, _career_page, job} = setup_tenant_with_career_page()
 

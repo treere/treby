@@ -38,11 +38,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(career_page: career_page)
      |> assign(form: form)
-     |> allow_upload(:logo,
-       accept: ~w(.png .jpg .jpeg .svg),
-       max_entries: 1,
-       max_file_size: 5_000_000
-     )}
+     |> assign(brand_tab: :edit)}
   end
 
   def render(assigns) do
@@ -64,91 +60,103 @@ defmodule TrebyWeb.SettingsLive.Branding do
           </p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-              {gettext("Settings")}
-            </h2>
-            <.form
-              for={@form}
-              id="branding-form"
-              phx-submit="save_branding"
-              phx-change="validate_branding"
-              class="space-y-4"
-            >
-              <.input
-                field={@form[:title]}
-                type="text"
-                label={gettext("Page Title")}
-                placeholder={gettext("Join our team")}
-              />
-              <.input
-                field={@form[:description]}
-                type="textarea"
-                label={gettext("Description")}
-                placeholder={gettext("Help us build the future...")}
-              />
-              <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                {gettext("Supports Markdown formatting")}
-              </p>
-              <.input
-                field={@form[:primary_color]}
-                type="color"
-                label={gettext("Primary Color")}
-              />
+        <div class="mb-4 flex gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-700 p-1 w-fit">
+          <button
+            type="button"
+            phx-click="switch_brand_tab"
+            phx-value-tab="edit"
+            class={[
+              "rounded-md px-4 py-1.5 text-sm font-medium",
+              if(@brand_tab == :edit,
+                do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+              )
+            ]}
+          >
+            {gettext("Edit")}
+          </button>
+          <button
+            type="button"
+            phx-click="switch_brand_tab"
+            phx-value-tab="preview"
+            class={[
+              "rounded-md px-4 py-1.5 text-sm font-medium",
+              if(@brand_tab == :preview,
+                do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+              )
+            ]}
+          >
+            {gettext("Preview")}
+          </button>
+        </div>
 
-              <div>
-                <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
-                  {gettext("Logo")}
-                </label>
-                <.live_file_input
-                  upload={@uploads.logo}
-                  class="block w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:bg-blue-950 file:text-blue-700 dark:text-blue-100 hover:file:bg-blue-100"
-                />
-                <p :for={err <- upload_errors(@uploads.logo)} class="text-red-500 text-sm mt-1">
-                  {upload_error_to_string(err)}
-                </p>
-              </div>
+        <div
+          :if={@brand_tab == :edit}
+          class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+        >
+          <.form
+            for={@form}
+            id="branding-form"
+            phx-submit="save_branding"
+            phx-change="validate_branding"
+            class="space-y-4"
+          >
+            <.input
+              field={@form[:title]}
+              type="text"
+              label={gettext("Page Title")}
+              placeholder={gettext("Join our team")}
+            />
+            <.input
+              field={@form[:description]}
+              type="text"
+              label={gettext("Subtitle")}
+              placeholder={gettext("A short tagline under your company name")}
+            />
+            <.input
+              field={@form[:about]}
+              type="textarea"
+              label={gettext("About")}
+              placeholder={gettext("Tell candidates who you are and what you do...")}
+              rows="10"
+            />
+            <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              {gettext("Supports Markdown formatting")}
+            </p>
 
-              <div class="flex items-center gap-2">
-                <.input
-                  field={@form[:published]}
-                  type="checkbox"
-                  label={gettext("Published")}
-                />
-              </div>
+            <.button type="submit" variant="primary" class="w-full">
+              {gettext("Save Branding")}
+            </.button>
+          </.form>
+        </div>
 
-              <.button type="submit" variant="primary" class="w-full">
-                {gettext("Save Branding")}
-              </.button>
-            </.form>
-          </div>
-
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-              {gettext("Preview")}
-            </h2>
-            <div class="border rounded-lg overflow-hidden">
-              <div
-                class="p-6 text-center text-white"
-                style={"background-color: #{@form[:primary_color].value || "#3b82f6"}"}
+        <div
+          :if={@brand_tab == :preview}
+          class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+        >
+          <div class="max-w-3xl mx-auto py-8 px-4">
+            <div class="text-center mb-8">
+              <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
+                {@form[:title].value || @current_tenant.name}
+              </h1>
+              <p
+                :if={@form[:description].value not in [nil, ""]}
+                class="mt-4 text-lg text-zinc-500 dark:text-zinc-400"
               >
-                <div :if={@career_page.logo_url} class="mb-4">
-                  <img src={@career_page.logo_url} class="h-12 mx-auto" alt="Logo" />
-                </div>
-                <h3 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                  {@form[:title].value || @current_tenant.name}
-                </h3>
-                <p :if={@form[:description].value} class="mt-2 text-sm opacity-90">
-                  {@form[:description].value}
-                </p>
-              </div>
-              <div class="p-4 bg-zinc-50 dark:bg-zinc-800">
-                <p class="text-sm text-zinc-500 dark:text-zinc-400 text-center">
-                  Open positions will appear here
-                </p>
-              </div>
+                {@form[:description].value}
+              </p>
             </div>
+            <.markdown
+              :if={@form[:about].value not in [nil, ""]}
+              text={@form[:about].value}
+            />
+            <p
+              :if={@form[:about].value in [nil, ""]}
+              class="text-center text-sm text-zinc-500 dark:text-zinc-400"
+            >
+              {gettext("Nothing to preview yet — write something in the About field.")}
+            </p>
           </div>
         </div>
       </div>
@@ -161,40 +169,20 @@ defmodule TrebyWeb.SettingsLive.Branding do
     {:noreply, assign(socket, form: form)}
   end
 
+  def handle_event("switch_brand_tab", %{"tab" => tab}, socket) do
+    {:noreply, assign(socket, brand_tab: String.to_existing_atom(tab))}
+  end
+
   def handle_event("save_branding", %{"career_page" => page_params}, socket) do
-    logo_url =
-      case consume_uploaded_entries(socket, :logo, fn %{path: path}, _entry ->
-             tenant_id = socket.assigns.current_tenant.id
-             key = "#{tenant_id}/logos/#{Path.basename(path)}"
-             content = File.read!(path)
-             ext = Path.extname(path) |> String.trim_leading(".")
-             content_type = "image/#{if ext == "jpg", do: "jpeg", else: ext}"
-
-             case Treby.Uploads.upload_file(tenant_id, key, content, content_type) do
-               {:ok, _} -> {:ok, Treby.Uploads.get_presigned_url(tenant_id, key)}
-               _ -> {:ok, nil}
-             end
-           end) do
-        [url] -> url
-        _ -> nil
-      end
-
-    params =
-      if logo_url do
-        Map.put(page_params, "logo_url", logo_url)
-      else
-        page_params
-      end
-
     result =
       case socket.assigns.career_page do
         %{id: nil} ->
           Careers.create_career_page(
-            Map.put(params, "tenant_id", socket.assigns.current_tenant.id)
+            Map.put(page_params, "tenant_id", socket.assigns.current_tenant.id)
           )
 
         career_page ->
-          Careers.update_career_page(career_page, params)
+          Careers.update_career_page(career_page, page_params)
       end
 
     case result do
@@ -212,12 +200,4 @@ defmodule TrebyWeb.SettingsLive.Branding do
          |> put_flash(:error, gettext("Please review the errors below"))}
     end
   end
-
-  defp upload_error_to_string(:too_large), do: gettext("File is too large (max 5MB)")
-
-  defp upload_error_to_string(:not_accepted),
-    do: gettext("File type not accepted (use PNG, JPG, or SVG)")
-
-  defp upload_error_to_string(:too_many_files), do: gettext("Only one file is allowed")
-  defp upload_error_to_string(err), do: gettext("Upload error: %{reason}", reason: inspect(err))
 end

@@ -6,7 +6,7 @@ defmodule TrebyWeb.CareersLive.Index do
   def mount(%{"tenant_slug" => tenant_slug}, session, socket) do
     socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
-    career_page = Careers.get_published_career_page_by_tenant(tenant.id)
+    career_page = Careers.get_career_page_by_tenant(tenant.id)
     jobs = Jobs.list_visible_jobs(tenant.id)
     applied_job_ids = applied_job_ids_for_session(session, tenant.id)
 
@@ -37,21 +37,22 @@ defmodule TrebyWeb.CareersLive.Index do
       <Layouts.public_header locale={@locale} />
       <div class="max-w-4xl mx-auto py-12 px-4">
         <div class="text-center mb-12">
-          <img
-            :if={@career_page && @career_page.logo_url}
-            src={@career_page.logo_url}
-            class="h-16 mx-auto mb-4"
-            alt={@tenant.name}
-          />
           <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
             {(@career_page && @career_page.title) || @tenant.name}
           </h1>
-          <.markdown
-            :if={@career_page && @career_page.description}
-            text={@career_page.description}
-            class="mt-4 text-lg text-zinc-500 dark:text-zinc-400 md-lead"
-          />
+          <p
+            :if={@career_page && @career_page.description not in [nil, ""]}
+            class="mt-4 text-lg text-zinc-500 dark:text-zinc-400"
+          >
+            {@career_page.description}
+          </p>
         </div>
+
+        <.markdown
+          :if={@career_page && @career_page.about not in [nil, ""]}
+          text={@career_page.about}
+          class="max-w-3xl mx-auto mb-12"
+        />
 
         <div class="mb-8">
           <.form for={@search_form} phx-submit="search" class="flex gap-2">

@@ -21,7 +21,7 @@ defmodule TrebyWeb.CareersLive.Apply do
         {:ok, redirect(socket, to: ~p"/404")}
 
       job ->
-        career_page = Careers.get_published_career_page_by_tenant(tenant.id)
+        career_page = Careers.get_career_page_by_tenant(tenant.id)
         pipeline_id = Pipeline.default_pipeline_id(tenant.id)
         stages = Pipeline.list_pipeline_stages(pipeline_id)
         first_stage = List.first(stages)
@@ -246,7 +246,6 @@ defmodule TrebyWeb.CareersLive.Apply do
               type="submit"
               variant="primary"
               class="w-full min-h-[44px]"
-              style={"background-color: #{@career_page && @career_page.primary_color || "#3b82f6"}"}
               disabled={Enum.any?(@uploads.resume.entries, fn e -> !e.done? end)}
             >
               <%= if Enum.any?(@uploads.resume.entries, fn e -> !e.done? end) do %>

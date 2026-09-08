@@ -13,7 +13,7 @@ defmodule TrebyWeb.CareersLive.Show do
         {:ok, redirect(socket, to: ~p"/404")}
 
       job ->
-        career_page = Careers.get_published_career_page_by_tenant(tenant.id)
+        career_page = Careers.get_career_page_by_tenant(tenant.id)
         already_applied? = already_applied?(session, tenant.id, job.id)
 
         socket =
@@ -159,21 +159,14 @@ defmodule TrebyWeb.CareersLive.Show do
         </.link>
 
         <.card :if={@job && @job.status == "open"} class="mt-8">
-          <div :if={@career_page} class="flex items-center gap-4 mb-6">
-            <img
-              :if={@career_page.logo_url}
-              src={@career_page.logo_url}
-              class="h-12"
-              alt={@tenant.name}
-            />
-            <div>
-              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{@tenant.name}</h2>
-              <.markdown
-                :if={@career_page.description}
-                text={@career_page.description}
-                class="text-sm text-zinc-500 dark:text-zinc-400 md-sm"
-              />
-            </div>
+          <div :if={@career_page} class="mb-6">
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{@tenant.name}</h2>
+            <p
+              :if={@career_page.description not in [nil, ""]}
+              class="text-sm text-zinc-500 dark:text-zinc-400"
+            >
+              {@career_page.description}
+            </p>
           </div>
 
           <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100">{@job.title}</h1>
@@ -204,7 +197,6 @@ defmodule TrebyWeb.CareersLive.Show do
             variant="primary"
             navigate={~p"/#{@tenant.slug}/careers/#{@job.id}/apply"}
             class="mt-8"
-            style={"background-color: #{@career_page && @career_page.primary_color || "#3b82f6"}"}
           >
             {gettext("Apply Now")}
           </.button>

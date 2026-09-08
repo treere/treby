@@ -36,7 +36,7 @@ defmodule TrebyWeb.JobsLive.Index do
     candidate_counts = application_counts_by_job(tenant.id)
     view_summaries = JobViews.summaries_for_tenant(tenant.id)
 
-     {:ok,
+    {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(candidate_counts: candidate_counts)
@@ -418,7 +418,9 @@ defmodule TrebyWeb.JobsLive.Index do
            socket
            |> load_page(socket.assigns.page)
            |> assign(view_summaries: view_summaries, show_form: false)
-           |> assign(form: to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id})))
+           |> assign(
+             form: to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id}))
+           )
            |> put_flash(:info, gettext("Job created successfully"))}
 
         {:error, changeset} ->

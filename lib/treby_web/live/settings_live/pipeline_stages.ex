@@ -126,7 +126,10 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               <.input field={@form[:color]} type="color" label={gettext("Color")} />
             </div>
 
-            <div :if={@form[:stage_type].value == "interview"} class="w-full flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div
+              :if={@form[:stage_type].value == "interview"}
+              class="w-full flex flex-col gap-4 sm:flex-row sm:items-end"
+            >
               <div class="flex-1">
                 <.input
                   field={@form[:min_examiners]}

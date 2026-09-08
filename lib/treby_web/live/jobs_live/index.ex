@@ -36,7 +36,7 @@ defmodule TrebyWeb.JobsLive.Index do
     candidate_counts = application_counts_by_job(tenant.id)
     view_summaries = JobViews.summaries_for_tenant(tenant.id)
 
-    {:ok,
+     {:ok,
      socket
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(candidate_counts: candidate_counts)
@@ -46,7 +46,7 @@ defmodule TrebyWeb.JobsLive.Index do
      |> assign(default_pipeline_id: default_pipeline_id)
      |> assign(filter: "all")
      |> assign(show_form: false)
-     |> assign(form: to_form(Jobs.change_job(%Job{})))}
+     |> assign(form: to_form(Jobs.change_job(%Job{pipeline_id: default_pipeline_id})))}
   end
 
   def handle_params(params, uri, socket) do
@@ -177,7 +177,6 @@ defmodule TrebyWeb.JobsLive.Index do
               type="select"
               label={gettext("Pipeline")}
               options={Enum.map(@pipelines, &{&1.name, &1.id})}
-              prompt={gettext("Default pipeline")}
             />
 
             <div :if={@job_fields != []} class="mt-4 border-t pt-4">
@@ -356,11 +355,15 @@ defmodule TrebyWeb.JobsLive.Index do
   end
 
   def handle_event("show_create_form", _, socket) do
-    {:noreply, assign(socket, show_form: true)}
+    form = to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id}))
+
+    {:noreply, assign(socket, show_form: true, form: form)}
   end
 
   def handle_event("hide_create_form", _, socket) do
-    {:noreply, assign(socket, show_form: false)}
+    form = to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id}))
+
+    {:noreply, assign(socket, show_form: false, form: form)}
   end
 
   def handle_event("paginate", %{"page" => page}, socket) do
@@ -415,7 +418,7 @@ defmodule TrebyWeb.JobsLive.Index do
            socket
            |> load_page(socket.assigns.page)
            |> assign(view_summaries: view_summaries, show_form: false)
-           |> assign(form: to_form(Jobs.change_job(%Job{})))
+           |> assign(form: to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id})))
            |> put_flash(:info, gettext("Job created successfully"))}
 
         {:error, changeset} ->

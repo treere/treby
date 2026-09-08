@@ -71,12 +71,9 @@ defmodule TrebyWeb.SettingsLive.Team do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link
-              navigate={"/#{@current_tenant.slug}/app/settings"}
-              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
-            >
-              &larr; Back to Settings
-            </.link>
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              &larr; {gettext("Back to Settings")}
+            </.button>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
               {gettext("Team Management")}
             </h1>

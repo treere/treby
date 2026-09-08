@@ -76,12 +76,9 @@ defmodule TrebyWeb.SettingsLive.Availability do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
         <div class="mb-8">
-          <.link
-            navigate={~p"/app/settings"}
-            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
-          >
-            &larr; Back to Settings
-          </.link>
+          <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+            &larr; {gettext("Back to Settings")}
+          </.button>
           <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
             {gettext("Availability")}
           </h1>

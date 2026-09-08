@@ -68,12 +68,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-4xl">
         <div class="mb-8">
-          <.link
-            navigate={~p"/app/settings/pipeline"}
-            class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
-          >
-            &larr; {gettext("Pipelines")}
-          </.link>
+          <.button variant="ghost" size="sm" navigate={~p"/app/settings/pipeline"}>
+            &larr; {gettext("Back to Pipelines")}
+          </.button>
           <.form
             for={@rename_form}
             id="pipeline-rename-form"

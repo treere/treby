@@ -48,12 +48,9 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
-            <.link
-              navigate={~p"/app/settings"}
-              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
-            >
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
               &larr; {gettext("Back to Settings")}
-            </.link>
+            </.button>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
               {gettext("Message Templates")}
             </h1>
@@ -82,7 +79,8 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                 "rounded-md px-4 py-1.5 text-sm font-medium",
                 if(@template_tab == :edit,
                   do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
-                  else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  else:
+                    "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
                 )
               ]}
             >
@@ -96,7 +94,8 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                 "rounded-md px-4 py-1.5 text-sm font-medium",
                 if(@template_tab == :preview,
                   do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
-                  else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  else:
+                    "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
                 )
               ]}
             >
@@ -258,7 +257,8 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         as: :email_template
       )
 
-    {:noreply, assign(socket, show_form: true, editing_template: nil, form: form, template_tab: :edit)}
+    {:noreply,
+     assign(socket, show_form: true, editing_template: nil, form: form, template_tab: :edit)}
   end
 
   def handle_event("cancel_form", _, socket) do
@@ -284,7 +284,8 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
         as: :email_template
       )
 
-    {:noreply, assign(socket, show_form: true, editing_template: template, form: form, template_tab: :edit)}
+    {:noreply,
+     assign(socket, show_form: true, editing_template: template, form: form, template_tab: :edit)}
   end
 
   def handle_event("preview_template", params, socket) do

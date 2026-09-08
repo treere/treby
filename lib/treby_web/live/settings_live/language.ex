@@ -19,7 +19,7 @@ defmodule TrebyWeb.SettingsLive.Language do
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8 max-w-2xl">
         <.button variant="ghost" navigate={~p"/app/settings"} size="sm">
-          ← {gettext("Settings")}
+          &larr; {gettext("Back to Settings")}
         </.button>
 
         <h1 class="mt-4 text-2xl font-bold text-zinc-900 dark:text-zinc-100">

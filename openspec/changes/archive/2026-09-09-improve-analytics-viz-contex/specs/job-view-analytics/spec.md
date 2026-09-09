@@ -1,10 +1,5 @@
-# Job View Analytics
+## MODIFIED Requirements
 
-## Purpose
-
-Track and analyze views of public job postings per position, with daily/monthly trends, traffic source breakdown, and view-to-application funnel, accessible from the job management area.
-
-## Requirements
 ### Requirement: Track job page views
 The system SHALL record a view event each time a visitor loads the public job detail page (`/:tenant_slug/careers/:job_id`) for an open job, subject to deduplication and filtering rules.
 

@@ -245,4 +245,69 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
                0
     end
   end
+
+  describe "Contex charts and empty placeholders" do
+    test "empty job shows placeholders and no svg", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      job = create_job(tenant)
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/jobs/#{job.id}/analytics")
+      html = render(view)
+      assert html =~ "daily-views-empty"
+      assert html =~ "monthly-views-empty"
+      assert html =~ "traffic-sources-empty"
+      refute html =~ "daily-views-chart"
+      # chart cards keep height via chart-card class
+      assert html =~ "chart-card"
+    end
+
+    test "job with views renders svg charts", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      job = create_job(tenant)
+
+      for offset <- 0..5 do
+        hash = JobViews.session_hash("10.0.0.#{offset}", "Mozilla/#{offset}")
+
+        {:ok, _} =
+          JobViews.track_view(%{
+            job_id: job.id,
+            tenant_id: tenant.id,
+            session_hash: hash,
+            viewed_at: DateTime.add(DateTime.utc_now(), -offset * 86_400, :second),
+            user_agent: "Mozilla/#{offset}",
+            utm_source: "linkedin"
+          })
+      end
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/jobs/#{job.id}/analytics")
+      html = render(view)
+      assert html =~ "<svg"
+      assert html =~ "daily-views-chart"
+      assert html =~ "monthly-views-chart"
+      assert html =~ "traffic-sources-chart"
+      refute html =~ "daily-views-empty"
+    end
+
+    test "tenant isolation still holds for charts", %{conn: conn} do
+      {_tenant_b, _user_b} = setup_tenant()
+      {tenant_a, user_a} = setup_tenant()
+      job_a = create_job(tenant_a)
+      hash = JobViews.session_hash("20.0.0.1", "Mozilla")
+
+      {:ok, _} =
+        JobViews.track_view(%{
+          job_id: job_a.id,
+          tenant_id: tenant_a.id,
+          session_hash: hash,
+          viewed_at: DateTime.utc_now(),
+          user_agent: "Mozilla"
+        })
+
+      conn_a = login_user(conn, user_a)
+      {:ok, view, html} = live(conn_a, ~p"/app/jobs/#{job_a.id}/analytics")
+      assert html =~ "<svg"
+      assert has_element?(view, "#daily-views-chart")
+    end
+  end
 end

@@ -163,9 +163,12 @@ defmodule TrebyWeb.JobsLive.Analytics do
           class="mb-8"
         />
 
-        <div :if={@summary.total_views > 0} class="space-y-8">
+        <div class="space-y-8">
           <%!-- Daily chart --%>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          <div
+            id="daily-views-card"
+            class="chart-card bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+          >
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {gettext("Daily Views")}
@@ -192,95 +195,94 @@ defmodule TrebyWeb.JobsLive.Analytics do
               </.form>
             </div>
 
-            <div
-              :if={Enum.all?(@daily_breakdown, &(&1.count == 0))}
-              class="text-center text-zinc-500 dark:text-zinc-400 py-8"
-            >
-              No views in this period
-            </div>
-
-            <div :if={not Enum.all?(@daily_breakdown, &(&1.count == 0))} class="space-y-2">
-              <% max = @daily_breakdown |> Enum.map(& &1.count) |> Enum.max() %>
-              <div :for={item <- @daily_breakdown} class="flex items-center gap-3 text-sm">
-                <span class="w-24 text-xs text-zinc-500 dark:text-zinc-400 text-right">
-                  {Calendar.strftime(item.date, "%b %d")}
-                </span>
-                <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-5">
-                  <div
-                    class="h-5 rounded-full bg-blue-500 flex items-center justify-end pr-2"
-                    style={"width: #{if max > 0, do: max(item.count / max * 100, item.count > 0 && 8 || 0), else: 0}%"}
-                  >
-                    <span :if={item.count > 0} class="text-[11px] font-medium text-white">
-                      {item.count}
-                    </span>
-                  </div>
+            <div class="chart-card__body">
+              <%= if Enum.all?(@daily_breakdown, &(&1.count == 0)) do %>
+                <div
+                  id="daily-views-empty"
+                  class="w-full flex flex-col items-center justify-center py-16 px-6 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg text-center"
+                >
+                  <.icon name="hero-chart-bar" class="w-8 h-8 text-zinc-400 dark:text-zinc-500 mb-2" />
+                  <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {gettext("No views in this period")}
+                  </p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    {gettext("Share the public link to start tracking views")}
+                  </p>
                 </div>
-                <span class="w-8 text-xs text-zinc-500 dark:text-zinc-400">{item.count}</span>
-              </div>
+              <% else %>
+                <div id="daily-views-chart" class="contex-chart w-full">
+                  {TrebyWeb.Charts.daily_plot(@daily_breakdown, @selected_period)
+                  |> TrebyWeb.Charts.to_svg()}
+                </div>
+              <% end %>
             </div>
           </div>
 
           <%!-- Monthly breakdown --%>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          <div
+            id="monthly-views-card"
+            class="chart-card bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+          >
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Monthly Views (Last 12 Months)")}
             </h2>
-            <div
-              :if={Enum.all?(@monthly_breakdown, &(&1.count == 0))}
-              class="text-center text-zinc-500 dark:text-zinc-400 py-8"
-            >
-              No monthly data yet
-            </div>
-            <div :if={not Enum.all?(@monthly_breakdown, &(&1.count == 0))} class="space-y-2">
-              <% max_m = @monthly_breakdown |> Enum.map(& &1.count) |> Enum.max() %>
-              <div :for={item <- @monthly_breakdown} class="flex items-center gap-3 text-sm">
-                <span class="w-24 text-xs text-zinc-500 dark:text-zinc-400 text-right">
-                  {Calendar.strftime(item.month, "%b %Y")}
-                </span>
-                <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-5">
-                  <div
-                    class="h-5 rounded-full bg-purple-500 flex items-center justify-end pr-2"
-                    style={"width: #{if max_m > 0, do: max(item.count / max_m * 100, item.count > 0 && 8 || 0), else: 0}%"}
-                  >
-                    <span :if={item.count > 0} class="text-[11px] font-medium text-white">
-                      {item.count}
-                    </span>
-                  </div>
+            <div class="chart-card__body">
+              <%= if Enum.all?(@monthly_breakdown, &(&1.count == 0)) do %>
+                <div
+                  id="monthly-views-empty"
+                  class="w-full flex flex-col items-center justify-center py-16 px-6 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg text-center"
+                >
+                  <.icon name="hero-chart-bar" class="w-8 h-8 text-zinc-400 dark:text-zinc-500 mb-2" />
+                  <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {gettext("No monthly data yet")}
+                  </p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    {gettext("Views will appear here grouped by month")}
+                  </p>
                 </div>
-                <span class="w-8 text-xs text-zinc-500 dark:text-zinc-400">{item.count}</span>
-              </div>
+              <% else %>
+                <div id="monthly-views-chart" class="contex-chart w-full">
+                  {TrebyWeb.Charts.monthly_plot(@monthly_breakdown) |> TrebyWeb.Charts.to_svg()}
+                </div>
+              <% end %>
             </div>
           </div>
 
           <%!-- Source breakdown --%>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          <div
+            id="traffic-sources-card"
+            class="chart-card bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+          >
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Traffic Sources")}
             </h2>
-            <div
-              :if={@source_breakdown == []}
-              class="text-center text-zinc-500 dark:text-zinc-400 py-8"
-            >
-              No source data yet
-            </div>
-            <div :if={@source_breakdown != []} class="space-y-3">
-              <div :for={item <- @source_breakdown} class="flex items-center gap-4">
-                <span class="w-32 text-sm font-medium text-zinc-900 dark:text-zinc-100/80">{item.source}</span>
-                <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-5">
-                  <div
-                    class="h-5 rounded-full bg-green-500 flex items-center justify-end pr-2"
-                    style={"width: #{max(item.percentage, 5)}%"}
-                  >
-                    <span class="text-[11px] font-medium text-white">{item.count}</span>
-                  </div>
+            <div class="chart-card__body">
+              <%= if @source_breakdown == [] do %>
+                <div
+                  id="traffic-sources-empty"
+                  class="w-full flex flex-col items-center justify-center py-16 px-6 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg text-center"
+                >
+                  <.icon name="hero-chart-bar" class="w-8 h-8 text-zinc-400 dark:text-zinc-500 mb-2" />
+                  <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {gettext("No source data yet")}
+                  </p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    {gettext("Share with utm_source to track campaigns")}
+                  </p>
                 </div>
-                <span class="w-16 text-xs text-zinc-500 dark:text-zinc-400 text-right">{item.percentage}%</span>
-              </div>
+              <% else %>
+                <div id="traffic-sources-chart" class="contex-chart w-full">
+                  {TrebyWeb.Charts.sources_plot(@source_breakdown) |> TrebyWeb.Charts.to_svg()}
+                </div>
+              <% end %>
             </div>
           </div>
 
           <%!-- Funnel --%>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          <div
+            id="funnel-card"
+            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+          >
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("View → Application Funnel")}
             </h2>

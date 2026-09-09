@@ -1,10 +1,5 @@
-# Analytics
+## MODIFIED Requirements
 
-## Purpose
-
-Provide recruiting analytics including pipeline overview, time-to-hire, stage conversion rates, and time-in-stage metrics with pipeline filtering.
-
-## Requirements
 ### Requirement: Pipeline overview
 The system SHALL display candidate counts per pipeline stage for the selected pipeline(s) as a horizontal bar chart rendered via Contex.
 

@@ -9,9 +9,11 @@ Track hiring progress with a dedicated dashboard.
 - **Total candidates** — how many profiles are in your company workspace
 - **Average time to hire** — average days from application to hire
 - **Active positions** — number of open jobs
-- **Pipeline overview** — horizontal bars with candidate counts per stage
+- **Pipeline overview** — horizontal bar chart with candidate counts per stage, colored by stage
 - **Conversion rates** — percentage of candidates moving from one stage to the next
-- **Time in stage** — average days spent in each stage over the last 90 days
+- **Time in stage** — horizontal bar chart of average days spent in each stage over the last 90 days, with bottleneck stages highlighted
+
+Charts keep their card height even when there is no data — you'll see a centered placeholder with an icon and explanatory text instead of a collapsed card.
 
 ## Pipeline Filter
 

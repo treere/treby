@@ -187,4 +187,34 @@
 [data-theme="dark"] .md-content pre { background-color: #27272a; }
 [data-theme="dark"] .md-content hr { border-color: #3f3f46; }
 
+/* ── Contex Charts ──────────────────────────────────────────── */
+.exc-tick { stroke: #a1a1aa; }
+.exc-tick text { fill: #71717a; stroke: none; font-size: 0.7rem; }
+.exc-domain { stroke: #e4e4e7; }
+.exc-grid { stroke: #f4f4f5; }
+.exc-legend { stroke: #e4e4e7; }
+.exc-legend text { fill: #52525b; font-size: 0.75rem; stroke: none; }
+.exc-title { fill: #18181b; font-size: 1.1rem; font-weight: 600; stroke: none; }
+.exc-subtitle { fill: #71717a; font-size: 0.85rem; stroke: none; }
+.exc-barlabel-in { fill: white; font-size: 0.7rem; font-weight: 500; }
+.exc-barlabel-out { fill: #52525b; font-size: 0.7rem; }
+
+[data-theme="dark"] .exc-tick { stroke: #52525b; }
+[data-theme="dark"] .exc-tick text { fill: #a1a1aa; }
+[data-theme="dark"] .exc-domain { stroke: #3f3f46; }
+[data-theme="dark"] .exc-grid { stroke: #27272a; }
+[data-theme="dark"] .exc-legend { stroke: #3f3f46; }
+[data-theme="dark"] .exc-legend text { fill: #a1a1aa; }
+[data-theme="dark"] .exc-title { fill: #f4f4f5; }
+[data-theme="dark"] .exc-subtitle { fill: #a1a1aa; }
+[data-theme="dark"] .exc-barlabel-out { fill: #d4d4d8; }
+
+/* Responsive SVG wrapper for Contex charts */
+.contex-chart { width: 100%; overflow: hidden; }
+.contex-chart svg { width: 100%; height: auto; display: block; }
+
+/* Chart card keeps height for empty state */
+.chart-card { min-height: 320px; display: flex; flex-direction: column; }
+.chart-card__body { flex: 1; display: flex; align-items: center; justify-content: center; }
+
 /* This file is for your main application CSS */

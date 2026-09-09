@@ -16,12 +16,12 @@ Understand how many people view each job posting and where they come from, so yo
   - *Total views* and *Unique views* (same person counted once)
   - *Last 7 / 30 days* and *Daily average*
   - *Conversion* — % of views that become applications, with total applications and company average for comparison
-- **Daily chart** — bars for the last 7, 30, or 90 days (period selector at the top). Days with no views stay at 0.
-- **Monthly** — bars for the last 12 months (from the first of the month).
-- **Traffic sources** — where views come from: `utm_source` if present (e.g., LinkedIn, Indeed), otherwise referrer domain, otherwise "Direct". Percentage and count.
+- **Daily chart** — line chart with points for the last 7, 30, or 90 days (period selector at the top re-renders the chart). Days with no views appear as 0 on the line.
+- **Monthly** — vertical bar chart for the last 12 months (from the first of the month) with value labels on each bar.
+- **Traffic sources** — pie chart with legend showing where views come from: `utm_source` if present (e.g., LinkedIn, Indeed), otherwise referrer domain, otherwise "Direct". Percentage and count per slice.
 - **View → Application funnel** — total views vs total applications and conversion rate; useful to tell whether a posting is seen but not compelling.
 
-If the posting is **closed**, the page remains accessible with historical data but no longer records new views. If there are no views yet, you'll see "No views yet" and empty charts with an explanatory message.
+Charts keep their card height even when there is no data — you'll see a centered dashed placeholder with an icon and message instead of a collapsed card. If the posting is **closed**, the page remains accessible with historical charts but no longer records new views. If there are no views yet, you'll see "No views yet" at the top and placeholders in each chart card.
 
 ## How to Use It — Step by Step
 

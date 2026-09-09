@@ -117,77 +117,72 @@ defmodule TrebyWeb.AnalyticsLive.Index do
         />
 
         <%!-- Pipeline Overview --%>
-        <.card class="shadow mb-8">
+        <.card id="pipeline-overview-card" class="shadow mb-8 chart-card">
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Pipeline Overview")}
           </h2>
-          <.empty_state
-            :if={@pipeline_counts == []}
-            icon="hero-queue-list"
-            title={gettext("No pipeline data")}
-            description={gettext("Pipeline stages will appear here once candidates are added.")}
-          />
-          <div :if={@pipeline_counts != []} class="space-y-3">
-            <div :for={item <- @pipeline_counts} class="flex items-center gap-4">
-              <div class="w-32 flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full" style={"background-color: #{item.stage.color}"}>
-                </div>
-                <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80">{item.stage.name}</span>
+          <div class="chart-card__body">
+            <%= if @pipeline_counts == [] or Enum.all?(@pipeline_counts, &(&1.count == 0)) do %>
+              <div
+                id="pipeline-overview-empty"
+                class="w-full flex flex-col items-center justify-center py-16 px-6 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg text-center"
+              >
+                <.icon name="hero-queue-list" class="w-8 h-8 text-zinc-400 dark:text-zinc-500 mb-2" />
+                <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {gettext("No pipeline data")}
+                </p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                  {gettext("Pipeline stages will appear here once candidates are added.")}
+                </p>
               </div>
-              <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-6">
-                <div
-                  class="h-6 rounded-full flex items-center justify-end pr-2"
-                  style={
-                    "background-color: #{item.stage.color}; width: #{if Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end) > 0, do: max(item.count / Enum.reduce(@pipeline_counts, 0, fn %{count: c}, acc -> acc + c end) * 100, 5), else: 5}%"
-                  }
-                >
-                  <span :if={item.count > 0} class="text-xs font-medium text-white">
-                    {item.count}
-                  </span>
-                </div>
+            <% else %>
+              <div id="pipeline-overview-chart" class="contex-chart w-full">
+                {TrebyWeb.Charts.pipeline_plot(@pipeline_counts) |> TrebyWeb.Charts.to_svg()}
               </div>
-              <.badge variant="default" class="w-10 justify-center">{item.count}</.badge>
-            </div>
+            <% end %>
           </div>
         </.card>
 
         <%!-- Time in Stage --%>
-        <.card :if={@time_in_stage != []} class="shadow mb-8">
+        <.card id="time-in-stage-card" class="shadow mb-8 chart-card">
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Time in Stage (Avg. Days, last 90 days)")}
           </h2>
-          <div class="space-y-3">
-            <div :for={item <- @time_in_stage} class="flex items-center gap-4">
-              <div class="w-32 flex items-center gap-2">
-                <div
-                  class="w-3 h-3 rounded-full"
-                  style={"background-color: #{if item.stage, do: item.stage.color, else: "#6B7280"}"}
-                >
-                </div>
-                <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
-                  {if item.stage, do: item.stage.name, else: "Unknown"}
-                </span>
-                <.badge :if={item.is_bottleneck} variant="danger" class="ml-1">
-                  {gettext("Bottleneck")}
-                </.badge>
+          <div class="chart-card__body flex-col gap-4">
+            <%= if @time_in_stage == [] do %>
+              <div
+                id="time-in-stage-empty"
+                class="w-full flex flex-col items-center justify-center py-16 px-6 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg text-center"
+              >
+                <.icon name="hero-clock" class="w-8 h-8 text-zinc-400 dark:text-zinc-500 mb-2" />
+                <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {gettext("No time in stage data yet")}
+                </p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                  {gettext("Move candidates through stages to see timing")}
+                </p>
               </div>
-              <div class="flex-1 bg-zinc-50 dark:bg-zinc-800 rounded-full h-6">
-                <div
-                  class={[
-                    "h-6 rounded-full flex items-center justify-end pr-2",
-                    if(item.is_bottleneck, do: "bg-red-500", else: "bg-blue-500")
-                  ]}
-                  style={"width: #{min(item.avg_days * 10, 100)}%"}
-                >
-                  <span :if={item.avg_days > 0} class="text-xs font-medium text-white">
-                    {Float.round(item.avg_days, 1)}d
-                  </span>
+            <% else %>
+              <div id="time-in-stage-chart" class="contex-chart w-full">
+                {TrebyWeb.Charts.time_in_stage_plot(@time_in_stage) |> TrebyWeb.Charts.to_svg()}
+              </div>
+              <div class="w-full space-y-2">
+                <div :for={item <- @time_in_stage} class="flex items-center gap-2 text-xs">
+                  <div
+                    class="w-2 h-2 rounded-full"
+                    style={"background-color: #{if item.stage, do: item.stage.color, else: "#6B7280"}"}
+                  >
+                  </div>
+                  <span class="text-zinc-700 dark:text-zinc-300">{if item.stage,
+                    do: item.stage.name,
+                    else: "Unknown"}</span>
+                  <span class="text-zinc-500 dark:text-zinc-400">{Float.round(item.avg_days, 1)}d</span>
+                  <.badge :if={item.is_bottleneck} variant="danger" class="ml-1 text-[10px]">
+                    {gettext("Bottleneck")}
+                  </.badge>
                 </div>
               </div>
-              <span class="w-16 text-sm text-zinc-500 dark:text-zinc-400 text-right">
-                {Float.round(item.avg_days, 1)}d
-              </span>
-            </div>
+            <% end %>
           </div>
         </.card>
 

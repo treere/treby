@@ -82,6 +82,7 @@ defmodule Treby.MixProject do
       {:hammer, "~> 6.0"},
       {:mdex, "~> 0.13"},
       {:html_sanitize_ex, "~> 1.4"},
+      {:contex, "~> 0.5.0"},
       {:phoenix_storybook, "~> 1.3", only: :dev},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}

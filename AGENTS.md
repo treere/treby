@@ -72,6 +72,7 @@ custom classes must fully style the input
 - Focus on **delightful details** like hover effects, loading states, and smooth page transitions
 - **Design system:** All UI MUST use `TrebyWeb.DesignSystem.*` + `assets/css/app.css` SaaS minimal tokens (`zinc-50`/`white`/`zinc-200` light, `zinc-900`/`zinc-800`/`zinc-700` dark, `rounded-xl`/`shadow-sm`, `orange-600` CTA). Never use daisyUI class contract (`btn btn-primary`, `badge badge-*`, `card`, `table-zebra`) or hardcoded `bg-blue-600`/`bg-gray-500` outside `lib/treby_web/components/design_system/*`.
 - **Guardrail:** `grep -R "btn btn-primary\|badge badge-\|table-zebra\|bg-blue-600\|bg-gray-500" lib/treby_web --exclude-dir=design_system` must be clean; additionally run `node scripts/screenshots.mjs --axe` for contrast/a11y.
+- **Theme QA — always verify light AND dark:** Every UI change (new component, Tailwind classes, raw CSS in `assets/css/app.css`) MUST be checked in both themes: `data-theme="light"` and `data-theme="dark"` (toggle via `Layouts.theme_toggle`). Never use `color: inherit` on a container with `bg-white dark:bg-zinc-800` without an explicit `dark:` text color — it stays black on dark background (bug seen in `.md-content`). For raw CSS, always add a `[data-theme="dark"]` rule AND a `@media (prefers-color-scheme: dark) { :root:not([data-theme]) ... }` fallback (see `assets/css/app.css:179-214` for the `.md-content` pattern). Quick smoke test: `node scripts/screenshots.mjs` captures both themes; `node scripts/screenshots.mjs --axe` flags contrast failures.
 
 
 <!-- usage-rules-start -->

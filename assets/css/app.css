@@ -125,7 +125,7 @@
 .md-content {
   font-size: var(--ds-text-base);
   line-height: var(--ds-leading-relaxed);
-  color: inherit;
+  color: #18181b;
   overflow-wrap: break-word;
 }
 .md-content > *:first-child { margin-top: 0; }
@@ -175,7 +175,13 @@
 }
 .md-content pre code { background: none; padding: 0; }
 .md-content hr { border-color: #e4e4e7; margin: 1.5rem 0; }
+.md-content table { width: 100%; border-collapse: collapse; margin: 0 0 1rem; display: block; overflow-x: auto; }
+.md-content th, .md-content td { border: 1px solid #e4e4e7; padding: 0.5rem 0.75rem; text-align: left; }
+.md-content th { background-color: #f4f4f5; font-weight: var(--ds-weight-semibold); }
+.md-content strong { font-weight: var(--ds-weight-bold); }
+.md-content em { font-style: italic; }
 
+[data-theme="dark"] .md-content { color: #f4f4f5; }
 [data-theme="dark"] .md-content h1,
 [data-theme="dark"] .md-content h2,
 [data-theme="dark"] .md-content h3,
@@ -184,8 +190,29 @@
 [data-theme="dark"] .md-content a:hover { color: #fed7aa; }
 [data-theme="dark"] .md-content blockquote { border-color: #3f3f46; color: #a1a1aa; }
 [data-theme="dark"] .md-content code,
-[data-theme="dark"] .md-content pre { background-color: #27272a; }
+[data-theme="dark"] .md-content pre { background-color: #27272a; color: #f4f4f5; }
 [data-theme="dark"] .md-content hr { border-color: #3f3f46; }
+[data-theme="dark"] .md-content th { background-color: #27272a; }
+[data-theme="dark"] .md-content th,
+[data-theme="dark"] .md-content td { border-color: #3f3f46; }
+
+/* System preference fallback (when no explicit data-theme, e.g. theme=system) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .md-content { color: #f4f4f5; }
+  :root:not([data-theme]) .md-content h1,
+  :root:not([data-theme]) .md-content h2,
+  :root:not([data-theme]) .md-content h3,
+  :root:not([data-theme]) .md-content h4 { color: #f4f4f5; }
+  :root:not([data-theme]) .md-content a { color: #fdba74; }
+  :root:not([data-theme]) .md-content a:hover { color: #fed7aa; }
+  :root:not([data-theme]) .md-content blockquote { border-color: #3f3f46; color: #a1a1aa; }
+  :root:not([data-theme]) .md-content code,
+  :root:not([data-theme]) .md-content pre { background-color: #27272a; color: #f4f4f5; }
+  :root:not([data-theme]) .md-content hr { border-color: #3f3f46; }
+  :root:not([data-theme]) .md-content th { background-color: #27272a; }
+  :root:not([data-theme]) .md-content th,
+  :root:not([data-theme]) .md-content td { border-color: #3f3f46; }
+}
 
 /* ── Contex Charts ──────────────────────────────────────────── */
 .exc-tick { stroke: #a1a1aa; }

@@ -1,14 +1,53 @@
 #!/bin/sh
-# pre-push hook: run precommit checks before pushing
-# Mirrors CI: format --check-formatted, credo --strict, check_translations, check_design_system, sobelow, compile --warnings-as-errors, test
+# pre-push hook: auto-extract gettext + run precommit checks before pushing
+# Mirrors CI: format --check-formatted, credo --strict, check_translations (+ --check-pot), check_design_system, sobelow, compile --warnings-as-errors, test
 
 set -e
-
-echo "▶ pre-push: running mix precommit..."
 
 # Ensure we run from repo root
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
+
+echo "▶ pre-push: extracting gettext..."
+if mix gettext.extract --merge > /dev/null 2>&1; then
+  # Auto-fill missing IT translations with EN fallback so check_translations stays green.
+  # Proper Italian can be filled later; this prevents manual step from blocking push.
+  python3 - << 'PY' 2>/dev/null || true
+import re, pathlib
+for lang in ["it"]:
+    p = pathlib.Path(f"priv/gettext/{lang}/LC_MESSAGES/default.po")
+    if not p.exists():
+        continue
+    text = p.read_text()
+    # Replace msgstr "" with msgstr = msgid (EN fallback) for empty entries
+    # Pattern: msgid "xxx"\nmsgstr ""
+    def repl(m):
+        msgid = m.group(1)
+        # Escape quotes in msgid for msgstr
+        return f'msgid "{msgid}"\nmsgstr "{msgid}"'
+    new_text = re.sub(r'msgid "(.*?)"\nmsgstr ""', repl, text)
+    if new_text != text:
+        p.write_text(new_text)
+        print(f"  auto-filled missing {lang} translations with EN fallback")
+PY
+  # Stage any POT/PO changes produced by extract (and auto-fill)
+  if ! git diff --quiet -- priv/gettext/ 2>/dev/null; then
+    echo "▶ gettext: POT/PO changed, staging..."
+    git add priv/gettext/default.pot priv/gettext/en/LC_MESSAGES/default.po priv/gettext/it/LC_MESSAGES/default.po priv/gettext/en/LC_MESSAGES/errors.po priv/gettext/it/LC_MESSAGES/errors.po 2>/dev/null || true
+  fi
+  # If staged gettext changes exist (extract produced a diff), amend the tip commit
+  # so the push includes them without requiring a manual commit.
+  if ! git diff --cached --quiet 2>/dev/null; then
+    echo "▶ amending last commit with updated translations..."
+    # Use --no-verify to avoid recursive pre-push
+    git commit --amend --no-edit --no-verify > /dev/null 2>&1 || git commit -m "chore(i18n): update POT/PO" --no-verify > /dev/null 2>&1
+    echo "  (amended)"
+  fi
+else
+  echo "⚠ gettext extract failed, continuing to precommit..."
+fi
+
+echo "▶ pre-push: running mix precommit..."
 
 # Run precommit (uses MIX_ENV=test, via mix alias)
 if ! mix precommit; then

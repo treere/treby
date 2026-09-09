@@ -85,7 +85,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               />
             </div>
             <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit" variant="primary">{gettext("Save")}</.button>
+              <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                "Save"
+              )}</.button>
             </div>
           </.form>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
@@ -150,7 +152,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             </div>
 
             <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit" variant="primary">{gettext("Save")}</.button>
+              <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                "Save"
+              )}</.button>
               <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>
@@ -187,7 +191,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
               />
             </div>
             <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit" variant="primary">{gettext("Move & Delete")}</.button>
+              <.button type="submit" variant="primary" loading_text={gettext("Moving...")}>{gettext(
+                "Move & Delete"
+              )}</.button>
               <.button type="button" phx-click="cancel_delete" variant="ghost">
                 {gettext("Cancel")}
               </.button>
@@ -367,7 +373,13 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                       label=""
                     />
                   </div>
-                  <.button type="submit" variant="primary" size="sm" class="shrink-0">
+                  <.button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    class="shrink-0"
+                    loading_text={gettext("Adding...")}
+                  >
                     {gettext("Add")}
                   </.button>
                 </.form>
@@ -411,7 +423,13 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                       label=""
                     />
                   </div>
-                  <.button type="submit" variant="primary" size="sm" class="shrink-0">
+                  <.button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    class="shrink-0"
+                    loading_text={gettext("Adding...")}
+                  >
                     {gettext("Add")}
                   </.button>
                 </.form>
@@ -455,7 +473,13 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                       label=""
                     />
                   </div>
-                  <.button type="submit" variant="secondary" size="sm" class="shrink-0">
+                  <.button
+                    type="submit"
+                    variant="secondary"
+                    size="sm"
+                    class="shrink-0"
+                    loading_text={gettext("Adding...")}
+                  >
                     {gettext("Add")}
                   </.button>
                 </.form>

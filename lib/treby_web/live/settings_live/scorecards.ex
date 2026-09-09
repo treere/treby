@@ -170,7 +170,9 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
             </div>
 
             <div class="flex gap-2">
-              <.button type="submit" variant="primary">{gettext("Save")}</.button>
+              <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                "Save"
+              )}</.button>
               <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>

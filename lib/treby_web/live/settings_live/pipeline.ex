@@ -81,7 +81,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
               />
             </div>
             <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit">{gettext("Create")}</.button>
+              <.button type="submit" loading_text={gettext("Creating...")}>{gettext("Create")}</.button>
               <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>

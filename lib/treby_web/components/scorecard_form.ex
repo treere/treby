@@ -146,7 +146,9 @@ defmodule TrebyWeb.ScorecardForm do
               <.button type="button" phx-click="close_scorecard" variant="ghost">
                 Cancel
               </.button>
-              <.button type="submit" variant="primary">{gettext("Submit Scorecard")}</.button>
+              <.button type="submit" variant="primary" loading_text={gettext("Submitting...")}>{gettext(
+                "Submit Scorecard"
+              )}</.button>
             </div>
           </.form>
         </div>

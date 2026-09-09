@@ -78,6 +78,54 @@ document.getElementById("mobile-nav-overlay")?.addEventListener("click", () => {
   overlay?.classList.add("hidden")
 })
 
+// Dead-view loading feedback: show spinner + loading label on full POST forms
+document.addEventListener(
+  "submit",
+  (e) => {
+    const form = e.target
+    if (!(form instanceof HTMLFormElement)) return
+    if (form.hasAttribute("phx-submit") || form.hasAttribute("data-phx-submit")) return
+    // Only for non-LiveView forms (dead views); allow POST/PUT/PATCH/DELETE which all POST under the hood
+    const method = (form.getAttribute("method") || form.method || "").toLowerCase()
+    if (method === "get" || method === "") return
+
+    const buttons = form.querySelectorAll('button[type="submit"]')
+    if (buttons.length === 0) return
+
+    buttons.forEach((btn) => {
+      if (btn.disabled) return
+      const loadingText =
+        btn.getAttribute("phx-disable-with") || btn.getAttribute("data-loading-label")
+      if (loadingText) {
+        if (!btn.hasAttribute("data-phx-disable-with-restore")) {
+          btn.setAttribute("data-phx-disable-with-restore", btn.innerHTML)
+        }
+        btn.innerHTML = ""
+        const wrapper = document.createElement("span")
+        wrapper.className = "inline-flex items-center gap-2"
+        const spinner = document.createElement("span")
+        spinner.className =
+          "inline-block size-4 motion-safe:animate-spin rounded-full border-2 border-current border-t-transparent"
+        spinner.setAttribute("aria-hidden", "true")
+        wrapper.appendChild(spinner)
+        wrapper.appendChild(document.createTextNode(" " + loadingText))
+        btn.appendChild(wrapper)
+      } else {
+        // Generic spinner fallback: prepend spinner if no custom label
+        const spinner = document.createElement("span")
+        spinner.className =
+          "inline-block size-4 motion-safe:animate-spin rounded-full border-2 border-current border-t-transparent mr-2"
+        spinner.setAttribute("aria-hidden", "true")
+        btn.prepend(spinner)
+      }
+      btn.disabled = true
+      btn.setAttribute("aria-busy", "true")
+      btn.classList.add("opacity-60", "pointer-events-none")
+    })
+  },
+  true,
+)
+
 // Password visibility toggle (works on dead views and LiveViews via delegation)
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-password-toggle]")

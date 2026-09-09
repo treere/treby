@@ -58,7 +58,7 @@ defmodule TrebyWeb.DesignSystem.Pattern do
           phx-click={@on_confirm}
           {@extra_phx_value_attrs}
           class={[
-            "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+            "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 phx-click-loading:opacity-60 phx-click-loading:pointer-events-none",
             @confirm_variant == "danger" &&
               "bg-red-600 text-white hover:bg-red-700 border border-red-600 focus-visible:ring-red-600",
             @confirm_variant == "primary" &&
@@ -66,7 +66,14 @@ defmodule TrebyWeb.DesignSystem.Pattern do
           ]}
           phx-mounted={JS.focus()}
         >
-          {@confirm_label}
+          <span class="inline-flex items-center gap-2 phx-click-loading:hidden">{@confirm_label}</span>
+          <span class="hidden phx-click-loading:inline-flex items-center gap-2">
+            <span
+              class="hero-arrow-path size-4 motion-safe:animate-spin inline-block rounded-full border-2 border-current border-t-transparent"
+              aria-hidden="true"
+            ></span>
+            <span>Please wait...</span>
+          </span>
         </button>
       </:footer>
     </.modal>

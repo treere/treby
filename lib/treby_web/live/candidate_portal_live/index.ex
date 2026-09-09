@@ -269,7 +269,12 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                       placeholder={gettext("Type a message...")}
                       class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                     />
-                    <.button type="submit" variant="primary" size="sm">
+                    <.button
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      loading_text={gettext("Sending...")}
+                    >
                       Send
                     </.button>
                   </form>

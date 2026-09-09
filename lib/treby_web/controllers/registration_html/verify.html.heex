@@ -38,7 +38,12 @@
       </div>
 
       <div>
-        <.button variant="primary" type="submit" class="w-full justify-center">
+        <.button
+          variant="primary"
+          type="submit"
+          class="w-full justify-center"
+          phx-disable-with={gettext("Verifying...")}
+        >
           {gettext("Verify email")}
         </.button>
       </div>
@@ -57,6 +62,7 @@
           id="resend-code-btn"
           phx-hook=".ResendCountdown"
           data-countdown="60"
+          phx-disable-with={gettext("Sending...")}
           class="text-sm font-medium text-primary dark:text-orange-300 hover:text-primary/80 dark:hover:text-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {gettext("Didn't receive it? Resend code")}

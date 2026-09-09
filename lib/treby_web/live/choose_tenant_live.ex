@@ -62,7 +62,8 @@ defmodule TrebyWeb.ChooseTenantLive do
               />
               <button
                 type="submit"
-                class="inline-flex items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 shadow-sm"
+                phx-disable-with={gettext("Creating...")}
+                class="inline-flex items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 shadow-sm disabled:opacity-60 disabled:pointer-events-none"
               >{gettext("Create")}</button>
             </div>
           </.form>

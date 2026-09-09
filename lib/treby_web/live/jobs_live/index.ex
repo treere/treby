@@ -211,7 +211,9 @@ defmodule TrebyWeb.JobsLive.Index do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit" variant="primary">{gettext("Create")}</.button>
+              <.button type="submit" variant="primary" loading_text={gettext("Creating...")}>{gettext(
+                "Create"
+              )}</.button>
               <.button type="button" phx-click="hide_create_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>

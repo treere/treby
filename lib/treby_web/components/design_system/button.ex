@@ -10,6 +10,11 @@ defmodule TrebyWeb.DesignSystem.Button do
   attr :size, :string, values: ~w(sm md lg), default: "md"
 
   attr :loading, :boolean, default: false, doc: "shows a spinner and disables the button"
+
+  attr :loading_text, :string,
+    default: nil,
+    doc: "when set, shows spinner + loading_text via phx-submit-loading/phx-click-loading CSS"
+
   attr :disabled, :boolean, default: false
   attr :class, :any, default: nil
 
@@ -28,6 +33,7 @@ defmodule TrebyWeb.DesignSystem.Button do
       <.button variant="danger" size="lg">Delete</.button>
       <.button variant="outline" loading>Processing…</.button>
       <.button variant="secondary" navigate={~p"/users"}>All Users</.button>
+      <.button loading_text="Saving...">Save</.button>
 
   Variants: `primary` (default), `secondary`, `danger`, `ghost`, `outline`
   Sizes: `sm`, `md` (default), `lg`
@@ -40,7 +46,17 @@ defmodule TrebyWeb.DesignSystem.Button do
       <.link class={@classes} {@rest}>
         <.icon :if={@loading} name="hero-arrow-path" class="size-4 motion-safe:animate-spin" />
         <span :if={@icon != []} class="flex-shrink-0">{render_slot(@icon)}</span>
-        <span>{render_slot(@inner_block)}</span>
+        <%= if @loading_text do %>
+          <span class="inline-flex items-center gap-2 phx-submit-loading:hidden phx-click-loading:hidden">{render_slot(
+            @inner_block
+          )}</span>
+          <span class="hidden phx-submit-loading:inline-flex phx-click-loading:inline-flex items-center gap-2">
+            <.icon name="hero-arrow-path" class="size-4 motion-safe:animate-spin" />
+            {@loading_text}
+          </span>
+        <% else %>
+          <span>{render_slot(@inner_block)}</span>
+        <% end %>
       </.link>
       """
     else
@@ -53,7 +69,17 @@ defmodule TrebyWeb.DesignSystem.Button do
       >
         <.icon :if={@loading} name="hero-arrow-path" class="size-4 motion-safe:animate-spin" />
         <span :if={@icon != []} class="flex-shrink-0">{render_slot(@icon)}</span>
-        <span>{render_slot(@inner_block)}</span>
+        <%= if @loading_text do %>
+          <span class="inline-flex items-center gap-2 phx-submit-loading:hidden phx-click-loading:hidden">{render_slot(
+            @inner_block
+          )}</span>
+          <span class="hidden phx-submit-loading:inline-flex phx-click-loading:inline-flex items-center gap-2">
+            <.icon name="hero-arrow-path" class="size-4 motion-safe:animate-spin" />
+            {@loading_text}
+          </span>
+        <% else %>
+          <span>{render_slot(@inner_block)}</span>
+        <% end %>
       </button>
       """
     end
@@ -66,6 +92,8 @@ defmodule TrebyWeb.DesignSystem.Button do
       size_classes(assigns.size),
       "shadow-sm",
       (assigns.loading or assigns.disabled) && "pointer-events-none opacity-60",
+      assigns.loading_text &&
+        "phx-submit-loading:opacity-60 phx-submit-loading:pointer-events-none phx-click-loading:opacity-60 phx-click-loading:pointer-events-none",
       assigns.class
     ]
   end

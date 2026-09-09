@@ -78,7 +78,12 @@
       </div>
 
       <div>
-        <.button variant="primary" type="submit" class="w-full justify-center">
+        <.button
+          variant="primary"
+          type="submit"
+          class="w-full justify-center"
+          phx-disable-with={gettext("Signing in...")}
+        >
           {gettext("Sign in")}
         </.button>
       </div>

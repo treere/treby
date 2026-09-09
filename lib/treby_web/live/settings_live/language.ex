@@ -36,7 +36,7 @@ defmodule TrebyWeb.SettingsLive.Language do
           />
 
           <div class="mt-6">
-            <.button variant="primary" type="submit" phx-disable-with="Saving...">
+            <.button variant="primary" type="submit" loading_text={gettext("Saving...")}>
               {gettext("Save")}
             </.button>
           </div>

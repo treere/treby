@@ -54,8 +54,13 @@ defmodule TrebyWeb.CandidatePortalLive.RequestLink do
             </div>
 
             <div>
-              <.button type="submit" variant="primary" class="w-full min-h-[44px]">
-                Send login code
+              <.button
+                type="submit"
+                variant="primary"
+                class="w-full min-h-[44px]"
+                phx-disable-with={gettext("Sending...")}
+              >
+                {gettext("Send login code")}
               </.button>
             </div>
           </.form>

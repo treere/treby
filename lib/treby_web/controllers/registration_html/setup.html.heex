@@ -83,7 +83,12 @@
       </div>
 
       <div>
-        <.button variant="primary" type="submit" class="w-full justify-center">
+        <.button
+          variant="primary"
+          type="submit"
+          class="w-full justify-center"
+          phx-disable-with={gettext("Creating...")}
+        >
           {gettext("Create account")}
         </.button>
       </div>

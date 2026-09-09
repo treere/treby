@@ -122,7 +122,12 @@ defmodule TrebyWeb.SettingsLive.Branding do
               {gettext("Supports Markdown formatting")}
             </p>
 
-            <.button type="submit" variant="primary" class="w-full">
+            <.button
+              type="submit"
+              variant="primary"
+              class="w-full"
+              loading_text={gettext("Saving...")}
+            >
               {gettext("Save Branding")}
             </.button>
           </.form>

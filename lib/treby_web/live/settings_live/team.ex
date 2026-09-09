@@ -110,7 +110,7 @@ defmodule TrebyWeb.SettingsLive.Team do
               options={[{"Member", "member"}, {"Admin", "admin"}]}
             />
             <div class="flex gap-2">
-              <.button type="submit">{gettext("Send Invite")}</.button>
+              <.button type="submit" loading_text={gettext("Sending...")}>{gettext("Send Invite")}</.button>
               <.button type="button" variant="ghost" phx-click="cancel_invite">
                 {gettext("Cancel")}
               </.button>

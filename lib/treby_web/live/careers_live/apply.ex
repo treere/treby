@@ -230,6 +230,7 @@ defmodule TrebyWeb.CareersLive.Apply do
               type="submit"
               variant="primary"
               class="w-full min-h-[44px]"
+              loading_text={gettext("Submitting...")}
               disabled={Enum.any?(@uploads.resume.entries, fn e -> !e.done? end)}
             >
               <%= if Enum.any?(@uploads.resume.entries, fn e -> !e.done? end) do %>

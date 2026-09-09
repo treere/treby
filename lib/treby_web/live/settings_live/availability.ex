@@ -138,7 +138,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
               />
             </div>
             <div class="flex gap-4">
-              <.button type="submit">{gettext("Save")}</.button>
+              <.button type="submit" loading_text={gettext("Saving...")}>{gettext("Save")}</.button>
               <.button type="button" variant="ghost" phx-click="cancel_form">
                 Cancel
               </.button>

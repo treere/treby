@@ -28,3 +28,14 @@ The system SHALL render Design System buttons that pass `type="submit"` as HTML 
 - **WHEN** a confirm dialog is rendered with `extra_attrs={%{id: 42}}`
 - **THEN** the confirm button carries `phx-value-id="42"` (not a literal `id` attribute)
 - **AND** clicking it sends `%{"id" => 42}` to the `on_confirm` handler
+
+### Requirement: Loading feedback on every form submission
+The system SHALL show immediate loading feedback on every form submission across the app, preventing confusion and double-submits.
+
+#### Scenario: Any phx-submit shows pending on its submit button
+- **WHEN** the user submits any `phx-submit` form (e.g., create/edit job, add/edit candidate, pipeline stages, branding, team invite, custom fields, email templates, availability, language, career apply)
+- **THEN** the form's submit button enters a pending state (dimmed/disabled, spinner visible, label swapped to a loading text) via `phx-submit-loading:` while the event is in flight
+
+#### Scenario: Double-submit is prevented
+- **WHEN** a form is in pending state
+- **THEN** the submit button has `pointer-events-none` and `disabled` so an additional click does not fire a second submit

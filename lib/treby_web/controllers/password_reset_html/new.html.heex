@@ -29,7 +29,12 @@
       </div>
 
       <div>
-        <.button variant="primary" type="submit" class="w-full justify-center">
+        <.button
+          variant="primary"
+          type="submit"
+          class="w-full justify-center"
+          phx-disable-with={gettext("Sending...")}
+        >
           {gettext("Send reset link")}
         </.button>
       </div>

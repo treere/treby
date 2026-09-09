@@ -69,8 +69,13 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
               </div>
 
               <div>
-                <.button type="submit" variant="primary" class="w-full min-h-[44px]">
-                  Verify code
+                <.button
+                  type="submit"
+                  variant="primary"
+                  class="w-full min-h-[44px]"
+                  phx-disable-with={gettext("Verifying...")}
+                >
+                  {gettext("Verify code")}
                 </.button>
               </div>
             </.form>
@@ -104,9 +109,10 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
                 variant="ghost"
                 phx-hook=".ResendCountdown"
                 data-countdown="60"
+                phx-disable-with={gettext("Sending...")}
                 class="text-sm min-h-[44px] px-4 disabled:opacity-50"
               >
-                Resend code
+                {gettext("Resend code")}
               </.button>
             </.form>
             <script :type={Phoenix.LiveView.ColocatedHook} name=".ResendCountdown">
@@ -155,8 +161,13 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
               </div>
 
               <div>
-                <.button type="submit" variant="primary" class="w-full min-h-[44px]">
-                  Send login code
+                <.button
+                  type="submit"
+                  variant="primary"
+                  class="w-full min-h-[44px]"
+                  phx-disable-with={gettext("Sending...")}
+                >
+                  {gettext("Send login code")}
                 </.button>
               </div>
             </.form>

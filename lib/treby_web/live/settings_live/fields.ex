@@ -125,7 +125,7 @@ defmodule TrebyWeb.SettingsLive.Fields do
             </div>
 
             <div class="flex gap-2">
-              <.button type="submit">{gettext("Save")}</.button>
+              <.button type="submit" loading_text={gettext("Saving...")}>{gettext("Save")}</.button>
               <.button type="button" phx-click="cancel_form" variant="ghost">
                 {gettext("Cancel")}
               </.button>

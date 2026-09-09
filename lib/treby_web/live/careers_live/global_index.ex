@@ -45,7 +45,9 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
               placeholder={gettext("Search across all companies...")}
               class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
-            <.button type="submit" class="px-6">{gettext("Search")}</.button>
+            <.button type="submit" class="px-6" loading_text={gettext("Searching...")}>{gettext(
+              "Search"
+            )}</.button>
           </.form>
         </div>
 

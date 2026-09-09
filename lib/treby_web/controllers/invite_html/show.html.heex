@@ -61,7 +61,12 @@
               </p>
             </div>
             <div>
-              <.button variant="primary" type="submit" class="w-full justify-center">
+              <.button
+                variant="primary"
+                type="submit"
+                class="w-full justify-center"
+                phx-disable-with={gettext("Joining...")}
+              >
                 {gettext("Join %{tenant}", tenant: @tenant.name)}
               </.button>
             </div>
@@ -140,7 +145,12 @@
             </div>
 
             <div>
-              <.button variant="primary" type="submit" class="w-full justify-center">
+              <.button
+                variant="primary"
+                type="submit"
+                class="w-full justify-center"
+                phx-disable-with={gettext("Creating...")}
+              >
                 {gettext("Accept Invite & Create Account")}
               </.button>
             </div>

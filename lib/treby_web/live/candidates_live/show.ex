@@ -214,7 +214,9 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </div>
 
               <div class="flex gap-2">
-                <.button type="submit" variant="primary">{gettext("Save")}</.button>
+                <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                  "Save"
+                )}</.button>
                 <.button type="button" phx-click="cancel_edit" variant="ghost">
                   Cancel
                 </.button>
@@ -591,7 +593,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   />
                 </div>
                 <div class="flex gap-2">
-                  <.button type="submit" variant="primary" size="sm">{gettext("Save Note")}</.button>
+                  <.button
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    loading_text={gettext("Saving...")}
+                  >{gettext("Save Note")}</.button>
                   <.button
                     type="button"
                     phx-click="toggle_note_form"
@@ -762,7 +769,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 rows={4}
               />
               <div class="flex gap-2">
-                <.button type="submit" variant="primary" size="sm">{gettext("Send Message")}</.button>
+                <.button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  loading_text={gettext("Sending...")}
+                >{gettext("Send Message")}</.button>
                 <.button type="button" phx-click="cancel_new_message" variant="ghost" size="sm">
                   Cancel
                 </.button>
@@ -809,8 +821,13 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 rows={3}
               />
               <div class="flex gap-2">
-                <.button type="submit" variant="primary" size="sm">
-                  Send Request
+                <.button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  loading_text={gettext("Sending...")}
+                >
+                  {gettext("Send Request")}
                 </.button>
                 <.button type="button" phx-click="cancel_request_info" variant="ghost" size="sm">
                   Cancel
@@ -848,7 +865,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 rows={3}
               />
               <div class="flex gap-2">
-                <.button type="submit" variant="danger" size="sm">
+                <.button
+                  type="submit"
+                  variant="danger"
+                  size="sm"
+                  loading_text={gettext("Rejecting...")}
+                >
                   {gettext("Reject")}
                 </.button>
                 <.button type="button" phx-click="cancel_reject" variant="ghost" size="sm">
@@ -960,7 +982,12 @@ defmodule TrebyWeb.CandidatesLive.Show do
                     rows={3}
                   />
                   <div class="flex gap-2">
-                    <.button type="submit" variant="primary" size="sm">{gettext("Send")}</.button>
+                    <.button
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      loading_text={gettext("Sending...")}
+                    >{gettext("Send")}</.button>
                     <.button
                       type="button"
                       phx-click="cancel_conversation_reply"

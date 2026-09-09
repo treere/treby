@@ -222,7 +222,9 @@ defmodule TrebyWeb.JobsLive.Show do
             </div>
 
             <div class="mt-4 flex gap-2">
-              <.button type="submit" variant="primary">{gettext("Save")}</.button>
+              <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                "Save"
+              )}</.button>
               <.button type="button" phx-click="cancel_editing" variant="ghost">
                 {gettext("Cancel")}
               </.button>
@@ -589,7 +591,9 @@ defmodule TrebyWeb.JobsLive.Show do
                 </div>
 
                 <div class="flex gap-2">
-                  <.button type="submit" variant="primary">{gettext("Save")}</.button>
+                  <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                    "Save"
+                  )}</.button>
                   <.button type="button" phx-click="cancel_form" variant="ghost">
                     {gettext("Cancel")}
                   </.button>
@@ -623,7 +627,9 @@ defmodule TrebyWeb.JobsLive.Show do
                   value=""
                 />
                 <div class="flex gap-2">
-                  <.button type="submit" variant="primary">{gettext("Move & Delete")}</.button>
+                  <.button type="submit" variant="primary" loading_text={gettext("Moving...")}>{gettext(
+                    "Move & Delete"
+                  )}</.button>
                   <.button type="button" phx-click="cancel_delete" variant="ghost">
                     {gettext("Cancel")}
                   </.button>
@@ -763,7 +769,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 label=""
                 value=""
               />
-              <.button type="submit" variant="primary" size="sm">
+              <.button type="submit" variant="primary" size="sm" loading_text={gettext("Adding...")}>
                 {gettext("Add")}
               </.button>
             </.form>
@@ -807,7 +813,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 label=""
                 value=""
               />
-              <.button type="submit" variant="secondary" size="sm">
+              <.button type="submit" variant="secondary" size="sm" loading_text={gettext("Adding...")}>
                 {gettext("Add")}
               </.button>
             </.form>
@@ -851,7 +857,7 @@ defmodule TrebyWeb.JobsLive.Show do
                 label=""
                 value=""
               />
-              <.button type="submit" variant="secondary" size="sm">
+              <.button type="submit" variant="secondary" size="sm" loading_text={gettext("Adding...")}>
                 {gettext("Add")}
               </.button>
             </.form>

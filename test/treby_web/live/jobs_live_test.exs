@@ -56,17 +56,28 @@ defmodule TrebyWeb.JobsLive.IndexTest do
       refute has_element?(view, "#job-form")
     end
 
-    test "reveals the inline create form when clicking the empty state button", %{conn: conn} do
+    test "empty state button navigates to dedicated creation page", %{conn: conn} do
       {_tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
       {:ok, view, _html} = live(conn, ~p"/app/jobs")
 
-      view
-      |> element("button", "Create your first job")
-      |> render_click()
+      assert has_element?(view, ~s(a[href="/app/jobs/new"]))
 
-      assert has_element?(view, "#job-form")
+      {:ok, new_view, _html} = live(conn, ~p"/app/jobs/new")
+      assert has_element?(new_view, "#job-create-form")
+      assert has_element?(new_view, "#job-preview-card")
+    end
+
+    test "listing has no inline creation form", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/jobs")
+      refute has_element?(view, "#job-create-form")
+      refute has_element?(view, "#job-form")
+      html = render(view)
+      refute html =~ ~s(id="job-form")
     end
 
     test "hides empty state when jobs exist", %{conn: conn} do
@@ -139,19 +150,17 @@ defmodule TrebyWeb.JobsLive.IndexTest do
   end
 
   describe "form validation" do
-    test "shows flash error when creating job with empty title", %{conn: conn} do
+    test "shows validation error when creating job with empty title on dedicated page", %{
+      conn: conn
+    } do
       {_tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs")
-
-      view
-      |> element("button", "New Job")
-      |> render_click()
+      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
 
       html =
         view
-        |> form("#job-form", %{
+        |> form("#job-create-form", %{
           "job" => %{
             "title" => "",
             "description" => "Build amazing things"
@@ -160,6 +169,18 @@ defmodule TrebyWeb.JobsLive.IndexTest do
         |> render_submit()
 
       assert html =~ "Please review the errors below"
+    end
+
+    test "New Job button navigates to creation page", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/jobs")
+      assert has_element?(view, ~s(a[href="/app/jobs/new"]))
+
+      {:ok, new_view, html} = live(conn, ~p"/app/jobs/new")
+      assert has_element?(new_view, "#job-create-form")
+      assert html =~ "Job details"
     end
   end
 

@@ -8,7 +8,18 @@ The pipeline is the heart of Treby: a board where you move candidates through hi
 
 ![Jobs List](/screenshots/05-jobs-list.png)
 
-The **Jobs** page lists every open position with salary, visibility (Public/Private), view counts, and candidate totals — create new jobs from here. The list shows 25 jobs per page with a pager at the bottom; the Open/Closed filter resets to page 1.
+The **Jobs** page lists every open position with salary, visibility (Public/Private), view counts, and candidate totals. The list shows 25 jobs per page with a pager at the bottom; the Open/Closed filter resets to page 1. Click **New Job** to create a position.
+
+### Creating a Job — Dedicated Page with Live Preview
+
+![Create Job Preview](/screenshots/05-jobs-list.png)
+
+Creating a job happens on a dedicated page at **Jobs → New Job** (`/app/jobs/new`). The page is split into two:
+
+- **Left: Form** — title, description (Markdown), salary range, location, employment type, workplace type, pipeline, and any tenant custom fields. A **Status** control sets **Open** (active) or **Closed** (hidden from all public boards). A **Visibility** control sets **Public** (appears on `/careers` and `/:tenant_slug/careers` when open) or **Private** (only via direct link). Visibility defaults to **Public** and is disabled with a hint when Status is **Closed** — a closed job cannot be public.
+- **Right: Live public preview** — the job as candidates will see it on the career page: title, company name, location/badges, salary, posted date, and Markdown-rendered description inside a card that matches the public detail page. It updates on every change without saving, so you can check formatting before publishing. When Status is **Closed** the preview shows a *“This position is closed”* banner; when Visibility is **Private** it shows a *“Private — only via direct link”* notice.
+
+Fill the form and click **Create job** — you are redirected to the job detail page. Use **Cancel** to return to the listing without creating. The description hint *Supports Markdown formatting* is shown under the textarea. All fields are scoped to your company (tenant): pipelines and custom fields are filtered to the current company.
 
 ## Job Detail Page
 

@@ -3,8 +3,7 @@ defmodule TrebyWeb.JobsLive.Index do
 
   import Ecto.Query, warn: false
 
-  alias Treby.{Accounts, Tenants, Jobs, Customization, Pipeline, JobViews}
-  alias Treby.Jobs.Job
+  alias Treby.{Accounts, Tenants, Jobs, JobViews}
   alias Treby.Repo
 
   def mount(_params, session, socket) do
@@ -30,9 +29,6 @@ defmodule TrebyWeb.JobsLive.Index do
           {nil, nil}
       end
 
-    job_fields = Customization.list_custom_fields_for(tenant.id, "job")
-    pipelines = Pipeline.list_pipelines(tenant.id)
-    default_pipeline_id = Pipeline.default_pipeline_id(tenant.id)
     candidate_counts = application_counts_by_job(tenant.id)
     view_summaries = JobViews.summaries_for_tenant(tenant.id)
 
@@ -41,12 +37,7 @@ defmodule TrebyWeb.JobsLive.Index do
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(candidate_counts: candidate_counts)
      |> assign(view_summaries: view_summaries)
-     |> assign(job_fields: job_fields)
-     |> assign(pipelines: pipelines)
-     |> assign(default_pipeline_id: default_pipeline_id)
-     |> assign(filter: "all")
-     |> assign(show_form: false)
-     |> assign(form: to_form(Jobs.change_job(%Job{pipeline_id: default_pipeline_id})))}
+     |> assign(filter: "all")}
   end
 
   def handle_params(params, uri, socket) do
@@ -86,7 +77,7 @@ defmodule TrebyWeb.JobsLive.Index do
       <div class="p-8">
         <.page_header title={gettext("Jobs")}>
           <:actions>
-            <.button variant="primary" phx-click="show_create_form">
+            <.button variant="primary" navigate={~p"/app/jobs/new"}>
               <.icon name="hero-plus" class="w-4 h-4" /> {gettext("New Job")}
             </.button>
           </:actions>
@@ -114,111 +105,6 @@ defmodule TrebyWeb.JobsLive.Index do
           >
             {gettext("Closed")}
           </button>
-        </div>
-
-        <div
-          :if={@show_form}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-        >
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {gettext("Create Job")}
-          </h2>
-          <.form for={@form} id="job-form" phx-submit="create_job">
-            <.input field={@form[:title]} type="text" label={gettext("Title")} />
-            <.input
-              field={@form[:description]}
-              type="textarea"
-              label={gettext("Description")}
-            />
-            <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-              {gettext("Supports Markdown formatting")}
-            </p>
-            <.input
-              field={@form[:salary_range]}
-              type="text"
-              label={gettext("Salary Range")}
-              placeholder="$100k-$150k"
-            />
-
-            <.input
-              field={@form[:location]}
-              type="text"
-              label={gettext("Location")}
-              placeholder="e.g. Milan, Remote"
-            />
-
-            <.input
-              field={@form[:employment_type]}
-              type="select"
-              label={gettext("Employment Type")}
-              options={[
-                {gettext("Full-time"), "full_time"},
-                {gettext("Part-time"), "part_time"},
-                {gettext("Contract"), "contract"},
-                {gettext("Internship"), "internship"}
-              ]}
-              prompt="—"
-            />
-
-            <.input
-              field={@form[:workplace_type]}
-              type="select"
-              label={gettext("Workplace")}
-              options={[
-                {gettext("On-site"), "on_site"},
-                {gettext("Hybrid"), "hybrid"},
-                {gettext("Remote"), "remote"}
-              ]}
-              prompt="—"
-            />
-
-            <.input
-              field={@form[:pipeline_id]}
-              type="select"
-              label={gettext("Pipeline")}
-              options={Enum.map(@pipelines, &{&1.name, &1.id})}
-            />
-
-            <div :if={@job_fields != []} class="mt-4 border-t pt-4">
-              <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-3">
-                {gettext("Additional Information")}
-              </h3>
-              <div :for={field <- @job_fields} class="mb-3">
-                <%= cond do %>
-                  <% field.field_type == "select" -> %>
-                    <.input
-                      name={"custom_fields[#{field.id}]"}
-                      type="select"
-                      label={field.name}
-                      options={field.options}
-                      prompt="—"
-                    />
-                  <% field.field_type == "date" -> %>
-                    <.input name={"custom_fields[#{field.id}]"} type="date" label={field.name} />
-                  <% field.field_type == "number" -> %>
-                    <.input name={"custom_fields[#{field.id}]"} type="number" label={field.name} />
-                  <% field.field_type == "url" -> %>
-                    <.input
-                      name={"custom_fields[#{field.id}]"}
-                      type="url"
-                      label={field.name}
-                      placeholder="https://"
-                    />
-                  <% true -> %>
-                    <.input name={"custom_fields[#{field.id}]"} type="text" label={field.name} />
-                <% end %>
-              </div>
-            </div>
-
-            <div class="mt-4 flex gap-2">
-              <.button type="submit" variant="primary" loading_text={gettext("Creating...")}>{gettext(
-                "Create"
-              )}</.button>
-              <.button type="button" phx-click="hide_create_form" variant="ghost">
-                {gettext("Cancel")}
-              </.button>
-            </div>
-          </.form>
         </div>
 
         <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
@@ -345,7 +231,7 @@ defmodule TrebyWeb.JobsLive.Index do
             }
           >
             <:cta>
-              <.button variant="primary" phx-click="show_create_form">
+              <.button variant="primary" navigate={~p"/app/jobs/new"}>
                 {gettext("Create your first job")}
               </.button>
             </:cta>
@@ -354,18 +240,6 @@ defmodule TrebyWeb.JobsLive.Index do
       </div>
     </Layouts.app>
     """
-  end
-
-  def handle_event("show_create_form", _, socket) do
-    form = to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id}))
-
-    {:noreply, assign(socket, show_form: true, form: form)}
-  end
-
-  def handle_event("hide_create_form", _, socket) do
-    form = to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id}))
-
-    {:noreply, assign(socket, show_form: false, form: form)}
   end
 
   def handle_event("paginate", %{"page" => page}, socket) do
@@ -378,60 +252,6 @@ defmodule TrebyWeb.JobsLive.Index do
      socket
      |> assign(filter: filter)
      |> load_page(1)}
-  end
-
-  def handle_event("create_job", params, socket) do
-    job_params = Map.get(params, "job", %{})
-    custom_fields_values = Map.get(params, "custom_fields", %{})
-
-    pipeline_id =
-      case Map.get(job_params, "pipeline_id") do
-        id when id not in [nil, ""] -> id
-        _ -> Pipeline.default_pipeline_id(socket.assigns.current_tenant.id)
-      end
-
-    attrs =
-      job_params
-      |> Map.put("pipeline_id", pipeline_id)
-      |> Map.put("tenant_id", socket.assigns.current_tenant.id)
-
-    required_fields =
-      Customization.list_custom_fields_for(socket.assigns.current_tenant.id, "job")
-      |> Enum.filter(& &1.required)
-      |> Enum.filter(fn field ->
-        value = Map.get(custom_fields_values, to_string(field.id), "")
-        value == "" or is_nil(value)
-      end)
-
-    if required_fields != [] do
-      missing = Enum.map_join(required_fields, ", ", & &1.name)
-
-      {:noreply,
-       socket
-       |> put_flash(:error, gettext("Please fill in required fields: %{fields}", fields: missing))}
-    else
-      attrs = Map.put(attrs, "custom_fields", custom_fields_values)
-
-      case Jobs.create_job(attrs) do
-        {:ok, _job} ->
-          view_summaries = JobViews.summaries_for_tenant(socket.assigns.current_tenant.id)
-
-          {:noreply,
-           socket
-           |> load_page(socket.assigns.page)
-           |> assign(view_summaries: view_summaries, show_form: false)
-           |> assign(
-             form: to_form(Jobs.change_job(%Job{pipeline_id: socket.assigns.default_pipeline_id}))
-           )
-           |> put_flash(:info, gettext("Job created successfully"))}
-
-        {:error, changeset} ->
-          {:noreply,
-           socket
-           |> assign(form: to_form(changeset))
-           |> put_flash(:error, gettext("Please review the errors below"))}
-      end
-    end
   end
 
   def handle_event("toggle_status", %{"job_id" => job_id}, socket) do

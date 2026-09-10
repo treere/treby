@@ -45,6 +45,7 @@ defmodule TrebyWeb.Router do
       ] do
       live "/", DashboardLive
       live "/jobs", JobsLive.Index
+      live "/jobs/new", JobsLive.New
       live "/jobs/:id/analytics", JobsLive.Analytics
       live "/jobs/:id", JobsLive.Show
       live "/candidates", CandidatesLive.Index
@@ -94,6 +95,7 @@ defmodule TrebyWeb.Router do
       ] do
       live "/", DashboardLive
       live "/jobs", JobsLive.Index
+      live "/jobs/new", JobsLive.New
       live "/jobs/:id/analytics", JobsLive.Analytics
       live "/jobs/:id", JobsLive.Show
       live "/candidates", CandidatesLive.Index

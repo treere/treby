@@ -109,8 +109,7 @@ defmodule TrebyWeb.Hooks.Notifications do
              socket
              |> assign(:notification_unread_count, count)
              |> assign(:notification_recent, recent)
-             |> assign(:notification_toast, notification)
-             |> Phoenix.LiveView.put_flash(:info, notification.title)}
+             |> assign(:notification_toast, notification)}
 
           _msg, socket ->
             {:cont, socket}

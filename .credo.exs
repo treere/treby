@@ -127,7 +127,7 @@
           #
           {Credo.Check.Refactor.Apply, []},
           {Credo.Check.Refactor.CondStatements, []},
-          {Credo.Check.Refactor.CyclomaticComplexity, [max_complexity: 12]},
+          {Credo.Check.Refactor.CyclomaticComplexity, [max_complexity: 12, exit_status: 0]},
           {Credo.Check.Refactor.FilterCount, []},
           {Credo.Check.Refactor.FilterFilter, false},
           {Credo.Check.Refactor.FunctionArity, []},

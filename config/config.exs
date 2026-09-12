@@ -38,8 +38,12 @@ config :treby, TrebyWeb.Endpoint,
 # Configure Oban
 config :treby, Oban,
   engine: Oban.Engines.Basic,
-  queues: [email: 10, messages: 10],
-  plugins: [Oban.Plugins.Pruner, Oban.Plugins.Lifeline],
+  queues: [email: 10, messages: 10, default: 10],
+  plugins: [
+    Oban.Plugins.Pruner,
+    Oban.Plugins.Lifeline,
+    {Oban.Plugins.Cron, crontab: [{"0 3 * * *", Treby.Notifications.PrunerWorker}]}
+  ],
   repo: Treby.Repo
 
 # Candidate portal auth

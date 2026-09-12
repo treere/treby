@@ -6,6 +6,7 @@ defmodule Treby.Notifications do
 
   import Ecto.Query, warn: false
   alias Treby.Notifications.Email, as: NotificationEmail
+  alias Treby.Notifications.Inbox
   alias Treby.Repo
   alias Treby.Tenants.Tenant
 
@@ -16,18 +17,60 @@ defmodule Treby.Notifications do
     "interview_reminder" => true
   }
 
+  @allowed_retention [7, 14, 30, 60, 90]
+  @default_retention 30
+
+  defp normalize_pref_value(v) when is_boolean(v), do: %{"email" => v, "inbox" => true}
+
+  defp normalize_pref_value(%{"email" => _, "inbox" => _} = m),
+    do: %{"email" => !!m["email"], "inbox" => !!m["inbox"]}
+
+  defp normalize_pref_value(%{email: e, inbox: i}), do: %{"email" => !!e, "inbox" => !!i}
+  defp normalize_pref_value(_), do: %{"email" => true, "inbox" => true}
+
   @doc """
-  Returns the notification preferences for a tenant.
-  Falls back to defaults for any missing keys.
+  Returns the notification preferences for a tenant, normalized to %{"email"=>bool,"inbox"=>bool} per type.
+  Falls back to defaults for any missing keys. Legacy booleans are migrated on read.
   """
   def notification_preferences(%Tenant{} = tenant) do
     stored = get_in(tenant.settings, ["notifications"]) || %{}
-    Map.merge(@default_preferences, stored)
+
+    @default_preferences
+    |> Map.merge(stored)
+    |> Map.new(fn {k, v} -> {k, normalize_pref_value(v)} end)
   end
 
   def notification_preferences_enabled?(%Tenant{} = tenant, key) do
     prefs = notification_preferences(tenant)
-    Map.get(prefs, key, true)
+
+    case Map.get(prefs, key) do
+      %{"email" => v} -> v
+      v when is_boolean(v) -> v
+      nil -> true
+      _ -> true
+    end
+  end
+
+  def email_enabled?(%Tenant{} = tenant, key) do
+    prefs = notification_preferences(tenant)
+
+    case Map.get(prefs, key) do
+      %{"email" => v} -> !!v
+      v when is_boolean(v) -> !!v
+      nil -> true
+      _ -> true
+    end
+  end
+
+  def inbox_enabled?(%Tenant{} = tenant, key) do
+    prefs = notification_preferences(tenant)
+
+    case Map.get(prefs, key) do
+      %{"inbox" => v} -> !!v
+      v when is_boolean(v) -> true
+      nil -> true
+      _ -> true
+    end
   end
 
   def candidate_notification_enabled?(candidate, key) do
@@ -35,27 +78,73 @@ defmodule Treby.Notifications do
   end
 
   def set_notification_preference(%Tenant{} = tenant, key, value) when is_boolean(value) do
-    notifications = Map.put(notification_preferences(tenant), key, value)
-
+    normalized = normalize_pref_value(value)
+    notifications = Map.put(notification_preferences(tenant), key, normalized)
     settings = Map.put(tenant.settings || %{}, "notifications", notifications)
+    tenant |> Tenant.changeset(%{settings: settings}) |> Repo.update()
+  end
 
-    tenant
-    |> Tenant.changeset(%{settings: settings})
-    |> Repo.update()
+  def set_notification_preference(%Tenant{} = tenant, key, %{"email" => _, "inbox" => _} = value) do
+    normalized = normalize_pref_value(value)
+    notifications = Map.put(notification_preferences(tenant), key, normalized)
+    settings = Map.put(tenant.settings || %{}, "notifications", notifications)
+    tenant |> Tenant.changeset(%{settings: settings}) |> Repo.update()
+  end
+
+  def set_notification_preference(%Tenant{} = tenant, key, %{email: _, inbox: _} = value) do
+    set_notification_preference(tenant, key, %{"email" => value.email, "inbox" => value.inbox})
   end
 
   @doc """
   Flips a notification preference, reloading the tenant first so rapid
   successive toggles never compare against stale settings.
-  Returns `{:ok, tenant, new_value}` with the freshly updated tenant.
+  When channel is nil, flips email (legacy). When :email or :inbox, flips that channel only.
+  Returns `{:ok, tenant, new_value}`.
   """
-  def toggle_notification_preference(tenant_id, key) do
+  def toggle_notification_preference(tenant_id, key, channel \\ nil) do
     tenant = Repo.get!(Tenant, tenant_id)
-    new_value = !Map.get(notification_preferences(tenant), key, true)
+    prefs = notification_preferences(tenant)
+    current = Map.get(prefs, key, %{"email" => true, "inbox" => true})
+    current = normalize_pref_value(current)
 
-    case set_notification_preference(tenant, key, new_value) do
-      {:ok, updated} -> {:ok, updated, new_value}
+    new_prefs =
+      case channel do
+        "inbox" -> Map.put(current, "inbox", !current["inbox"])
+        "email" -> Map.put(current, "email", !current["email"])
+        :inbox -> Map.put(current, "inbox", !current["inbox"])
+        :email -> Map.put(current, "email", !current["email"])
+        _ -> %{"email" => !current["email"], "inbox" => current["inbox"]}
+      end
+
+    case set_notification_preference(tenant, key, new_prefs) do
+      {:ok, updated} -> {:ok, updated, new_prefs}
       error -> error
+    end
+  end
+
+  def get_retention_days(%Tenant{} = tenant) do
+    val = get_in(tenant.settings, ["notifications_retention_days"])
+    if val in @allowed_retention, do: val, else: @default_retention
+  end
+
+  def set_retention_days(%Tenant{} = tenant, days) when is_integer(days) do
+    if days in @allowed_retention do
+      settings = Map.put(tenant.settings || %{}, "notifications_retention_days", days)
+      tenant |> Tenant.changeset(%{settings: settings}) |> Repo.update()
+    else
+      {:error,
+       Ecto.Changeset.add_error(
+         %Ecto.Changeset{data: tenant},
+         :notifications_retention_days,
+         "is invalid"
+       )}
+    end
+  end
+
+  def set_retention_days(%Tenant{} = tenant, days) when is_binary(days) do
+    case Integer.parse(days) do
+      {int, ""} -> set_retention_days(tenant, int)
+      _ -> {:error, :invalid}
     end
   end
 
@@ -72,7 +161,7 @@ defmodule Treby.Notifications do
 
     tenant = Repo.get!(Tenant, application.tenant_id)
 
-    unless notification_preferences_enabled?(tenant, "stage_change_candidate") do
+    unless email_enabled?(tenant, "stage_change_candidate") do
       throw(:skip)
     end
 
@@ -146,7 +235,7 @@ defmodule Treby.Notifications do
 
     tenant = Repo.get!(Tenant, application.tenant_id)
 
-    unless notification_preferences_enabled?(tenant, "new_application_candidate") do
+    unless email_enabled?(tenant, "new_application_candidate") do
       throw(:skip)
     end
 
@@ -188,33 +277,57 @@ defmodule Treby.Notifications do
   @doc """
   Log an in-app activity event when a new application is submitted,
   so tenant admins and the job owner are notified inside the app.
+  Also fans out to inbox if enabled.
   """
-  def notify_team_new_application(application) do
+  def notify_team_new_application(application, actor_id \\ nil) do
     application = Repo.preload(application, [:candidate, :job])
     candidate = application.candidate
     job = application.job
 
     tenant = Repo.get!(Tenant, application.tenant_id)
 
-    unless notification_preferences_enabled?(tenant, "new_application_team") do
-      throw(:skip)
+    if email_enabled?(tenant, "new_application_team") do
+      Treby.Activities.log_event(
+        "new_application",
+        "application",
+        application.id,
+        %{
+          tenant_id: tenant.id,
+          candidate_name: candidate.name || "",
+          candidate_email: candidate.email || "",
+          job_title: job.title || ""
+        }
+      )
     end
 
-    Treby.Activities.log_event(
-      "new_application",
-      "application",
-      application.id,
-      %{
-        tenant_id: tenant.id,
-        candidate_name: candidate.name || "",
-        candidate_email: candidate.email || "",
-        job_title: job.title || ""
-      }
-    )
+    if inbox_enabled?(tenant, "new_application") || inbox_enabled?(tenant, "new_application_team") do
+      Inbox.create_for_tenant(
+        tenant.id,
+        %{
+          type: "new_application",
+          title: "New application: #{candidate.name || candidate.email} — #{job.title}",
+          body: "#{candidate.name || candidate.email} applied for #{job.title}",
+          link: "/app/candidates/#{candidate.id}"
+        },
+        actor_id
+      )
+    end
 
     :ok
-  catch
-    :skip -> :ok
+  end
+
+  def notify_inbox(tenant_id, type, attrs, actor_id \\ nil) do
+    tenant = Repo.get!(Tenant, tenant_id)
+
+    if inbox_enabled?(tenant, type) do
+      Inbox.create_for_tenant(
+        tenant_id,
+        Map.put(attrs, :type, type),
+        actor_id
+      )
+    else
+      {:ok, []}
+    end
   end
 
   defp log_email_event(email_type, recipient, subject, status, tenant_id, extra \\ %{}) do

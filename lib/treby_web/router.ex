@@ -41,7 +41,8 @@ defmodule TrebyWeb.Router do
     live_session :default,
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default}
+        {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.Notifications, :default}
       ] do
       live "/", DashboardLive
       live "/jobs", JobsLive.Index
@@ -58,6 +59,7 @@ defmodule TrebyWeb.Router do
       live "/interviews", InterviewsLive.Index
       live "/import", ImportLive.Index
       live "/messages-queue", MessagesQueueLive.Index
+      live "/notifications", NotificationsLive
 
       get "/applications/:id/resume", ResumeController, :show
     end
@@ -66,6 +68,7 @@ defmodule TrebyWeb.Router do
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
         {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.Notifications, :default},
         {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
       ] do
       live "/settings", SettingsLive.Index
@@ -91,7 +94,8 @@ defmodule TrebyWeb.Router do
     live_session :legacy_default,
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default}
+        {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.Notifications, :default}
       ] do
       live "/", DashboardLive
       live "/jobs", JobsLive.Index
@@ -108,6 +112,7 @@ defmodule TrebyWeb.Router do
       live "/interviews", InterviewsLive.Index
       live "/import", ImportLive.Index
       live "/messages-queue", MessagesQueueLive.Index
+      live "/notifications", NotificationsLive
 
       get "/applications/:id/resume", ResumeController, :show
     end
@@ -116,6 +121,7 @@ defmodule TrebyWeb.Router do
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
         {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.Notifications, :default},
         {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
       ] do
       live "/settings", SettingsLive.Index

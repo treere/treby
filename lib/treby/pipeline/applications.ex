@@ -490,6 +490,28 @@ defmodule Treby.Pipeline.Applications do
           }
         )
 
+        # Inbox notification for stage change (if enabled)
+        try do
+          candidate = Repo.preload(app, :candidate).candidate
+
+          Treby.Notifications.notify_inbox(
+            app.tenant_id,
+            "stage_change",
+            %{
+              title:
+                "Stage change: #{(candidate && candidate.name) || "Candidate"} → #{new_stage && new_stage.name}",
+              body:
+                "#{(candidate && candidate.name) || "Candidate"} moved from #{(old_stage && old_stage.name) || "—"} to #{(new_stage && new_stage.name) || "—"}",
+              link: "/app/candidates/#{candidate && candidate.id}"
+            },
+            opts[:actor] && opts[:actor].id
+          )
+        rescue
+          _ -> :ok
+        catch
+          _, _ -> :ok
+        end
+
         log_stage_moved(app, old_stage, new_stage, old_stage_id, stage_id, opts)
 
         # Send stage change notification email if not skipped (non-blocking:

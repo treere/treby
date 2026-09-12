@@ -60,6 +60,7 @@ export default defineConfig({
           { text: "Dark Mode", link: "/features/dark-mode" },
           { text: "Workspace Switching", link: "/features/workspace-switching" },
           { text: "Language (IT/EN)", link: "/features/i18n" },
+          { text: "Notification Center", link: "/features/notification-center" },
         ],
       },
     ],

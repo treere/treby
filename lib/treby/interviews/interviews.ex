@@ -93,6 +93,25 @@ defmodule Treby.Interviews do
           }
         )
 
+        # Inbox notification
+        try do
+          Treby.Notifications.notify_inbox(
+            event.tenant_id,
+            "interview_scheduled",
+            %{
+              title: "Interview scheduled",
+              body:
+                "Interview for application #{event.application_id} at #{Calendar.strftime(event.start_at_utc, "%b %d %H:%M")}",
+              link: "/app/interviews"
+            },
+            event.scheduled_by_id
+          )
+        rescue
+          _ -> :ok
+        catch
+          _, _ -> :ok
+        end
+
         Treby.Audit.log_event("interview.scheduled", "interview_event", event.id, %{
           tenant_id: event.tenant_id,
           actor_id: event.scheduled_by_id,
@@ -195,6 +214,23 @@ defmodule Treby.Interviews do
             tenant_id: event.tenant_id
           }
         )
+
+        try do
+          Treby.Notifications.notify_inbox(
+            event.tenant_id,
+            "interview_cancelled",
+            %{
+              title: "Interview cancelled",
+              body: "Interview for application #{event.application_id} cancelled",
+              link: "/app/interviews"
+            },
+            event.scheduled_by_id
+          )
+        rescue
+          _ -> :ok
+        catch
+          _, _ -> :ok
+        end
 
         Treby.Audit.log_event("interview.cancelled", "interview_event", cancelled_event.id, %{
           tenant_id: cancelled_event.tenant_id,

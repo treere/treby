@@ -57,3 +57,6 @@ One email, many companies — pick a workspace at login, switch via the header, 
 
 ## [Language (IT/EN)](/features/i18n)
 Fully bilingual interface — Italian and English — with a per-user language setting in **Settings → Language** and automated guards that prevent untranslated strings from shipping.
+
+## [Notification Center](/features/notification-center)
+In-app inbox with bell and badge, dropdown, full-page list with filters/search/pagination, realtime updates, per-type Email + In-app toggles and retention (7/14/30/60/90) in **Settings → Notifications**.

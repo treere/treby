@@ -146,6 +146,38 @@ document.addEventListener("click", (e) => {
   if (sr) sr.textContent = label
 })
 
+// Auto-dismiss flash toasts after 5s (pointer-events-none container stays, row hides)
+function initFlashAutoDismiss() {
+  document.querySelectorAll("[data-flash-auto-dismiss]").forEach((el) => {
+    if (el.dataset.autoDismissInit) return
+    el.dataset.autoDismissInit = "1"
+    const delay = parseInt(el.dataset.flashAutoDismiss || "5000", 10)
+    setTimeout(() => {
+      if (el.id === "notification-toast") {
+        // Trigger LiveView toast_dismiss (clears assign, does not mark read) via close button
+        const closeBtn = el.querySelector('[phx-click*="toast_dismiss"]')
+        if (closeBtn) closeBtn.click()
+        else el.click()
+        return
+      }
+      el.style.transition = "opacity 200ms, transform 200ms"
+      el.style.opacity = "0"
+      el.style.transform = "translateY(-4px)"
+      setTimeout(() => {
+        el.style.display = "none"
+        // clear server flash so it does not reappear on next render
+        const kind = el.id.replace("flash-", "")
+        if (window.liveSocket) {
+          el.dispatchEvent(new CustomEvent("phx:clear-flash", {bubbles: true, detail: {key: kind}}))
+        }
+      }, 220)
+    }, delay)
+  })
+}
+new MutationObserver(initFlashAutoDismiss).observe(document.body, {childList: true, subtree: true})
+document.addEventListener("DOMContentLoaded", initFlashAutoDismiss)
+window.addEventListener("phx:page-loading-stop", initFlashAutoDismiss)
+
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session

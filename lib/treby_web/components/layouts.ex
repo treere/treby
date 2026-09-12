@@ -177,6 +177,11 @@ defmodule TrebyWeb.Layouts do
               </div>
             </div>
             <div class="hidden sm:flex sm:items-center sm:space-x-4">
+              <.notification_bell
+                unread_count={assigns[:notification_unread_count] || 0}
+                recent={assigns[:notification_recent] || []}
+                current_tenant={@current_tenant}
+              />
               <.theme_toggle />
               <.locale_switcher locale={@locale} />
               <span :if={@current_scope} class="text-sm text-zinc-500 dark:text-zinc-400">
@@ -327,7 +332,7 @@ defmodule TrebyWeb.Layouts do
       </main>
     </div>
 
-    <.flash_group flash={@flash} />
+    <.flash_group flash={@flash} notification_toast={assigns[:notification_toast]} />
     """
   end
 
@@ -569,6 +574,88 @@ defmodule TrebyWeb.Layouts do
     """
   end
 
+  attr :unread_count, :integer, default: 0
+  attr :recent, :list, default: []
+  attr :current_tenant, :map, default: nil
+
+  def notification_bell(assigns) do
+    ~H"""
+    <div class="relative" id="notification-bell">
+      <button
+        type="button"
+        phx-click={JS.toggle(to: "#notification-dropdown")}
+        class="relative p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+        aria-label={gettext("Notifications")}
+      >
+        <.icon name="hero-bell" class="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+        <span
+          :if={@unread_count > 0}
+          class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[11px] font-bold text-white bg-red-500 rounded-full"
+        >
+          {@unread_count}
+        </span>
+      </button>
+      <div
+        id="notification-dropdown"
+        class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 overflow-hidden"
+      >
+        <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
+          <span class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{gettext(
+            "Notifications"
+          )}</span>
+          <button
+            :if={@unread_count > 0}
+            phx-click="mark_all_read"
+            class="text-xs font-medium text-orange-600 hover:text-orange-700"
+          >
+            {gettext("Mark all read")}
+          </button>
+        </div>
+        <div class="max-h-96 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-700">
+          <div
+            :for={n <- @recent}
+            class="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 flex gap-3"
+          >
+            <span class="mt-1 w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">{n.title}</p>
+              <p :if={n.body} class="text-xs text-zinc-500 dark:text-zinc-400 truncate">{n.body}</p>
+              <p class="text-[11px] text-zinc-400">
+                {Calendar.strftime(n.inserted_at, "%b %d %H:%M")}
+              </p>
+            </div>
+            <button
+              phx-click="mark_read"
+              phx-value-id={n.id}
+              class="text-xs text-zinc-400 hover:text-zinc-600"
+            >
+              Mark read
+            </button>
+          </div>
+          <div
+            :if={@recent == []}
+            class="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
+          >
+            No notifications
+          </div>
+        </div>
+        <div class="px-4 py-2 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
+          <.link
+            navigate={
+              if @current_tenant,
+                do: "/#{@current_tenant.slug}/app/notifications",
+                else: "/app/notifications"
+            }
+            class="text-sm font-medium text-orange-600 hover:text-orange-700"
+          >
+            View all →
+          </.link>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   @doc """
   Shows the flash group with standard titles and content.
 
@@ -579,11 +666,48 @@ defmodule TrebyWeb.Layouts do
   attr :flash, :map, required: true, doc: "the map of flash messages"
   attr :id, :string, default: "flash-group", doc: "the optional id of flash container"
 
+  attr :notification_toast, :map, default: nil
+
   def flash_group(assigns) do
     ~H"""
-    <div id={@id} aria-live="polite">
+    <div
+      id={@id}
+      aria-live="polite"
+      class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+    >
       <.flash kind={:info} flash={@flash} />
       <.flash kind={:error} flash={@flash} />
+      <.flash kind={:success} flash={@flash} />
+      <.flash kind={:warning} flash={@flash} />
+
+      <div
+        :if={@notification_toast}
+        id="notification-toast"
+        class="pointer-events-auto w-80 sm:w-96 max-w-80 sm:max-w-96 flex items-start gap-3 rounded-xl border shadow-lg p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-100"
+        data-flash-auto-dismiss="5000"
+      >
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold">{@notification_toast.title}</p>
+          <p :if={@notification_toast.body} class="text-xs truncate">{@notification_toast.body}</p>
+        </div>
+        <button
+          :if={@notification_toast.link}
+          phx-click="toast_view"
+          phx-value-id={@notification_toast.id}
+          phx-value-link={@notification_toast.link}
+          class="text-xs font-medium text-blue-700 dark:text-blue-200 hover:text-blue-900 underline"
+        >
+          {gettext("View")}
+        </button>
+        <button
+          type="button"
+          phx-click={JS.push("toast_dismiss") |> hide("#notification-toast")}
+          class="group self-start cursor-pointer"
+          aria-label={gettext("close")}
+        >
+          <.icon name="hero-x-mark" class="size-5 opacity-40 group-hover:opacity-70" />
+        </button>
+      </div>
 
       <.flash
         id="client-error"

@@ -112,9 +112,9 @@ defmodule Treby.NotificationsTest do
       {tenant, _user} = setup_tenant_with_admin()
       prefs = Notifications.notification_preferences(tenant)
 
-      assert prefs["stage_change_candidate"] == true
-      assert prefs["new_application_candidate"] == true
-      assert prefs["new_application_team"] == true
+      assert prefs["stage_change_candidate"] == %{"email" => true, "inbox" => true}
+      assert prefs["new_application_candidate"] == %{"email" => true, "inbox" => true}
+      assert prefs["new_application_team"] == %{"email" => true, "inbox" => true}
     end
 
     test "merges stored preferences with defaults" do
@@ -126,9 +126,9 @@ defmodule Treby.NotificationsTest do
       tenant = Repo.get!(Tenants.Tenant, tenant.id)
       prefs = Notifications.notification_preferences(tenant)
 
-      assert prefs["stage_change_candidate"] == false
-      assert prefs["new_application_candidate"] == true
-      assert prefs["new_application_team"] == true
+      assert prefs["stage_change_candidate"] == %{"email" => false, "inbox" => true}
+      assert prefs["new_application_candidate"] == %{"email" => true, "inbox" => true}
+      assert prefs["new_application_team"] == %{"email" => true, "inbox" => true}
     end
   end
 

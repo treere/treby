@@ -329,6 +329,83 @@ defmodule TrebyWeb.JobsLive.ShowPipelineTest do
       refute has_element?(view, ~s(button[phx-click="edit_stage"]))
       refute has_element?(view, ~s(button[phx-click="delete_stage"]))
     end
+
+    test "shows Responsible: Everyone when no roles are assigned", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      default_id = Pipeline.default_pipeline_id(tenant.id)
+      job = create_job(tenant, default_id)
+
+      conn = login_user(conn, user)
+      view = job_show_live(conn, job)
+
+      html = render(view)
+      assert html =~ "Responsible"
+      assert html =~ "Everyone"
+      # At least one stage has the fallback; pipeline_overview renders one line per stage
+      assert has_element?(
+               view,
+               "#pipeline-stage-#{hd(Pipeline.list_pipeline_stages(default_id)).id}"
+             )
+    end
+
+    test "shows full role labels with names when assigned", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      default_id = Pipeline.default_pipeline_id(tenant.id)
+      job = create_job(tenant, default_id)
+
+      interview =
+        Enum.find(Pipeline.list_pipeline_stages(default_id), &(&1.stage_type == "interview"))
+
+      Pipeline.assign_examiner(interview, user.id)
+      Pipeline.assign_advancer(interview, user.id)
+
+      conn = login_user(conn, user)
+      view = job_show_live(conn, job)
+
+      html = render(view)
+      assert html =~ "Examiner: #{user.name}"
+      assert html =~ "Advancer: #{user.name}"
+      refute html =~ ">E<"
+      refute html =~ ">A<"
+    end
+
+    test "shows roles legend and how-it-works explainer", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      default_id = Pipeline.default_pipeline_id(tenant.id)
+      job = create_job(tenant, default_id)
+
+      conn = login_user(conn, user)
+      view = job_show_live(conn, job)
+
+      assert has_element?(view, "#pipeline-roles-legend")
+      assert render(view) =~ "Examiner"
+      assert render(view) =~ "Reviewer"
+      assert render(view) =~ "Advancer"
+      assert has_element?(view, "#pipeline-how-it-works")
+      assert render(view) =~ "How the pipeline works"
+      assert render(view) =~ "Advancer to move candidates"
+    end
+  end
+
+  describe "pipeline editor ownership" do
+    test "editor shows same owner line as overview", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      default_id = Pipeline.default_pipeline_id(tenant.id)
+      job = create_job(tenant, default_id)
+
+      interview =
+        Enum.find(Pipeline.list_pipeline_stages(default_id), &(&1.stage_type == "interview"))
+
+      Pipeline.assign_reviewer(interview, user.id)
+
+      conn = login_user(conn, user)
+      view = job_show_live(conn, job)
+      open_pipeline_manager(view)
+
+      html = render(view)
+      assert html =~ "Reviewer: #{user.name}"
+      assert html =~ "Responsible: Everyone"
+    end
   end
 
   describe "job page candidate workspace" do

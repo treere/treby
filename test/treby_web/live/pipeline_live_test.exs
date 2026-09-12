@@ -989,4 +989,68 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       refute html =~ "Board 30"
     end
   end
+
+  describe "board stage ownership" do
+    test "shows legend and Responsible: Everyone when no roles assigned", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Treby.Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, _stage} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{name: "Applied", position: 0, stage_type: "applied"})
+        |> Treby.Repo.insert()
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{title: "Board Owner Job", description: "d", pipeline_id: pipeline_id})
+        |> Treby.Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      html = render(view)
+      assert html =~ "Responsible"
+      assert html =~ "Everyone"
+      assert has_element?(view, "#pipeline-board-legend")
+      assert html =~ "Examiner"
+      assert html =~ "Reviewer"
+      assert html =~ "Advancer"
+    end
+
+    test "shows full role labels when assigned", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+      pipeline = Treby.Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+      {:ok, stage} =
+        pipeline
+        |> Ecto.build_assoc(:pipeline_stages)
+        |> PipelineStage.changeset(%{
+          name: "Interview Board",
+          position: 0,
+          stage_type: "interview"
+        })
+        |> Treby.Repo.insert()
+
+      Treby.Pipeline.assign_advancer(stage, user.id)
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "Board Owner Assigned",
+          description: "d",
+          pipeline_id: pipeline_id
+        })
+        |> Treby.Repo.insert()
+
+      conn = login_user(conn, user)
+      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+
+      assert render(view) =~ "Advancer: #{user.name}"
+    end
+  end
 end

@@ -6,6 +6,8 @@ defmodule TrebyWeb.PipelineLive.Index do
   alias Treby.{Accounts, Tenants, Jobs, Pipeline, EmailTemplates, BulkOperations, CandidatePortal}
   alias Treby.Notifications.Email, as: NotificationEmail
 
+  import Ecto.Query, warn: false
+
   def mount(%{"job_id" => job_id}, session, socket) do
     socket = set_locale_from_session(socket, session)
 
@@ -65,6 +67,8 @@ defmodule TrebyWeb.PipelineLive.Index do
 
     {grouped, page_info} = Pipeline.list_applications_by_stage(job.id, page: page)
 
+    grouped = enrich_stages_with_ownership(grouped)
+
     candidate_ids =
       grouped
       |> Enum.flat_map(fn {_, apps} -> Enum.map(apps, & &1.candidate_id) end)
@@ -95,6 +99,44 @@ defmodule TrebyWeb.PipelineLive.Index do
     |> assign(page: page_info.page)
     |> assign(application_counts: application_counts)
     |> assign(upcoming_interviews: upcoming_interviews)
+  end
+
+  defp enrich_stages_with_ownership([]), do: []
+
+  defp enrich_stages_with_ownership(grouped) do
+    stage_ids = Enum.map(grouped, fn {stage, _} -> stage.id end)
+
+    examiners_by_stage =
+      Treby.Pipeline.StageExaminer
+      |> where([se], se.pipeline_stage_id in ^stage_ids)
+      |> preload(:user)
+      |> Treby.Repo.all()
+      |> Enum.group_by(& &1.pipeline_stage_id)
+
+    reviewers_by_stage =
+      Treby.Pipeline.StageReviewer
+      |> where([sr], sr.pipeline_stage_id in ^stage_ids)
+      |> preload(:user)
+      |> Treby.Repo.all()
+      |> Enum.group_by(& &1.pipeline_stage_id)
+
+    advancers_by_stage =
+      Treby.Pipeline.StageAdvancer
+      |> where([sa], sa.pipeline_stage_id in ^stage_ids)
+      |> preload(:user)
+      |> Treby.Repo.all()
+      |> Enum.group_by(& &1.pipeline_stage_id)
+
+    Enum.map(grouped, fn {stage, apps} ->
+      stage =
+        Map.merge(stage, %{
+          examiners: Map.get(examiners_by_stage, stage.id, []),
+          reviewers: Map.get(reviewers_by_stage, stage.id, []),
+          advancers: Map.get(advancers_by_stage, stage.id, [])
+        })
+
+      {stage, apps}
+    end)
   end
 
   defp page_url(path, page) do
@@ -153,6 +195,14 @@ defmodule TrebyWeb.PipelineLive.Index do
           </div>
         </div>
 
+        <p
+          id="pipeline-board-legend"
+          class="text-xs text-zinc-500 dark:text-zinc-400 mb-2"
+        >
+          {gettext("Examiner")} — {gettext("runs interviews")} · {gettext("Reviewer")} — {gettext(
+            "reviews"
+          )} · {gettext("Advancer")} — {gettext("moves candidates")}
+        </p>
         <div class="flex gap-4 overflow-x-auto pb-4">
           <div
             :for={{stage, applications} <- @applications_by_stage}
@@ -160,12 +210,29 @@ defmodule TrebyWeb.PipelineLive.Index do
             class="flex-shrink-0 w-80 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4"
             data-stage-id={stage.id}
           >
-            <div class="flex items-center gap-2 mb-4">
+            <div class="flex items-center gap-2 mb-2">
               <div class="w-3 h-3 rounded-full" style={"background-color: #{stage.color}"}></div>
               <h3 class="font-semibold text-zinc-900 dark:text-zinc-100">{stage.name}</h3>
               <span class="ml-auto text-sm text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 px-2 py-0.5 rounded-full">
                 {length(applications)}
               </span>
+            </div>
+            <div class="mb-3 flex flex-wrap gap-1 text-[11px] items-center">
+              <%= if stage.examiners == [] and stage.reviewers == [] and stage.advancers == [] do %>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                  {gettext("Responsible")}: {gettext("Everyone")}
+                </span>
+              <% else %>
+                <.badge :for={examiner <- stage.examiners} variant="info" class="text-[11px]">
+                  {gettext("Examiner")}: {examiner.user.name}
+                </.badge>
+                <.badge :for={reviewer <- stage.reviewers} variant="success" class="text-[11px]">
+                  {gettext("Reviewer")}: {reviewer.user.name}
+                </.badge>
+                <.badge :for={advancer <- stage.advancers} variant="warning" class="text-[11px]">
+                  {gettext("Advancer")}: {advancer.user.name}
+                </.badge>
+              <% end %>
             </div>
 
             <div

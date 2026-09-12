@@ -36,7 +36,13 @@ The job detail page is your daily workspace: candidates are **grouped by stage**
 
 ### Pipeline Overview
 
-The pipeline section on the job page is read-only by default: it shows stages in order with color, type, candidate count, and names of assigned examiners, reviewers, and advancers. Admins can open the editor with the **Manage pipeline** button.
+The pipeline section on the job page is read-only by default: it shows stages in order with color, type, candidate count, and who is responsible for each stage.
+
+- **Owner line** — every stage always shows responsibility. If specific people are assigned you see `Examiner: Name`, `Reviewer: Name`, `Advancer: Name`; if no one is assigned you see `Responsible: Everyone` — meaning anyone on the team can act in that stage.
+- **Roles legend** — a one-line legend above the list explains `Examiner — runs interviews · Reviewer — reviews · Advancer — moves candidates`.
+- **How it works** — below the title a short note explains that stages are ordered, interview stages require an Advancer to move candidates, and editing stages here creates a pipeline copy for this job only (other jobs are not affected). Click `How the pipeline works` to see more.
+
+Admins can open the editor with the **Manage pipeline** button — the editor shows the same owner line for each stage, so the overview and the editor never contradict.
 
 ## How It Works
 
@@ -65,7 +71,9 @@ Each stage can have three assignments:
 | **Reviewer** | Reviews applications | Reviews and leaves feedback |
 | **Advancer** | Decides | Advances or rejects candidates in that stage |
 
-Only advancers can advance or reject. Others can view the pipeline but cannot make advancement decisions.
+On the job page each stage shows full role labels (`Examiner:`, `Reviewer:`, `Advancer:`) — not single letters — and when no one is assigned it shows `Responsible: Everyone`. The legend above the pipeline explains the three roles.
+
+Only Advancers (and admins) can advance or reject in interview stages; in other stages anyone can move. Others can view the pipeline but cannot make advancement decisions.
 
 ### Advancement Gating
 

@@ -497,6 +497,23 @@ defmodule TrebyWeb.JobsLive.Show do
               {if @manage_pipeline, do: gettext("Done"), else: gettext("Manage Pipeline")}
             </.button>
           </div>
+          <div id="pipeline-how-it-works" class="mb-4">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
+              {gettext(
+                "Stages are ordered. Interview stages require an Advancer to move candidates. Editing stages here creates a pipeline copy for this job only."
+              )}
+            </p>
+            <details class="mt-1">
+              <summary class="text-xs text-zinc-500 dark:text-zinc-400 cursor-pointer hover:text-zinc-700 dark:hover:text-zinc-300">
+                {gettext("How the pipeline works")}
+              </summary>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                {gettext(
+                  "Each stage is a step in your hiring process. Move candidates forward as they progress. Roles control who can act in each stage; when no one is assigned, everyone can act."
+                )}
+              </p>
+            </details>
+          </div>
 
           <%!-- Read-only pipeline overview (default) --%>
           <div :if={not @manage_pipeline}>
@@ -506,36 +523,62 @@ defmodule TrebyWeb.JobsLive.Show do
             >
               {gettext("No stages in this pipeline yet")}
             </div>
-            <div :if={@pipeline_overview != []} class="space-y-2">
-              <div
-                :for={stage <- @pipeline_overview}
-                class="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg"
+            <div :if={@pipeline_overview != []}>
+              <p
+                id="pipeline-roles-legend"
+                class="text-xs text-zinc-500 dark:text-zinc-400 mb-2"
               >
+                {gettext("Examiner")} — {gettext("runs interviews")} · {gettext("Reviewer")} — {gettext(
+                  "reviews"
+                )} · {gettext("Advancer")} — {gettext("moves candidates")}
+              </p>
+              <div class="space-y-2">
                 <div
-                  class="w-5 h-5 rounded-full flex-shrink-0"
-                  style={"background-color: #{stage.color}"}
-                />
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <p class="font-medium text-sm text-zinc-900 dark:text-zinc-100">{stage.name}</p>
-                    <.badge variant="default" class="text-xs">{stage.candidate_count}</.badge>
-                    <.badge :if={stage.stage_type} variant="default" class="text-[10px] uppercase">
-                      {stage.stage_type}
-                    </.badge>
-                  </div>
+                  :for={stage <- @pipeline_overview}
+                  id={"pipeline-stage-#{stage.id}"}
+                  class="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg"
+                >
                   <div
-                    :if={stage.examiners != [] or stage.reviewers != [] or stage.advancers != []}
-                    class="mt-1 flex flex-wrap gap-1 text-[11px]"
-                  >
-                    <.badge :for={examiner <- stage.examiners} variant="info" class="text-[11px]">
-                      <span class="font-medium mr-0.5">E</span>{examiner.user.name}
-                    </.badge>
-                    <.badge :for={reviewer <- stage.reviewers} variant="success" class="text-[11px]">
-                      <span class="font-medium mr-0.5">R</span>{reviewer.user.name}
-                    </.badge>
-                    <.badge :for={advancer <- stage.advancers} variant="warning" class="text-[11px]">
-                      <span class="font-medium mr-0.5">A</span>{advancer.user.name}
-                    </.badge>
+                    class="w-5 h-5 rounded-full flex-shrink-0"
+                    style={"background-color: #{stage.color}"}
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <p class="font-medium text-sm text-zinc-900 dark:text-zinc-100">{stage.name}</p>
+                      <.badge variant="default" class="text-xs">{stage.candidate_count}</.badge>
+                      <.badge :if={stage.stage_type} variant="default" class="text-[10px] uppercase">
+                        {stage.stage_type}
+                      </.badge>
+                    </div>
+                    <div class="mt-1 flex flex-wrap gap-1 text-[11px] items-center">
+                      <%= if stage.examiners == [] and stage.reviewers == [] and stage.advancers == [] do %>
+                        <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                          {gettext("Responsible")}: {gettext("Everyone")}
+                        </span>
+                      <% else %>
+                        <.badge
+                          :for={examiner <- stage.examiners}
+                          variant="info"
+                          class="text-[11px]"
+                        >
+                          {gettext("Examiner")}: {examiner.user.name}
+                        </.badge>
+                        <.badge
+                          :for={reviewer <- stage.reviewers}
+                          variant="success"
+                          class="text-[11px]"
+                        >
+                          {gettext("Reviewer")}: {reviewer.user.name}
+                        </.badge>
+                        <.badge
+                          :for={advancer <- stage.advancers}
+                          variant="warning"
+                          class="text-[11px]"
+                        >
+                          {gettext("Advancer")}: {advancer.user.name}
+                        </.badge>
+                      <% end %>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -664,15 +707,35 @@ defmodule TrebyWeb.JobsLive.Show do
                       >
                         {gettext("%{count} examiners", count: stage.min_examiners)}
                       </.badge>
-                      <.badge :if={stage.examiner_count > 0} variant="info" class="text-[10px]">
-                        {gettext("%{count}E", count: stage.examiner_count)}
-                      </.badge>
-                      <.badge :if={stage.reviewer_count > 0} variant="success" class="text-[10px]">
-                        {gettext("%{count}R", count: stage.reviewer_count)}
-                      </.badge>
-                      <.badge :if={stage.advancer_count > 0} variant="warning" class="text-[10px]">
-                        {gettext("%{count}A", count: stage.advancer_count)}
-                      </.badge>
+                    </div>
+                    <div class="mt-1 flex flex-wrap gap-1 text-[11px] items-center">
+                      <%= if stage.examiners == [] and stage.reviewers == [] and stage.advancers == [] do %>
+                        <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                          {gettext("Responsible")}: {gettext("Everyone")}
+                        </span>
+                      <% else %>
+                        <.badge
+                          :for={examiner <- stage.examiners}
+                          variant="info"
+                          class="text-[11px]"
+                        >
+                          {gettext("Examiner")}: {examiner.user.name}
+                        </.badge>
+                        <.badge
+                          :for={reviewer <- stage.reviewers}
+                          variant="success"
+                          class="text-[11px]"
+                        >
+                          {gettext("Reviewer")}: {reviewer.user.name}
+                        </.badge>
+                        <.badge
+                          :for={advancer <- stage.advancers}
+                          variant="warning"
+                          class="text-[11px]"
+                        >
+                          {gettext("Advancer")}: {advancer.user.name}
+                        </.badge>
+                      <% end %>
                     </div>
                   </div>
                 </div>
@@ -1417,29 +1480,84 @@ defmodule TrebyWeb.JobsLive.Show do
   defp pipeline_id_for(%Treby.Jobs.Job{} = job), do: Pipeline.job_effective_pipeline_id(job)
 
   defp stages_with_counts(pipeline_id) do
-    Pipeline.list_pipeline_stages(pipeline_id)
-    |> Enum.map(fn stage ->
-      examiner_count = length(Pipeline.list_examiner_ids(stage))
-      reviewer_count = length(Pipeline.list_reviewer_ids(stage))
-      advancer_count = length(Pipeline.list_advancer_ids(stage))
-
-      Map.merge(stage, %{
-        examiner_count: examiner_count,
-        reviewer_count: reviewer_count,
-        advancer_count: advancer_count
-      })
-    end)
+    stages = Pipeline.list_pipeline_stages(pipeline_id)
+    if stages == [], do: stages, else: enrich_stages_batch(stages, include_counts: true)
   end
 
   defp stages_with_overview(pipeline_id) do
-    Pipeline.list_pipeline_stages(pipeline_id)
-    |> Enum.map(fn stage ->
-      Map.merge(stage, %{
-        examiners: Pipeline.list_examiners(stage),
-        reviewers: Pipeline.list_reviewers(stage),
-        advancers: Pipeline.list_advancers(stage),
-        candidate_count: Pipeline.active_applications_count(stage.id)
-      })
+    stages = Pipeline.list_pipeline_stages(pipeline_id)
+
+    if stages == [],
+      do: [],
+      else: enrich_stages_batch(stages, include_counts: false, include_candidate_counts: true)
+  end
+
+  defp enrich_stages_batch(stages, opts) do
+    stage_ids = Enum.map(stages, & &1.id)
+
+    examiners_by_stage =
+      Treby.Pipeline.StageExaminer
+      |> where([se], se.pipeline_stage_id in ^stage_ids)
+      |> preload(:user)
+      |> Treby.Repo.all()
+      |> Enum.group_by(& &1.pipeline_stage_id)
+
+    reviewers_by_stage =
+      Treby.Pipeline.StageReviewer
+      |> where([sr], sr.pipeline_stage_id in ^stage_ids)
+      |> preload(:user)
+      |> Treby.Repo.all()
+      |> Enum.group_by(& &1.pipeline_stage_id)
+
+    advancers_by_stage =
+      Treby.Pipeline.StageAdvancer
+      |> where([sa], sa.pipeline_stage_id in ^stage_ids)
+      |> preload(:user)
+      |> Treby.Repo.all()
+      |> Enum.group_by(& &1.pipeline_stage_id)
+
+    candidate_counts_by_stage =
+      if Keyword.get(opts, :include_candidate_counts, false) do
+        Treby.Pipeline.Application
+        |> where([a], a.pipeline_stage_id in ^stage_ids)
+        |> group_by([a], a.pipeline_stage_id)
+        |> select([a], {a.pipeline_stage_id, count(a.id)})
+        |> Treby.Repo.all()
+        |> Map.new()
+      else
+        %{}
+      end
+
+    Enum.map(stages, fn stage ->
+      examiners = Map.get(examiners_by_stage, stage.id, [])
+      reviewers = Map.get(reviewers_by_stage, stage.id, [])
+      advancers = Map.get(advancers_by_stage, stage.id, [])
+
+      base = %{
+        examiners: examiners,
+        reviewers: reviewers,
+        advancers: advancers
+      }
+
+      base =
+        if Keyword.get(opts, :include_counts, false) do
+          Map.merge(base, %{
+            examiner_count: length(examiners),
+            reviewer_count: length(reviewers),
+            advancer_count: length(advancers)
+          })
+        else
+          base
+        end
+
+      base =
+        if Keyword.get(opts, :include_candidate_counts, false) do
+          Map.put(base, :candidate_count, Map.get(candidate_counts_by_stage, stage.id, 0))
+        else
+          base
+        end
+
+      Map.merge(stage, base)
     end)
   end
 

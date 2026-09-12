@@ -57,7 +57,9 @@ defmodule TrebyWeb.SettingsLive.NotificationsTest do
 
         html =
           view
-          |> element(~s(button[phx-click="toggle_preference"][phx-value-key="#{key}"]))
+          |> element(
+            ~s(button[phx-click="toggle_preference"][phx-value-key="#{key}"][phx-value-channel="email"])
+          )
           |> render_click()
 
         assert html =~ "Notification preference updated"
@@ -70,7 +72,9 @@ defmodule TrebyWeb.SettingsLive.NotificationsTest do
 
         html =
           view
-          |> element(~s(button[phx-click="toggle_preference"][phx-value-key="#{key}"]))
+          |> element(
+            ~s(button[phx-click="toggle_preference"][phx-value-key="#{key}"][phx-value-channel="email"])
+          )
           |> render_click()
 
         assert html =~ ~s(aria-checked="true")

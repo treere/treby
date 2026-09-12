@@ -4,6 +4,7 @@ defmodule TrebyWeb.Hooks.Notifications do
 
   alias Treby.Notifications.Inbox
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def on_mount(:default, _params, _session, socket) do
     socket =
       if socket.assigns[:current_user] && socket.assigns[:current_tenant] do

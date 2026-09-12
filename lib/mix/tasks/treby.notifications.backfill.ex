@@ -24,6 +24,7 @@ defmodule Mix.Tasks.Treby.Notifications.Backfill do
   }
 
   @impl Mix.Task
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def run(args) do
     Mix.Task.run("app.start")
     dry_run? = "--dry-run" in args

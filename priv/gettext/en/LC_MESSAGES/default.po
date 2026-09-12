@@ -1005,7 +1005,7 @@ msgstr ""
 
 #: lib/treby_web/components/layouts.ex:588
 #: lib/treby_web/components/layouts.ex:603
-#: lib/treby_web/live/notifications_live.ex:73
+#: lib/treby_web/live/notifications_live.ex:75
 #: lib/treby_web/live/settings_live/index.ex:129
 #, elixir-autogen, elixir-format
 msgid "Notifications"
@@ -4516,7 +4516,7 @@ msgid "User Agent:"
 msgstr ""
 
 #: lib/treby_web/components/layouts.ex:700
-#: lib/treby_web/live/notifications_live.ex:195
+#: lib/treby_web/live/notifications_live.ex:198
 #: lib/treby_web/live/settings_live/audit_log.ex:224
 #, elixir-autogen, elixir-format, fuzzy
 msgid "View"
@@ -5019,17 +5019,17 @@ msgstr ""
 msgid "days"
 msgstr ""
 
-#: lib/treby_web/live/notifications_live.ex:132
+#: lib/treby_web/live/notifications_live.ex:135
 #, elixir-autogen, elixir-format, fuzzy
 msgid "All types"
 msgstr ""
 
-#: lib/treby_web/live/notifications_live.ex:188
+#: lib/treby_web/live/notifications_live.ex:191
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Mark read"
 msgstr ""
 
-#: lib/treby_web/live/notifications_live.ex:123
+#: lib/treby_web/live/notifications_live.ex:126
 #, elixir-autogen, elixir-format
 msgid "Search title or body..."
 msgstr ""

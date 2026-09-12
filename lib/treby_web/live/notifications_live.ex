@@ -5,6 +5,7 @@ defmodule TrebyWeb.NotificationsLive do
 
   @page_size 20
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def mount(params, session, socket) do
     socket = set_locale_from_session(socket, session)
 

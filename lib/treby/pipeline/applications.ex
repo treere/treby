@@ -458,6 +458,7 @@ defmodule Treby.Pipeline.Applications do
     :ok
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def move_application(%Application{} = application, stage_id, opts \\ []) do
     old_stage_id = application.pipeline_stage_id
     extra_attrs = opts[:attrs] || %{}

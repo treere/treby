@@ -70,7 +70,9 @@ defmodule TrebyWeb.NotificationsLive do
     >
       <div class="p-8 max-w-4xl mx-auto">
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Notifications</h1>
+          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+            {gettext("Notifications")}
+          </h1>
           <button
             :if={@unread_count > 0}
             phx-click="mark_all_read"
@@ -120,7 +122,7 @@ defmodule TrebyWeb.NotificationsLive do
               type="text"
               name="search"
               value={@search}
-              placeholder="Search title or body..."
+              placeholder={gettext("Search title or body...")}
               class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
             />
           </form>
@@ -129,7 +131,7 @@ defmodule TrebyWeb.NotificationsLive do
               name="type"
               class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
             >
-              <option value="" selected={@type_filter == ""}>All types</option>
+              <option value="" selected={@type_filter == ""}>{gettext("All types")}</option>
               <option value="new_application" selected={@type_filter == "new_application"}>
                 New application
               </option>
@@ -185,14 +187,14 @@ defmodule TrebyWeb.NotificationsLive do
                 phx-click="mark_read"
                 phx-value-id={n.id}
                 class="text-xs font-medium text-orange-600 hover:text-orange-700"
-              >Mark read</button>
+              >{gettext("Mark read")}</button>
               <.link
                 :if={n.link}
                 navigate={n.link}
                 phx-click="mark_read"
                 phx-value-id={n.id}
                 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-700"
-              >View</.link>
+              >{gettext("View")}</.link>
             </div>
           </div>
         </div>

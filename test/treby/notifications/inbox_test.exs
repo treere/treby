@@ -101,7 +101,7 @@ defmodule Treby.Notifications.InboxTest do
       assert length(searched) == 1
 
       not_found = Inbox.list_for_user(user.id, tenant.id, search: "nomatch")
-      assert length(not_found) == 0
+      assert not_found == []
     end
 
     test "mark_read and mark_all_read" do
@@ -127,8 +127,8 @@ defmodule Treby.Notifications.InboxTest do
       {tenant2, [user2 | _]} = setup_tenant_with_members(1)
       {:ok, _} = Inbox.create_for_tenant(tenant1.id, %{type: "new_application", title: "t"})
       assert length(Inbox.list_for_user(user1.id, tenant1.id)) == 1
-      assert length(Inbox.list_for_user(user2.id, tenant2.id)) == 0
-      assert length(Inbox.list_for_user(user1.id, tenant2.id)) == 0
+      assert Inbox.list_for_user(user2.id, tenant2.id) == []
+      assert Inbox.list_for_user(user1.id, tenant2.id) == []
     end
   end
 

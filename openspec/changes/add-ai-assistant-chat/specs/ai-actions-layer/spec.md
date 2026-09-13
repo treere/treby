@@ -2,48 +2,40 @@
 
 ## Purpose
 
-Provide a unified, tenant-first action boundary used by LiveView, AI agent, and future external APIs/MCP, with auto-discovered capabilities.
+Provide thin AI-only tool modules delegating to the existing contexts, with hand-written schemas and tenant-first signatures. No behaviour, no registry, no LiveView refactor.
 
 ## ADDED Requirements
 
-### Requirement: Unified Action Layer
+### Requirement: Thin AI-only tool modules
 
-The system SHALL expose domain mutations through a unified Action Layer (`Treby.Actions` behaviour). LiveView handlers, AI tools, and future APIs/MCP SHALL delegate to this layer rather than calling contexts directly.
+The system SHALL expose AI capabilities as plain modules under `Treby.AI.Tools.*`, each with `schema/0`, `destructive?/0`, and `run/2` delegating to the existing contexts. LiveView handlers SHALL keep calling contexts directly and SHALL NOT be refactored.
 
-#### Scenario: LiveView delegates to actions
+#### Scenario: Tool delegates to existing context
+- **WHEN** the agent executes `list_jobs`
+- **THEN** the tool module calls the existing jobs context with `tenant_id` from `ctx`
+
+#### Scenario: LiveView untouched
 - **WHEN** a user triggers a LiveView event that mutates state
-- **THEN** the handler calls `Treby.Actions.run(action, args, ctx)` with `ctx.tenant_id` from socket
-
-#### Scenario: Agent delegates to same actions
-- **WHEN** the AI agent executes a tool
-- **THEN** it calls the same `Treby.Actions` module with identical `ctx` shape
+- **THEN** the handler keeps its current context call; no `Actions.run` indirection
 
 #### Scenario: Tenant-first signature
-- **WHEN** any action is invoked
+- **WHEN** any tool is invoked
 - **THEN** `tenant_id` is the first required argument and is taken from `ctx.tenant_id`, never from LLM output
 
-### Requirement: Auto-discovered capabilities via hybrid Beam introspection
+### Requirement: Hand-written schemas
 
-The system SHALL auto-discover AI tools from context functions annotated with `@ai_tool` as marker only. The registry SHALL derive JSON Schema via Beam introspection: `Code.fetch_docs/1` for description, `Code.Typespec.fetch_specs/1` for types, and changeset `cast` fields for required/optional. Unannotated functions SHALL NOT be exposed. Functions with `@ai_tool` but missing `@doc`/`@spec` or without `tenant_id` as first arg SHALL fail the registry check.
+Each tool SHALL define its ReqLLM-compatible schema as a plain map. No markers, no Beam introspection, no registry, no CI check. A unit test per tool SHALL assert the schema shape and tenant-first validation.
 
-#### Scenario: Annotated function becomes tool via introspection
-- **WHEN** a context function is annotated with `@ai_tool %{destructive: false}` and has `@doc` and `@spec`
-- **THEN** the registry exposes it as a tool with schema derived from `Code.fetch_docs` and `fetch_specs` without hand-written schema
-
-#### Scenario: Unannotated function not exposed
-- **WHEN** a public function lacks `@ai_tool`
-- **THEN** it is not available to the LLM
-
-#### Scenario: Destructive flag respected
-- **WHEN** an annotated function has `destructive: true` (default for writes)
-- **THEN** the tool is marked destructive and requires confirmation
+#### Scenario: Schema tested
+- **WHEN** the test suite runs
+- **THEN** each of the 6 tools has a test asserting required keys and arg order
 
 ### Requirement: App-level tenant scoping (no composite FKs)
 
-The system SHALL enforce tenant isolation at the application layer via `ctx.tenant_id` taken from socket, never from LLM output. Every action query SHALL scope by `tenant_id`. New AI tables SHALL carry `tenant_id` with standard FKs. No composite-FK hardening migration SHALL be part of this change.
+The system SHALL enforce tenant isolation at the application layer via `ctx.tenant_id` taken from socket, never from LLM output. Every tool query SHALL scope by `tenant_id`. New AI tables SHALL carry `tenant_id` with standard FKs. No composite-FK hardening migration SHALL be part of this change.
 
 #### Scenario: Cross-tenant access blocked by app
-- **WHEN** an action is called with an id belonging to another tenant
+- **WHEN** a tool is called with an id belonging to another tenant
 - **THEN** the scoped query returns nothing or validation fails and no mutation occurs
 
 #### Scenario: AI tables tenant-scoped
@@ -52,8 +44,8 @@ The system SHALL enforce tenant isolation at the application layer via `ctx.tena
 
 ### Requirement: MCP/API readiness
 
-The system SHALL define the Action Layer as a behaviour contract so a future MCP server or external API can invoke the same actions with the same `ctx` and validation.
+The tool modules SHALL keep a stable `run/2` + `schema/0` contract so a future MCP server, Action Layer, or auto-registry can wrap them without changing call sites.
 
-#### Scenario: MCP can reuse actions
-- **WHEN** a future MCP server is added
-- **THEN** it can call `Treby.Actions` without duplicating tenant or permission checks
+#### Scenario: Future wrapper compatible
+- **WHEN** a future Action Layer or MCP server is added
+- **THEN** it can delegate to `Treby.AI.Tools.*` without duplicating tenant checks

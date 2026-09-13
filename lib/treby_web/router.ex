@@ -45,6 +45,7 @@ defmodule TrebyWeb.Router do
         {TrebyWeb.Hooks.Notifications, :default}
       ] do
       live "/", DashboardLive
+      live "/ai", AiChatLive
       live "/jobs", JobsLive.Index
       live "/jobs/new", JobsLive.New
       live "/jobs/:id/analytics", JobsLive.Analytics
@@ -98,6 +99,7 @@ defmodule TrebyWeb.Router do
         {TrebyWeb.Hooks.Notifications, :default}
       ] do
       live "/", DashboardLive
+      live "/ai", AiChatLive
       live "/jobs", JobsLive.Index
       live "/jobs/new", JobsLive.New
       live "/jobs/:id/analytics", JobsLive.Analytics

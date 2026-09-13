@@ -22,6 +22,7 @@ The assistant must: know who/where/which tenant, keep per-user history, allow re
 - Action Layer behaviour + LiveView handler refactor.
 - Global drawer (v1 is a dedicated page, native scroll).
 - Bulk accept-all (v1 is per-item confirm only).
+- Applying form proposals to a live form (v1 `propose_form_fill` is advisory only; the AI page has no form).
 - Retention pruning (v1 keeps rows).
 - Candidate portal assistant (team-only).
 - Full MCP server implementation.

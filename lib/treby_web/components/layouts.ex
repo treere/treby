@@ -118,6 +118,17 @@ defmodule TrebyWeb.Layouts do
                 <.link
                   navigate={
                     if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/ai",
+                      else: ~p"/app/ai"
+                  }
+                  data-nav="/app/ai"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  {gettext("Assistant")}
+                </.link>
+                <.link
+                  navigate={
+                    if @current_tenant,
                       do: "/#{@current_tenant.slug}/app/import",
                       else: ~p"/app/import"
                   }
@@ -250,6 +261,13 @@ defmodule TrebyWeb.Layouts do
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Candidates")}
+            </.link>
+            <.link
+              navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app/ai", else: ~p"/app/ai"}
+              data-nav="/app/ai"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {gettext("Assistant")}
             </.link>
             <.link
               navigate={

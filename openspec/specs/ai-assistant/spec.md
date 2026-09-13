@@ -4,7 +4,7 @@
 
 Provide a team-internal chat page with a single ReqLLM-powered agent that manages jobs, explains the platform, and co-uses forms. Per-user history, per-item confirmation, sync replies, zero JS.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Internal team chat page
 
@@ -105,12 +105,12 @@ The system SHALL return complete LLM responses in a single message (no token str
 
 ### Requirement: Form co-use
 
-While the user works in a LiveView form, the system SHALL expose its schema via `Treby.AI.Context` and allow the assistant to fix texts and pre-fill fields for them via `propose_form_fill`. Proposals SHALL be shown as a diff preview and SHALL apply only on per-item confirmation.
+While the user works in a LiveView form, the system SHALL expose its schema via `Treby.AI.Context` and allow the assistant to propose corrected texts and pre-filled fields for them via `propose_form_fill`. Proposals SHALL be returned as a structured diff preview. In v1 the proposal is advisory only: applying proposed values to a live form is out of scope (follow-up).
 
 #### Scenario: Form present in context
 - **WHEN** the current page has a form
 - **THEN** `Context.build` includes `form_schema` derived from the changeset
 
-#### Scenario: Fix texts in current form
+#### Scenario: Propose texts in current form
 - **WHEN** the user asks to fix or improve the texts they are writing
-- **THEN** the assistant proposes corrected field values as a diff preview and applies them only on confirmation
+- **THEN** the assistant proposes corrected field values as a diff preview, without mutating the form

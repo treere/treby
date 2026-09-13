@@ -135,7 +135,17 @@ config :treby, :rate_limits,
   login_email: {3_600_000, 10},
   otp_request_ip: {60_000, 5},
   otp_request_email: {3_600_000, 5},
-  otp_verify_ip: {60_000, 10}
+  otp_verify_ip: {60_000, 10},
+  ai_message: {60_000, 10}
+
+# AI assistant (ReqLLM). Provider/model overridable via env.
+# When AI_BASE_URL is set, the endpoint is treated as OpenAI-compatible.
+config :treby, :ai,
+  provider: Treby.ConfigHelpers.env("AI_PROVIDER", "anthropic"),
+  model: Treby.ConfigHelpers.env("AI_MODEL", "claude-3-5-sonnet-20240620"),
+  base_url: Treby.ConfigHelpers.env("AI_BASE_URL"),
+  api_key: Treby.ConfigHelpers.env("AI_API_KEY"),
+  max_iterations: String.to_integer(Treby.ConfigHelpers.env("AI_MAX_ITERATIONS", "6"))
 
 # Hammer ETS backend (single node; see design note for multi-node Redis)
 config :hammer,

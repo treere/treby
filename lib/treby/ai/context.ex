@@ -61,8 +61,10 @@ defmodule Treby.AI.Context do
 
   defp scalar(v) when is_binary(v) or is_number(v) or is_boolean(v) or is_nil(v), do: {:ok, v}
   defp scalar(v) when is_atom(v), do: {:ok, to_string(v)}
-  defp scalar(v) when is_list(v), do: if(Enum.all?(v, &scalar/1), do: {:ok, v}, else: :error)
+  defp scalar(v) when is_list(v), do: if(Enum.all?(v, &scalar_ok?/1), do: {:ok, v}, else: :error)
   defp scalar(_), do: :error
+
+  defp scalar_ok?(v), do: match?({:ok, _}, scalar(v))
 
   defp form_schema(assigns) when is_map(assigns) do
     case form_from(assigns[:form]) do

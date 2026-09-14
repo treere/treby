@@ -136,11 +136,39 @@ defmodule Treby.AI.Agent do
 
       tool ->
         case tool.run(decode_args(call.arguments), ctx) do
-          {:ok, result} -> Jason.encode!(%{ok: result})
+          {:ok, result} -> safe_json(%{ok: result}, call.name)
           {:error, reason} -> Jason.encode!(%{error: Tools.format_errors(reason)})
         end
     end
   end
+
+  # Tools may return Ecto structs (e.g. a Pipeline preloaded on the page form);
+  # never let that crash the whole chat. Log the offender, then sanitize.
+  defp safe_json(value, tool_name) do
+    case Jason.encode(value) do
+      {:ok, json} ->
+        json
+
+      {:error, _} ->
+        Logger.warning("AI tool #{tool_name} returned a non-JSON-encodable value; sanitizing")
+        Jason.encode!(sanitize(value))
+    end
+  end
+
+  defp sanitize(%Ecto.Association.NotLoaded{}), do: nil
+
+  defp sanitize(tuple) when is_tuple(tuple), do: tuple |> Tuple.to_list() |> sanitize()
+
+  defp sanitize(%_{} = struct) do
+    struct
+    |> Map.from_struct()
+    |> Map.reject(fn {key, _} -> key == :__meta__ end)
+    |> sanitize()
+  end
+
+  defp sanitize(%{} = map), do: Map.new(map, fn {key, val} -> {key, sanitize(val)} end)
+  defp sanitize(list) when is_list(list), do: Enum.map(list, &sanitize/1)
+  defp sanitize(other), do: other
 
   defp persist_pending(conversation, text, calls) do
     content =

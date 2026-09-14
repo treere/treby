@@ -38,6 +38,7 @@ defmodule TrebyWeb.Layouts do
   attr :current_tenant, :map, default: nil
   attr :available_tenants, :list, default: []
   attr :current_membership, :map, default: nil
+  attr :assistant, :boolean, default: true
 
   slot :inner_block, required: true
 
@@ -348,6 +349,15 @@ defmodule TrebyWeb.Layouts do
       <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {render_slot(@inner_block)}
       </main>
+
+      <.live_component
+        :if={@assistant && (assigns[:current_user] || @current_scope)}
+        module={TrebyWeb.AiChatWidget}
+        id="ai-chat"
+        variant={:floating}
+        current_user={assigns[:current_user] || @current_scope}
+        current_tenant={@current_tenant}
+      />
     </div>
 
     <.flash_group flash={@flash} notification_toast={assigns[:notification_toast]} />

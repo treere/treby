@@ -1,28 +1,40 @@
 # AI Assistant
 
-A built-in assistant for your hiring team. Ask it what a page does, have it manage your jobs, or get suggestions for the text you are writing — all without leaving Treby.
+A built-in assistant for your hiring team. Ask it what a page does, have it manage your jobs, or get suggestions for the text you are writing — all without leaving the page you are working on.
 
 ![AI Assistant chat](/screenshots/44-ai-assistant.png)
 
 ## Where to find it
 
-Open **Assistant** in the top navigation, or go to **`/<workspace>/app/ai`**. It is available only inside a workspace, for signed-in team members. Candidates never see it.
+The assistant is available on every page inside a workspace, for signed-in team members. Candidates never see it.
+
+- **Floating widget** — click the assistant button in the bottom-right corner of any page to open it, and close it when you are done. The panel floats over the page, so you can keep scrolling and working underneath.
+- **Full page** — open **Assistant** in the top navigation, or go to **`/<workspace>/app/ai`**, for a full-width chat.
+
+The widget remembers whether it was open: leave it open, change page or refresh, and it stays open. It is open or closed per browser.
 
 ## What it can do
 
-- **Answer questions about the platform** — it knows which page you are on and explains what to do there.
+- **Answer questions about the platform** — it knows which page you are on, including the filters and data on it, and explains what to do there.
+- **Read the form you are working on** — when a page has a form, it can see the fields and help you fill them in.
 - **List your jobs** — read-only, shown straight away.
 - **Create, update, or delete a job** — these change data, so each one requires your confirmation first.
-- **Propose form text fixes** — when a form is in context, it can suggest corrected or pre-filled values. Suggestions are advisory: you apply them yourself.
+- **Propose form text fixes** — it can suggest corrected or pre-filled values. Suggestions are advisory: you apply them yourself.
 
 ## Chatting
 
-1. Open the **Assistant** page.
+1. Open the widget or the **Assistant** page.
 2. Type your message and press **Send**.
-3. The assistant replies once the answer is ready (no partial typing animation).
-4. Your conversation is saved per user and per workspace — leave the page and come back, and it is still there.
+3. The reply appears as it is written, formatted as rich text — headings, lists, and code render as you watch.
+4. The chat scrolls automatically to the newest message. If you have scrolled up to read earlier messages, it only scrolls once you go back to the bottom.
+5. Keep using the page while the reply is being written; the assistant works in the background.
 
-Multiple tabs of the same workspace and user stay in sync: a reply that completes in one tab appears in the others.
+## Your conversation
+
+- The conversation is saved **per user and per workspace**, so it is private to you.
+- Changing page or refreshing the browser keeps the same conversation.
+- Logging in starts a **new conversation**. Previous conversations are kept in storage but are no longer shown; no messages are ever deleted.
+- Multiple tabs of the same login stay in sync: a reply that completes in one tab appears in the others.
 
 ## Confirming actions
 
@@ -37,7 +49,7 @@ Each proposed action is confirmed on its own — there is no "accept all".
 
 ## Resetting the conversation
 
-Click **Reset** at the top right and confirm. This starts a fresh conversation. The previous one is kept in storage but is no longer shown; no messages are deleted.
+Click **Reset** at the top right of the chat and confirm. This starts a fresh conversation. The previous one is kept in storage but is no longer shown; no messages are deleted.
 
 ## Limits
 

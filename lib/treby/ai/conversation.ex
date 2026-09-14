@@ -8,6 +8,7 @@ defmodule Treby.AI.Conversation do
   schema "ai_conversations" do
     field :title, :string
     field :status, :string, default: "active"
+    field :session_token, :string
 
     belongs_to :tenant, Treby.Tenants.Tenant
     belongs_to :user, Treby.Accounts.User
@@ -18,7 +19,7 @@ defmodule Treby.AI.Conversation do
 
   def changeset(conversation, attrs) do
     conversation
-    |> cast(attrs, [:tenant_id, :user_id, :title, :status])
+    |> cast(attrs, [:tenant_id, :user_id, :title, :status, :session_token])
     |> validate_required([:tenant_id, :user_id])
   end
 end

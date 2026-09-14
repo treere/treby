@@ -16,6 +16,7 @@ defmodule Treby.Application do
       Treby.Repo,
       {DNSCluster, query: Application.get_env(:treby, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Treby.PubSub},
+      {Task.Supervisor, name: Treby.TaskSupervisor},
       {Oban, Application.get_env(:treby, Oban)},
       ProviderCache,
       # Start a worker by calling: Treby.Worker.start_link(arg)

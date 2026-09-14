@@ -118,4 +118,50 @@ defmodule Treby.AI.AgentTest do
   defp run_message_conv(run) do
     Repo.get!(Treby.AI.Message, run.message_id).conversation_id
   end
+
+  test "streams chunks before completion and persists one assistant message" do
+    {tenant, user} = setup_tenant()
+
+    {server_pid, port} = Treby.Test.AiSSE.Server.start()
+    on_exit(fn -> Process.exit(server_pid, :shutdown) end)
+
+    previous_ai = Application.get_env(:treby, :ai, [])
+    ai_config = [base_url: "http://127.0.0.1:#{port}/v1", api_key: "test", model: "test-model"]
+
+    Application.put_env(:treby, :ai, Keyword.merge(previous_ai, ai_config))
+
+    on_exit(fn ->
+      Application.put_env(:treby, :ai, previous_ai)
+    end)
+
+    Phoenix.PubSub.subscribe(Treby.PubSub, Conversations.topic(tenant.id, user.id))
+
+    ctx = %{
+      tenant_id: tenant.id,
+      user_id: user.id,
+      session_token: "tok-stream",
+      system_prompt: "You are a terse test assistant."
+    }
+
+    assert {:ok, :complete} = Agent.chat(ctx, "ciao")
+
+    user_id = user.id
+    assert_receive {:ai_stream, ^user_id, streamed}, 5_000
+    assert streamed == "Ciao mondo"
+
+    remaining = Process.info(self(), :messages) |> elem(1)
+
+    assert {:ai_updated, ^user_id} = List.last(remaining)
+    # The throttled tail chunk must be flushed before the completion broadcast,
+    # so no stream event may arrive after the final ai_updated.
+    assert Enum.all?(remaining, &match?({:ai_updated, _}, &1))
+
+    conversation = Conversations.resolve_conversation(tenant.id, user.id, "tok-stream")
+    messages = Conversations.list_messages(conversation)
+
+    assert [%{role: "assistant", content: "Ciao mondo"}] =
+             Enum.filter(messages, &(&1.role == "assistant"))
+
+    assert [%{role: "user", content: "ciao"}] = Enum.filter(messages, &(&1.role == "user"))
+  end
 end

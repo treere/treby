@@ -176,6 +176,7 @@ defmodule TrebyWeb.RegistrationController do
                 |> put_session("user_id", user.id)
                 |> delete_session("tenant_id")
                 |> delete_session("verified_email")
+                |> delete_session("ai_session_token")
                 |> put_flash(:info, gettext("Welcome to Treby!"))
                 |> redirect(to: ~p"/#{tenant.slug}/app")
 

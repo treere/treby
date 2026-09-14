@@ -1,10 +1,11 @@
 defmodule Treby.AI.Conversations do
   @moduledoc """
-  Persistence for AI chat, scoped by `(tenant_id, user_id)`.
+  Persistence for AI chat, scoped by `(tenant_id, user_id, session_token)`.
 
-  The current conversation is resolved from the pinned session id when present,
-  otherwise from the most recent `active` row. Mount never creates a row; only
-  `reset_conversation/2` starts a fresh one.
+  The current conversation is the most recent row for the login session token.
+  Mount never creates a row; only the first message (`get_or_create_conversation/3`)
+  or `reset_conversation/3` starts a new one. Rows are never deleted or
+  status-mutated.
   """
 
   import Ecto.Query, warn: false
@@ -16,64 +17,52 @@ defmodule Treby.AI.Conversations do
   def topic(tenant_id, user_id), do: "ai:#{tenant_id}:#{user_id}"
 
   @doc """
-  Resolve the conversation without ever creating one.
+  Resolve the conversation for a session token without ever creating one.
 
-  Returns the conversation pinned by `session_id` when it belongs to the
-  tenant/user, otherwise the most recent `active` conversation, otherwise nil.
+  Returns the most recent conversation for `(tenant_id, user_id, session_token)`,
+  otherwise nil.
   """
-  def resolve_conversation(tenant_id, user_id, session_id \\ nil) do
-    case session_conversation(tenant_id, user_id, session_id) do
-      nil -> latest_active(tenant_id, user_id)
-      conversation -> conversation
-    end
-  end
-
-  @doc "Resolve or create an `active` conversation."
-  def get_or_create_conversation(tenant_id, user_id, session_id \\ nil) do
-    case resolve_conversation(tenant_id, user_id, session_id) do
-      nil -> create_conversation(tenant_id, user_id)
-      conversation -> conversation
-    end
-  end
-
-  defp session_conversation(_tenant_id, _user_id, nil), do: nil
-
-  defp session_conversation(tenant_id, user_id, session_id) do
+  def resolve_conversation(tenant_id, user_id, session_token \\ nil) do
     Conversation
-    |> where(
-      [c],
-      c.id == ^session_id and c.tenant_id == ^tenant_id and c.user_id == ^user_id and
-        c.status == "active"
-    )
-    |> Repo.one()
-  end
-
-  defp latest_active(tenant_id, user_id) do
-    Conversation
-    |> where([c], c.tenant_id == ^tenant_id and c.user_id == ^user_id and c.status == "active")
+    |> where([c], c.tenant_id == ^tenant_id and c.user_id == ^user_id)
+    |> filter_session_token(session_token)
     |> order_by([c], desc: c.inserted_at, desc: c.id)
     |> limit(1)
     |> Repo.one()
   end
 
-  defp create_conversation(tenant_id, user_id) do
+  defp filter_session_token(query, nil), do: where(query, [c], is_nil(c.session_token))
+  defp filter_session_token(query, token), do: where(query, [c], c.session_token == ^token)
+
+  @doc "Resolve the session conversation or create one lazily."
+  def get_or_create_conversation(tenant_id, user_id, session_token \\ nil) do
+    case resolve_conversation(tenant_id, user_id, session_token) do
+      nil -> create_conversation(tenant_id, user_id, session_token)
+      conversation -> conversation
+    end
+  end
+
+  defp create_conversation(tenant_id, user_id, session_token) do
     {:ok, conversation} =
       %Conversation{}
-      |> Conversation.changeset(%{tenant_id: tenant_id, user_id: user_id})
+      |> Conversation.changeset(%{
+        tenant_id: tenant_id,
+        user_id: user_id,
+        session_token: session_token
+      })
       |> Repo.insert()
 
+    broadcast(conversation)
     conversation
   end
 
-  @doc "Start a fresh conversation, soft-deleting the previous active one."
-  def reset_conversation(tenant_id, user_id) do
-    Conversation
-    |> where([c], c.tenant_id == ^tenant_id and c.user_id == ^user_id and c.status == "active")
-    |> Repo.update_all(set: [status: "deleted"])
+  @doc """
+  Start a newer conversation within the same session.
 
-    conversation = create_conversation(tenant_id, user_id)
-    broadcast(conversation)
-    conversation
+  Prior conversations are left intact — nothing is deleted or status-mutated.
+  """
+  def reset_conversation(tenant_id, user_id, session_token \\ nil) do
+    create_conversation(tenant_id, user_id, session_token)
   end
 
   @doc "List a conversation's messages oldest first."

@@ -9,17 +9,20 @@ defmodule Treby.AI.Context do
 
   @sensitive_keys ~w(
     current_user current_tenant current_membership available_tenants
-    form flash streams __changed__ socket
+    form flash streams __changed__ socket ai_session_token
   )a
 
   @doc """
-  Builds the agent context map from the LiveView socket.
+  Builds the agent context map.
 
+  Accepts a LiveView socket or a map with `:assigns` (and optionally `:view`).
   Returns a map with `:tenant_id`, `:user`, `:user_id`, `:role`, `:page`,
-  `:url`, `:params`, `:assigns_snapshot`, `:form_schema` and `:system_prompt`.
+  `:url`, `:params`, `:assigns_snapshot`, `:form_schema`, `:session_token`
+  and `:system_prompt`.
   """
-  def build(socket, _history \\ []) do
-    assigns = socket.assigns
+  def build(source, _history \\ []) do
+    assigns = Map.get(source, :assigns) || source
+    view = Map.get(source, :view) || assigns[:current_view]
     user = assigns[:current_user]
     tenant = assigns[:current_tenant]
     membership = assigns[:current_membership]
@@ -29,12 +32,12 @@ defmodule Treby.AI.Context do
       user: user,
       user_id: user && user.id,
       role: membership && membership.role,
-      page: inspect(socket.view),
+      page: inspect(view),
       url: assigns[:current_path],
       params: assigns[:current_params] || %{},
       assigns_snapshot: snapshot(assigns),
-      form_schema: form_schema(assigns[:form]),
-      session_id: assigns[:ai_conversation_id]
+      form_schema: form_schema(assigns),
+      session_token: assigns[:ai_session_token]
     }
 
     Map.put(ctx, :system_prompt, system_prompt(ctx))
@@ -60,7 +63,20 @@ defmodule Treby.AI.Context do
   defp scalar(v) when is_list(v), do: if(Enum.all?(v, &scalar/1), do: {:ok, v}, else: :error)
   defp scalar(_), do: :error
 
-  defp form_schema(%Ecto.Changeset{} = changeset) do
+  defp form_schema(assigns) when is_map(assigns) do
+    Enum.find_value(assigns, fn {_key, value} -> form_from(value) end)
+  end
+
+  defp form_schema(_), do: nil
+
+  defp form_from(%Ecto.Changeset{} = changeset), do: changeset_schema(changeset)
+
+  defp form_from(%Phoenix.HTML.Form{source: %Ecto.Changeset{} = changeset}),
+    do: changeset_schema(changeset)
+
+  defp form_from(_), do: nil
+
+  defp changeset_schema(changeset) do
     structure = Map.from_struct(changeset)
     types = Map.get(structure, :types, %{})
     required = Map.get(structure, :required, [])
@@ -77,11 +93,6 @@ defmodule Treby.AI.Context do
         end)
     }
   end
-
-  defp form_schema(%Phoenix.HTML.Form{source: %Ecto.Changeset{} = changeset}),
-    do: form_schema(changeset)
-
-  defp form_schema(_), do: nil
 
   defp system_prompt(ctx) do
     """

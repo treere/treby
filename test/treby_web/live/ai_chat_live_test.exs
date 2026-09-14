@@ -37,7 +37,11 @@ defmodule TrebyWeb.AiChatLiveTest do
   end
 
   defp login(conn, user) do
-    init_test_session(conn, %{"user_id" => user.id, "tenant_id" => user.tenant_id})
+    init_test_session(conn, %{
+      "user_id" => user.id,
+      "tenant_id" => user.tenant_id,
+      "ai_session_token" => "tok-live"
+    })
   end
 
   test "redirects unauthenticated visitors", %{conn: conn} do
@@ -51,8 +55,8 @@ defmodule TrebyWeb.AiChatLiveTest do
 
     {:ok, view, _html} = conn |> login(user) |> live(~p"/#{tenant.slug}/app/ai")
 
-    assert has_element?(view, "#ai-form")
-    assert has_element?(view, "#ai-input")
+    assert has_element?(view, "#ai-form-ai-chat")
+    assert has_element?(view, "#ai-input-ai-chat")
   end
 
   test "history is isolated by tenant", %{conn: conn} do
@@ -78,7 +82,7 @@ defmodule TrebyWeb.AiChatLiveTest do
       |> Job.changeset(%{title: "Delete me", description: "d"})
       |> Repo.insert!()
 
-    conversation = Conversations.get_or_create_conversation(tenant.id, user.id)
+    conversation = Conversations.get_or_create_conversation(tenant.id, user.id, "tok-live")
 
     {:ok, message} =
       Conversations.create_message(conversation, %{role: "assistant", content: "Confirm?"})
@@ -93,7 +97,7 @@ defmodule TrebyWeb.AiChatLiveTest do
     {:ok, view, _html} = conn |> login(user) |> live(~p"/#{tenant.slug}/app/ai")
 
     assert has_element?(view, "#confirm-#{run.id}")
-    render_click(view, "confirm_tool_run", %{"id" => run.id})
+    view |> element("#confirm-#{run.id}") |> render_click()
 
     assert Repo.get(Job, job.id) == nil
   end

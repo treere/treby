@@ -112,4 +112,49 @@ defmodule Treby.AI.ContextTest do
 
     assert Context.build(socket).form_schema == nil
   end
+
+  test "path and query params are read from a non-AI page" do
+    {tenant, user} = tenant_with_user()
+
+    socket = %{
+      view: TrebyWeb.CandidatesLive.Index,
+      assigns: %{
+        current_user: user,
+        current_tenant: tenant,
+        current_membership: %{role: "admin"},
+        current_path: "/#{tenant.slug}/app/candidates",
+        current_params: %{"stage" => "interview"}
+      }
+    }
+
+    ctx = Context.build(socket)
+
+    assert ctx.url == "/#{tenant.slug}/app/candidates"
+    assert ctx.params == %{"stage" => "interview"}
+    assert ctx.page =~ "CandidatesLive.Index"
+  end
+
+  test "form schema is discovered dynamically under any assign key" do
+    {tenant, user} = tenant_with_user()
+
+    changeset =
+      %Job{tenant_id: tenant.id}
+      |> Job.changeset(%{title: "x", description: "y"})
+
+    socket = %{
+      view: TrebyWeb.JobsLive.New,
+      assigns: %{
+        current_user: user,
+        current_tenant: tenant,
+        current_membership: %{role: "admin"},
+        job_form: changeset
+      }
+    }
+
+    ctx = Context.build(socket)
+    field_names = Enum.map(ctx.form_schema["fields"], & &1["name"])
+
+    assert "title" in field_names
+    assert "description" in field_names
+  end
 end

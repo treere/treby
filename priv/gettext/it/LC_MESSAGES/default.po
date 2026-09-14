@@ -17,22 +17,22 @@ msgstr ""
 msgid "Actions"
 msgstr "Azioni"
 
-#: lib/treby_web/components/layouts.ex:160
-#: lib/treby_web/components/layouts.ex:301
+#: lib/treby_web/components/layouts.ex:161
+#: lib/treby_web/components/layouts.ex:302
 #: lib/treby_web/live/analytics_live/index.ex:55
 #: lib/treby_web/live/jobs_live/analytics.ex:92
 #, elixir-autogen, elixir-format
 msgid "Analytics"
 msgstr "Analisi"
 
-#: lib/treby_web/components/layouts.ex:738
-#: lib/treby_web/components/layouts.ex:750
+#: lib/treby_web/components/layouts.ex:748
+#: lib/treby_web/components/layouts.ex:760
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr "Tentativo di riconnessione"
 
-#: lib/treby_web/components/layouts.ex:116
-#: lib/treby_web/components/layouts.ex:263
+#: lib/treby_web/components/layouts.ex:117
+#: lib/treby_web/components/layouts.ex:264
 #: lib/treby_web/live/candidates_live/index.ex:116
 #: lib/treby_web/live/import_live/index.ex:62
 #: lib/treby_web/live/jobs_live/index.ex:130
@@ -41,15 +41,15 @@ msgstr "Tentativo di riconnessione"
 msgid "Candidates"
 msgstr "Candidati"
 
-#: lib/treby_web/components/layouts.ex:149
-#: lib/treby_web/components/layouts.ex:290
+#: lib/treby_web/components/layouts.ex:150
+#: lib/treby_web/components/layouts.ex:291
 #: lib/treby_web/live/interviews_live/index.ex:224
 #, elixir-autogen, elixir-format
 msgid "Interviews"
 msgstr "Colloqui"
 
-#: lib/treby_web/components/layouts.ex:105
-#: lib/treby_web/components/layouts.ex:252
+#: lib/treby_web/components/layouts.ex:106
+#: lib/treby_web/components/layouts.ex:253
 #: lib/treby_web/live/jobs_live/analytics.ex:90
 #: lib/treby_web/live/jobs_live/index.ex:78
 #: lib/treby_web/live/jobs_live/new.ex:82
@@ -65,8 +65,8 @@ msgstr "Offerte di lavoro"
 msgid "Language"
 msgstr "Lingua"
 
-#: lib/treby_web/components/layouts.ex:206
-#: lib/treby_web/components/layouts.ex:342
+#: lib/treby_web/components/layouts.ex:207
+#: lib/treby_web/components/layouts.ex:343
 #, elixir-autogen, elixir-format
 msgid "Logout"
 msgstr "Esci"
@@ -91,27 +91,27 @@ msgstr "Salva"
 msgid "Set your preferred language"
 msgstr "Imposta la tua lingua preferita"
 
-#: lib/treby_web/components/layouts.ex:186
-#: lib/treby_web/components/layouts.ex:327
+#: lib/treby_web/components/layouts.ex:187
+#: lib/treby_web/components/layouts.ex:328
 #: lib/treby_web/live/candidate_portal_live/settings.ex:55
 #: lib/treby_web/live/settings_live/index.ex:37
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: lib/treby_web/components/layouts.ex:745
+#: lib/treby_web/components/layouts.ex:755
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr "Qualcosa è andato storto!"
 
 # Layouts.flash_group
-#: lib/treby_web/components/layouts.ex:733
+#: lib/treby_web/components/layouts.ex:743
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr "Non riusciamo a trovare internet"
 
 #: lib/treby_web/components/core_components.ex:94
-#: lib/treby_web/components/layouts.ex:724
+#: lib/treby_web/components/layouts.ex:734
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr "chiudi"
@@ -413,8 +413,7 @@ msgstr "Torna all'accesso"
 msgid "Body (HTML)"
 msgstr "Corpo (HTML)"
 
-#: lib/treby_web/live/ai_chat_live.ex:183
-#: lib/treby_web/live/ai_chat_live.ex:251
+#: lib/treby_web/components/ai_chat_widget.ex:378
 #: lib/treby_web/live/candidates_live/index.ex:250
 #: lib/treby_web/live/candidates_live/index.ex:643
 #: lib/treby_web/live/interviews_live/index.ex:353
@@ -502,12 +501,12 @@ msgstr "Continua"
 msgid "Could not create account. Email may already be registered."
 msgstr "Impossibile creare l'account. L'email potrebbe essere già registrata."
 
-#: lib/treby_web/controllers/registration_controller.ex:190
+#: lib/treby_web/controllers/registration_controller.ex:191
 #, elixir-autogen, elixir-format
 msgid "Could not create company"
 msgstr "Impossibile creare l'azienda"
 
-#: lib/treby_web/controllers/registration_controller.ex:184
+#: lib/treby_web/controllers/registration_controller.ex:185
 #, elixir-autogen, elixir-format
 msgid "Could not create your account"
 msgstr "Impossibile creare il tuo account"
@@ -752,8 +751,8 @@ msgid "If an account exists with that email, you'll receive a reset link shortly
 msgstr "Se esiste un account con questa email, riceverai a breve un link di "
 "reimpostazione"
 
-#: lib/treby_web/components/layouts.ex:138
-#: lib/treby_web/components/layouts.ex:279
+#: lib/treby_web/components/layouts.ex:139
+#: lib/treby_web/components/layouts.ex:280
 #: lib/treby_web/live/import_live/index.ex:63
 #: lib/treby_web/live/import_live/index.ex:97
 #, elixir-autogen, elixir-format
@@ -790,7 +789,7 @@ msgstr "Importazione completata"
 msgid "Imported"
 msgstr "Importati"
 
-#: lib/treby_web/controllers/session_controller.ex:74
+#: lib/treby_web/controllers/session_controller.ex:78
 #, elixir-autogen, elixir-format
 msgid "Invalid email or password"
 msgstr "Email o password non validi"
@@ -838,7 +837,7 @@ msgstr "Unisciti a %{tenant_name}"
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
-#: lib/treby_web/controllers/session_controller.ex:82
+#: lib/treby_web/controllers/session_controller.ex:86
 #, elixir-autogen, elixir-format
 msgid "Logged out successfully"
 msgstr "Disconnessione riuscita"
@@ -868,8 +867,8 @@ msgstr "Abbina le colonne CSV ai campi dei candidati"
 msgid "Max 10MB, CSV format"
 msgstr "Max 10MB, formato CSV"
 
-#: lib/treby_web/components/layouts.ex:171
-#: lib/treby_web/components/layouts.ex:312
+#: lib/treby_web/components/layouts.ex:172
+#: lib/treby_web/components/layouts.ex:313
 #: lib/treby_web/live/messages_queue_live/index.ex:20
 #, elixir-autogen, elixir-format
 msgid "Message Queue"
@@ -1013,8 +1012,8 @@ msgstr "Note"
 msgid "Notification Preferences"
 msgstr "Preferenze Notifiche"
 
-#: lib/treby_web/components/layouts.ex:606
-#: lib/treby_web/components/layouts.ex:621
+#: lib/treby_web/components/layouts.ex:616
+#: lib/treby_web/components/layouts.ex:631
 #: lib/treby_web/live/notifications_live.ex:75
 #: lib/treby_web/live/settings_live/index.ex:129
 #, elixir-autogen, elixir-format
@@ -1353,9 +1352,9 @@ msgstr "Abbiamo inviato un codice a 6 cifre a"
 msgid "We sent a verification code to %{email}"
 msgstr "Abbiamo inviato un codice di verifica a %{email}"
 
-#: lib/treby_web/controllers/session_controller.ex:58
-#: lib/treby_web/controllers/session_controller.ex:63
-#: lib/treby_web/controllers/session_controller.ex:68
+#: lib/treby_web/controllers/session_controller.ex:62
+#: lib/treby_web/controllers/session_controller.ex:67
+#: lib/treby_web/controllers/session_controller.ex:72
 #, elixir-autogen, elixir-format
 msgid "Welcome back!"
 msgstr "Bentornato!"
@@ -1367,7 +1366,7 @@ msgstr "Bentornato!"
 msgid "Welcome to %{name}!"
 msgstr "Benvenuto in %{name}!"
 
-#: lib/treby_web/controllers/registration_controller.ex:179
+#: lib/treby_web/controllers/registration_controller.ex:180
 #, elixir-autogen, elixir-format
 msgid "Welcome to Treby!"
 msgstr "Benvenuto su Treby!"
@@ -1510,7 +1509,7 @@ msgstr "Clicca qui sotto per unirti a %{tenant}"
 msgid "Create a job posting"
 msgstr "Crea un'offerta di lavoro"
 
-#: lib/treby_web/components/layouts.ex:92
+#: lib/treby_web/components/layouts.ex:93
 #: lib/treby_web/live/choose_tenant_live.ex:54
 #, elixir-autogen, elixir-format
 msgid "Create new company"
@@ -1702,7 +1701,7 @@ msgstr "In attesa di altri"
 msgid "Welcome, %{name}!"
 msgstr "Benvenuto in %{name}!"
 
-#: lib/treby_web/components/layouts.ex:67
+#: lib/treby_web/components/layouts.ex:68
 #, elixir-autogen, elixir-format
 msgid "Workspaces"
 msgstr "Aree di lavoro"
@@ -1760,6 +1759,7 @@ msgstr "Informazioni aggiuntive"
 msgid "All"
 msgstr "Tutti"
 
+#: lib/treby_web/components/ai_chat_widget.ex:298
 #: lib/treby_web/live/candidate_portal_live/index.ex:161
 #: lib/treby_web/live/jobs_live/index.ex:207
 #, elixir-autogen, elixir-format
@@ -2347,8 +2347,8 @@ msgstr "Aggiungi Modello"
 msgid "Timezone"
 msgstr "Fuso orario"
 
-#: lib/treby_web/components/layouts.ex:220
-#: lib/treby_web/components/layouts.ex:469
+#: lib/treby_web/components/layouts.ex:221
+#: lib/treby_web/components/layouts.ex:479
 #, elixir-autogen, elixir-format
 msgid "Toggle navigation"
 msgstr "Apri/chiudi navigazione"
@@ -2774,7 +2774,7 @@ msgstr "Seleziona data e ora"
 msgid "Self-Scheduling"
 msgstr "Self-Scheduling"
 
-#: lib/treby_web/live/ai_chat_live.ex:272
+#: lib/treby_web/components/ai_chat_widget.ex:413
 #: lib/treby_web/live/candidates_live/index.ex:469
 #: lib/treby_web/live/candidates_live/show.ex:990
 #, elixir-autogen, elixir-format
@@ -4090,7 +4090,7 @@ msgstr "Hai già candidato"
 msgid "You have already applied to this position."
 msgstr "Hai già candidato per questa posizione."
 
-#: lib/treby_web/components/layouts.ex:495
+#: lib/treby_web/components/layouts.ex:505
 #, elixir-autogen, elixir-format
 msgid "Close navigation"
 msgstr "Chiudi navigazione"
@@ -4528,7 +4528,7 @@ msgstr "Upload a CSV file to bulk import candidates"
 msgid "User Agent:"
 msgstr "User Agent:"
 
-#: lib/treby_web/components/layouts.ex:718
+#: lib/treby_web/components/layouts.ex:728
 #: lib/treby_web/live/notifications_live.ex:198
 #: lib/treby_web/live/settings_live/audit_log.ex:224
 #, elixir-autogen, elixir-format, fuzzy
@@ -4988,7 +4988,7 @@ msgstr "Colloqui"
 msgid "Invalid retention value"
 msgstr "Invalid retention value"
 
-#: lib/treby_web/components/layouts.ex:629
+#: lib/treby_web/components/layouts.ex:639
 #, elixir-autogen, elixir-format
 msgid "Mark all read"
 msgstr "Mark all read"
@@ -5049,75 +5049,70 @@ msgstr "Mark all read"
 msgid "Search title or body..."
 msgstr "Search title or body..."
 
-#: lib/treby_web/live/ai_chat_live.ex:82
-#, elixir-autogen, elixir-format
-msgid "Action cancelled."
-msgstr "Azione annullata."
-
-#: lib/treby_web/live/ai_chat_live.ex:64
-#, elixir-autogen, elixir-format
-msgid "Action completed."
-msgstr "Azione completata."
-
-#: lib/treby_web/live/ai_chat_live.ex:65
+#: lib/treby_web/components/ai_chat_widget.ex:102
 #, elixir-autogen, elixir-format
 msgid "Action failed."
 msgstr "Azione non riuscita."
 
-#: lib/treby_web/live/ai_chat_live.ex:159
+#: lib/treby_web/components/ai_chat_widget.ex:281
 #, elixir-autogen, elixir-format
 msgid "Ask about jobs, the platform, or the page you are on."
 msgstr "Chiedi dei lavori, della piattaforma o della pagina in cui ti trovi."
 
-#: lib/treby_web/live/ai_chat_live.ex:264
+#: lib/treby_web/components/ai_chat_widget.ex:403
 #, elixir-autogen, elixir-format
 msgid "Ask the assistant..."
 msgstr "Chiedi all'assistente..."
 
-#: lib/treby_web/components/layouts.ex:127
-#: lib/treby_web/components/layouts.ex:270
-#: lib/treby_web/live/ai_chat_live.ex:156
+#: lib/treby_web/components/ai_chat_widget.ex:278
+#: lib/treby_web/components/layouts.ex:128
+#: lib/treby_web/components/layouts.ex:271
+#: lib/treby_web/live/ai_chat_live.ex:6
 #, elixir-autogen, elixir-format
 msgid "Assistant"
 msgstr "Assistente"
 
-#: lib/treby_web/live/ai_chat_live.ex:242
+#: lib/treby_web/components/ai_chat_widget.ex:368
 #, elixir-autogen, elixir-format
 msgid "Confirm"
 msgstr "Conferma"
 
-#: lib/treby_web/live/ai_chat_live.ex:231
+#: lib/treby_web/components/ai_chat_widget.ex:356
 #, elixir-autogen, elixir-format
 msgid "Confirmation required: %{tool}"
 msgstr "Conferma richiesta: %{tool}"
 
-#: lib/treby_web/live/ai_chat_live.ex:168
-#: lib/treby_web/live/ai_chat_live.ex:191
+#: lib/treby_web/components/ai_chat_widget.ex:292
 #, elixir-autogen, elixir-format
 msgid "Reset"
 msgstr "Ricomincia"
 
-#: lib/treby_web/live/ai_chat_live.ex:175
-#, elixir-autogen, elixir-format
-msgid "Start a new conversation? The current one is kept but no longer shown."
-msgstr "Iniziare una nuova conversazione? Quella attuale viene conservata ma non più mostrata."
-
-#: lib/treby_web/live/ai_chat_live.ex:138
+#: lib/treby_web/components/ai_chat_widget.ex:197
 #, elixir-autogen, elixir-format
 msgid "The assistant is currently unavailable. Please try again."
 msgstr "L'assistente al momento non è disponibile. Riprova."
 
-#: lib/treby_web/live/ai_chat_live.ex:135
+#: lib/treby_web/components/ai_chat_widget.ex:194
 #, elixir-autogen, elixir-format
 msgid "The assistant is unavailable: %{message}"
 msgstr "L'assistente non è disponibile: %{message}"
 
-#: lib/treby_web/live/ai_chat_live.ex:132
+#: lib/treby_web/components/ai_chat_widget.ex:191
 #, elixir-autogen, elixir-format
 msgid "The assistant took too many steps. Please try again."
 msgstr "L'assistente ha eseguito troppi passaggi. Riprova."
 
-#: lib/treby_web/live/ai_chat_live.ex:49
+#: lib/treby_web/components/ai_chat_widget.ex:76
 #, elixir-autogen, elixir-format
 msgid "Too many messages. Please wait a moment and retry."
 msgstr "Troppi messaggi. Attendi un momento e riprova."
+
+#: lib/treby_web/components/ai_chat_widget.ex:227
+#, elixir-autogen, elixir-format
+msgid "Toggle assistant"
+msgstr "Attiva/disattiva assistente"
+
+#: lib/treby_web/components/ai_chat_widget.ex:403
+#, elixir-autogen, elixir-format
+msgid "The assistant is answering..."
+msgstr "L'assistente sta rispondendo..."

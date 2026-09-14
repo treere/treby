@@ -1,34 +1,44 @@
 defmodule Treby.AI.Agent do
   @moduledoc """
-  Single blocking agent with a hand-written ReqLLM tool loop.
+  Single streaming agent with a hand-written ReqLLM tool loop.
 
   Read tools run immediately; any destructive tool stops the loop, is stored as
   a `:pending_confirm` run, and waits for the user's explicit confirmation.
-  Responses are not streamed: one broadcast per completed message.
+  Content streams token-by-token over PubSub; the completed reply is persisted
+  and broadcast once.
   """
 
-  alias Treby.AI.{Context, Conversations, Tools}
+  alias Treby.AI.{Conversations, Tools}
 
   require Logger
 
+  @stream_throttle_ms 40
+
   @doc """
   Handle one user message: persist it, run the model loop, and persist/publish
-  the outcome. Returns `{:ok, :complete}` or `{:ok, :pending}` or `{:error, reason}`.
+  the outcome. `ctx` is the map built by `Treby.AI.Context.build/2`.
+  Returns `{:ok, :complete}` or `{:ok, :pending}` or `{:error, reason}`.
   """
-  def chat(socket, text) when is_binary(text) do
+  def chat(ctx, text) when is_map(ctx) and is_binary(text) do
     if String.trim(text) == "" do
       {:error, :empty}
     else
-      ctx = Context.build(socket)
-
       conversation =
-        Conversations.get_or_create_conversation(ctx.tenant_id, ctx.user_id, ctx.session_id)
+        Conversations.get_or_create_conversation(ctx.tenant_id, ctx.user_id, ctx.session_token)
 
       {:ok, _user_message} =
         Conversations.create_message(conversation, %{role: "user", content: text})
 
       messages = build_messages(conversation, ctx)
-      run_loop(conversation, ctx, messages, 0)
+
+      result = run_loop(conversation, ctx, messages, 0)
+
+      case result do
+        {:error, reason} -> broadcast(ctx, {:ai_error, ctx.user_id, reason})
+        _ -> :ok
+      end
+
+      result
     end
   end
 
@@ -65,7 +75,7 @@ defmodule Treby.AI.Agent do
     if iteration > max_iterations() do
       {:error, :too_many_iterations}
     else
-      case complete(messages, conversation) do
+      case complete(messages, conversation, ctx) do
         {:ok, response} ->
           handle_response(response, conversation, ctx, messages, iteration)
 
@@ -175,14 +185,57 @@ defmodule Treby.AI.Agent do
 
   defp decode_args(_), do: %{}
 
-  defp complete(messages, conversation) do
-    ReqLLM.generate_text(
-      model_spec(),
-      messages,
-      [tools: llm_tools()] ++ request_opts(conversation)
-    )
+  defp complete(messages, conversation, ctx) do
+    opts = [tools: llm_tools()] ++ request_opts(conversation)
+
+    case ReqLLM.stream_text(model_spec(), messages, opts) do
+      {:ok, stream_response} ->
+        result =
+          ReqLLM.StreamResponse.process_stream(stream_response,
+            on_result: fn text -> stream_chunk(ctx, text) end
+          )
+
+        # Flush throttled tail chunks before the assistant message is persisted
+        # and broadcast (ai_updated), so the widget never shows a stale
+        # streaming bubble over the already-rendered reply.
+        flush_chunks(ctx)
+        result
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   rescue
     error -> {:error, Exception.message(error)}
+  end
+
+  defp stream_chunk(ctx, text) do
+    now = System.monotonic_time(:millisecond)
+    last = Process.get(:ai_stream_last, 0)
+
+    if now - last >= @stream_throttle_ms do
+      Process.put(:ai_stream_last, now)
+      pending = Process.delete(:ai_stream_pending) || ""
+      broadcast(ctx, {:ai_stream, ctx.user_id, pending <> text})
+    else
+      Process.put(:ai_stream_pending, (Process.get(:ai_stream_pending) || "") <> text)
+    end
+  end
+
+  defp flush_chunks(ctx) do
+    case Process.delete(:ai_stream_pending) do
+      nil -> :ok
+      pending -> broadcast(ctx, {:ai_stream, ctx.user_id, pending})
+    end
+  end
+
+  defp broadcast(ctx, message) do
+    if ctx.tenant_id && ctx.user_id do
+      Phoenix.PubSub.broadcast(
+        Treby.PubSub,
+        Conversations.topic(ctx.tenant_id, ctx.user_id),
+        message
+      )
+    end
   end
 
   defp llm_tools do

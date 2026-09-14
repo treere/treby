@@ -86,4 +86,37 @@ defmodule Treby.AI.ConversationsTest do
 
     assert Conversations.resolve_conversation(tenant_b.id, user_a.id) == nil
   end
+
+  test "same session token resumes the conversation" do
+    {tenant, user} = tenant_with_user()
+
+    first = Conversations.get_or_create_conversation(tenant.id, user.id, "token-a")
+    assert Conversations.resolve_conversation(tenant.id, user.id, "token-a").id == first.id
+    assert Conversations.get_or_create_conversation(tenant.id, user.id, "token-a").id == first.id
+  end
+
+  test "a new session token starts a fresh conversation" do
+    {tenant, user} = tenant_with_user()
+
+    first = Conversations.get_or_create_conversation(tenant.id, user.id, "token-a")
+    second = Conversations.get_or_create_conversation(tenant.id, user.id, "token-b")
+
+    refute second.id == first.id
+    assert Conversations.resolve_conversation(tenant.id, user.id, "token-a").id == first.id
+    assert Conversations.resolve_conversation(tenant.id, user.id, "token-b").id == second.id
+  end
+
+  test "reset creates a newer conversation without deleting prior ones" do
+    {tenant, user} = tenant_with_user()
+
+    old = Conversations.get_or_create_conversation(tenant.id, user.id, "token-a")
+    {:ok, _} = Conversations.create_message(old, %{role: "user", content: "keep me"})
+
+    new = Conversations.reset_conversation(tenant.id, user.id, "token-a")
+
+    refute new.id == old.id
+    assert Repo.get(Treby.AI.Conversation, old.id).id == old.id
+    assert Conversations.list_messages(old) |> Enum.map(& &1.content) == ["keep me"]
+    assert Conversations.resolve_conversation(tenant.id, user.id, "token-a").id == new.id
+  end
 end

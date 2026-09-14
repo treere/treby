@@ -50,7 +50,11 @@ defmodule TrebyWeb.SessionController do
             :ok
         end
 
-        conn = conn |> put_session("user_id", user.id) |> delete_session("tenant_id")
+        conn =
+          conn
+          |> put_session("user_id", user.id)
+          |> delete_session("tenant_id")
+          |> delete_session("ai_session_token")
 
         case tenants do
           [] ->

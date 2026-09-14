@@ -5,6 +5,8 @@ defmodule Treby.AI.AgentTest do
   alias Treby.{Audit, Repo, Tenants}
   alias Treby.Accounts.User
   alias Treby.Jobs.Job
+  alias Treby.Test.AiFormFillServer
+  alias Treby.Test.AiSSE.Server, as: AiSSEServer
 
   defp setup_tenant do
     {:ok, tenant} =
@@ -122,7 +124,7 @@ defmodule Treby.AI.AgentTest do
   test "streams chunks before completion and persists one assistant message" do
     {tenant, user} = setup_tenant()
 
-    {server_pid, port} = Treby.Test.AiSSE.Server.start()
+    {server_pid, port} = AiSSEServer.start()
     on_exit(fn -> Process.exit(server_pid, :shutdown) end)
 
     previous_ai = Application.get_env(:treby, :ai, [])
@@ -168,17 +170,19 @@ defmodule Treby.AI.AgentTest do
   test "propose_form_fill is applied to the host form without confirmation" do
     {tenant, user} = setup_tenant()
 
-    {server_pid, port} = Treby.Test.AiFormFillServer.start()
+    {server_pid, port} = AiFormFillServer.start()
     on_exit(fn -> Process.exit(server_pid, :shutdown) end)
 
     previous_ai = Application.get_env(:treby, :ai, [])
 
-    Application.put_env(:treby, :ai,
-      Keyword.merge(previous_ai, [
+    Application.put_env(
+      :treby,
+      :ai,
+      Keyword.merge(previous_ai,
         base_url: "http://127.0.0.1:#{port}/v1",
         api_key: "test",
         model: "test-model"
-      ])
+      )
     )
 
     on_exit(fn -> Application.put_env(:treby, :ai, previous_ai) end)

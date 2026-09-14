@@ -74,9 +74,10 @@ defmodule Treby.AI.Context do
   defp form_schema(_), do: nil
 
   defp form_assign_key(assigns) when is_map(assigns) do
-    cond do
-      form_from(assigns[:form]) != nil -> :form
-      true -> Enum.find_value(assigns, fn {key, value} -> if form_from(value), do: key end)
+    if form_from(assigns[:form]) != nil do
+      :form
+    else
+      Enum.find_value(assigns, fn {key, value} -> if form_from(value), do: key end)
     end
   end
 
@@ -98,8 +99,9 @@ defmodule Treby.AI.Context do
 
     fields =
       types
-      |> Enum.reject(fn {field, _type} -> field in @internal_form_fields end)
-      |> Enum.reject(fn {_field, type} -> match?({:assoc, _}, type) end)
+      |> Enum.reject(fn {field, type} ->
+        field in @internal_form_fields or match?({:assoc, _}, type)
+      end)
       |> Enum.map(fn {field, type} ->
         %{
           "name" => to_string(field),

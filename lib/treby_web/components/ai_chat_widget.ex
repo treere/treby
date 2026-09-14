@@ -9,7 +9,7 @@ defmodule TrebyWeb.AiChatWidget do
 
   use TrebyWeb, :live_component
 
-  alias Treby.AI.{Agent, Conversations, Tools}
+  alias Treby.AI.{Agent, Conversations, Context, Tools}
 
   @impl true
   def mount(socket) do
@@ -167,7 +167,7 @@ defmodule TrebyWeb.AiChatWidget do
         ai_session_token: current[:ai_session_token] || host[:ai_session_token]
       })
 
-    ctx = Treby.AI.Context.build(%{assigns: assigns, view: assigns[:current_view]})
+    ctx = Context.build(%{assigns: assigns, view: assigns[:current_view]})
     Map.put(ctx, :host_pid, socket.root_pid)
   end
 

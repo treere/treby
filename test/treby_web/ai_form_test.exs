@@ -17,7 +17,9 @@ defmodule TrebyWeb.AIFormTest do
 
   test "merges known fields into the form changeset" do
     socket = %Phoenix.LiveView.Socket{assigns: %{form: form_with(%{})}}
-    updated = AIForm.apply_values(socket, :form, %{"title" => "Senior Elixir", "salary_range" => "60-80k"})
+
+    updated =
+      AIForm.apply_values(socket, :form, %{"title" => "Senior Elixir", "salary_range" => "60-80k"})
 
     assert form_value(updated, :title) == "Senior Elixir"
     assert form_value(updated, :salary_range) == "60-80k"
@@ -30,7 +32,9 @@ defmodule TrebyWeb.AIFormTest do
     assert form_value(updated, :title) == "X"
     assert form_value(updated, :ghost_field) == nil
 
-    no_form = AIForm.apply_values(%Phoenix.LiveView.Socket{assigns: %{}}, :form, %{"title" => "X"})
+    no_form =
+      AIForm.apply_values(%Phoenix.LiveView.Socket{assigns: %{}}, :form, %{"title" => "X"})
+
     assert no_form.assigns == %{}
   end
 end

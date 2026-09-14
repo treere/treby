@@ -70,7 +70,28 @@ defmodule TrebyWeb.Hooks.AiChat do
     {:halt, socket}
   end
 
+  defp handle_info({:ai_apply_form, %{assign_key: key, values: values}}, socket)
+       when is_atom(key) do
+    {:halt, apply_and_notify(socket, key, values)}
+  end
+
+  defp handle_info({:ai_apply_form, values}, socket) when is_map(values) do
+    {:halt, apply_and_notify(socket, :form, values)}
+  end
+
   defp handle_info(_message, socket), do: {:cont, socket}
+
+  defp apply_and_notify(socket, key, values) do
+    case Map.get(socket.assigns, key) do
+      %Phoenix.HTML.Form{source: %Ecto.Changeset{}} ->
+        socket
+        |> TrebyWeb.AIForm.apply_values(key, values)
+        |> Phoenix.LiveView.push_event("ai_form_applied", %{values: values})
+
+      _ ->
+        socket
+    end
+  end
 
   defp query_params(%URI{query: nil}), do: %{}
   defp query_params(%URI{query: query}), do: URI.decode_query(query)

@@ -10,6 +10,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
 
   alias Treby.AI.{Agent, Conversations}
   alias Treby.{Repo, Tenants}
+  alias Treby.Test.AiSSE.Server, as: AiSSEServer
   alias Treby.Accounts.User
 
   defp setup_tenant_with_user do
@@ -100,7 +101,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   test "reply renders exactly once on the assistant page", %{conn: conn} do
     {tenant, user} = setup_tenant_with_user()
 
-    {server_pid, port} = Treby.Test.AiSSE.Server.start()
+    {server_pid, port} = AiSSEServer.start()
     on_exit(fn -> Process.exit(server_pid, :shutdown) end)
 
     previous_ai = Application.get_env(:treby, :ai, [])

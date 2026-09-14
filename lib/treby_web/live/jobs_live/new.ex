@@ -107,7 +107,13 @@ defmodule TrebyWeb.JobsLive.New do
               {gettext("Fill in the offer details. The preview on the right updates live.")}
             </p>
 
-            <.form for={@form} id="job-create-form" phx-change="validate" phx-submit="save">
+            <.form
+              for={@form}
+              id="job-create-form"
+              phx-change="validate"
+              phx-submit="save"
+              phx-hook="AiFormApply"
+            >
               <.input
                 field={@form[:title]}
                 type="text"

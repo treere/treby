@@ -26,6 +26,7 @@ import { hooks as colocatedHooks } from "phoenix-colocated/treby";
 import topbar from "topbar";
 import SortableHook from "./hooks/sortable";
 import AiChatToggle, { AiAutoScroll } from "./hooks/ai_chat";
+import AiFormApply from "./hooks/ai_form_apply";
 
 const csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -38,6 +39,7 @@ const liveSocket = new LiveSocket("/live", Socket, {
     Sortable: SortableHook,
     AiChatToggle: AiChatToggle,
     AiAutoScroll: AiAutoScroll,
+    AiFormApply: AiFormApply,
   },
 });
 

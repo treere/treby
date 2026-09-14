@@ -164,4 +164,39 @@ defmodule Treby.AI.AgentTest do
 
     assert [%{role: "user", content: "ciao"}] = Enum.filter(messages, &(&1.role == "user"))
   end
+
+  test "propose_form_fill is applied to the host form without confirmation" do
+    {tenant, user} = setup_tenant()
+
+    {server_pid, port} = Treby.Test.AiFormFillServer.start()
+    on_exit(fn -> Process.exit(server_pid, :shutdown) end)
+
+    previous_ai = Application.get_env(:treby, :ai, [])
+
+    Application.put_env(:treby, :ai,
+      Keyword.merge(previous_ai, [
+        base_url: "http://127.0.0.1:#{port}/v1",
+        api_key: "test",
+        model: "test-model"
+      ])
+    )
+
+    on_exit(fn -> Application.put_env(:treby, :ai, previous_ai) end)
+
+    ctx = %{
+      tenant_id: tenant.id,
+      user_id: user.id,
+      session_token: "tok-formfill",
+      host_pid: self(),
+      form_assign_key: :form,
+      system_prompt: "You fill forms."
+    }
+
+    assert {:ok, :complete} = Agent.chat(ctx, "fill the job form")
+
+    assert_receive {:ai_apply_form, %{assign_key: :form, values: %{"title" => "X"}}}, 5_000
+
+    conversation = Conversations.resolve_conversation(tenant.id, user.id, "tok-formfill")
+    assert Conversations.list_pending_tool_runs(conversation) == []
+  end
 end

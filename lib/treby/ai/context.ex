@@ -37,6 +37,7 @@ defmodule Treby.AI.Context do
       params: assigns[:current_params] || %{},
       assigns_snapshot: snapshot(assigns),
       form_schema: form_schema(assigns),
+      form_assign_key: form_assign_key(assigns),
       session_token: assigns[:ai_session_token]
     }
 
@@ -64,10 +65,22 @@ defmodule Treby.AI.Context do
   defp scalar(_), do: :error
 
   defp form_schema(assigns) when is_map(assigns) do
-    Enum.find_value(assigns, fn {_key, value} -> form_from(value) end)
+    case form_from(assigns[:form]) do
+      nil -> Enum.find_value(assigns, fn {_key, value} -> form_from(value) end)
+      schema -> schema
+    end
   end
 
   defp form_schema(_), do: nil
+
+  defp form_assign_key(assigns) when is_map(assigns) do
+    cond do
+      form_from(assigns[:form]) != nil -> :form
+      true -> Enum.find_value(assigns, fn {key, value} -> if form_from(value), do: key end)
+    end
+  end
+
+  defp form_assign_key(_), do: nil
 
   defp form_from(%Ecto.Changeset{} = changeset), do: changeset_schema(changeset)
 
@@ -76,22 +89,34 @@ defmodule Treby.AI.Context do
 
   defp form_from(_), do: nil
 
+  @internal_form_fields ~w(id tenant_id inserted_at updated_at created_at __meta__)a
+
   defp changeset_schema(changeset) do
     structure = Map.from_struct(changeset)
     types = Map.get(structure, :types, %{})
     required = Map.get(structure, :required, [])
-    fields = Map.keys(types)
 
-    %{
-      "fields" =>
-        Enum.map(fields, fn field ->
-          %{
-            "name" => to_string(field),
-            "type" => inspect(Map.get(types, field)),
-            "required" => field in required
-          }
-        end)
-    }
+    fields =
+      types
+      |> Enum.reject(fn {field, _type} -> field in @internal_form_fields end)
+      |> Enum.reject(fn {_field, type} -> match?({:assoc, _}, type) end)
+      |> Enum.map(fn {field, type} ->
+        %{
+          "name" => to_string(field),
+          "type" => inspect(type),
+          "required" => field in required,
+          "value" => value_for(changeset, field)
+        }
+      end)
+
+    %{"fields" => fields}
+  end
+
+  defp value_for(changeset, field) do
+    case Ecto.Changeset.get_field(changeset, field) do
+      nil -> ""
+      value -> value
+    end
   end
 
   defp system_prompt(ctx) do
@@ -103,10 +128,24 @@ defmodule Treby.AI.Context do
     Current workspace: #{ctx.tenant_id}. Always operate on this workspace; never
     ask for or accept a tenant id from the conversation.
     Current page: #{ctx.page} (#{ctx.url || "unknown"}).
-
+    #{form_section(ctx.form_schema)}
     Use the provided tools when an action is needed. Read tools run immediately;
     any tool that writes requires the user's explicit per-item confirmation and
     is never executed by you directly. Keep replies concise and in markdown.
     """
+  end
+
+  defp form_section(nil), do: ""
+
+  defp form_section(%{"fields" => fields}) do
+    lines =
+      Enum.map_join(fields, "\n", fn field ->
+        value = field["value"]
+        value_note = if value == "" or is_nil(value), do: "", else: ": #{inspect(value)}"
+
+        "- #{field["name"]} (#{field["type"]})#{if field["required"], do: " *required*"}\n  current value: #{value_note}"
+      end)
+
+    "Form being edited (fields available to propose_form_fill):\n#{lines}"
   end
 end

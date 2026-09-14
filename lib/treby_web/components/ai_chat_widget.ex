@@ -167,7 +167,8 @@ defmodule TrebyWeb.AiChatWidget do
         ai_session_token: current[:ai_session_token] || host[:ai_session_token]
       })
 
-    Treby.AI.Context.build(%{assigns: assigns, view: assigns[:current_view]})
+    ctx = Treby.AI.Context.build(%{assigns: assigns, view: assigns[:current_view]})
+    Map.put(ctx, :host_pid, socket.root_pid)
   end
 
   defp host(socket) do
@@ -374,6 +375,7 @@ defmodule TrebyWeb.AiChatWidget do
             <pre class="mt-2 text-xs text-amber-900 dark:text-amber-100 overflow-x-auto">{Jason.encode!(run.args, pretty: true)}</pre>
             <div class="mt-3 flex gap-2">
               <button
+                :if={run.tool != "propose_form_fill"}
                 type="button"
                 id={"confirm-" <> run.id}
                 phx-target={@myself}

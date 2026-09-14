@@ -110,7 +110,9 @@ defmodule Treby.AI.Agent do
   defp append_reads(messages, response, calls, ctx) do
     results =
       Enum.map(calls, fn call ->
-        ReqLLM.Context.tool_result(call.id, call.name, read_result(call, ctx))
+        result = read_result(call, ctx)
+        maybe_apply_form(call, ctx)
+        ReqLLM.Context.tool_result(call.id, call.name, result)
       end)
 
     case ReqLLM.Context.append_tool_exchange(messages, response, results) do
@@ -118,6 +120,14 @@ defmodule Treby.AI.Agent do
       {:error, _} -> messages
     end
   end
+
+  defp maybe_apply_form(%{name: "propose_form_fill"} = call, %{host_pid: pid} = ctx)
+       when is_pid(pid) do
+    values = decode_args(call.arguments)["values"] || %{}
+    send(pid, {:ai_apply_form, %{assign_key: ctx.form_assign_key, values: values}})
+  end
+
+  defp maybe_apply_form(_, _), do: :ok
 
   defp read_result(call, ctx) do
     case Tools.get(call.name) do

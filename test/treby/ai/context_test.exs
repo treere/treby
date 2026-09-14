@@ -157,4 +157,55 @@ defmodule Treby.AI.ContextTest do
     assert "title" in field_names
     assert "description" in field_names
   end
+
+  test "the main :form assign wins over other changesets in scope" do
+    {tenant, user} = tenant_with_user()
+
+    page_form =
+      Phoenix.Component.to_form(Ecto.Changeset.change(%Job{tenant_id: tenant.id}, %{title: "t"}))
+
+    other_changeset = Ecto.Changeset.change(%Treby.Candidates.Candidate{}, %{email: "x@y.z"})
+
+    socket = %{
+      view: TrebyWeb.PipelineLive.Index,
+      assigns: %{
+        current_user: user,
+        current_tenant: tenant,
+        current_membership: %{role: "admin"},
+        form: page_form,
+        new_stage_changeset: other_changeset
+      }
+    }
+
+    ctx = Context.build(socket)
+    field_names = Enum.map(ctx.form_schema["fields"], & &1["name"])
+
+    assert "title" in field_names
+    refute "email" in field_names
+  end
+
+  test "form fields are listed in the system prompt so the model sees them" do
+    {tenant, user} = tenant_with_user()
+
+    changeset =
+      %Job{tenant_id: tenant.id}
+      |> Job.changeset(%{title: "x", description: "y"})
+
+    socket = %{
+      view: TrebyWeb.JobsLive.New,
+      assigns: %{
+        current_user: user,
+        current_tenant: tenant,
+        current_membership: %{role: "admin"},
+        form: changeset
+      }
+    }
+
+    ctx = Context.build(socket)
+
+    assert ctx.system_prompt =~ "Form being edited"
+    assert ctx.system_prompt =~ "- title"
+    assert ctx.system_prompt =~ "propose_form_fill"
+    assert ctx.system_prompt =~ "*required*"
+  end
 end

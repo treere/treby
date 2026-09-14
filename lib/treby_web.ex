@@ -54,6 +54,20 @@ defmodule TrebyWeb do
 
       import TrebyWeb.Hooks.SetLocale, only: [set_locale_from_session: 2]
 
+      @impl Phoenix.LiveView
+      def handle_info({:ai_apply_form, %{assign_key: key, values: values}}, socket)
+          when is_atom(key) do
+        values
+        |> IO.inspect(label: :QUA)
+        {:noreply, TrebyWeb.AIForm.apply_values(socket, key, values)}
+      end
+
+      def handle_info({:ai_apply_form, values}, socket) when is_map(values) do
+        values 
+        |> IO.inspect(label: :QUI)
+        {:noreply, TrebyWeb.AIForm.apply_values(socket, :form, values)}
+      end
+
       unquote(html_helpers())
     end
   end

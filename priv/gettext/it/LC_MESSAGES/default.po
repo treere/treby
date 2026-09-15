@@ -413,12 +413,12 @@ msgstr "Torna all'accesso"
 msgid "Body (HTML)"
 msgstr "Corpo (HTML)"
 
-#: lib/treby_web/components/ai_chat_widget.ex:378
+#: lib/treby_web/components/ai_chat_widget.ex:396
 #: lib/treby_web/live/candidates_live/index.ex:250
 #: lib/treby_web/live/candidates_live/index.ex:643
 #: lib/treby_web/live/interviews_live/index.ex:353
 #: lib/treby_web/live/interviews_live/index.ex:388
-#: lib/treby_web/live/jobs_live/new.ex:250
+#: lib/treby_web/live/jobs_live/new.ex:256
 #: lib/treby_web/live/jobs_live/show.ex:229
 #: lib/treby_web/live/jobs_live/show.ex:641
 #: lib/treby_web/live/jobs_live/show.ex:677
@@ -1253,7 +1253,7 @@ msgstr "Inizia inserendo il tuo indirizzo email"
 
 #: lib/treby_web/live/import_live/index.ex:223
 #: lib/treby_web/live/jobs_live/index.ex:121
-#: lib/treby_web/live/jobs_live/new.ex:177
+#: lib/treby_web/live/jobs_live/new.ex:183
 #: lib/treby_web/live/jobs_live/show.ex:164
 #: lib/treby_web/live/jobs_live/show.ex:270
 #, elixir-autogen, elixir-format
@@ -1748,7 +1748,7 @@ msgstr "%{count} ultimi 7 giorni"
 
 #: lib/treby_web/live/candidates_live/index.ex:199
 #: lib/treby_web/live/careers_live/apply.ex:149
-#: lib/treby_web/live/jobs_live/new.ex:211
+#: lib/treby_web/live/jobs_live/new.ex:217
 #, elixir-autogen, elixir-format
 msgid "Additional Information"
 msgstr "Informazioni aggiuntive"
@@ -1759,7 +1759,7 @@ msgstr "Informazioni aggiuntive"
 msgid "All"
 msgstr "Tutti"
 
-#: lib/treby_web/components/ai_chat_widget.ex:298
+#: lib/treby_web/components/ai_chat_widget.ex:305
 #: lib/treby_web/live/candidate_portal_live/index.ex:161
 #: lib/treby_web/live/jobs_live/index.ex:207
 #, elixir-autogen, elixir-format
@@ -1767,8 +1767,8 @@ msgid "Close"
 msgstr "Chiudi"
 
 #: lib/treby_web/live/jobs_live/index.ex:106
-#: lib/treby_web/live/jobs_live/new.ex:178
-#: lib/treby_web/live/jobs_live/new.ex:284
+#: lib/treby_web/live/jobs_live/new.ex:184
+#: lib/treby_web/live/jobs_live/new.ex:290
 #, elixir-autogen, elixir-format
 msgid "Closed"
 msgstr "Chiusi"
@@ -1778,7 +1778,7 @@ msgstr "Chiusi"
 msgid "Default pipeline"
 msgstr "Predefinito"
 
-#: lib/treby_web/live/jobs_live/new.ex:120
+#: lib/treby_web/live/jobs_live/new.ex:126
 #: lib/treby_web/live/jobs_live/show.ex:132
 #: lib/treby_web/live/jobs_live/show.ex:238
 #, elixir-autogen, elixir-format
@@ -1795,7 +1795,7 @@ msgstr "Aggiornamento stato offerta non riuscito"
 msgid "Failed to update visibility"
 msgstr "Aggiornamento visibilità non riuscito"
 
-#: lib/treby_web/live/jobs_live/new.ex:465
+#: lib/treby_web/live/jobs_live/new.ex:471
 #, elixir-autogen, elixir-format
 msgid "Job created successfully"
 msgstr "Offerta creata con successo"
@@ -1819,13 +1819,13 @@ msgstr "Ancora nessuna visualizzazione"
 
 #: lib/treby_web/live/analytics_live/index.ex:105
 #: lib/treby_web/live/jobs_live/index.ex:99
-#: lib/treby_web/live/jobs_live/new.ex:178
+#: lib/treby_web/live/jobs_live/new.ex:184
 #, elixir-autogen, elixir-format
 msgid "Open"
 msgstr "Aperti"
 
 #: lib/treby_web/live/jobs_live/index.ex:194
-#: lib/treby_web/live/jobs_live/new.ex:169
+#: lib/treby_web/live/jobs_live/new.ex:175
 #: lib/treby_web/live/jobs_live/show.ex:171
 #: lib/treby_web/live/jobs_live/show.ex:482
 #, elixir-autogen, elixir-format
@@ -1833,7 +1833,7 @@ msgid "Pipeline"
 msgstr "Pipeline"
 
 #: lib/treby_web/live/candidates_live/index.ex:700
-#: lib/treby_web/live/jobs_live/new.ex:457
+#: lib/treby_web/live/jobs_live/new.ex:463
 #: lib/treby_web/live/jobs_live/show.ex:1166
 #, elixir-autogen, elixir-format
 msgid "Please fill in required fields: %{fields}"
@@ -1843,7 +1843,7 @@ msgstr "Compila i campi obbligatori: %{fields}"
 #: lib/treby_web/live/candidates_live/show.ex:1076
 #: lib/treby_web/live/candidates_live/show.ex:1142
 #: lib/treby_web/live/careers_live/apply.ex:310
-#: lib/treby_web/live/jobs_live/new.ex:476
+#: lib/treby_web/live/jobs_live/new.ex:482
 #: lib/treby_web/live/jobs_live/show.ex:1184
 #: lib/treby_web/live/jobs_live/show.ex:1293
 #: lib/treby_web/live/settings_live/availability.ex:301
@@ -1860,16 +1860,16 @@ msgid "Please review the errors below"
 msgstr "Controlla gli errori qui sotto"
 
 #: lib/treby_web/live/jobs_live/index.ex:169
-#: lib/treby_web/live/jobs_live/new.ex:186
-#: lib/treby_web/live/jobs_live/new.ex:291
+#: lib/treby_web/live/jobs_live/new.ex:192
+#: lib/treby_web/live/jobs_live/new.ex:297
 #, elixir-autogen, elixir-format
 msgid "Private"
 msgstr "Privata"
 
 #: lib/treby_web/live/jobs_live/index.ex:124
 #: lib/treby_web/live/jobs_live/index.ex:169
-#: lib/treby_web/live/jobs_live/new.ex:186
-#: lib/treby_web/live/jobs_live/new.ex:298
+#: lib/treby_web/live/jobs_live/new.ex:192
+#: lib/treby_web/live/jobs_live/new.ex:304
 #, elixir-autogen, elixir-format
 msgid "Public"
 msgstr "Pubblica"
@@ -1884,7 +1884,7 @@ msgstr "Riapri"
 msgid "Salary"
 msgstr "Stipendio"
 
-#: lib/treby_web/live/jobs_live/new.ex:130
+#: lib/treby_web/live/jobs_live/new.ex:136
 #: lib/treby_web/live/jobs_live/show.ex:136
 #: lib/treby_web/live/jobs_live/show.ex:248
 #, elixir-autogen, elixir-format
@@ -1892,7 +1892,7 @@ msgid "Salary Range"
 msgstr "Fascia salariale"
 
 #: lib/treby_web/live/jobs_live/index.ex:115
-#: lib/treby_web/live/jobs_live/new.ex:114
+#: lib/treby_web/live/jobs_live/new.ex:120
 #: lib/treby_web/live/jobs_live/show.ex:131
 #, elixir-autogen, elixir-format
 msgid "Title"
@@ -2774,7 +2774,7 @@ msgstr "Seleziona data e ora"
 msgid "Self-Scheduling"
 msgstr "Self-Scheduling"
 
-#: lib/treby_web/components/ai_chat_widget.ex:413
+#: lib/treby_web/components/ai_chat_widget.ex:436
 #: lib/treby_web/live/candidates_live/index.ex:469
 #: lib/treby_web/live/candidates_live/show.ex:990
 #, elixir-autogen, elixir-format
@@ -3963,7 +3963,7 @@ msgid "Applied ✓"
 msgstr "Si applica a"
 
 #: lib/treby_web/live/careers_live/show.ex:201
-#: lib/treby_web/live/jobs_live/new.ex:381
+#: lib/treby_web/live/jobs_live/new.ex:387
 #, elixir-autogen, elixir-format
 msgid "Apply Now"
 msgstr "Candidati ora"
@@ -3974,7 +3974,7 @@ msgstr "Candidati ora"
 msgid "Careers"
 msgstr "Posizioni aperte"
 
-#: lib/treby_web/live/jobs_live/new.ex:148
+#: lib/treby_web/live/jobs_live/new.ex:154
 #: lib/treby_web/live/jobs_live/show.ex:145
 #, elixir-autogen, elixir-format
 msgid "Contract"
@@ -3985,45 +3985,45 @@ msgstr "Contratto"
 msgid "Discover"
 msgstr "Scopri"
 
-#: lib/treby_web/live/jobs_live/new.ex:144
+#: lib/treby_web/live/jobs_live/new.ex:150
 #: lib/treby_web/live/jobs_live/show.ex:141
 #: lib/treby_web/live/jobs_live/show.ex:258
 #, elixir-autogen, elixir-format
 msgid "Employment Type"
 msgstr "Tipo di contratto"
 
-#: lib/treby_web/live/jobs_live/new.ex:146
+#: lib/treby_web/live/jobs_live/new.ex:152
 #: lib/treby_web/live/jobs_live/show.ex:143
 #, elixir-autogen, elixir-format
 msgid "Full-time"
 msgstr "Tempo pieno"
 
-#: lib/treby_web/live/jobs_live/new.ex:160
+#: lib/treby_web/live/jobs_live/new.ex:166
 #: lib/treby_web/live/jobs_live/show.ex:156
 #, elixir-autogen, elixir-format
 msgid "Hybrid"
 msgstr "Ibrido"
 
-#: lib/treby_web/live/jobs_live/new.ex:149
+#: lib/treby_web/live/jobs_live/new.ex:155
 #: lib/treby_web/live/jobs_live/show.ex:146
 #, elixir-autogen, elixir-format
 msgid "Internship"
 msgstr "Tirocinio"
 
-#: lib/treby_web/live/jobs_live/new.ex:137
+#: lib/treby_web/live/jobs_live/new.ex:143
 #: lib/treby_web/live/jobs_live/show.ex:137
 #: lib/treby_web/live/jobs_live/show.ex:254
 #, elixir-autogen, elixir-format
 msgid "Location"
 msgstr "Sede"
 
-#: lib/treby_web/live/jobs_live/new.ex:159
+#: lib/treby_web/live/jobs_live/new.ex:165
 #: lib/treby_web/live/jobs_live/show.ex:155
 #, elixir-autogen, elixir-format
 msgid "On-site"
 msgstr "In sede"
 
-#: lib/treby_web/live/jobs_live/new.ex:147
+#: lib/treby_web/live/jobs_live/new.ex:153
 #: lib/treby_web/live/jobs_live/show.ex:144
 #, elixir-autogen, elixir-format
 msgid "Part-time"
@@ -4039,7 +4039,7 @@ msgstr "Pubblicato"
 msgid "Prefilled from your portal profile — you can edit before submitting."
 msgstr "Precompilato dal tuo profilo portale — puoi modificare prima di inviare."
 
-#: lib/treby_web/live/jobs_live/new.ex:161
+#: lib/treby_web/live/jobs_live/new.ex:167
 #: lib/treby_web/live/jobs_live/show.ex:157
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Remote"
@@ -4058,7 +4058,7 @@ msgstr "Vedi la tua candidatura"
 msgid "View other positions"
 msgstr "Vedi altre posizioni"
 
-#: lib/treby_web/live/jobs_live/new.ex:157
+#: lib/treby_web/live/jobs_live/new.ex:163
 #: lib/treby_web/live/jobs_live/show.ex:153
 #: lib/treby_web/live/jobs_live/show.ex:264
 #, elixir-autogen, elixir-format, fuzzy
@@ -4619,7 +4619,7 @@ msgstr "Mostra password"
 msgid "Pipeline renamed"
 msgstr "Pipeline rinominata"
 
-#: lib/treby_web/live/jobs_live/new.ex:124
+#: lib/treby_web/live/jobs_live/new.ex:130
 #: lib/treby_web/live/jobs_live/show.ex:134
 #: lib/treby_web/live/settings_live/branding.ex:122
 #, elixir-autogen, elixir-format
@@ -4670,7 +4670,7 @@ msgstr "Aggiunta in corso..."
 #: lib/treby_web/controllers/invite_html/show.html.heex:152
 #: lib/treby_web/controllers/registration_html/setup.html.heex:90
 #: lib/treby_web/live/choose_tenant_live.ex:65
-#: lib/treby_web/live/jobs_live/new.ex:241
+#: lib/treby_web/live/jobs_live/new.ex:247
 #: lib/treby_web/live/settings_live/pipeline.ex:84
 #, elixir-autogen, elixir-format
 msgid "Creating..."
@@ -4814,22 +4814,22 @@ msgstr "Verifica in corso..."
 msgid "Views will appear here grouped by month"
 msgstr "Le visualizzazioni appariranno qui raggruppate per mese"
 
-#: lib/treby_web/live/jobs_live/new.ex:262
+#: lib/treby_web/live/jobs_live/new.ex:268
 #, elixir-autogen, elixir-format
 msgid "As candidates will see it"
 msgstr "As candidates will see it"
 
-#: lib/treby_web/live/jobs_live/new.ex:193
+#: lib/treby_web/live/jobs_live/new.ex:199
 #, elixir-autogen, elixir-format
 msgid "Closed jobs are private and hidden from public boards."
 msgstr "Closed jobs are private and hidden from public boards."
 
-#: lib/treby_web/live/jobs_live/new.ex:321
+#: lib/treby_web/live/jobs_live/new.ex:327
 #, elixir-autogen, elixir-format
 msgid "Company • via Treby career page"
 msgstr "Company • via Treby career page"
 
-#: lib/treby_web/live/jobs_live/new.ex:242
+#: lib/treby_web/live/jobs_live/new.ex:248
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Create job"
 msgstr "Crea offerta"
@@ -4839,7 +4839,7 @@ msgstr "Crea offerta"
 msgid "Fill in the offer details. The preview on the right updates live."
 msgstr "Fill in the offer details. The preview on the right updates live."
 
-#: lib/treby_web/live/jobs_live/new.ex:365
+#: lib/treby_web/live/jobs_live/new.ex:371
 #, elixir-autogen, elixir-format
 msgid "Job description will appear here. Supports Markdown."
 msgstr "Job description will appear here. Supports Markdown."
@@ -4849,42 +4849,42 @@ msgstr "Job description will appear here. Supports Markdown."
 msgid "Job details"
 msgstr "Dettagli"
 
-#: lib/treby_web/live/jobs_live/new.ex:328
+#: lib/treby_web/live/jobs_live/new.ex:334
 #, elixir-autogen, elixir-format
 msgid "Job title preview"
 msgstr "Job title preview"
 
-#: lib/treby_web/live/jobs_live/new.ex:382
+#: lib/treby_web/live/jobs_live/new.ex:388
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Position closed"
 msgstr "Posizione"
 
-#: lib/treby_web/live/jobs_live/new.ex:388
+#: lib/treby_web/live/jobs_live/new.ex:394
 #, elixir-autogen, elixir-format
 msgid "Preview updates as you type. Markdown is rendered as on the public page."
 msgstr "Preview updates as you type. Markdown is rendered as on the public page."
 
-#: lib/treby_web/live/jobs_live/new.ex:313
+#: lib/treby_web/live/jobs_live/new.ex:319
 #, elixir-autogen, elixir-format
 msgid "Private — only reachable via direct link, not listed on career pages."
 msgstr "Private — only reachable via direct link, not listed on career pages."
 
-#: lib/treby_web/live/jobs_live/new.ex:199
+#: lib/treby_web/live/jobs_live/new.ex:205
 #, elixir-autogen, elixir-format
 msgid "Public jobs appear on career pages. Private jobs are only reachable via direct link."
 msgstr "Public jobs appear on career pages. Private jobs are only reachable via direct link."
 
-#: lib/treby_web/live/jobs_live/new.ex:260
+#: lib/treby_web/live/jobs_live/new.ex:266
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Public preview"
 msgstr "Pubblica"
 
-#: lib/treby_web/live/jobs_live/new.ex:307
+#: lib/treby_web/live/jobs_live/new.ex:313
 #, elixir-autogen, elixir-format
 msgid "This position is closed and will be hidden from public career pages."
 msgstr "This position is closed and will be hidden from public career pages."
 
-#: lib/treby_web/live/jobs_live/new.ex:185
+#: lib/treby_web/live/jobs_live/new.ex:191
 #, elixir-autogen, elixir-format
 msgid "Visibility"
 msgstr "Visibility"
@@ -5054,17 +5054,17 @@ msgstr "Search title or body..."
 msgid "Action failed."
 msgstr "Azione non riuscita."
 
-#: lib/treby_web/components/ai_chat_widget.ex:281
+#: lib/treby_web/components/ai_chat_widget.ex:288
 #, elixir-autogen, elixir-format
 msgid "Ask about jobs, the platform, or the page you are on."
 msgstr "Chiedi dei lavori, della piattaforma o della pagina in cui ti trovi."
 
-#: lib/treby_web/components/ai_chat_widget.ex:403
+#: lib/treby_web/components/ai_chat_widget.ex:424
 #, elixir-autogen, elixir-format
 msgid "Ask the assistant..."
 msgstr "Chiedi all'assistente..."
 
-#: lib/treby_web/components/ai_chat_widget.ex:278
+#: lib/treby_web/components/ai_chat_widget.ex:285
 #: lib/treby_web/components/layouts.ex:128
 #: lib/treby_web/components/layouts.ex:271
 #: lib/treby_web/live/ai_chat_live.ex:6
@@ -5072,32 +5072,32 @@ msgstr "Chiedi all'assistente..."
 msgid "Assistant"
 msgstr "Assistente"
 
-#: lib/treby_web/components/ai_chat_widget.ex:368
+#: lib/treby_web/components/ai_chat_widget.ex:386
 #, elixir-autogen, elixir-format
 msgid "Confirm"
 msgstr "Conferma"
 
-#: lib/treby_web/components/ai_chat_widget.ex:356
+#: lib/treby_web/components/ai_chat_widget.ex:373
 #, elixir-autogen, elixir-format
 msgid "Confirmation required: %{tool}"
 msgstr "Conferma richiesta: %{tool}"
 
-#: lib/treby_web/components/ai_chat_widget.ex:292
+#: lib/treby_web/components/ai_chat_widget.ex:299
 #, elixir-autogen, elixir-format
 msgid "Reset"
 msgstr "Ricomincia"
 
-#: lib/treby_web/components/ai_chat_widget.ex:197
+#: lib/treby_web/components/ai_chat_widget.ex:204
 #, elixir-autogen, elixir-format
 msgid "The assistant is currently unavailable. Please try again."
 msgstr "L'assistente al momento non è disponibile. Riprova."
 
-#: lib/treby_web/components/ai_chat_widget.ex:194
+#: lib/treby_web/components/ai_chat_widget.ex:201
 #, elixir-autogen, elixir-format
 msgid "The assistant is unavailable: %{message}"
 msgstr "L'assistente non è disponibile: %{message}"
 
-#: lib/treby_web/components/ai_chat_widget.ex:191
+#: lib/treby_web/components/ai_chat_widget.ex:198
 #, elixir-autogen, elixir-format
 msgid "The assistant took too many steps. Please try again."
 msgstr "L'assistente ha eseguito troppi passaggi. Riprova."
@@ -5107,12 +5107,12 @@ msgstr "L'assistente ha eseguito troppi passaggi. Riprova."
 msgid "Too many messages. Please wait a moment and retry."
 msgstr "Troppi messaggi. Attendi un momento e riprova."
 
-#: lib/treby_web/components/ai_chat_widget.ex:227
+#: lib/treby_web/components/ai_chat_widget.ex:234
 #, elixir-autogen, elixir-format
 msgid "Toggle assistant"
 msgstr "Attiva/disattiva assistente"
 
-#: lib/treby_web/components/ai_chat_widget.ex:403
+#: lib/treby_web/components/ai_chat_widget.ex:423
 #, elixir-autogen, elixir-format
 msgid "The assistant is answering..."
 msgstr "L'assistente sta rispondendo..."

@@ -42,9 +42,11 @@ defmodule TrebyWeb.Router do
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
         {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.AiChat, :default},
         {TrebyWeb.Hooks.Notifications, :default}
       ] do
       live "/", DashboardLive
+      live "/ai", AiChatLive
       live "/jobs", JobsLive.Index
       live "/jobs/new", JobsLive.New
       live "/jobs/:id/analytics", JobsLive.Analytics
@@ -68,6 +70,7 @@ defmodule TrebyWeb.Router do
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
         {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.AiChat, :default},
         {TrebyWeb.Hooks.Notifications, :default},
         {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
       ] do
@@ -95,9 +98,11 @@ defmodule TrebyWeb.Router do
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
         {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.AiChat, :default},
         {TrebyWeb.Hooks.Notifications, :default}
       ] do
       live "/", DashboardLive
+      live "/ai", AiChatLive
       live "/jobs", JobsLive.Index
       live "/jobs/new", JobsLive.New
       live "/jobs/:id/analytics", JobsLive.Analytics
@@ -121,6 +126,7 @@ defmodule TrebyWeb.Router do
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
         {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.AiChat, :default},
         {TrebyWeb.Hooks.Notifications, :default},
         {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
       ] do

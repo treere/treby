@@ -38,6 +38,7 @@ defmodule TrebyWeb.Layouts do
   attr :current_tenant, :map, default: nil
   attr :available_tenants, :list, default: []
   attr :current_membership, :map, default: nil
+  attr :assistant, :boolean, default: true
 
   slot :inner_block, required: true
 
@@ -114,6 +115,17 @@ defmodule TrebyWeb.Layouts do
                   class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Candidates")}
+                </.link>
+                <.link
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/ai",
+                      else: ~p"/app/ai"
+                  }
+                  data-nav="/app/ai"
+                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  {gettext("Assistant")}
                 </.link>
                 <.link
                   navigate={
@@ -252,6 +264,13 @@ defmodule TrebyWeb.Layouts do
               {gettext("Candidates")}
             </.link>
             <.link
+              navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app/ai", else: ~p"/app/ai"}
+              data-nav="/app/ai"
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            >
+              {gettext("Assistant")}
+            </.link>
+            <.link
               navigate={
                 if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
               }
@@ -330,6 +349,15 @@ defmodule TrebyWeb.Layouts do
       <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {render_slot(@inner_block)}
       </main>
+
+      <.live_component
+        :if={@assistant && (assigns[:current_user] || @current_scope)}
+        module={TrebyWeb.AiChatWidget}
+        id="ai-chat"
+        variant={:floating}
+        current_user={assigns[:current_user] || @current_scope}
+        current_tenant={@current_tenant}
+      />
     </div>
 
     <.flash_group flash={@flash} notification_toast={assigns[:notification_toast]} />

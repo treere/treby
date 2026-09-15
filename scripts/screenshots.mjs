@@ -297,6 +297,7 @@ const screenshotDefs = [
     ? [{ name: "41-schedule-page", url: () => `${BASE_URL}/${tenant}/app/schedule/${seedIds.firstApp}`, auth: true }]
     : []),
   { name: "42-portal-verify", url: () => `${BASE_URL}/${tenant}/portal/verify` },
+  { name: "44-ai-assistant", url: () => `${BASE_URL}/${tenant}/app/ai`, auth: true },
 
   // Workspace switching (multi user)
   { name: "27-workspace-picker", url: () => `${BASE_URL}/choose-tenant`, auth: "multi" },

@@ -28,8 +28,20 @@ defmodule TrebyWeb.Plugs.Auth do
 
           user ->
             conn
+            |> ensure_ai_session_token()
             |> assign(:current_user, user)
         end
     end
+  end
+
+  defp ensure_ai_session_token(conn) do
+    case get_session(conn, "ai_session_token") do
+      nil -> put_session(conn, "ai_session_token", new_token())
+      _existing -> conn
+    end
+  end
+
+  defp new_token do
+    :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
   end
 end

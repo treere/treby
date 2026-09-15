@@ -127,7 +127,7 @@ defmodule TrebyWeb.JobsLive.Show do
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Edit Job")}
           </h2>
-          <.form for={@form} id="job-edit-form" phx-submit="update_job">
+          <.form for={@form} id="job-edit-form" phx-submit="update_job" phx-hook="AiFormApply">
             <.input field={@form[:title]} type="text" label={gettext("Title")} />
             <.input field={@form[:description]} type="textarea" label={gettext("Description")} />
             <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">

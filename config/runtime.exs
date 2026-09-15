@@ -38,6 +38,18 @@ end
 # S3 bucket for uploads (S3_BUCKET takes precedence, TREBY_S3_BUCKET as fallback)
 config :treby, :s3_bucket, Env.env("S3_BUCKET") || Env.env("TREBY_S3_BUCKET") || "treby-uploads"
 
+# AI assistant runtime overrides (provider, model, base URL, API key)
+if config_env() != :test and Env.env("AI_API_KEY") do
+  config :treby, :ai,
+    api_key: Env.env("AI_API_KEY"),
+    model: Env.env("AI_MODEL", "deepseek-v4-flash"),
+    base_url: Env.env("AI_BASE_URL")
+end
+
+if config_env() != :test and Env.env("AI_PROVIDER") do
+  config :treby, :ai, provider: Env.env("AI_PROVIDER")
+end
+
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration

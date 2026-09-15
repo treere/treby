@@ -371,7 +371,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       |> element(~s{textarea[name="bulk_email_body"]})
       |> render_change(%{"bulk_email_body" => "Hello {candidate_name}"})
 
-      view |> element("button", "Send") |> render_click()
+      view |> element(~s{button[phx-click="bulk_execute_send_message"]}) |> render_click()
 
       assert render(view) =~ "1 messages scheduled"
 

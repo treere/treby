@@ -89,7 +89,8 @@ config :treby, :rate_limits,
   login_email: {3_600_000, 1_000},
   otp_request_ip: {60_000, 1_000},
   otp_request_email: {3_600_000, 1_000},
-  otp_verify_ip: {60_000, 1_000}
+  otp_verify_ip: {60_000, 1_000},
+  ai_message: {60_000, 1_000}
 
 # Route every Req request in tests through a Req.Test stub, never the real network
 config :req,

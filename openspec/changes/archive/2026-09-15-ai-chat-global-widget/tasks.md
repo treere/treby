@@ -22,6 +22,7 @@
 - [x] 3.2 Subscribe the page/component to the AI PubSub topic from the same hook and relay `:handle_info` messages to the widget
 - [x] 3.3 Extend `Treby.AI.Context.build/2` to discover any `%Ecto.Changeset{}` or `%Phoenix.HTML.Form{}` in assigns dynamically, not only the `:form` key
 - [x] 3.4 Verify `Context.build/2` receives the host page assigns (path, params, form) from the widget component, not the widget's own assigns
+- [x] 3.5 Implement server-side application of `propose_form_fill` proposals: when confirmed, the agent sends `{:ai_apply_form, ...}` to the host LiveView pid, which applies the values to the context form via `TrebyWeb.AIForm.apply_values/3` and pushes them to the client
 
 ## 4. Widget UI
 

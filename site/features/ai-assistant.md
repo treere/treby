@@ -16,10 +16,10 @@ The widget remembers whether it was open: leave it open, change page or refresh,
 ## What it can do
 
 - **Answer questions about the platform** — it knows which page you are on, including the filters and data on it, and explains what to do there.
-- **Read the form you are working on** — when a page has a form, it can see the fields and help you fill them in.
+- **Read the form you are working on** — when a page has a form, it can see the fields, help you fill them in, and apply suggested values directly to that form.
 - **List your jobs** — read-only, shown straight away.
 - **Create, update, or delete a job** — these change data, so each one requires your confirmation first.
-- **Propose form text fixes** — it can suggest corrected or pre-filled values. Suggestions are advisory: you apply them yourself.
+- **Propose form text fixes** — when you are editing a form, it can suggest corrected or pre-filled values. Confirm the suggestion and the values are applied to the form on the page for you.
 
 ## Chatting
 

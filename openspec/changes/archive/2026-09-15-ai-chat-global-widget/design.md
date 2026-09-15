@@ -10,11 +10,11 @@ The shared authenticated layout is the `Layouts.app/1` function component (`lib/
 - Floating, openable/closable assistant available on every authenticated app page, without obstructing page use.
 - Token streaming with progressive markdown rendering.
 - Current path, query params, and dynamically discovered form/changeset from the host page fed to the agent.
+- Server-side application of assistant form proposals to the host page form on confirmation (not advisory-only).
 - One chat session per login per `(tenant, user)`, preserved across page changes and refresh, fresh after a new login.
 - No deletion or implicit reset of conversation data.
 
 **Non-Goals:**
-- Applying assistant form proposals to the live form (still advisory).
 - Conversation history browser, bulk confirm-all, retention pruning.
 - Multi-agent/Jido.
 - Chat on the candidate portal or public career pages.
@@ -47,7 +47,13 @@ Alternatives considered:
 - Conversation id pinned directly in the session: requires a controller round-trip to create lazily; the token is simpler and supports lazy creation from the task.
 - Soft-delete on rotation: rejected (no deletion).
 
-### 6. Open/close persistence via a small colocated hook
+### 6. Form proposals applied server-side via host LiveView send
+
+When the model calls `propose_form_fill` and the user confirms, the agent sends `{:ai_apply_form, %{assign_key: key, values: values}}` to `host_pid` (the host LiveView pid stored in `ctx`). The `TrebyWeb.Hooks.AIChat` `handle_info` receives it and calls `TrebyWeb.AIForm.apply_values/3`, which updates the form's changeset in assigns and pushes the applied values to the client via `push_event("ai_form_applied", ...)` so the DOM reflects them.
+
+Alternative considered: keep proposals advisory and let the user copy them — rejected because the goal is to co-edit forms, and server-side application gives immediate, accurate DOM updates scoped to the form in context without the user retyping.
+
+### 7. Open/close persistence via a small colocated hook
 The widget panel open state is stored in `localStorage` and restored on mount by a minimal client hook. This is the only client-side logic; all context, session, and message state stays server-side. `localStorage` is not used for message content (DB remains the source of truth, per the existing capability).
 
 ## Risks / Trade-offs

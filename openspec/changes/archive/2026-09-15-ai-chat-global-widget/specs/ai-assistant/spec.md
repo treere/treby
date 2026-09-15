@@ -84,3 +84,15 @@ The system SHALL stream assistant responses token-by-token to the client and SHA
 #### Scenario: Rate limited
 - **WHEN** the user exceeds the configured AI message rate
 - **THEN** the system returns a localized rate-limit error and does not call the provider
+
+### Requirement: Apply form proposals to live form
+
+When the assistant proposes corrected or pre-filled form values for the form in context and the user confirms the `propose_form_fill` tool run, the system SHALL apply those values to the live form on the host page server-side, updating the form's changeset and pushing the applied values to the client. Application SHALL be scoped to the form currently in context and SHALL NOT affect other forms or data.
+
+#### Scenario: Form values applied on confirm
+- **WHEN** the user confirms a `propose_form_fill` suggestion for the form in context
+- **THEN** the host page form is updated with the proposed values and the change is reflected in the DOM
+
+#### Scenario: Application scoped to context form
+- **WHEN** no form is present in the current page assigns
+- **THEN** the form proposal is still returned but no host form is updated

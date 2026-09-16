@@ -62,4 +62,28 @@ defmodule TrebyWeb.SettingsWebhooksLiveTest do
 
     assert redirected_to(conn) == "/#{tenant.slug}/app"
   end
+
+  test "admin can create a webhook subscription via the form", %{conn: conn} do
+    tenant = setup_tenant()
+    admin = create_user(tenant, "admin")
+    conn = with_session(conn, admin, tenant)
+
+    {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/webhooks")
+
+    view |> element("button", "New Webhook") |> render_click()
+
+    html =
+      view
+      |> element("#webhook-form")
+      |> render_submit(%{
+        webhook_subscription: %{
+          target_url: "https://example.com/hook",
+          events_text: "candidate.*",
+          description: "regression test"
+        }
+      })
+
+    assert html =~ "https://example.com/hook"
+    assert html =~ "candidate.*"
+  end
 end

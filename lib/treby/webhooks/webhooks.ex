@@ -30,18 +30,24 @@ defmodule Treby.Webhooks do
 
   @doc false
   def create_subscription(tenant_id, attrs) do
-    secret = Map.get(attrs, :secret) || generate_secret()
+    attrs = stringify_keys(attrs)
+    secret = Map.get(attrs, "secret") || generate_secret()
 
     %WebhookSubscription{tenant_id: tenant_id}
-    |> WebhookSubscription.changeset(Map.put(attrs, :secret, secret))
+    |> WebhookSubscription.changeset(Map.put(attrs, "secret", secret))
   end
 
   @doc false
   def update_subscription(%WebhookSubscription{} = subscription, attrs) do
-    attrs = if Map.get(attrs, :secret) in [nil, ""], do: Map.delete(attrs, :secret), else: attrs
+    attrs = stringify_keys(attrs)
+    attrs = if Map.get(attrs, "secret") in [nil, ""], do: Map.delete(attrs, "secret"), else: attrs
 
     subscription
     |> WebhookSubscription.changeset(attrs)
+  end
+
+  defp stringify_keys(map) when is_map(map) do
+    Map.new(map, fn {k, v} -> {to_string(k), v} end)
   end
 
   @doc false

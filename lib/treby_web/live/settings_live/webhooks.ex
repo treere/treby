@@ -4,18 +4,37 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
   alias Treby.Webhooks
   alias Treby.Webhooks.WebhookSubscription
 
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
     socket = set_locale_from_session(socket, session)
 
     {user, tenant, membership} =
-      case session do
-        %{"user_id" => user_id, "tenant_id" => tenant_id} ->
-          user = Treby.Accounts.get_user!(user_id)
-          tenant = Treby.Tenants.get_tenant!(tenant_id)
+      cond do
+        params["tenant_slug"] ->
+          slug = params["tenant_slug"]
+          tenant = Treby.Tenants.get_tenant_by_slug(slug)
+          user = Treby.Accounts.get_user!(session["user_id"])
           membership = Treby.Memberships.get_membership(user.id, tenant.id)
           {user, tenant, membership}
 
-        _ ->
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant,
+           socket.assigns[:current_membership]}
+
+        session["user_id"] && session["tenant_id"] ->
+          user = Treby.Accounts.get_user!(session["user_id"])
+          tenant = Treby.Tenants.get_tenant!(session["tenant_id"])
+          membership = Treby.Memberships.get_membership(user.id, tenant.id)
+          {user, tenant, membership}
+
+        session["user_id"] ->
+          user = Treby.Accounts.get_user!(session["user_id"])
+
+          case Treby.Memberships.list_tenants_for_user(user.id) do
+            [%{tenant: tenant, membership: membership} | _] -> {user, tenant, membership}
+            _ -> {user, nil, nil}
+          end
+
+        true ->
           {nil, nil, nil}
       end
 
@@ -319,6 +338,10 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
   end
 
   def handle_event("cancel", _, socket) do
+    {:noreply, assign(socket, show_modal: false, editing_id: nil, form: nil)}
+  end
+
+  def handle_event("close-modal", _, socket) do
     {:noreply, assign(socket, show_modal: false, editing_id: nil, form: nil)}
   end
 

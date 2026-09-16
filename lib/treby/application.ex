@@ -18,6 +18,7 @@ defmodule Treby.Application do
       {Phoenix.PubSub, name: Treby.PubSub},
       {Task.Supervisor, name: Treby.TaskSupervisor},
       {Oban, Application.get_env(:treby, Oban)},
+      Treby.AI.Session,
       ProviderCache,
       # Start a worker by calling: Treby.Worker.start_link(arg)
       # {Treby.Worker, arg},

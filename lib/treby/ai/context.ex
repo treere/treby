@@ -38,6 +38,7 @@ defmodule Treby.AI.Context do
       assigns_snapshot: snapshot(assigns),
       form_schema: form_schema(assigns),
       form_assign_key: form_assign_key(assigns),
+      page_data: page_data(assigns),
       session_token: assigns[:ai_session_token]
     }
 
@@ -133,6 +134,7 @@ defmodule Treby.AI.Context do
     ask for or accept a tenant id from the conversation.
     Current page: #{ctx.page} (#{ctx.url || "unknown"}).
     #{form_section(ctx.form_schema)}
+    #{page_section(ctx.page_data)}
     Use the provided tools when an action is needed. Read tools run immediately;
     any tool that writes requires the user's explicit per-item confirmation and
     is never executed by you directly. Keep replies concise and in markdown.
@@ -151,5 +153,60 @@ defmodule Treby.AI.Context do
       end)
 
     "Form being edited (fields available to propose_form_fill):\n#{lines}"
+  end
+
+  @page_entity_keys ~w(job candidate application stage pipeline tenant)a
+
+  defp page_data(assigns) when is_map(assigns) do
+    Enum.flat_map(@page_entity_keys, fn key ->
+      case assigns[key] do
+        %_{} = struct -> [{to_string(key), entity_map(struct)}]
+        _ -> []
+      end
+    end)
+    |> Map.new()
+  end
+
+  defp page_data(_), do: %{}
+
+  defp entity_map(%_{} = struct) do
+    struct
+    |> Map.from_struct()
+    |> Map.reject(fn {key, _} -> key in [:__meta__] end)
+    |> Map.reject(fn {_key, value} -> match?(%_{}, value) end)
+    |> Map.reject(fn {_key, value} -> match?(%Ecto.Association.NotLoaded{}, value) end)
+    |> Map.new(fn {key, value} -> {key, sanitize_list(value)} end)
+  end
+
+  defp sanitize_list(value) when is_list(value) do
+    case Enum.find(value, fn v -> not scalar?(v) end) do
+      nil -> value
+      _ -> "[#{length(value)} items]"
+    end
+  end
+
+  defp sanitize_list(value), do: value
+
+  defp scalar?(value)
+       when is_binary(value) or is_number(value) or is_boolean(value) or is_nil(value),
+       do: true
+
+  defp scalar?(value) when is_atom(value), do: true
+  defp scalar?(_), do: false
+
+  defp page_section(page_data) when page_data == %{}, do: ""
+
+  defp page_section(page_data) do
+    lines =
+      Enum.map_join(page_data, "\n", fn {entity, fields} ->
+        body =
+          Enum.map_join(fields, "\n", fn {key, value} ->
+            "- #{key}: #{inspect(value)}"
+          end)
+
+        "Current #{entity}:\n#{body}"
+      end)
+
+    "Data available on the current page (read-only reference):\n#{lines}"
   end
 end

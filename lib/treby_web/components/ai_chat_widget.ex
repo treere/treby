@@ -9,7 +9,7 @@ defmodule TrebyWeb.AiChatWidget do
 
   use TrebyWeb, :live_component
 
-  alias Treby.AI.{Agent, Conversations, Context, Tools}
+  alias Treby.AI.{Agent, Conversations, Context, Session, Tools}
 
   @impl true
   def mount(socket) do
@@ -80,7 +80,7 @@ defmodule TrebyWeb.AiChatWidget do
           ctx = build_ctx(socket)
 
           {:ok, _pid} =
-            Task.Supervisor.start_child(Treby.TaskSupervisor, fn -> Agent.chat(ctx, text) end)
+            Task.Supervisor.start_child(Treby.TaskSupervisor, fn -> Session.chat(ctx, text) end)
 
           {:noreply, assign(socket, message: "", ai_error: nil, thinking: true)}
       end

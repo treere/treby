@@ -35,8 +35,8 @@ defmodule Treby.AI.ToolsTest do
     |> Repo.insert!()
   end
 
-  test "all six tools are registered with a schema" do
-    assert length(Tools.all()) == 6
+  test "all tools are registered with a schema" do
+    assert length(Tools.all()) == 27
 
     for tool <- Tools.all() do
       assert is_binary(tool.name())

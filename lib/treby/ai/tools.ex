@@ -1,28 +1,16 @@
 defmodule Treby.AI.Tools do
-  @moduledoc """
-  Registry + shared helpers for the hand-written AI tools.
+  @moduledoc "Registry + shared helpers for the AI tools across domains."
 
-  Tools are plain modules exposing `name/0`, `description/0`, `schema/0`,
-  `destructive?/0` and `run/2`. No behaviour, no compile-time discovery.
-  """
+  alias Treby.AI.Tools.{Shared, Recruiter, Analytics, Comms, Admin}
 
-  alias Treby.AI.Tools.{
-    CreateJob,
-    DeleteJob,
-    ExplainPage,
-    ListJobs,
-    ProposeFormFill,
-    UpdateJob
-  }
+  @registries [Recruiter, Analytics, Comms, Admin, Shared]
 
-  @tools [ListJobs, CreateJob, UpdateJob, DeleteJob, ExplainPage, ProposeFormFill]
+  @doc "All registered tool modules (every domain + shared)."
+  def all, do: Enum.flat_map(@registries, & &1.all())
 
-  @doc "All registered tool modules."
-  def all, do: @tools
-
-  @doc "Find a tool module by its LLM-facing name."
+  @doc "Find a tool module by its LLM-facing name across all registries."
   def get(name) do
-    Enum.find(@tools, fn tool -> tool.name() == name end)
+    Enum.find(all(), fn tool -> tool.name() == name end)
   end
 
   @doc false

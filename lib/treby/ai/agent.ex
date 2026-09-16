@@ -17,9 +17,13 @@ defmodule Treby.AI.Agent do
   @doc """
   Handle one user message: persist it, run the model loop, and persist/publish
   the outcome. `ctx` is the map built by `Treby.AI.Context.build/2`.
+
+  `profile` selects the specialized agent: its `system_prompt` tail and its
+  `tools` (a list of tool modules) override the default whole-workspace set.
   Returns `{:ok, :complete}` or `{:ok, :pending}` or `{:error, reason}`.
   """
-  def chat(ctx, text) when is_map(ctx) and is_binary(text) do
+  def chat(ctx, text, profile \\ default_profile())
+      when is_map(ctx) and is_binary(text) do
     if String.trim(text) == "" do
       {:error, :empty}
     else
@@ -29,9 +33,10 @@ defmodule Treby.AI.Agent do
       {:ok, _user_message} =
         Conversations.create_message(conversation, %{role: "user", content: text})
 
-      messages = build_messages(conversation, ctx)
+      messages = build_messages(conversation, ctx, profile)
+      tools = profile.tools
 
-      result = run_loop(conversation, ctx, messages, 0)
+      result = run_loop(conversation, ctx, messages, tools, 0)
 
       case result do
         {:error, reason} -> broadcast(ctx, {:ai_error, ctx.user_id, reason})
@@ -40,6 +45,10 @@ defmodule Treby.AI.Agent do
 
       result
     end
+  end
+
+  defp default_profile do
+    %{system_prompt: "", tools: Tools.all()}
   end
 
   @doc "Execute a confirmed destructive run and log one audit event."
@@ -71,13 +80,13 @@ defmodule Treby.AI.Agent do
     Conversations.update_tool_run(run, %{status: "rejected"})
   end
 
-  defp run_loop(conversation, ctx, messages, iteration) do
+  defp run_loop(conversation, ctx, messages, tools, iteration) do
     if iteration > max_iterations() do
       {:error, :too_many_iterations}
     else
-      case complete(messages, conversation, ctx) do
+      case complete(messages, conversation, ctx, tools) do
         {:ok, response} ->
-          handle_response(response, conversation, ctx, messages, iteration)
+          handle_response(response, conversation, ctx, messages, tools, iteration)
 
         {:error, reason} ->
           Logger.warning("AI completion failed: #{inspect(reason)}")
@@ -86,7 +95,7 @@ defmodule Treby.AI.Agent do
     end
   end
 
-  defp handle_response(response, conversation, ctx, messages, iteration) do
+  defp handle_response(response, conversation, ctx, messages, tools, iteration) do
     case ReqLLM.Response.classify(response) do
       %{type: :final_answer, text: text} ->
         {:ok, _message} =
@@ -98,7 +107,7 @@ defmodule Treby.AI.Agent do
         case Enum.filter(calls, &destructive?/1) do
           [] ->
             next = append_reads(messages, response, calls, ctx)
-            run_loop(conversation, ctx, next, iteration + 1)
+            run_loop(conversation, ctx, next, tools, iteration + 1)
 
           destructive ->
             persist_pending(conversation, text, destructive)
@@ -190,7 +199,7 @@ defmodule Treby.AI.Agent do
     end)
   end
 
-  defp build_messages(conversation, ctx) do
+  defp build_messages(conversation, ctx, profile) do
     history =
       conversation
       |> Conversations.list_messages()
@@ -198,7 +207,9 @@ defmodule Treby.AI.Agent do
         ReqLLM.Context.text(role(message.role), message.content || "")
       end)
 
-    ReqLLM.Context.new([ReqLLM.Context.system(ctx.system_prompt) | history])
+    system_prompt = String.trim(ctx.system_prompt <> "\n\n" <> profile.system_prompt)
+
+    ReqLLM.Context.new([ReqLLM.Context.system(system_prompt) | history])
   end
 
   defp role("assistant"), do: :assistant
@@ -223,8 +234,8 @@ defmodule Treby.AI.Agent do
 
   defp decode_args(_), do: %{}
 
-  defp complete(messages, conversation, ctx) do
-    opts = [tools: llm_tools()] ++ request_opts(conversation)
+  defp complete(messages, conversation, ctx, tools) do
+    opts = [tools: llm_tools(tools)] ++ request_opts(conversation)
 
     case ReqLLM.stream_text(model_spec(), messages, opts) do
       {:ok, stream_response} ->
@@ -276,8 +287,8 @@ defmodule Treby.AI.Agent do
     end
   end
 
-  defp llm_tools do
-    Enum.map(Tools.all(), fn tool ->
+  defp llm_tools(tools) do
+    Enum.map(tools, fn tool ->
       ReqLLM.Tool.new!(
         name: tool.name(),
         description: tool.description(),

@@ -15,11 +15,22 @@ The widget remembers whether it was open: leave it open, change page or refresh,
 
 ## What it can do
 
+The assistant routes each request to the right specialist, so you can stay on the same page and get the job done:
+
+- **Recruiting** — create or find candidates, list and search them, open a job application, move an application between pipeline stages, and add notes or scorecards.
+- **Analytics** — ask for pipeline statistics, conversion and hiring-funnel reports, job-view counts, and side-by-side candidate comparisons.
+- **Communications** — send or schedule messages to candidates, manage email templates per stage, and invite teammates.
+- **Workspace admin** — add or remove team members, add pipeline stages, bulk-import candidates from a CSV, and update workspace settings.
+
+It also keeps the general abilities:
+
 - **Answer questions about the platform** — it knows which page you are on, including the filters and data on it, and explains what to do there.
-- **Read the form you are working on** — when a page has a form, it can see the fields, help you fill them in, and apply suggested values directly to that form.
+- **Read the form and the page you are working on** — when a page has a form it can see the fields, and it can also read the main record on the page (a job, candidate, application, or stage) to give accurate answers.
 - **List your jobs** — read-only, shown straight away.
 - **Create, update, or delete a job** — these change data, so each one requires your confirmation first.
 - **Propose form text fixes** — when you are editing a form, it can suggest corrected or pre-filled values. Confirm the suggestion and the values are applied to the form on the page for you.
+
+If your request spans more than one area, ask the assistant to **switch** to the relevant specialist and it will hand the conversation over.
 
 ## Chatting
 

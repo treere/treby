@@ -158,7 +158,9 @@ if config_env() == :prod do
   # Configure Oban for production
   config :treby, Oban,
     engine: Oban.Engines.Basic,
-    queues: [email: 10, messages: 10],
+    # ponytail: global concurrency cap on the webhooks queue (Basic engine has no
+    # per-tenant limit); switch to per-account locks if one tenant's storm starves others.
+    queues: [email: 10, messages: 10, webhooks: 10],
     plugins: [Oban.Plugins.Pruner, Oban.Plugins.Lifeline],
     repo: Treby.Repo,
     prefix: Env.env("OBAN_PREFIX")

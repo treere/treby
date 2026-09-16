@@ -290,6 +290,7 @@ const screenshotDefs = [
   { name: "37-settings-emails", url: () => `${BASE_URL}/${tenant}/app/settings/emails`, auth: true },
   { name: "38-settings-audit-log", url: () => `${BASE_URL}/${tenant}/app/settings/audit-log`, auth: true },
   { name: "39-settings-notifications", url: () => `${BASE_URL}/${tenant}/app/settings/notifications`, auth: true },
+  { name: "41-settings-webhooks", url: () => `${BASE_URL}/${tenant}/app/settings/webhooks`, auth: true },
   ...(seedIds.pipelineId
     ? [{ name: "40-pipeline-stages", url: () => `${BASE_URL}/${tenant}/app/settings/pipeline/${seedIds.pipelineId}`, auth: true }]
     : []),

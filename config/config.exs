@@ -38,7 +38,7 @@ config :treby, TrebyWeb.Endpoint,
 # Configure Oban
 config :treby, Oban,
   engine: Oban.Engines.Basic,
-  queues: [email: 10, messages: 10, default: 10],
+  queues: [email: 10, messages: 10, default: 10, webhooks: 10],
   plugins: [
     Oban.Plugins.Pruner,
     Oban.Plugins.Lifeline,

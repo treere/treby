@@ -79,6 +79,7 @@ defmodule TrebyWeb.Router do
       live "/settings/pipeline/:id", SettingsLive.PipelineStages
       live "/settings/fields", SettingsLive.Fields
       live "/settings/team", SettingsLive.Team
+      live "/settings/webhooks", SettingsLive.Webhooks
       live "/settings/branding", SettingsLive.Branding
       live "/settings/calendar", SettingsLive.Calendar
       live "/settings/availability", SettingsLive.Availability
@@ -135,6 +136,7 @@ defmodule TrebyWeb.Router do
       live "/settings/pipeline/:id", SettingsLive.PipelineStages
       live "/settings/fields", SettingsLive.Fields
       live "/settings/team", SettingsLive.Team
+      live "/settings/webhooks", SettingsLive.Webhooks
       live "/settings/branding", SettingsLive.Branding
       live "/settings/calendar", SettingsLive.Calendar
       live "/settings/availability", SettingsLive.Availability

@@ -63,6 +63,7 @@ export default defineConfig({
           { text: "Workspace Switching", link: "/features/workspace-switching" },
           { text: "Language (IT/EN)", link: "/features/i18n" },
           { text: "Notification Center", link: "/features/notification-center" },
+          { text: "Webhooks", link: "/features/webhooks" },
         ],
       },
     ],

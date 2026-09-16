@@ -83,6 +83,19 @@ defmodule TrebyWeb.SettingsLive.Index do
 
           <.link
             :if={@current_membership.role == "admin"}
+            navigate={~p"/app/settings/webhooks"}
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Webhooks")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+              {gettext("Send events to external systems via outbound webhooks")}
+            </p>
+          </.link>
+
+          <.link
+            :if={@current_membership.role == "admin"}
             navigate={~p"/app/settings/fields"}
             class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >

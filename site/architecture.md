@@ -100,6 +100,10 @@ Companies
   └── Scorecard Templates
 ```
 
+## Integrations
+
+Treby can push key events — a candidate created, an application changing stage, an interview scheduled, and more — to external systems you configure. Admins subscribe an HTTPS endpoint to the events they choose, and Treby delivers a signed JSON payload for each one, with automatic retries. This lets Treby connect to automation tools, HRIS platforms, job boards, or your own services without code changes.
+
 ## Navigation Flow
 
 1. Public pages: home, careers (`/careers` and `/:company/careers`), login and registration.

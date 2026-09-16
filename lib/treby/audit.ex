@@ -20,9 +20,14 @@ defmodule Treby.Audit do
   def log_event(action, entity_type, entity_id, attrs \\ %{}) do
     attrs = normalize_attrs(action, entity_type, entity_id, attrs)
 
-    %AuditEvent{}
-    |> AuditEvent.changeset(attrs)
-    |> Repo.insert()
+    case Repo.insert(%AuditEvent{} |> AuditEvent.changeset(attrs)) do
+      {:ok, event} ->
+        Treby.Webhooks.dispatch(event)
+        {:ok, event}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   @doc """
@@ -33,7 +38,9 @@ defmodule Treby.Audit do
   def log_event_multi(multi, name, action, entity_type, entity_id, attrs) do
     attrs = normalize_attrs(action, entity_type, entity_id, attrs)
 
-    Ecto.Multi.insert(multi, name, AuditEvent.changeset(%AuditEvent{}, attrs))
+    multi
+    |> Ecto.Multi.insert(name, AuditEvent.changeset(%AuditEvent{}, attrs))
+    |> Treby.Webhooks.dispatch_multi(name)
   end
 
   defp normalize_attrs(action, entity_type, entity_id, attrs) do

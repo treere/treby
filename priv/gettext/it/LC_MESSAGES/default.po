@@ -13,7 +13,7 @@ msgstr ""
 #: lib/treby_web/live/settings_live/scorecards.ex:194
 #: lib/treby_web/live/settings_live/team.ex:140
 #: lib/treby_web/live/settings_live/team.ex:204
-#: lib/treby_web/live/settings_live/webhooks.ex:124
+#: lib/treby_web/live/settings_live/webhooks.ex:143
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr "Azioni"
@@ -82,7 +82,7 @@ msgstr "Esci"
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:88
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:155
 #: lib/treby_web/live/settings_live/scorecards.ex:173
-#: lib/treby_web/live/settings_live/webhooks.ex:271
+#: lib/treby_web/live/settings_live/webhooks.ex:290
 #, elixir-autogen, elixir-format
 msgid "Save"
 msgstr "Salva"
@@ -400,7 +400,7 @@ msgstr "Torna ai Lavori"
 #: lib/treby_web/live/settings_live/pipeline.ex:48
 #: lib/treby_web/live/settings_live/scorecards.ex:49
 #: lib/treby_web/live/settings_live/team.ex:75
-#: lib/treby_web/live/settings_live/webhooks.ex:72
+#: lib/treby_web/live/settings_live/webhooks.ex:91
 #, elixir-autogen, elixir-format
 msgid "Back to Settings"
 msgstr "Torna alle Impostazioni"
@@ -435,7 +435,7 @@ msgstr "Corpo (HTML)"
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:198
 #: lib/treby_web/live/settings_live/scorecards.ex:177
 #: lib/treby_web/live/settings_live/team.ex:115
-#: lib/treby_web/live/settings_live/webhooks.ex:273
+#: lib/treby_web/live/settings_live/webhooks.ex:292
 #, elixir-autogen, elixir-format
 msgid "Cancel"
 msgstr "Annulla"
@@ -574,8 +574,8 @@ msgstr "Definisci i criteri di valutazione per i colloqui"
 #: lib/treby_web/live/settings_live/pipeline.ex:155
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:309
 #: lib/treby_web/live/settings_live/scorecards.ex:225
-#: lib/treby_web/live/settings_live/webhooks.ex:178
-#: lib/treby_web/live/settings_live/webhooks.ex:283
+#: lib/treby_web/live/settings_live/webhooks.ex:197
+#: lib/treby_web/live/settings_live/webhooks.ex:302
 #, elixir-autogen, elixir-format
 msgid "Delete"
 msgstr "Elimina"
@@ -611,7 +611,7 @@ msgstr "Duplica"
 #: lib/treby_web/live/settings_live/pipeline.ex:126
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:294
 #: lib/treby_web/live/settings_live/scorecards.ex:212
-#: lib/treby_web/live/settings_live/webhooks.ex:169
+#: lib/treby_web/live/settings_live/webhooks.ex:188
 #, elixir-autogen, elixir-format
 msgid "Edit"
 msgstr "Modifica"
@@ -1263,7 +1263,7 @@ msgstr "Inizia inserendo il tuo indirizzo email"
 #: lib/treby_web/live/jobs_live/new.ex:183
 #: lib/treby_web/live/jobs_live/show.ex:164
 #: lib/treby_web/live/jobs_live/show.ex:270
-#: lib/treby_web/live/settings_live/webhooks.ex:121
+#: lib/treby_web/live/settings_live/webhooks.ex:140
 #, elixir-autogen, elixir-format
 msgid "Status"
 msgstr "Stato"
@@ -5125,95 +5125,95 @@ msgstr "Attiva/disattiva assistente"
 msgid "The assistant is answering..."
 msgstr "L'assistente sta rispondendo..."
 
-#: lib/treby_web/live/settings_live/webhooks.ex:146
-#: lib/treby_web/live/settings_live/webhooks.ex:260
+#: lib/treby_web/live/settings_live/webhooks.ex:165
+#: lib/treby_web/live/settings_live/webhooks.ex:279
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Active"
 msgstr "Azioni"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:175
+#: lib/treby_web/live/settings_live/webhooks.ex:194
 #, elixir-autogen, elixir-format
 msgid "Are you sure? This cannot be undone."
 msgstr "Are you sure? This cannot be undone."
 
-#: lib/treby_web/live/settings_live/webhooks.ex:248
+#: lib/treby_web/live/settings_live/webhooks.ex:267
 #, elixir-autogen, elixir-format
 msgid "Comma-separated. Use exact events (candidate.created), namespace wildcards (candidate.*) or * for all."
 msgstr "Comma-separated. Use exact events (candidate.created), namespace wildcards (candidate.*) or * for all."
 
-#: lib/treby_web/live/settings_live/webhooks.ex:174
+#: lib/treby_web/live/settings_live/webhooks.ex:193
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Delete webhook"
 msgstr "Elimina"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:252
+#: lib/treby_web/live/settings_live/webhooks.ex:271
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Description (optional)"
 msgstr "Descrizione"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:225
+#: lib/treby_web/live/settings_live/webhooks.ex:244
 #, elixir-autogen, elixir-format
 msgid "Edit Webhook"
 msgstr "Edit Webhook"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:118
-#: lib/treby_web/live/settings_live/webhooks.ex:244
+#: lib/treby_web/live/settings_live/webhooks.ex:137
+#: lib/treby_web/live/settings_live/webhooks.ex:263
 #, elixir-autogen, elixir-format
 msgid "Events"
 msgstr "Events"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:185
+#: lib/treby_web/live/settings_live/webhooks.ex:204
 #, elixir-autogen, elixir-format
 msgid "Logs"
 msgstr "Logs"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:81
-#: lib/treby_web/live/settings_live/webhooks.ex:225
+#: lib/treby_web/live/settings_live/webhooks.ex:100
+#: lib/treby_web/live/settings_live/webhooks.ex:244
 #, elixir-autogen, elixir-format
 msgid "New Webhook"
 msgstr "New Webhook"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:197
+#: lib/treby_web/live/settings_live/webhooks.ex:216
 #, elixir-autogen, elixir-format
 msgid "No deliveries yet."
 msgstr "No deliveries yet."
 
-#: lib/treby_web/live/settings_live/webhooks.ex:105
+#: lib/treby_web/live/settings_live/webhooks.ex:124
 #, elixir-autogen, elixir-format
 msgid "No webhooks configured yet."
 msgstr "No webhooks configured yet."
 
-#: lib/treby_web/live/settings_live/webhooks.ex:155
+#: lib/treby_web/live/settings_live/webhooks.ex:174
 #, elixir-autogen, elixir-format
 msgid "Pause"
 msgstr "Pause"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:146
+#: lib/treby_web/live/settings_live/webhooks.ex:165
 #, elixir-autogen, elixir-format
 msgid "Paused"
 msgstr "Paused"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:194
+#: lib/treby_web/live/settings_live/webhooks.ex:213
 #, elixir-autogen, elixir-format
 msgid "Recent deliveries"
 msgstr "Recent deliveries"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:155
+#: lib/treby_web/live/settings_live/webhooks.ex:174
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Resume"
 msgstr "Ricomincia"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:256
+#: lib/treby_web/live/settings_live/webhooks.ex:275
 #, elixir-autogen, elixir-format
 msgid "Secret (optional — auto-generated if blank)"
 msgstr "Secret (optional — auto-generated if blank)"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:89
+#: lib/treby_web/live/settings_live/webhooks.ex:108
 #, elixir-autogen, elixir-format
 msgid "Secret (shown once — save it now)"
 msgstr "Secret (shown once — save it now)"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:78
+#: lib/treby_web/live/settings_live/webhooks.ex:97
 #, elixir-autogen, elixir-format
 msgid "Send Treby events to external systems via signed outbound webhooks."
 msgstr "Send Treby events to external systems via signed outbound webhooks."
@@ -5223,31 +5223,31 @@ msgstr "Send Treby events to external systems via signed outbound webhooks."
 msgid "Send events to external systems via outbound webhooks"
 msgstr "Send events to external systems via outbound webhooks"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:162
-#: lib/treby_web/live/settings_live/webhooks.ex:272
+#: lib/treby_web/live/settings_live/webhooks.ex:181
+#: lib/treby_web/live/settings_live/webhooks.ex:291
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Send test"
 msgstr "Invia richiesta"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:97
+#: lib/treby_web/live/settings_live/webhooks.ex:116
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Subscriptions"
 msgstr "Descrizione"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:115
-#: lib/treby_web/live/settings_live/webhooks.ex:238
+#: lib/treby_web/live/settings_live/webhooks.ex:134
+#: lib/treby_web/live/settings_live/webhooks.ex:257
 #, elixir-autogen, elixir-format
 msgid "Target URL"
 msgstr "Target URL"
 
-#: lib/treby_web/live/settings_live/webhooks.ex:267
-#: lib/treby_web/live/settings_live/webhooks.ex:409
+#: lib/treby_web/live/settings_live/webhooks.ex:286
+#: lib/treby_web/live/settings_live/webhooks.ex:432
 #, elixir-autogen, elixir-format
 msgid "Test: "
 msgstr "Test: "
 
 #: lib/treby_web/live/settings_live/index.ex:90
-#: lib/treby_web/live/settings_live/webhooks.ex:75
+#: lib/treby_web/live/settings_live/webhooks.ex:94
 #, elixir-autogen, elixir-format
 msgid "Webhooks"
 msgstr "Webhooks"

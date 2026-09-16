@@ -44,6 +44,7 @@ export default defineConfig({
           { text: "Overview", link: "/features/" },
           { text: "Dashboard", link: "/features/dashboard" },
           { text: "AI Assistant", link: "/features/ai-assistant" },
+          { text: "AI Safety", link: "/features/ai-safety" },
           { text: "Kanban Pipeline", link: "/features/pipeline" },
           { text: "Public Career Pages", link: "/features/career-pages" },
           { text: "Candidate Management", link: "/features/candidate-management" },

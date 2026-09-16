@@ -10,6 +10,9 @@ See your outstanding scorecards, upcoming interviews, stale candidates, and hiri
 ## [AI Assistant](/features/ai-assistant)
 A built-in assistant for your team: ask about the platform, manage jobs, and fix form text — with every write protected by an explicit per-action confirmation.
 
+## [AI Safety](/features/ai-safety)
+The assistant only answers questions about your hiring workspace and reviews every reply before it is shown — so it stays on-topic, appropriate, and free of leaked data.
+
 ## [Kanban Pipeline](/features/pipeline)
 Drag-and-drop candidates through customizable pipeline stages with role-based access, scorecard gating, and rejection workflows. Create jobs on a dedicated page at **Jobs → New Job** with a live public preview and explicit **Status** (Open/Closed) and **Visibility** (Public/Private) controls.
 

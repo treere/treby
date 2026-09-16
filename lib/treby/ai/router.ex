@@ -1,9 +1,18 @@
 defmodule Treby.AI.Router do
-  @moduledoc "LLM intent classifier that selects a specialized agent domain."
+  @moduledoc """
+  LLM intent classifier that selects a specialized agent domain.
+
+  Returns one of `recruiter`, `analytics`, `comms`, `admin`, `:out_of_domain`
+  or `:malicious`. The two refusal atoms mean the request should not run the
+  agent loop; the caller decides how to refuse.
+  """
 
   alias Treby.AI.{LLM, Profiles}
 
   @domains Profiles.domains()
+  @refusal_domains [:out_of_domain, :malicious]
+  @classify_domains @domains ++ @refusal_domains
+  @domain_words Map.new(@classify_domains, fn domain -> {to_string(domain), domain} end)
 
   @doc """
   Classify the user's intent into a domain.
@@ -33,7 +42,7 @@ defmodule Treby.AI.Router do
   end
 
   defp system_prompt do
-    domains = Enum.join(@domains, ", ")
+    domains = Enum.join(@classify_domains, ", ")
 
     "Classify the user's request into exactly one of these domains: #{domains}. Reply with only the single domain word, lowercase, nothing else."
   end
@@ -49,12 +58,10 @@ defmodule Treby.AI.Router do
 
   defp parse(raw, last_domain) do
     word = raw |> String.trim() |> String.downcase() |> String.split() |> List.first()
-    domain_strings = Enum.map(@domains, &to_string/1)
 
-    if is_binary(word) and word in domain_strings do
-      String.to_existing_atom(word)
-    else
-      last_domain || :recruiter
+    case Map.fetch(@domain_words, word) do
+      {:ok, domain} -> domain
+      :error -> last_domain || :recruiter
     end
   end
 end

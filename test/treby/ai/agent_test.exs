@@ -6,6 +6,7 @@ defmodule Treby.AI.AgentTest do
   alias Treby.Accounts.User
   alias Treby.Jobs.Job
   alias Treby.Test.AiFormFillServer
+  alias Treby.Test.AiJsonServer
   alias Treby.Test.AiSSE.Server, as: AiSSEServer
 
   defp setup_tenant do
@@ -202,5 +203,40 @@ defmodule Treby.AI.AgentTest do
 
     conversation = Conversations.resolve_conversation(tenant.id, user.id, "tok-formfill")
     assert Conversations.list_pending_tool_runs(conversation) == []
+  end
+
+  test "outbound controller passes an in-domain reply through unchanged" do
+    {tenant, user} = setup_tenant()
+
+    {server_pid, port} = AiJsonServer.start("All good")
+    on_exit(fn -> Process.exit(server_pid, :shutdown) end)
+
+    previous_ai = Application.get_env(:treby, :ai, [])
+
+    Application.put_env(
+      :treby,
+      :ai,
+      Keyword.merge(previous_ai,
+        base_url: "http://127.0.0.1:#{port}/v1",
+        api_key: "test",
+        model: "test-model"
+      )
+    )
+
+    on_exit(fn -> Application.put_env(:treby, :ai, previous_ai) end)
+
+    ctx = %{
+      tenant_id: tenant.id,
+      user_id: user.id,
+      session_token: "tok-ctl",
+      system_prompt: "You are a terse test assistant."
+    }
+
+    assert {:ok, :complete} = Agent.chat(ctx, "hi")
+
+    conversation = Conversations.resolve_conversation(tenant.id, user.id, "tok-ctl")
+
+    assert [%{role: "assistant", content: "All good"}] =
+             Enum.filter(Conversations.list_messages(conversation), &(&1.role == "assistant"))
   end
 end

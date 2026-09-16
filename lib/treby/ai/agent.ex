@@ -8,7 +8,7 @@ defmodule Treby.AI.Agent do
   and broadcast once.
   """
 
-  alias Treby.AI.{Conversations, Tools}
+  alias Treby.AI.{Conversations, Control, Tools}
 
   require Logger
 
@@ -35,6 +35,8 @@ defmodule Treby.AI.Agent do
 
       messages = build_messages(conversation, ctx, profile)
       tools = profile.tools
+
+      debug_log("start", %{user_id: ctx.user_id, tools: length(tools)})
 
       result = run_loop(conversation, ctx, messages, tools, 0)
 
@@ -98,21 +100,50 @@ defmodule Treby.AI.Agent do
   defp handle_response(response, conversation, ctx, messages, tools, iteration) do
     case ReqLLM.Response.classify(response) do
       %{type: :final_answer, text: text} ->
+        {verdict, content} = review(text, ctx)
+
         {:ok, _message} =
-          Conversations.create_message(conversation, %{role: "assistant", content: text})
+          Conversations.create_message(conversation, %{role: "assistant", content: content})
+
+        debug_log("final", %{
+          verdict: verdict,
+          chars: String.length(content),
+          iterations: iteration
+        })
 
         {:ok, :complete}
 
       %{type: :tool_calls, tool_calls: calls, text: text} ->
         case Enum.filter(calls, &destructive?/1) do
           [] ->
+            debug_log("tool_calls", %{count: length(calls), destructive: false})
             next = append_reads(messages, response, calls, ctx)
             run_loop(conversation, ctx, next, tools, iteration + 1)
 
           destructive ->
+            debug_log("tool_calls", %{count: length(destructive), destructive: true})
             persist_pending(conversation, text, destructive)
             {:ok, :pending}
         end
+    end
+  end
+
+  # Outbound controller: review the final reply before persisting it.
+  defp review(text, ctx) do
+    case Control.evaluate(text, ctx) do
+      {:ok, :block, _} ->
+        Logger.warning("AI reply blocked by outbound controller")
+        {:block, Control.blocked_reply()}
+
+      {:ok, :sanitize, reply} ->
+        Logger.info("AI reply sanitized by outbound controller")
+        {:sanitize, reply}
+
+      {:ok, :pass, reply} ->
+        {:pass, reply}
+
+      _ ->
+        {:pass, text}
     end
   end
 
@@ -365,6 +396,13 @@ defmodule Treby.AI.Agent do
   end
 
   defp ai_config, do: Application.get_env(:treby, :ai, [])
+
+  @doc "Config-gated structured debug trace for the agent pipeline."
+  def debug_log(phase, meta) when is_binary(phase) and is_map(meta) do
+    if ai_config()[:debug_logging] do
+      Logger.debug(fn -> "[ai] #{phase} #{inspect(meta)}" end)
+    end
+  end
 
   defp max_iterations do
     ai_config()[:max_iterations] || 6

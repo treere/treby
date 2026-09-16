@@ -25,22 +25,22 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:161
-#: lib/treby_web/components/layouts.ex:302
+#: lib/treby_web/components/layouts.ex:171
+#: lib/treby_web/components/layouts.ex:326
 #: lib/treby_web/live/analytics_live/index.ex:55
 #: lib/treby_web/live/jobs_live/analytics.ex:92
 #, elixir-autogen, elixir-format
 msgid "Analytics"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:748
-#: lib/treby_web/components/layouts.ex:760
+#: lib/treby_web/components/layouts.ex:780
+#: lib/treby_web/components/layouts.ex:792
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:117
-#: lib/treby_web/components/layouts.ex:264
+#: lib/treby_web/components/layouts.ex:127
+#: lib/treby_web/components/layouts.ex:272
 #: lib/treby_web/live/candidates_live/index.ex:116
 #: lib/treby_web/live/import_live/index.ex:62
 #: lib/treby_web/live/jobs_live/index.ex:130
@@ -49,15 +49,15 @@ msgstr ""
 msgid "Candidates"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:150
-#: lib/treby_web/components/layouts.ex:291
+#: lib/treby_web/components/layouts.ex:160
+#: lib/treby_web/components/layouts.ex:311
 #: lib/treby_web/live/interviews_live/index.ex:224
 #, elixir-autogen, elixir-format
 msgid "Interviews"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:106
-#: lib/treby_web/components/layouts.ex:253
+#: lib/treby_web/components/layouts.ex:116
+#: lib/treby_web/components/layouts.ex:257
 #: lib/treby_web/live/jobs_live/analytics.ex:90
 #: lib/treby_web/live/jobs_live/index.ex:78
 #: lib/treby_web/live/jobs_live/new.ex:82
@@ -73,8 +73,8 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:207
-#: lib/treby_web/components/layouts.ex:343
+#: lib/treby_web/components/layouts.ex:218
+#: lib/treby_web/components/layouts.ex:375
 #, elixir-autogen, elixir-format
 msgid "Logout"
 msgstr ""
@@ -89,7 +89,7 @@ msgstr ""
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:88
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:155
 #: lib/treby_web/live/settings_live/scorecards.ex:173
-#: lib/treby_web/live/settings_live/webhooks.ex:290
+#: lib/treby_web/live/settings_live/webhooks.ex:293
 #, elixir-autogen, elixir-format
 msgid "Save"
 msgstr ""
@@ -100,26 +100,26 @@ msgstr ""
 msgid "Set your preferred language"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:187
-#: lib/treby_web/components/layouts.ex:328
+#: lib/treby_web/components/layouts.ex:197
+#: lib/treby_web/components/layouts.ex:360
 #: lib/treby_web/live/candidate_portal_live/settings.ex:55
 #: lib/treby_web/live/settings_live/index.ex:37
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:755
+#: lib/treby_web/components/layouts.ex:787
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:743
+#: lib/treby_web/components/layouts.ex:775
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr ""
 
 #: lib/treby_web/components/core_components.ex:94
-#: lib/treby_web/components/layouts.ex:734
+#: lib/treby_web/components/layouts.ex:766
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr ""
@@ -428,7 +428,7 @@ msgstr ""
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:198
 #: lib/treby_web/live/settings_live/scorecards.ex:177
 #: lib/treby_web/live/settings_live/team.ex:115
-#: lib/treby_web/live/settings_live/webhooks.ex:292
+#: lib/treby_web/live/settings_live/webhooks.ex:295
 #, elixir-autogen, elixir-format
 msgid "Cancel"
 msgstr ""
@@ -568,7 +568,7 @@ msgstr ""
 #: lib/treby_web/live/settings_live/pipeline_stages.ex:309
 #: lib/treby_web/live/settings_live/scorecards.ex:225
 #: lib/treby_web/live/settings_live/webhooks.ex:197
-#: lib/treby_web/live/settings_live/webhooks.ex:302
+#: lib/treby_web/live/settings_live/webhooks.ex:305
 #, elixir-autogen, elixir-format
 msgid "Delete"
 msgstr ""
@@ -750,8 +750,8 @@ msgstr ""
 msgid "If an account exists with that email, you'll receive a reset link shortly"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:139
-#: lib/treby_web/components/layouts.ex:280
+#: lib/treby_web/components/layouts.ex:149
+#: lib/treby_web/components/layouts.ex:296
 #: lib/treby_web/live/import_live/index.ex:63
 #: lib/treby_web/live/import_live/index.ex:97
 #, elixir-autogen, elixir-format
@@ -866,8 +866,8 @@ msgstr ""
 msgid "Max 10MB, CSV format"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:172
-#: lib/treby_web/components/layouts.ex:313
+#: lib/treby_web/components/layouts.ex:182
+#: lib/treby_web/components/layouts.ex:341
 #: lib/treby_web/live/messages_queue_live/index.ex:20
 #, elixir-autogen, elixir-format
 msgid "Message Queue"
@@ -1011,8 +1011,8 @@ msgstr ""
 msgid "Notification Preferences"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:616
-#: lib/treby_web/components/layouts.ex:631
+#: lib/treby_web/components/layouts.ex:648
+#: lib/treby_web/components/layouts.ex:663
 #: lib/treby_web/live/notifications_live.ex:75
 #: lib/treby_web/live/settings_live/index.ex:142
 #, elixir-autogen, elixir-format
@@ -1507,7 +1507,7 @@ msgstr ""
 msgid "Create a job posting"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:93
+#: lib/treby_web/components/layouts.ex:103
 #: lib/treby_web/live/choose_tenant_live.ex:54
 #, elixir-autogen, elixir-format
 msgid "Create new company"
@@ -1699,7 +1699,7 @@ msgstr ""
 msgid "Welcome, %{name}!"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:68
+#: lib/treby_web/components/layouts.ex:78
 #, elixir-autogen, elixir-format
 msgid "Workspaces"
 msgstr ""
@@ -2345,8 +2345,8 @@ msgstr ""
 msgid "Timezone"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:221
-#: lib/treby_web/components/layouts.ex:479
+#: lib/treby_web/components/layouts.ex:58
+#: lib/treby_web/components/layouts.ex:511
 #, elixir-autogen, elixir-format
 msgid "Toggle navigation"
 msgstr ""
@@ -4088,7 +4088,7 @@ msgstr ""
 msgid "You have already applied to this position."
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:505
+#: lib/treby_web/components/layouts.ex:537
 #, elixir-autogen, elixir-format
 msgid "Close navigation"
 msgstr ""
@@ -4526,7 +4526,7 @@ msgstr ""
 msgid "User Agent:"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:728
+#: lib/treby_web/components/layouts.ex:760
 #: lib/treby_web/live/notifications_live.ex:198
 #: lib/treby_web/live/settings_live/audit_log.ex:224
 #, elixir-autogen, elixir-format
@@ -4729,7 +4729,7 @@ msgstr ""
 #: lib/treby_web/live/candidates_live/show.ex:600
 #: lib/treby_web/live/jobs_live/show.ex:225
 #: lib/treby_web/live/jobs_live/show.ex:637
-#: lib/treby_web/live/messages_queue_live/index.html.heex:338
+#: lib/treby_web/live/messages_queue_live/index.html.heex:340
 #: lib/treby_web/live/settings_live/availability.ex:141
 #: lib/treby_web/live/settings_live/branding.ex:129
 #: lib/treby_web/live/settings_live/email_templates.ex:155
@@ -4986,7 +4986,7 @@ msgstr ""
 msgid "Invalid retention value"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:639
+#: lib/treby_web/components/layouts.ex:671
 #, elixir-autogen, elixir-format
 msgid "Mark all read"
 msgstr ""
@@ -5061,8 +5061,8 @@ msgid "Ask the assistant..."
 msgstr ""
 
 #: lib/treby_web/components/ai_chat_widget.ex:285
-#: lib/treby_web/components/layouts.ex:128
-#: lib/treby_web/components/layouts.ex:271
+#: lib/treby_web/components/layouts.ex:138
+#: lib/treby_web/components/layouts.ex:283
 #: lib/treby_web/live/ai_chat_live.ex:6
 #, elixir-autogen, elixir-format
 msgid "Assistant"
@@ -5114,7 +5114,7 @@ msgid "The assistant is answering..."
 msgstr ""
 
 #: lib/treby_web/live/settings_live/webhooks.ex:165
-#: lib/treby_web/live/settings_live/webhooks.ex:279
+#: lib/treby_web/live/settings_live/webhooks.ex:282
 #, elixir-autogen, elixir-format
 msgid "Active"
 msgstr ""
@@ -5124,7 +5124,7 @@ msgstr ""
 msgid "Are you sure? This cannot be undone."
 msgstr ""
 
-#: lib/treby_web/live/settings_live/webhooks.ex:267
+#: lib/treby_web/live/settings_live/webhooks.ex:270
 #, elixir-autogen, elixir-format
 msgid "Comma-separated. Use exact events (candidate.created), namespace wildcards (candidate.*) or * for all."
 msgstr ""
@@ -5134,18 +5134,18 @@ msgstr ""
 msgid "Delete webhook"
 msgstr ""
 
-#: lib/treby_web/live/settings_live/webhooks.ex:271
+#: lib/treby_web/live/settings_live/webhooks.ex:274
 #, elixir-autogen, elixir-format
 msgid "Description (optional)"
 msgstr ""
 
-#: lib/treby_web/live/settings_live/webhooks.ex:244
+#: lib/treby_web/live/settings_live/webhooks.ex:247
 #, elixir-autogen, elixir-format
 msgid "Edit Webhook"
 msgstr ""
 
 #: lib/treby_web/live/settings_live/webhooks.ex:137
-#: lib/treby_web/live/settings_live/webhooks.ex:263
+#: lib/treby_web/live/settings_live/webhooks.ex:266
 #, elixir-autogen, elixir-format
 msgid "Events"
 msgstr ""
@@ -5156,12 +5156,12 @@ msgid "Logs"
 msgstr ""
 
 #: lib/treby_web/live/settings_live/webhooks.ex:100
-#: lib/treby_web/live/settings_live/webhooks.ex:244
+#: lib/treby_web/live/settings_live/webhooks.ex:247
 #, elixir-autogen, elixir-format
 msgid "New Webhook"
 msgstr ""
 
-#: lib/treby_web/live/settings_live/webhooks.ex:216
+#: lib/treby_web/live/settings_live/webhooks.ex:219
 #, elixir-autogen, elixir-format
 msgid "No deliveries yet."
 msgstr ""
@@ -5181,7 +5181,7 @@ msgstr ""
 msgid "Paused"
 msgstr ""
 
-#: lib/treby_web/live/settings_live/webhooks.ex:213
+#: lib/treby_web/live/settings_live/webhooks.ex:216
 #, elixir-autogen, elixir-format
 msgid "Recent deliveries"
 msgstr ""
@@ -5191,7 +5191,7 @@ msgstr ""
 msgid "Resume"
 msgstr ""
 
-#: lib/treby_web/live/settings_live/webhooks.ex:275
+#: lib/treby_web/live/settings_live/webhooks.ex:278
 #, elixir-autogen, elixir-format
 msgid "Secret (optional — auto-generated if blank)"
 msgstr ""
@@ -5212,7 +5212,7 @@ msgid "Send events to external systems via outbound webhooks"
 msgstr ""
 
 #: lib/treby_web/live/settings_live/webhooks.ex:181
-#: lib/treby_web/live/settings_live/webhooks.ex:291
+#: lib/treby_web/live/settings_live/webhooks.ex:294
 #, elixir-autogen, elixir-format
 msgid "Send test"
 msgstr ""
@@ -5223,13 +5223,13 @@ msgid "Subscriptions"
 msgstr ""
 
 #: lib/treby_web/live/settings_live/webhooks.ex:134
-#: lib/treby_web/live/settings_live/webhooks.ex:257
+#: lib/treby_web/live/settings_live/webhooks.ex:260
 #, elixir-autogen, elixir-format
 msgid "Target URL"
 msgstr ""
 
-#: lib/treby_web/live/settings_live/webhooks.ex:286
-#: lib/treby_web/live/settings_live/webhooks.ex:432
+#: lib/treby_web/live/settings_live/webhooks.ex:289
+#: lib/treby_web/live/settings_live/webhooks.ex:435
 #, elixir-autogen, elixir-format
 msgid "Test: "
 msgstr ""

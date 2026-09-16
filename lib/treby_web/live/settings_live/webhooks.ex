@@ -110,7 +110,7 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
           <code class="block mt-2 text-xs break-all text-zinc-700 dark:text-zinc-300">{@secret_reveal}</code>
         </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
           <div class="px-6 py-4 border-b">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               {gettext("Subscriptions")}
@@ -208,7 +208,10 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
             </tbody>
           </table>
 
-          <div :if={@expanded_logs} class="px-6 py-4 bg-zinc-50 dark:bg-zinc-900/50 border-t">
+          <div
+            :if={@expanded_logs}
+            class="px-6 py-4 bg-zinc-50 dark:bg-zinc-900/50 border-t overflow-x-auto"
+          >
             <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
               {gettext("Recent deliveries")}
             </h3>

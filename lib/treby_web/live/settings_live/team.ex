@@ -118,7 +118,7 @@ defmodule TrebyWeb.SettingsLive.Team do
           </.form>
         </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden mb-8">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto mb-8">
           <div class="px-6 py-4 border-b">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               {gettext("Team Members")}
@@ -181,7 +181,7 @@ defmodule TrebyWeb.SettingsLive.Team do
 
         <div
           :if={@invites != []}
-          class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden"
+          class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto"
         >
           <div class="px-6 py-4 border-b">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">

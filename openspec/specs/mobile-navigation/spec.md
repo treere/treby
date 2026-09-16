@@ -7,12 +7,12 @@ Provide responsive navigation that adapts between mobile hamburger menu and desk
 ## Requirements
 
 ### Requirement: Mobile navigation toggle
-The system SHALL display a hamburger menu button on screens below the `sm` breakpoint (640px) that toggles a mobile navigation drawer.
+The system SHALL display a hamburger menu button on screens below the `xl` breakpoint (1280px) that toggles a mobile navigation drawer.
 
-#### Scenario: Hamburger button visible on mobile
-- **WHEN** the viewport width is below 640px
+#### Scenario: Hamburger button visible below xl
+- **WHEN** the viewport width is below 1280px
 - **THEN** a hamburger menu button is visible in the navigation bar
-- **AND** the desktop nav links are hidden
+- **AND** the inline nav links and right-side group are hidden
 
 #### Scenario: Toggle mobile drawer open
 - **WHEN** a user taps the hamburger button
@@ -27,12 +27,13 @@ The system SHALL display a hamburger menu button on screens below the `sm` break
 - **WHEN** a user taps a nav link in the mobile drawer
 - **THEN** the drawer closes and the user navigates to the selected page
 
-### Requirement: Desktop nav unchanged
-The system SHALL continue to display nav links inline on screens at or above the `sm` breakpoint with no hamburger button.
+### Requirement: Inline nav only at xl and above
+The system SHALL display nav links inline on screens at or above the `xl` breakpoint (1280px) with no hamburger button. Below `xl` the navigation collapses into the drawer.
 
-#### Scenario: Desktop nav display
-- **WHEN** the viewport width is 640px or above
+#### Scenario: Inline nav display
+- **WHEN** the viewport width is 1280px or above
 - **THEN** nav links are displayed inline in the navigation bar
+- **AND** the notification bell, theme toggle, locale switcher, user name, and logout are visible inline
 - **AND** no hamburger button is visible
 
 ### Requirement: Mobile drawer includes theme toggle

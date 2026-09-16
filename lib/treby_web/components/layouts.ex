@@ -49,6 +49,16 @@ defmodule TrebyWeb.Layouts do
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">
             <div class="flex items-center">
+              <button
+                phx-click={
+                  Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                  |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+                }
+                class="xl:hidden p-2 -ml-2 mr-1 rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                aria-label={gettext("Toggle navigation")}
+              >
+                <.icon name="hero-bars-3" class="w-6 h-6" />
+              </button>
               <.link
                 navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app", else: ~p"/app"}
                 class="flex-shrink-0 flex items-center"
@@ -95,13 +105,13 @@ defmodule TrebyWeb.Layouts do
                   </div>
                 </div>
               </div>
-              <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <div class="hidden xl:ml-6 xl:flex xl:space-x-6">
                 <.link
                   navigate={
                     if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
                   }
                   data-nav="/app/jobs"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Jobs")}
                 </.link>
@@ -112,7 +122,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/candidates"
                   }
                   data-nav="/app/candidates"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Candidates")}
                 </.link>
@@ -123,7 +133,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/ai"
                   }
                   data-nav="/app/ai"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Assistant")}
                 </.link>
@@ -134,7 +144,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/import"
                   }
                   data-nav="/app/import"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Import")}
                 </.link>
@@ -145,7 +155,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/interviews"
                   }
                   data-nav="/app/interviews"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Interviews")}
                 </.link>
@@ -156,7 +166,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/analytics"
                   }
                   data-nav="/app/analytics"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Analytics")}
                 </.link>
@@ -167,7 +177,7 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/messages-queue"
                   }
                   data-nav="/app/messages-queue"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Message Queue")}
                 </.link>
@@ -182,52 +192,42 @@ defmodule TrebyWeb.Layouts do
                       else: ~p"/app/settings"
                   }
                   data-nav="/app/settings"
-                  class="nav-link inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   {gettext("Settings")}
                 </.link>
               </div>
             </div>
-            <div class="hidden sm:flex sm:items-center sm:space-x-4">
+            <div class="flex items-center gap-4">
               <.notification_bell
                 unread_count={assigns[:notification_unread_count] || 0}
                 recent={assigns[:notification_recent] || []}
                 current_tenant={@current_tenant}
               />
-              <.theme_toggle />
-              <.locale_switcher locale={@locale} />
-              <span :if={@current_scope} class="text-sm text-zinc-500 dark:text-zinc-400">
-                {@current_scope.name}
-              </span>
-              <.link
-                href={~p"/session"}
-                method="delete"
-                class="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-100"
-              >
-                {gettext("Logout")}
-              </.link>
+              <div class="hidden xl:flex xl:items-center xl:space-x-4">
+                <.theme_toggle />
+                <.locale_switcher locale={@locale} />
+                <span :if={@current_scope} class="text-sm text-zinc-500 dark:text-zinc-400">
+                  {@current_scope.name}
+                </span>
+                <.link
+                  href={~p"/session"}
+                  method="delete"
+                  class="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-100"
+                >
+                  {gettext("Logout")}
+                </.link>
+              </div>
             </div>
           </div>
         </div>
       </nav>
 
-      <%!-- Mobile hamburger button --%>
-      <button
-        phx-click={
-          Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
-          |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
-        }
-        class="sm:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700"
-        aria-label={gettext("Toggle navigation")}
-      >
-        <.icon name="hero-bars-3" class="w-6 h-6 text-zinc-500 dark:text-zinc-400" />
-      </button>
-
       <%!-- Mobile navigation drawer --%>
-      <div id="mobile-nav-overlay" class="sm:hidden fixed inset-0 bg-black/50 z-40 hidden" />
+      <div id="mobile-nav-overlay" class="xl:hidden fixed inset-0 bg-black/50 z-40 hidden" />
       <div
         id="mobile-nav-drawer"
-        class="sm:hidden fixed inset-y-0 left-0 w-64 bg-white dark:bg-zinc-800 shadow-xl z-50 transform -translate-x-full transition-transform"
+        class="xl:hidden fixed inset-y-0 left-0 w-64 bg-white dark:bg-zinc-800 shadow-xl z-50 transform -translate-x-full transition-transform"
       >
         <div class="p-4">
           <div class="flex justify-between items-center mb-6">
@@ -248,6 +248,10 @@ defmodule TrebyWeb.Layouts do
                 if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
               }
               data-nav="/app/jobs"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Jobs")}
@@ -259,6 +263,10 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/candidates"
               }
               data-nav="/app/candidates"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Candidates")}
@@ -266,6 +274,10 @@ defmodule TrebyWeb.Layouts do
             <.link
               navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app/ai", else: ~p"/app/ai"}
               data-nav="/app/ai"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Assistant")}
@@ -275,6 +287,10 @@ defmodule TrebyWeb.Layouts do
                 if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
               }
               data-nav="/app/import"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Import")}
@@ -286,6 +302,10 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/interviews"
               }
               data-nav="/app/interviews"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Interviews")}
@@ -297,6 +317,10 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/analytics"
               }
               data-nav="/app/analytics"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Analytics")}
@@ -308,6 +332,10 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/messages-queue"
               }
               data-nav="/app/messages-queue"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Message Queue")}
@@ -323,6 +351,10 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/settings"
               }
               data-nav="/app/settings"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               {gettext("Settings")}

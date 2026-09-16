@@ -8,8 +8,8 @@ Define the main application navigation including desktop nav bar, mobile drawer,
 The app navigation SHALL display links to all key features: Jobs, Candidates, Import, Interviews, Analytics, and Settings (admin only).
 
 #### Scenario: Desktop nav shows all links
-- **WHEN** a logged-in user views the desktop navigation bar
-- **THEN** links to Jobs, Candidates, Import, Interviews, and Analytics are visible
+- **WHEN** a logged-in user views the navigation bar at 1280px width or wider
+- **THEN** inline links to Jobs, Candidates, Import, Interviews, and Analytics are visible
 - **AND** the Settings link is visible only if the user has admin role
 
 #### Scenario: Mobile drawer shows all links

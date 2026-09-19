@@ -46,3 +46,6 @@ npm-debug.log
 # Local environment secrets (never commit these; keep .env.example tracked)
 .env
 .envrc
+
+# Local reports (never commit)
+/reports/

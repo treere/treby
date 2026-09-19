@@ -57,6 +57,13 @@
           placeholder={gettext("Repeat your password")}
           autocomplete="new-password"
         />
+        <input type="hidden" name="user[timezone]" id="registration-timezone" />
+        <script>
+          (function() {
+            var el = document.getElementById("registration-timezone");
+            if (el) { el.value = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
+          })();
+        </script>
       </div>
 
       <div>

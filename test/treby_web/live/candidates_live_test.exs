@@ -65,6 +65,21 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       assert html =~ "Import from CSV"
     end
 
+    test "clicking Add a candidate in empty state opens the create form", %{conn: conn} do
+      {_tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+
+      refute render(view) =~ "candidate-form"
+
+      view
+      |> element("button", "Add a candidate")
+      |> render_click()
+
+      assert render(view) =~ "candidate-form"
+    end
+
     test "hides empty state when candidates exist", %{conn: conn} do
       {tenant, user} = setup_tenant()
 

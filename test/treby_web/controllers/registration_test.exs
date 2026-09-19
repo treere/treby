@@ -193,6 +193,20 @@ defmodule TrebyWeb.RegistrationTest do
       assert tenant.name == "Tech Corp #{unique}"
     end
 
+    test "captures the company timezone from the submitted browser value", %{conn: conn} do
+      email = unique_email()
+      {conn, code} = send_code(conn, email)
+      conn = verify_email(conn, code)
+
+      conn = submit_full_form(conn, %{"timezone" => "Europe/Rome"})
+      assert redirected_to(conn) =~ ~r"/.+/app"
+
+      user = Accounts.get_user!(get_session(conn, "user_id"))
+      tenant = Treby.Tenants.get_tenant!(user.tenant_id)
+      assert tenant.timezone == "Europe/Rome"
+      assert user.timezone == "Europe/Rome"
+    end
+
     test "a full form without a verified email is treated as the email step", %{conn: conn} do
       conn = submit_full_form(conn, %{"email" => unique_email()})
       assert redirected_to(conn) == "/register/verify"

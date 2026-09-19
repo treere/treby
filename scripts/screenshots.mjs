@@ -287,6 +287,7 @@ const screenshotDefs = [
   { name: "34-interviews-dashboard", url: () => `${BASE_URL}/${tenant}/app/interviews`, auth: true },
   { name: "35-settings-calendar", url: () => `${BASE_URL}/${tenant}/app/settings/calendar`, auth: true },
   { name: "36-settings-availability", url: () => `${BASE_URL}/${tenant}/app/settings/availability`, auth: true },
+  { name: "43-company-availability", url: () => `${BASE_URL}/${tenant}/app/settings/company-availability`, auth: true },
   { name: "37-settings-emails", url: () => `${BASE_URL}/${tenant}/app/settings/emails`, auth: true },
   { name: "38-settings-audit-log", url: () => `${BASE_URL}/${tenant}/app/settings/audit-log`, auth: true },
   { name: "39-settings-notifications", url: () => `${BASE_URL}/${tenant}/app/settings/notifications`, auth: true },

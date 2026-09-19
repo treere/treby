@@ -40,26 +40,76 @@ defmodule Treby.AvailabilityTest do
     end
   end
 
+  describe "company and user rule listing" do
+    test "list_company_rules returns only company-scoped rules", %{tenant: tenant, user: user} do
+      {:ok, _} =
+        Availability.create_rule(%{
+          tenant_id: tenant.id,
+          scope: "company",
+          day_of_week: 1,
+          start_time: ~T[09:00:00],
+          end_time: ~T[17:00:00]
+        })
+
+      {:ok, _} =
+        create_rule(user.id, tenant.id,
+          day_of_week: 2,
+          start_time: ~T[09:00:00],
+          end_time: ~T[17:00:00]
+        )
+
+      company_rules = Availability.list_company_rules(tenant.id)
+      assert length(company_rules) == 1
+      assert hd(company_rules).scope == "company"
+
+      user_rules = Availability.list_user_rules(user.id)
+      assert length(user_rules) == 1
+      assert hd(user_rules).scope == "user"
+    end
+
+    test "company rules have a null user_id", %{tenant: tenant} do
+      {:ok, rule} =
+        Availability.create_rule(%{
+          tenant_id: tenant.id,
+          scope: "company",
+          day_of_week: 1,
+          start_time: ~T[09:00:00],
+          end_time: ~T[17:00:00]
+        })
+
+      assert rule.user_id == nil
+    end
+  end
+
   describe "create_rule/1" do
-    test "creates a rule with valid attrs", %{user: user, tenant: tenant} do
+    test "creates a user rule with valid attrs", %{user: user, tenant: tenant} do
       attrs = %{
         user_id: user.id,
         tenant_id: tenant.id,
         day_of_week: 1,
         start_time: ~T[09:00:00],
-        end_time: ~T[17:00:00],
-        timezone: "America/New_York",
-        buffer_before: 15,
-        buffer_after: 15
+        end_time: ~T[17:00:00]
       }
 
       assert {:ok, %AvailabilityRule{} = rule} = Availability.create_rule(attrs)
       assert rule.day_of_week == 1
       assert rule.start_time == ~T[09:00:00]
       assert rule.end_time == ~T[17:00:00]
-      assert rule.timezone == "America/New_York"
-      assert rule.buffer_before == 15
-      assert rule.buffer_after == 15
+      assert rule.scope == "user"
+    end
+
+    test "rejects a company rule that carries a user_id", %{user: user, tenant: tenant} do
+      attrs = %{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        scope: "company",
+        day_of_week: 1,
+        start_time: ~T[09:00:00],
+        end_time: ~T[17:00:00]
+      }
+
+      assert {:error, changeset} = Availability.create_rule(attrs)
+      assert errors_on(changeset) |> Map.has_key?(:user_id)
     end
 
     test "returns error with invalid attrs" do
@@ -104,10 +154,7 @@ defmodule Treby.AvailabilityTest do
       create_rule(user.id, tenant.id,
         day_of_week: Date.day_of_week(~D[2024-01-15]),
         start_time: ~T[09:00:00],
-        end_time: ~T[17:00:00],
-        timezone: "UTC",
-        buffer_before: 0,
-        buffer_after: 0
+        end_time: ~T[17:00:00]
       )
 
       slots =
@@ -125,23 +172,36 @@ defmodule Treby.AvailabilityTest do
       assert slots == []
     end
 
+    test "falls back to the company template when the user has no rules", %{
+      user: user,
+      tenant: tenant
+    } do
+      {:ok, _} =
+        Availability.create_rule(%{
+          tenant_id: tenant.id,
+          scope: "company",
+          day_of_week: Date.day_of_week(~D[2024-01-15]),
+          start_time: ~T[09:00:00],
+          end_time: ~T[12:00:00]
+        })
+
+      slots =
+        Availability.compute_slots(user.id, %{from: ~D[2024-01-15], to: ~D[2024-01-15]})
+
+      assert length(slots) == 6
+    end
+
     test "returns slots across multiple days", %{user: user, tenant: tenant} do
       create_rule(user.id, tenant.id,
         day_of_week: 1,
         start_time: ~T[09:00:00],
-        end_time: ~T[12:00:00],
-        timezone: "UTC",
-        buffer_before: 0,
-        buffer_after: 0
+        end_time: ~T[12:00:00]
       )
 
       create_rule(user.id, tenant.id,
         day_of_week: 2,
         start_time: ~T[10:00:00],
-        end_time: ~T[14:00:00],
-        timezone: "UTC",
-        buffer_before: 0,
-        buffer_after: 0
+        end_time: ~T[14:00:00]
       )
 
       # 2024-01-15 is Monday, 2024-01-16 is Tuesday
@@ -152,14 +212,33 @@ defmodule Treby.AvailabilityTest do
       assert length(slots) == 14
     end
 
+    test "unions multiple disjoint windows on the same day", %{user: user, tenant: tenant} do
+      create_rule(user.id, tenant.id,
+        day_of_week: 1,
+        start_time: ~T[09:00:00],
+        end_time: ~T[10:00:00]
+      )
+
+      create_rule(user.id, tenant.id,
+        day_of_week: 1,
+        start_time: ~T[14:00:00],
+        end_time: ~T[15:00:00]
+      )
+
+      slots =
+        Availability.compute_slots(user.id, %{from: ~D[2024-01-15], to: ~D[2024-01-15]})
+
+      assert length(slots) == 4
+    end
+
     test "handles timezone conversion correctly", %{user: user, tenant: tenant} do
+      {:ok, _} =
+        Treby.Repo.update(Ecto.Changeset.change(user, %{timezone: "America/New_York"}))
+
       create_rule(user.id, tenant.id,
         day_of_week: Date.day_of_week(~D[2024-01-15]),
         start_time: ~T[09:00:00],
-        end_time: ~T[17:00:00],
-        timezone: "America/New_York",
-        buffer_before: 0,
-        buffer_after: 0
+        end_time: ~T[17:00:00]
       )
 
       slots =
@@ -213,10 +292,7 @@ defmodule Treby.AvailabilityTest do
       create_rule(user.id, tenant.id,
         day_of_week: Date.day_of_week(~D[2024-01-15]),
         start_time: ~T[09:00:00],
-        end_time: ~T[11:00:00],
-        timezone: "UTC",
-        buffer_before: 0,
-        buffer_after: 0
+        end_time: ~T[11:00:00]
       )
 
       insert_interview_event(
@@ -243,10 +319,7 @@ defmodule Treby.AvailabilityTest do
       create_rule(user.id, tenant.id,
         day_of_week: Date.day_of_week(~D[2024-01-15]),
         start_time: ~T[09:00:00],
-        end_time: ~T[15:00:00],
-        timezone: "UTC",
-        buffer_before: 0,
-        buffer_after: 0
+        end_time: ~T[15:00:00]
       )
 
       insert_interview_event(
@@ -284,10 +357,7 @@ defmodule Treby.AvailabilityTest do
       create_rule(user.id, tenant.id,
         day_of_week: Date.day_of_week(~D[2024-01-15]),
         start_time: ~T[09:00:00],
-        end_time: ~T[11:00:00],
-        timezone: "UTC",
-        buffer_before: 0,
-        buffer_after: 0
+        end_time: ~T[11:00:00]
       )
 
       {:ok, _} =
@@ -304,6 +374,65 @@ defmodule Treby.AvailabilityTest do
                Availability.compute_slots(user.id, %{from: ~D[2024-01-15], to: ~D[2024-01-15]})
 
       assert resp["error"] == "boom"
+    end
+  end
+
+  describe "seeding" do
+    test "seed_company_default_rules creates 10 company rules", %{tenant: tenant} do
+      Treby.Availability.seed_company_default_rules(tenant)
+      rules = Availability.list_company_rules(tenant.id)
+      assert length(rules) == 10
+      assert Enum.all?(rules, &(&1.scope == "company"))
+    end
+
+    test "seed_user_from_company copies the company template into the user scope", %{
+      user: user,
+      tenant: tenant
+    } do
+      Treby.Availability.seed_company_default_rules(tenant)
+      Treby.Availability.seed_user_from_company(user, tenant)
+      rules = Availability.list_user_rules(user.id)
+      assert length(rules) == 10
+      assert Enum.all?(rules, &(&1.scope == "user"))
+      assert Enum.all?(rules, &(&1.user_id == user.id))
+    end
+  end
+
+  describe "compute_overlapping_slots/4 multi-window" do
+    test "unions multiple windows across examiners", %{tenant: tenant} do
+      {:ok, ex1} = insert_user(tenant.id)
+      {:ok, ex2} = insert_user(tenant.id)
+
+      for ex <- [ex1, ex2] do
+        Availability.create_rule(%{
+          user_id: ex.id,
+          tenant_id: tenant.id,
+          day_of_week: 1,
+          start_time: ~T[09:00:00],
+          end_time: ~T[10:00:00]
+        })
+
+        Availability.create_rule(%{
+          user_id: ex.id,
+          tenant_id: tenant.id,
+          day_of_week: 1,
+          start_time: ~T[14:00:00],
+          end_time: ~T[15:00:00]
+        })
+      end
+
+      # 2024-01-15 is Monday
+      slots =
+        Availability.compute_overlapping_slots([ex1.id, ex2.id], 2, %{
+          from: ~D[2024-01-15],
+          to: ~D[2024-01-15]
+        })
+
+      assert length(slots) == 4
+
+      for slot <- slots do
+        assert Enum.sort(slot.available_examiners) == Enum.sort([ex1.id, ex2.id])
+      end
     end
   end
 
@@ -328,10 +457,7 @@ defmodule Treby.AvailabilityTest do
   defp create_rule(user_id, tenant_id, attrs) do
     default_attrs = %{
       user_id: user_id,
-      tenant_id: tenant_id,
-      timezone: "UTC",
-      buffer_before: 15,
-      buffer_after: 15
+      tenant_id: tenant_id
     }
 
     Availability.create_rule(Map.merge(default_attrs, Map.new(attrs)))

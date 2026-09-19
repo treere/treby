@@ -14,6 +14,7 @@ defmodule Treby.Accounts.User do
     field :role, :string, default: "member"
     field :locale, :string, default: "en"
     field :onboarding_checklist_dismissed, :boolean, default: false
+    field :timezone, :string, default: "UTC"
 
     belongs_to :tenant, Treby.Tenants.Tenant
     has_many :memberships, Treby.Memberships.Membership
@@ -24,7 +25,7 @@ defmodule Treby.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :password, :name, :role])
+    |> cast(attrs, [:email, :password, :name, :role, :timezone])
     |> validate_required([:email, :password, :name])
     |> normalize_email()
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")

@@ -1,10 +1,4 @@
-# Availability Rules
-
-## Purpose
-
-Allow users to configure their availability for interview scheduling. Availability is stored as a weekly schedule of time blocks in the user's timezone.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Set availability rules per day
 The system SHALL allow users to configure their available hours for each day of the week, including multiple disjoint time blocks per day.
@@ -36,6 +30,13 @@ The system SHALL store timezone at the company (tenant) level and at the user le
 - **WHEN** slot generation runs
 - **THEN** company rules are interpreted in the company timezone and user rules in the user timezone, converted to UTC for calendar integration
 
+## REMOVED Requirements
+
+### Requirement: Set buffer times
+Rationale: buffers are removed; the system applies no margin before or after interviews.
+
+## ADDED Requirements
+
 ### Requirement: Materialize user availability at creation
 The system SHALL, when a user is created, copy the company default availability template into the user's own availability rules.
 
@@ -57,14 +58,3 @@ The system SHALL use a user's own availability rules when present, and fall back
 #### Scenario: Neither user nor company has rules
 - **WHEN** slot computation runs for a user and tenant with no availability rules
 - **THEN** no slots are generated
-
-### Requirement: Availability rules CRUD
-The system SHALL allow viewing, creating, editing, and deleting availability rules.
-
-#### Scenario: View weekly schedule
-- **WHEN** a user navigates to the availability settings page
-- **THEN** a table shows their configured time blocks for each day
-
-#### Scenario: Update availability
-- **WHEN** a user changes their Monday hours from 09:00-17:00 to 10:00-18:00
-- **THEN** future slot computations reflect the updated hours

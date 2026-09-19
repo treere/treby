@@ -37,6 +37,17 @@ defmodule Treby.Accounts do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, user} -> {:ok, maybe_seed_availability(user)}
+      error -> error
+    end
+  end
+
+  defp maybe_seed_availability(%User{tenant_id: nil} = user), do: user
+
+  defp maybe_seed_availability(%User{} = user) do
+    tenant = Treby.Tenants.get_tenant!(user.tenant_id)
+    Treby.Availability.seed_user_from_company(user, tenant)
   end
 
   def update_user(%User{} = user, attrs, actor \\ nil) do

@@ -51,6 +51,9 @@ defmodule Treby.Tenants do
           })
         end
 
+        # Seed company default availability template (Mon–Fri, 09:00–13:00 and 14:00–18:00)
+        Treby.Availability.seed_company_default_rules(tenant)
+
         {:ok, tenant}
 
       error ->

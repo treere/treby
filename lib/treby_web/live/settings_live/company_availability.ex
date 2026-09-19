@@ -1,4 +1,4 @@
-defmodule TrebyWeb.SettingsLive.Availability do
+defmodule TrebyWeb.SettingsLive.CompanyAvailability do
   use TrebyWeb, :live_view
 
   alias Treby.{Accounts, Tenants, Availability}
@@ -52,24 +52,40 @@ defmodule TrebyWeb.SettingsLive.Availability do
           {nil, nil}
       end
 
-    rules = Availability.list_rules_for_user(user.id)
+    if user.role != "admin" do
+      {:noreply, push_navigate(socket, to: ~p"/app/settings/availability")}
+    else
+      rules = Availability.list_company_rules(tenant.id)
 
-    {:ok,
-     socket
-     |> assign(current_user: user, current_tenant: tenant)
-     |> assign(rules: rules)
-     |> assign(user_timezone: user.timezone)
-     |> assign(show_form: false)
-     |> assign(editing_rule: nil)
-     |> assign(
-       form:
-         to_form(
-           Availability.change_rule(%AvailabilityRule{user_id: user.id, tenant_id: tenant.id})
-         )
-     )
-     |> assign(days_of_week: @days_of_week)
-     |> assign(timezones: @timezones)
-     |> assign(confirm_delete: nil)}
+      {:ok,
+       socket
+       |> assign(current_user: user, current_tenant: tenant)
+       |> assign(rules: rules)
+       |> assign(company_timezone: tenant.timezone)
+       |> assign(show_form: false)
+       |> assign(editing_rule: nil)
+       |> assign(
+         form:
+           to_form(
+             Availability.change_rule(%AvailabilityRule{tenant_id: tenant.id, scope: "company"})
+           )
+       )
+       |> assign(days_of_week: @days_of_week)
+       |> assign(timezones: @timezones)
+       |> assign(confirm_delete: nil)}
+    end
+  end
+
+  defp day_name(0), do: gettext("Sunday")
+  defp day_name(1), do: gettext("Monday")
+  defp day_name(2), do: gettext("Tuesday")
+  defp day_name(3), do: gettext("Wednesday")
+  defp day_name(4), do: gettext("Thursday")
+  defp day_name(5), do: gettext("Friday")
+  defp day_name(6), do: gettext("Saturday")
+
+  defp format_time(time) do
+    Calendar.strftime(time, "%H:%M")
   end
 
   def render(assigns) do
@@ -81,22 +97,24 @@ defmodule TrebyWeb.SettingsLive.Availability do
             &larr; {gettext("Back to Settings")}
           </.button>
           <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {gettext("Availability")}
+            {gettext("Company Availability")}
           </h1>
           <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            {gettext("Set your available hours for interview scheduling")}
+            {gettext(
+              "Set the company's default available hours. New team members start with a copy of this schedule."
+            )}
           </p>
           <div class="mt-4 flex items-center gap-3">
-            <label for="user-timezone" class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              {gettext("Timezone")}
+            <label for="company-timezone" class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              {gettext("Company Timezone")}
             </label>
             <select
               name="timezone"
-              id="user-timezone"
+              id="company-timezone"
               phx-change="update_timezone"
               class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
             >
-              <option :for={tz <- @timezones} value={tz} selected={tz == @user_timezone}>
+              <option :for={tz <- @timezones} value={tz} selected={tz == @company_timezone}>
                 {tz}
               </option>
             </select>
@@ -105,7 +123,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
 
         <div class="mb-6">
           <.button variant="primary" phx-click="show_create_form">
-            <.icon name="hero-plus" class="mr-2 h-4 w-4" /> Add Availability
+            <.icon name="hero-plus" class="mr-2 h-4 w-4" /> Add Time Slot
           </.button>
         </div>
 
@@ -114,11 +132,11 @@ defmodule TrebyWeb.SettingsLive.Availability do
           class="mb-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
         >
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {if @editing_rule, do: gettext("Edit Availability"), else: "New Availability"}
+            {if @editing_rule, do: gettext("Edit Time Slot"), else: "New Time Slot"}
           </h2>
           <.form
             for={@form}
-            id="availability-form"
+            id="company-availability-form"
             phx-submit="save_rule"
             phx-change="validate_rule"
             class="space-y-4"
@@ -192,25 +210,26 @@ defmodule TrebyWeb.SettingsLive.Availability do
               <% end %>
               <tr :if={@rules == []}>
                 <td colspan="3" class="px-6 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  No availability rules set. Add your available hours to enable interview scheduling.
+                  No company availability set. Add default time slots to enable interview scheduling.
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+
+      <.confirm_dialog
+        id="confirm-company-availability"
+        show={@confirm_delete != nil}
+        title={@confirm_delete && @confirm_delete.title}
+        message={@confirm_delete && @confirm_delete.message}
+        confirm_label="Delete"
+        confirm_variant="danger"
+        on_confirm="do_delete_rule"
+        on_cancel="cancel_delete"
+        extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
+      />
     </Layouts.app>
-    <.confirm_dialog
-      id="confirm-availability"
-      show={@confirm_delete != nil}
-      title={@confirm_delete && @confirm_delete.title}
-      message={@confirm_delete && @confirm_delete.message}
-      confirm_label="Delete"
-      confirm_variant="danger"
-      on_confirm="do_delete_rule"
-      on_cancel="cancel_delete"
-      extra_attrs={(@confirm_delete && %{id: @confirm_delete.id}) || %{}}
-    />
     """
   end
 
@@ -218,8 +237,8 @@ defmodule TrebyWeb.SettingsLive.Availability do
     form =
       to_form(
         Availability.change_rule(%AvailabilityRule{
-          user_id: socket.assigns.current_user.id,
-          tenant_id: socket.assigns.current_tenant.id
+          tenant_id: socket.assigns.current_tenant.id,
+          scope: "company"
         })
       )
 
@@ -227,11 +246,11 @@ defmodule TrebyWeb.SettingsLive.Availability do
   end
 
   def handle_event("update_timezone", %{"timezone" => timezone}, socket) do
-    user = socket.assigns.current_user
-    {:ok, _user} = Treby.Repo.update(Ecto.Changeset.change(user, %{timezone: timezone}))
+    tenant = socket.assigns.current_tenant
+    {:ok, _tenant} = Tenants.update_tenant(tenant, %{timezone: timezone})
 
     {:noreply,
-     assign(socket, current_user: %{user | timezone: timezone}, user_timezone: timezone)}
+     assign(socket, current_tenant: %{tenant | timezone: timezone}, company_timezone: timezone)}
   end
 
   def handle_event("edit_rule", %{"rule_id" => rule_id}, socket) do
@@ -249,10 +268,7 @@ defmodule TrebyWeb.SettingsLive.Availability do
     rule =
       case socket.assigns.editing_rule do
         nil ->
-          %AvailabilityRule{
-            user_id: socket.assigns.current_user.id,
-            tenant_id: socket.assigns.current_tenant.id
-          }
+          %AvailabilityRule{tenant_id: socket.assigns.current_tenant.id, scope: "company"}
 
         r ->
           r
@@ -265,8 +281,9 @@ defmodule TrebyWeb.SettingsLive.Availability do
   def handle_event("save_rule", %{"availability_rule" => rule_params}, socket) do
     attrs =
       rule_params
-      |> Map.put("user_id", socket.assigns.current_user.id)
       |> Map.put("tenant_id", socket.assigns.current_tenant.id)
+      |> Map.put("scope", "company")
+      |> Map.delete("user_id")
 
     result =
       case socket.assigns.editing_rule do
@@ -275,19 +292,12 @@ defmodule TrebyWeb.SettingsLive.Availability do
       end
 
     case result do
-      {:ok, _} ->
-        rules = Availability.list_rules_for_user(socket.assigns.current_user.id)
-
-        {:noreply,
-         socket
-         |> assign(rules: rules, show_form: false, editing_rule: nil)
-         |> put_flash(:info, gettext("Availability saved"))}
+      {:ok, _rule} ->
+        rules = Availability.list_company_rules(socket.assigns.current_tenant.id)
+        {:noreply, assign(socket, rules: rules, show_form: false, editing_rule: nil)}
 
       {:error, changeset} ->
-        {:noreply,
-         socket
-         |> assign(form: to_form(changeset))
-         |> put_flash(:error, gettext("Please review the errors below"))}
+        {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
 
@@ -299,30 +309,14 @@ defmodule TrebyWeb.SettingsLive.Availability do
     {:noreply, assign(socket, confirm_delete: %{id: id, title: title, message: message})}
   end
 
-  def handle_event("cancel_delete", _params, socket) do
+  def handle_event("cancel_delete", _, socket) do
     {:noreply, assign(socket, confirm_delete: nil)}
   end
 
-  def handle_event("do_delete_rule", %{"id" => rule_id}, socket) do
-    rule = Availability.get_rule!(rule_id)
+  def handle_event("do_delete_rule", %{"id" => id}, socket) do
+    rule = Availability.get_rule!(id)
     {:ok, _} = Availability.delete_rule(rule)
-
-    rules = Availability.list_rules_for_user(socket.assigns.current_user.id)
-
-    {:noreply,
-     socket
-     |> assign(rules: rules, confirm_delete: nil)
-     |> put_flash(:info, gettext("Availability rule deleted"))}
-  end
-
-  defp day_name(day), do: @days_of_week |> Enum.find(fn {d, _} -> d == day end) |> elem(1)
-
-  defp format_time(time) do
-    case time do
-      %Time{} -> Elixir.Calendar.strftime(time, "%H:%M")
-      {:ok, time} -> Elixir.Calendar.strftime(time, "%H:%M")
-      time when is_binary(time) -> String.slice(time, 0, 5)
-      _ -> ""
-    end
+    rules = Availability.list_company_rules(socket.assigns.current_tenant.id)
+    {:noreply, assign(socket, rules: rules, confirm_delete: nil)}
   end
 end

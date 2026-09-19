@@ -83,6 +83,7 @@ defmodule TrebyWeb.Router do
       live "/settings/branding", SettingsLive.Branding
       live "/settings/calendar", SettingsLive.Calendar
       live "/settings/availability", SettingsLive.Availability
+      live "/settings/company-availability", SettingsLive.CompanyAvailability
       live "/settings/language", SettingsLive.Language
       live "/settings/scorecards", SettingsLive.Scorecards
       live "/settings/emails", SettingsLive.EmailTemplates
@@ -140,6 +141,7 @@ defmodule TrebyWeb.Router do
       live "/settings/branding", SettingsLive.Branding
       live "/settings/calendar", SettingsLive.Calendar
       live "/settings/availability", SettingsLive.Availability
+      live "/settings/company-availability", SettingsLive.CompanyAvailability
       live "/settings/language", SettingsLive.Language
       live "/settings/scorecards", SettingsLive.Scorecards
       live "/settings/emails", SettingsLive.EmailTemplates

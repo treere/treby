@@ -9,6 +9,7 @@ defmodule Treby.Tenants.Tenant do
     field :name, :string
     field :slug, :string
     field :settings, :map, default: %{}
+    field :timezone, :string, default: "UTC"
 
     has_many :users, Treby.Accounts.User
     has_many :jobs, Treby.Jobs.Job
@@ -22,7 +23,7 @@ defmodule Treby.Tenants.Tenant do
   @doc false
   def changeset(tenant, attrs) do
     tenant
-    |> cast(attrs, [:name, :slug, :settings])
+    |> cast(attrs, [:name, :slug, :settings, :timezone])
     |> validate_required([:name])
     |> unique_constraint(:slug)
     |> validate_format(:slug, ~r/^[a-z0-9-]+$/,

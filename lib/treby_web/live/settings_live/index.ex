@@ -171,6 +171,20 @@ defmodule TrebyWeb.SettingsLive.Index do
           </.link>
 
           <.link
+            :if={@current_membership.role == "admin"}
+            navigate={~p"/app/settings/company-availability"}
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
+            id="settings-company-availability"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Company Availability")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+              {gettext("Set the company's default hours for new team members")}
+            </p>
+          </.link>
+
+          <.link
             navigate={~p"/app/settings/language"}
             class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
           >

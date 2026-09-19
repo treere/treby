@@ -59,6 +59,7 @@ export default defineConfig({
           { text: "Bulk Operations", link: "/features/bulk-operations" },
           { text: "Candidate Comparison", link: "/features/comparison" },
           { text: "Custom Fields", link: "/features/custom-fields" },
+          { text: "Company Availability", link: "/features/company-availability" },
           { text: "Dark Mode", link: "/features/dark-mode" },
           { text: "Workspace Switching", link: "/features/workspace-switching" },
           { text: "Language (IT/EN)", link: "/features/i18n" },

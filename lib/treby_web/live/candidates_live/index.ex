@@ -345,11 +345,16 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 "Add candidates manually, import from a CSV file, or let them apply through your career page. Candidates will appear here once added."
               )
             }
-            actions={[
-              %{href: ~p"/app/candidates", label: gettext("Add a candidate")},
-              %{href: ~p"/app/import", label: gettext("Import from CSV")}
-            ]}
-          />
+          >
+            <:cta>
+              <.button phx-click="show_create_form" variant="primary">
+                {gettext("Add a candidate")}
+              </.button>
+              <.button variant="secondary" navigate={~p"/app/import"}>
+                {gettext("Import from CSV")}
+              </.button>
+            </:cta>
+          </.empty_state>
           <div class="mt-4">
             <.pagination
               id="pagination"

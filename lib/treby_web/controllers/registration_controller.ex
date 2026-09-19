@@ -152,7 +152,12 @@ defmodule TrebyWeb.RegistrationController do
         |> redirect(to: ~p"/login")
 
       true ->
-        case Tenants.create_tenant(%{name: Ecto.Changeset.get_field(changeset, :company_name)}) do
+        timezone = Map.get(user_params, "timezone") || "UTC"
+
+        case Tenants.create_tenant(%{
+               name: Ecto.Changeset.get_field(changeset, :company_name),
+               timezone: timezone
+             }) do
           {:ok, tenant} ->
             case tenant
                  |> Ecto.build_assoc(:users)
@@ -160,7 +165,8 @@ defmodule TrebyWeb.RegistrationController do
                    email: verified_email,
                    password: user_params["password"],
                    name: user_params["name"],
-                   role: "admin"
+                   role: "admin",
+                   timezone: tenant.timezone
                  })
                  |> Repo.insert() do
               {:ok, user} ->
@@ -171,6 +177,9 @@ defmodule TrebyWeb.RegistrationController do
                     tenant_id: tenant.id,
                     role: "admin"
                   })
+
+                # Materialize the user's availability from the company template
+                Treby.Availability.seed_user_from_company(user, tenant)
 
                 conn
                 |> put_session("user_id", user.id)

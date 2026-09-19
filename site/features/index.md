@@ -55,6 +55,9 @@ Side-by-side evaluation of 2–3 candidates with their applications, notes and s
 ## [Custom Fields](/features/custom-fields)
 Dynamic per-entity fields (candidate / application / job) configured in Settings.
 
+## [Company Availability](/features/company-availability)
+Admins set the company's default working hours and timezone; every new team member starts with a copy of that schedule, and each person can still adjust their own.
+
 ## [Dark Mode](/features/dark-mode)
 Full dark theme with a light/dark/system toggle in the navigation.
 

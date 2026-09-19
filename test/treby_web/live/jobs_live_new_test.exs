@@ -259,10 +259,10 @@ defmodule TrebyWeb.JobsLive.NewTest do
           "visible" => true
         })
 
-      # Closing an open public job (status change alone) must succeed per validate_visible_requires_open comment
+      # R4 fix: closing an open public job coerces visible to false (private)
       assert {:ok, closed} = Jobs.update_job(open_job, %{"status" => "closed"})
       assert closed.status == "closed"
-      assert closed.visible == true
+      assert closed.visible == false
     end
 
     test "open private job hidden from public board but reachable via direct link", %{conn: conn} do

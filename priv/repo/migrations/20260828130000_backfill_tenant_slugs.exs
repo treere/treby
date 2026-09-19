@@ -4,18 +4,19 @@ defmodule Treby.Repo.Migrations.BackfillTenantSlugs do
   import Ecto.Query
 
   alias Treby.Repo
-  alias Treby.Tenants.Tenant
 
   def up do
-    Tenant
-    |> where([t], is_nil(t.slug) or t.slug == "")
-    |> order_by([t], asc: t.inserted_at)
+    from(t in "tenants",
+      where: is_nil(t.slug) or t.slug == "",
+      order_by: [asc: t.inserted_at],
+      select: %{id: t.id, name: t.name, slug: t.slug}
+    )
     |> Repo.all()
     |> Enum.each(fn tenant ->
       slug = unique_slug(tenant.name, 1)
 
       Repo.update_all(
-        from(t in Tenant, where: t.id == ^tenant.id),
+        from(t in "tenants", where: t.id == ^tenant.id),
         set: [slug: slug]
       )
     end)
@@ -27,7 +28,7 @@ defmodule Treby.Repo.Migrations.BackfillTenantSlugs do
     base = slugify(name)
     candidate = if attempt == 1, do: base, else: "#{base}-#{attempt}"
 
-    if Repo.get_by(Tenant, slug: candidate) do
+    if Repo.exists?(from(t in "tenants", where: t.slug == ^candidate)) do
       unique_slug(name, attempt + 1)
     else
       candidate

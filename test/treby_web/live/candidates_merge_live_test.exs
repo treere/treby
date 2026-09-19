@@ -198,7 +198,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       refute html =~ ~r/rounded-full px-1\.5 py-0\.5">\s*1\s*<\/span>/
     end
 
-    test "add candidate upserts an existing active candidate by email", %{conn: conn} do
+    test "add candidate with duplicate email shows has already been taken", %{conn: conn} do
       {tenant, user} = setup_tenant()
       existing = create_candidate(tenant, "Existing Person", "dup@example.com")
 
@@ -207,13 +207,14 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
 
       view |> element("button", "+ Add Candidate") |> render_click()
 
-      view
-      |> form("#candidate-form", %{
-        "candidate" => %{"name" => "Existing Person", "email" => "DUP@example.com"}
-      })
-      |> render_submit()
+      html =
+        view
+        |> form("#candidate-form", %{
+          "candidate" => %{"name" => "Existing Person", "email" => "DUP@example.com"}
+        })
+        |> render_submit()
 
-      assert render(view) =~ "Candidate added"
+      assert html =~ "has already been taken"
 
       candidates = Enum.filter(Repo.all(Candidate), &(&1.tenant_id == tenant.id))
       assert length(candidates) == 1

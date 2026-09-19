@@ -717,7 +717,15 @@ defmodule TrebyWeb.CandidatesLive.Index do
     else
       attrs = Map.put(attrs, "custom_fields", custom_fields_values)
 
-      result = Candidates.create_or_find(socket.assigns.current_tenant.id, attrs)
+      # R2 fix: profile-only creation (no job) must show duplicate error,
+      # while job-linked creation keeps idempotent dedup via create_or_find
+      # ponytail: branch on job_id, reuse existing context helpers
+      result =
+        if job_id in [nil, ""] do
+          Candidates.create_candidate(attrs)
+        else
+          Candidates.create_or_find(socket.assigns.current_tenant.id, attrs)
+        end
 
       case result do
         {:ok, candidate} ->

@@ -25,4 +25,4 @@ Only users with the **admin** role can open **Company Availability**. Non-admins
 
 When a user has not customized their own hours, scheduling falls back to the company template so interviews can still be booked. If no company template exists, no slots are produced for that user.
 
-![Settings — Company Availability](/screenshots/company-availability.png)
+![Settings — Company Availability](/screenshots/43-company-availability.png)

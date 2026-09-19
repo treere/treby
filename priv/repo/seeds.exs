@@ -193,7 +193,7 @@ end)
   tenant_id: tenant.id,
   title: "Acme Corp Careers",
   description: "Join us in building the future!",
-  published: true,
+  published: true
 })
 |> Repo.insert!()
 

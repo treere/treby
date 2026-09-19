@@ -46,7 +46,7 @@ defmodule Treby.CareersTest do
         tenant
         |> Ecto.build_assoc(:career_pages)
         |> CareerPage.changeset(%{
-          title: "Join Us",
+          title: "Join Us"
         })
         |> Repo.insert()
 

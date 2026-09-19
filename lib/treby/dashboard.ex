@@ -133,7 +133,7 @@ defmodule Treby.Dashboard do
     |> Repo.all()
   end
 
-  def stale_candidates(tenant_id, threshold_days \\ 5) do
+  def stale_candidates(tenant_id, threshold_days \\ 7) do
     cutoff = DateTime.add(DateTime.utc_now(), -threshold_days, :day)
 
     last_activity =
@@ -151,7 +151,7 @@ defmodule Treby.Dashboard do
         left_join: la in subquery(last_activity),
         on: la.entity_id == a.id,
         where: a.tenant_id == ^tenant_id,
-        where: is_nil(la.last_activity) or la.last_activity < ^cutoff,
+        where: fragment("COALESCE(?, ?)", la.last_activity, a.updated_at) < ^cutoff,
         select: a.id
       )
       |> Repo.all()

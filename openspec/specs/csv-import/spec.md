@@ -21,6 +21,11 @@ The system SHALL accept CSV file uploads for candidate import.
 - **WHEN** a user uploads a CSV file larger than 10MB
 - **THEN** an error message is shown: "File must be under 10MB"
 
+#### Scenario: No file selected
+- **WHEN** a user clicks Continue without selecting a CSV file (e.g. via JS bypass)
+- **THEN** an error message is shown: "Please select a CSV file" and no crash occurs
+- **AND** the upload step remains with "No file selected" empty state
+
 ### Requirement: Map CSV columns to fields
 The system SHALL allow users to map CSV columns to candidate and application fields.
 

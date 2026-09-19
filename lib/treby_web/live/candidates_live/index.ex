@@ -1151,27 +1151,35 @@ defmodule TrebyWeb.CandidatesLive.Index do
   end
 
   defp delete_candidate(socket, candidate_id) do
-    candidate = Candidates.get_candidate!(socket.assigns.current_tenant.id, candidate_id)
-
-    case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
-      {:ok, _candidate} ->
+    case Candidates.get_candidate(socket.assigns.current_tenant.id, candidate_id) do
+      nil ->
         {:noreply,
          socket
          |> load_page(socket.assigns.page)
          |> assign(confirm_delete: nil)
-         |> put_flash(:info, gettext("Candidate deleted"))}
+         |> put_flash(:info, gettext("Candidate already deleted"))}
 
-      {:error, :unauthorized} ->
-        {:noreply,
-         socket
-         |> assign(confirm_delete: nil)
-         |> put_flash(:error, gettext("Only admins can delete candidates"))}
+      candidate ->
+        case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
+          {:ok, _candidate} ->
+            {:noreply,
+             socket
+             |> load_page(socket.assigns.page)
+             |> assign(confirm_delete: nil)
+             |> put_flash(:info, gettext("Candidate deleted"))}
 
-      {:error, _} ->
-        {:noreply,
-         socket
-         |> assign(confirm_delete: nil)
-         |> put_flash(:error, gettext("Failed to delete candidate"))}
+          {:error, :unauthorized} ->
+            {:noreply,
+             socket
+             |> assign(confirm_delete: nil)
+             |> put_flash(:error, gettext("Only admins can delete candidates"))}
+
+          {:error, _} ->
+            {:noreply,
+             socket
+             |> assign(confirm_delete: nil)
+             |> put_flash(:error, gettext("Failed to delete candidate"))}
+        end
     end
   end
 

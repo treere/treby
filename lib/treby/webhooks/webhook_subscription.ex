@@ -18,7 +18,7 @@ defmodule Treby.Webhooks.WebhookSubscription do
     timestamps(type: :utc_datetime)
   end
 
-  @https_regex ~r/^https:\/\/.+/i
+  @url_regex ~r/^https?:\/\/.+/i
 
   def changeset(%{__meta__: %{state: :built}} = subscription, attrs) do
     subscription
@@ -34,7 +34,9 @@ defmodule Treby.Webhooks.WebhookSubscription do
     subscription
     |> cast(attrs, [:tenant_id, :target_url, :secret, :active, :description, :events_text])
     |> put_events_from_text()
-    |> validate_format(:target_url, @https_regex, message: "must be a valid https:// URL")
+    |> validate_format(:target_url, @url_regex,
+      message: "must be a valid http:// or https:// URL (https recommended)"
+    )
     |> validate_active_events()
   end
 

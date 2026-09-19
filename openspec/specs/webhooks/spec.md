@@ -60,7 +60,7 @@ The system SHALL deliver a JSON envelope containing the full (shallow) current e
 
 #### Scenario: Successful delivery
 - **WHEN** a `WebhookDelivery` worker runs for a matched subscription
-- **THEN** it POSTs the JSON envelope to `target_url` with headers `X-Treby-Signature` (sha256 HMAC), `X-Treby-Event`, and `X-Treby-Delivery-Id`, over TLS-verified HTTPS
+- **THEN** it POSTs the JSON envelope to `target_url` with headers `X-Treby-Signature` (sha256 HMAC), `X-Treby-Event`, and `X-Treby-Delivery-Id`, over HTTP or TLS-verified HTTPS (https recommended, http allowed for development as configurator decides)
 
 #### Scenario: Deleted entity payload
 - **WHEN** the event is a delete and the entity no longer exists
@@ -73,6 +73,17 @@ The system SHALL deliver a JSON envelope containing the full (shallow) current e
 #### Scenario: PII and secrets are redacted
 - **WHEN** any payload is built
 - **THEN** fields such as `password`, `token`, `otp`, and `resume_content` are dropped and long strings truncated, reusing `Treby.Audit.sanitize_metadata/2`
+
+### Requirement: HTTP and HTTPS target URLs
+The system SHALL accept both `http://` and `https://` target URLs for webhook subscriptions; the configurator decides which to use (https recommended for production).
+
+#### Scenario: HTTP URL is accepted
+- **WHEN** an admin creates a webhook with target URL `http://example.com/hook`
+- **THEN** the subscription is created successfully (validation passes with message "must be a valid http:// or https:// URL" if invalid)
+
+#### Scenario: HTTPS URL is accepted
+- **WHEN** an admin creates a webhook with target URL `https://example.com/hook`
+- **THEN** the subscription is created successfully
 
 ### Requirement: Durable retry and delivery log
 The system SHALL retry failed deliveries via Oban (`max_attempts: 5`, exponential backoff) and record every delivery attempt in a tenant-scoped delivery log with status and response.

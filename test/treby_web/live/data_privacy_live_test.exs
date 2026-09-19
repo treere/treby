@@ -44,14 +44,20 @@ defmodule TrebyWeb.DataPrivacyLiveTest do
     assert html =~ "Export"
   end
 
-  test "member cannot access data-privacy admin page", %{conn: conn} do
+  test "member can view data-privacy page for user scope", %{conn: conn} do
     {tenant, user} = setup_tenant("member")
     conn = login(conn, user)
+    {:ok, _view, html} = live(conn, ~p"/#{tenant.slug}/app/settings/data-privacy")
+    assert html =~ "Data"
+    assert html =~ "Export my data" or html =~ "Delete my account"
+  end
 
-    {:error, {:redirect, %{to: redirect_to}}} =
-      live(conn, ~p"/#{tenant.slug}/app/settings/data-privacy")
-
-    assert redirect_to =~ tenant.slug
+  test "member cannot export tenant data", %{conn: conn} do
+    {tenant, user} = setup_tenant("member")
+    conn = login(conn, user)
+    {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/app/settings/data-privacy")
+    refute has_element?(view, "#data-privacy-export-tenant")
+    assert has_element?(view, "#data-privacy-export-user")
   end
 
   test "download requires signed URL and tenant isolation", %{conn: conn} do

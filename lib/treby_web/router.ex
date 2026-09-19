@@ -93,6 +93,15 @@ defmodule TrebyWeb.Router do
       live "/settings/emails", SettingsLive.EmailTemplates
       live "/settings/notifications", SettingsLive.Notifications
       live "/settings/audit-log", SettingsLive.AuditLog
+    end
+
+    live_session :data_privacy,
+      on_mount: [
+        {TrebyWeb.Hooks.SetLocale, :set_locale},
+        {TrebyWeb.Hooks.RequireMembership, :default},
+        {TrebyWeb.Hooks.AiChat, :default},
+        {TrebyWeb.Hooks.Notifications, :default}
+      ] do
       live "/settings/data-privacy", SettingsLive.DataPrivacy
     end
   end

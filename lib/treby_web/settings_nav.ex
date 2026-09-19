@@ -163,7 +163,7 @@ defmodule TrebyWeb.SettingsNav do
           subtitle: "Data export and erasure requests",
           icon: "hero-lock-closed",
           path: "/settings/data-privacy",
-          role: :admin,
+          role: :member,
           dom_id: "settings-nav-data-privacy"
         },
         %{

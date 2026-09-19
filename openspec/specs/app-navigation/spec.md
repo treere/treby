@@ -14,13 +14,13 @@ The app navigation SHALL display primary links to Home, Jobs, Candidates, Interv
 - **AND** Home points to `/:tenant_slug/app` and each primary link points to `/:tenant_slug/app/...` (e.g. `/acme/app/jobs`) when a tenant is present, falling back to `/app/...` only when no tenant is assigned, and has `data-nav="/app"` with `aria-current="page"` when active
 - **AND** Import is not visible in the top bar
 - **AND** Message Queue is not visible in the top bar
-- **AND** a gear icon for Settings is visible only if the user has admin role (next to the notification bell), with `aria-label` "Settings"
+- **AND** a gear icon for Settings is visible for all authenticated users (next to the notification bell), with `aria-label` "Settings"
 
 #### Scenario: Mobile drawer shows trimmed primary links with explicit Home
 - **WHEN** a logged-in user opens the mobile navigation drawer
 - **THEN** links to Home, Jobs, Candidates, Interviews, Analytics, and Assistant are visible
 - **AND** Import and Message Queue are not visible as top-level items
-- **AND** the Settings gear is visible only if the user has admin role
+- **AND** the Settings gear is visible for all authenticated users
 
 #### Scenario: Active Home link is highlighted
 - **WHEN** a user is on the app home/dashboard (`/app` or `/:tenant_slug/app`)
@@ -34,7 +34,7 @@ The app navigation SHALL display primary links to Home, Jobs, Candidates, Interv
 #### Scenario: Settings landing page uses grouped sidebar
 - **WHEN** a user navigates to `/app/settings` (or `/:tenant_slug/app/settings`)
 - **THEN** the page renders a grouped sidebar with five sections (Organization, Hiring Process, Communication, Scheduling, Privacy & System) instead of a flat grid
-- **AND** the top navigation still contains a single Settings entry point as a gear icon (admin) or via the filtered hub for members
+- **AND** the top navigation still contains a single Settings entry point as a gear icon for all users, leading to a filtered hub for members and full hub for admins
 
 ### Requirement: Header utilities are unified under a user menu
 The top navigation SHALL group theme, language, and logout into a single user dropdown triggered by the user name/avatar, instead of scattering them as separate header controls.
@@ -47,7 +47,7 @@ The top navigation SHALL group theme, language, and logout into a single user dr
 
 #### Scenario: Mobile drawer mirrors unified user menu
 - **WHEN** a user opens the mobile navigation drawer
-- **THEN** the drawer bottom section shows the same unified user area with Theme, Language, and Logout, plus the Settings gear if admin
+- **THEN** the drawer bottom section shows the same unified user area with Theme, Language, and Logout, plus the Settings gear
 
 ### Requirement: Active link is visually highlighted
 The navigation SHALL visually distinguish the link corresponding to the user's current page using the Modern SaaS Minimal active language: `bg-zinc-100 text-zinc-900 rounded-md font-medium` (with `dark:bg-zinc-800`) rather than a blue bottom border.

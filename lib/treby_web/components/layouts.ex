@@ -176,10 +176,6 @@ defmodule TrebyWeb.Layouts do
                 current_tenant={@current_tenant}
               />
               <.link
-                :if={
-                  (@current_membership && @current_membership.role == "admin") ||
-                    (@current_scope && Map.get(@current_scope, :role) == "admin")
-                }
                 navigate={
                   if @current_tenant,
                     do: "/#{@current_tenant.slug}/app/settings",
@@ -386,10 +382,6 @@ defmodule TrebyWeb.Layouts do
               {gettext("Assistant")}
             </.link>
             <.link
-              :if={
-                (@current_membership && @current_membership.role == "admin") ||
-                  (@current_scope && Map.get(@current_scope, :role) == "admin")
-              }
               navigate={
                 if @current_tenant,
                   do: "/#{@current_tenant.slug}/app/settings",

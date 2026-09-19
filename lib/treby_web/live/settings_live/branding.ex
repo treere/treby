@@ -29,7 +29,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
 
     career_page =
       Careers.get_career_page_by_tenant(tenant.id) ||
-        %CareerPage{tenant_id: tenant.id, primary_color: "#3b82f6"}
+        %CareerPage{tenant_id: tenant.id}
 
     form = to_form(Careers.change_career_page(career_page))
 

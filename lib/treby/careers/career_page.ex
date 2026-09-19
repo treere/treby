@@ -10,7 +10,6 @@ defmodule Treby.Careers.CareerPage do
     field :description, :string
     field :about, :string
     field :logo_url, :string
-    field :primary_color, :string, default: "#3b82f6"
     field :published, :boolean, default: false
 
     belongs_to :tenant, Treby.Tenants.Tenant
@@ -26,7 +25,6 @@ defmodule Treby.Careers.CareerPage do
       :description,
       :about,
       :logo_url,
-      :primary_color,
       :published,
       :tenant_id
     ])

@@ -20,7 +20,6 @@ defmodule TrebyWeb.CareerPageTest do
       |> CareerPage.changeset(%{
         title: "Join Our Team",
         description: "We are hiring!",
-        primary_color: "#3b82f6",
         published: true
       })
       |> Repo.insert()

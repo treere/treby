@@ -194,7 +194,6 @@ end)
   title: "Acme Corp Careers",
   description: "Join us in building the future!",
   published: true,
-  primary_color: "#2563EB"
 })
 |> Repo.insert!()
 

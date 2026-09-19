@@ -55,16 +55,42 @@ function highlightActiveNav() {
   const path = window.location.pathname;
   document.querySelectorAll("[data-nav]").forEach((el) => {
     const navPath = el.getAttribute("data-nav");
-    const isActive =
-      path === navPath ||
-      (navPath !== "/app" && path.startsWith(navPath + "/"));
+    let isActive = false;
+    if (navPath === "/app") {
+      isActive = path === "/app" || /^\/[^\/]+\/app\/?$/.test(path);
+    } else if (navPath === "/portal") {
+      isActive = path === "/portal" || /^\/[^\/]+\/portal\/?$/.test(path);
+    } else {
+      isActive = path === navPath || path.includes(navPath) || path.startsWith(navPath + "/");
+      // tenant-scoped: /acme/app/jobs contains /app/jobs
+      if (!isActive && navPath.startsWith("/")) {
+        isActive = path.includes(navPath);
+      }
+    }
+    if (isActive) {
+      el.setAttribute("aria-current", "page");
+    } else {
+      el.removeAttribute("aria-current");
+    }
     if (el.classList.contains("nav-link")) {
-      el.classList.toggle("border-blue-600", isActive);
-      el.classList.toggle("text-blue-600", isActive);
-      el.classList.toggle("border-transparent", !isActive);
+      el.classList.toggle("bg-zinc-100", isActive);
+      el.classList.toggle("dark:bg-zinc-800", isActive);
+      el.classList.toggle("text-zinc-900", isActive);
+      el.classList.toggle("dark:text-zinc-100", isActive);
+      el.classList.toggle("font-medium", isActive);
+      el.classList.toggle("text-zinc-500", !isActive);
+      el.classList.toggle("dark:text-zinc-400", !isActive);
     } else if (el.classList.contains("mobile-nav-link")) {
-      el.classList.toggle("bg-blue-50", isActive);
-      el.classList.toggle("text-blue-600", isActive);
+      el.classList.toggle("bg-zinc-100", isActive);
+      el.classList.toggle("dark:bg-zinc-800", isActive);
+      el.classList.toggle("text-zinc-900", isActive);
+      el.classList.toggle("font-medium", isActive);
+    } else {
+      // portal desktop links (no nav-link class)
+      el.classList.toggle("bg-zinc-100", isActive);
+      el.classList.toggle("dark:bg-zinc-800", isActive);
+      el.classList.toggle("text-zinc-900", isActive);
+      el.classList.toggle("dark:text-zinc-100", isActive);
     }
   });
 }

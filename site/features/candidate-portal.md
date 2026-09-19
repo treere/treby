@@ -20,12 +20,13 @@ Candidates never get a password; team access and candidate access are completely
 
 | Page | What they see |
 |---|---|
-| **Overview** | Application status with **human-friendly labels** (e.g., *Received* instead of *new*), current stage, and next steps |
-| **Messages** | Conversations for each application (two-way messaging with recruiters) |
+| **Dashboard** | At a glance: how many applications you sent, how many unread messages you have, and whether any action is pending — plus a quick **company card** with logo, name and help contact when configured |
+| **Overview** | Each application card shows **company and position**, location and work-type badges when available, **human-friendly labels** (e.g., *Received* instead of *new*), stage badge, applied date, an **unread indicator** and a one-line preview of the latest recruiter message |
+| **Messages** | Conversations for each application (two-way messaging with recruiters) — unread conversations are also surfaced on the Dashboard |
 | **Interviews** | Self-scheduling — pick an available interview slot (see [Interviews](/features/interview-scheduling)) |
 | **Settings** | Notification preferences — which events generate an email and the "important only" filter |
 
-On mobile (e.g., 390px phone) the portal navigation uses a **hamburger → drawer** with an overlay, large 44px touch targets, and no horizontal overflow — the same pattern as the main app. Application cards show a human-readable badge and the detail pane's close button is 44px with an *aria-label*.
+The portal header has explicit navigation **Dashboard → Messages → Schedule → Settings** (plus the company brand that also goes to the Dashboard) on desktop, and the same items plus the brand in the **hamburger → drawer** on mobile. The drawer uses an overlay, 44px touch targets and no horizontal overflow — the same pattern as the main app. Application cards show a human-readable badge and the detail pane's close button is 44px with an *aria-label*.
 
 Each new application automatically creates a welcome conversation. Stage moves, messages, interview updates, and rejections are posted to the same conversation and, when configured, generate a short email notification with a link to the portal.
 

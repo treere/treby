@@ -1,10 +1,4 @@
-# Candidate Portal Dashboard
-
-## Purpose
-
-Provide authenticated candidates with a centralized dashboard to view their applications, track status changes, and engage with recruiters through the candidate portal.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Candidate portal dashboard
 The system SHALL display a dashboard at `/:tenant_slug/portal` for authenticated candidates showing their applications, summary stats, and recent messages. Each application card SHALL make the company, position, stage, and unread state immediately visible.
@@ -26,27 +20,6 @@ The system SHALL display a dashboard at `/:tenant_slug/portal` for authenticated
 #### Scenario: Quick company information visible per application
 - **WHEN** candidate views the dashboard
 - **THEN** each application card or its expanded detail shows quick company info: tenant/company name, logo when configured, short description when available, and a "Need help? Contact ..." block only when `tenant.settings["support_email"]` or `["contact_email"]` is present (no hard-coded fallback)
-
-### Requirement: Candidate views application details
-The system SHALL allow candidates to view details of a specific application, including a clear progress panel showing where they are and what happens next, phrased in candidate-friendly language (no internal roles or blocker jargon).
-
-#### Scenario: Application detail view
-- **WHEN** candidate clicks on an application card
-- **THEN** the system displays: job title, current stage (human label + badge), application date, and a timeline of status changes (system messages)
-
-#### Scenario: Progress panel shows current step and what is next
-- **WHEN** candidate views an application with no action pending on them
-- **THEN** the progress panel shows their current step and the next step in the process (e.g. "You are scheduled for an interview", "Your application is under review")
-- **AND** the panel does not reveal internal roles or internal blocker details
-
-#### Scenario: Progress panel surfaces a pending action for the candidate
-- **WHEN** candidate views an application
-- **AND** there is an action pending on the candidate (e.g. replying to a request for more information, or choosing an interview time slot)
-- **THEN** the progress panel highlights that action as pending on the candidate and links to where they can complete it
-
-#### Scenario: Application with active conversation
-- **WHEN** candidate views an application that has an active conversation
-- **THEN** the system displays the conversation thread with all messages and a reply form at the bottom
 
 ### Requirement: Candidate portal layout
 The system SHALL render the candidate portal with a distinct, simplified layout that is usable on mobile. The layout SHALL include an explicit Dashboard (Home) entry point in addition to the existing brand link.

@@ -20,11 +20,16 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
     else
       applications = Pipeline.list_applications_for_candidate(tenant_id, candidate_id)
 
+      conversations =
+        Treby.CandidatePortal.list_conversations_for_candidate(candidate_id, tenant_id)
+
       Treby.CandidatePortal.subscribe_to_candidate_conversations(candidate_id)
 
       {:ok,
        socket
        |> assign(:applications, applications)
+       |> assign(:stats, build_stats(applications, conversations, tenant.slug))
+       |> assign(:app_conversations, build_app_conversations(conversations))
        |> assign(:current_tenant, tenant)
        |> assign(:current_candidate, candidate)
        |> assign(:page_title, "Dashboard")
@@ -114,20 +119,34 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
 
   @impl true
   def handle_info({:conversation_updated, _conversation_id}, socket) do
+    tenant_id = socket.assigns.current_tenant.id
+    candidate_id = socket.assigns.current_candidate.id
+    slug = socket.assigns.current_tenant.slug
+
+    conversations =
+      Treby.CandidatePortal.list_conversations_for_candidate(candidate_id, tenant_id)
+
+    app_convs = build_app_conversations(conversations)
+    applications = socket.assigns.applications
+    stats = build_stats(applications, conversations, slug)
+
+    socket =
+      socket
+      |> assign(:app_conversations, app_convs)
+      |> assign(:stats, stats)
+
     socket =
       case socket.assigns.selected_application do
         nil ->
           socket
 
         application ->
-          tenant_id = socket.assigns.current_tenant.id
-
-          conversations =
+          convs =
             Treby.CandidatePortal.list_conversations_for_application(application.id, tenant_id)
 
           assign(socket,
-            selected_conversations: conversations,
-            selected_timeline: status_timeline(conversations)
+            selected_conversations: convs,
+            selected_timeline: status_timeline(convs)
           )
       end
 
@@ -144,6 +163,70 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
     >
       <div class="max-w-4xl mx-auto px-4 py-8">
         <.page_header title={gettext("Your Applications")} />
+
+        <div
+          :if={@applications != []}
+          id="portal-summary"
+          class="mt-4 grid grid-cols-3 gap-3 mb-6"
+        >
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 text-center">
+            <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{@stats.total}</p>
+            <p class="text-xs font-medium tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
+              {gettext("Applications")}
+            </p>
+          </div>
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 text-center">
+            <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{@stats.unread}</p>
+            <p class="text-xs font-medium tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
+              {gettext("Unread")}
+            </p>
+          </div>
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 text-center">
+            <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{@stats.pending}</p>
+            <p class="text-xs font-medium tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
+              {gettext("Pending actions")}
+            </p>
+          </div>
+        </div>
+
+        <div
+          :if={@applications != []}
+          id="portal-company-info"
+          class="mb-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 flex items-start gap-3"
+        >
+          <%= if @current_tenant.settings["logo_url"] do %>
+            <img
+              src={@current_tenant.settings["logo_url"]}
+              class="h-10 w-10 rounded-lg object-cover border border-zinc-200 dark:border-zinc-700"
+              alt=""
+            />
+          <% end %>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {@current_tenant.name}
+            </p>
+            <p
+              :if={
+                @current_tenant.settings["company_description"] ||
+                  @current_tenant.settings["description"]
+              }
+              class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2"
+            >
+              {@current_tenant.settings["company_description"] ||
+                @current_tenant.settings["description"]}
+            </p>
+            <p
+              :if={support_email(@current_tenant)}
+              class="text-xs text-zinc-500 dark:text-zinc-400 mt-1"
+            >
+              {gettext("Need help?")}
+              <a
+                href={"mailto:#{support_email(@current_tenant)}"}
+                class="font-medium text-primary hover:underline"
+              >{support_email(@current_tenant)}</a>
+            </p>
+          </div>
+        </div>
 
         <%= if @selected_application do %>
           <.card class="mb-6">
@@ -299,17 +382,76 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
         <% else %>
           <div class="space-y-4">
             <%= for application <- @applications do %>
+              <% conv_info = Map.get(@app_conversations, application.id) %>
               <button
                 phx-click="select_application"
                 phx-value-id={application.id}
+                id={"application-#{application.id}"}
                 class="w-full text-left p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-primary transition-colors shadow-sm"
               >
-                <div class="flex justify-between items-start">
-                  <div>
-                    <p class="font-medium text-zinc-900 dark:text-zinc-100">
-                      {application.job.title}
+                <div class="flex justify-between items-start gap-3">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <p class="font-medium text-zinc-900 dark:text-zinc-100">
+                        {application.job.title}
+                      </p>
+                      <span
+                        :if={conv_info && conv_info.unread}
+                        class="inline-flex items-center gap-1 text-xs font-semibold text-white bg-orange-600 rounded-full px-2 py-0.5"
+                      >
+                        <span class="w-2 h-2 rounded-full bg-white"></span> {gettext("Unread")}
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      <span class="inline-flex items-center gap-1">
+                        <%= if @current_tenant.settings["logo_url"] do %>
+                          <img
+                            src={@current_tenant.settings["logo_url"]}
+                            class="h-4 w-4 rounded object-cover"
+                            alt=""
+                          />
+                        <% end %>
+                        {@current_tenant.name}
+                      </span>
+                      <span>•</span>
+                      <span>{Calendar.strftime(application.applied_at, "%b %d, %Y")}</span>
+                    </div>
+                    <div
+                      :if={
+                        application.job.location || application.job.employment_type ||
+                          application.job.workplace_type
+                      }
+                      class="flex flex-wrap gap-1.5 mt-2"
+                    >
+                      <span
+                        :if={application.job.location}
+                        class="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-700 px-2 py-0.5 text-xs text-zinc-600 dark:text-zinc-300"
+                      >
+                        {application.job.location}
+                      </span>
+                      <span
+                        :if={application.job.employment_type}
+                        class="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-700 px-2 py-0.5 text-xs text-zinc-600 dark:text-zinc-300"
+                      >
+                        {Treby.Jobs.Job.employment_type_label(application.job.employment_type)}
+                      </span>
+                      <span
+                        :if={application.job.workplace_type}
+                        class="inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-700 px-2 py-0.5 text-xs text-zinc-600 dark:text-zinc-300"
+                      >
+                        {Treby.Jobs.Job.workplace_type_label(application.job.workplace_type)}
+                      </span>
+                    </div>
+                    <p
+                      :if={conv_info && conv_info.preview}
+                      class="text-sm text-zinc-600 dark:text-zinc-300 mt-2 line-clamp-1"
+                    >
+                      {conv_info.preview}
                     </p>
-                    <p class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                    <p
+                      :if={!conv_info || !conv_info.preview}
+                      class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-1"
+                    >
                       {application.job.description}
                     </p>
                   </div>
@@ -407,5 +549,65 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
       _ ->
         nil
     end
+  end
+
+  defp build_stats(applications, conversations, _tenant_slug) do
+    total = length(applications)
+
+    unread =
+      conversations
+      |> Enum.filter(fn c ->
+        case List.last(c.messages) do
+          %{sender_type: "recruiter"} -> true
+          _ -> false
+        end
+      end)
+      |> length()
+
+    app_ids_with_unread =
+      conversations
+      |> Enum.filter(fn c ->
+        case List.last(c.messages) do
+          %{sender_type: "recruiter"} -> true
+          _ -> false
+        end
+      end)
+      |> Enum.map(& &1.application_id)
+      |> MapSet.new()
+
+    pending = Enum.count(applications, &MapSet.member?(app_ids_with_unread, &1.id))
+
+    %{total: total, unread: unread, pending: pending}
+  end
+
+  defp build_app_conversations(conversations) do
+    conversations
+    |> Enum.group_by(& &1.application_id)
+    |> Enum.map(fn {app_id, convs} ->
+      latest =
+        convs
+        |> Enum.max_by(& &1.last_message_at, DateTime, fn -> List.first(convs) end)
+
+      last_msg = List.last(latest.messages || [])
+
+      unread =
+        case last_msg do
+          %{sender_type: "recruiter"} -> true
+          _ -> false
+        end
+
+      preview =
+        case last_msg do
+          %{body: body} when is_binary(body) -> String.slice(body, 0, 120)
+          _ -> nil
+        end
+
+      {app_id, %{unread: unread, preview: preview, conversation: latest}}
+    end)
+    |> Map.new()
+  end
+
+  defp support_email(tenant) do
+    tenant.settings["support_email"] || tenant.settings["contact_email"]
   end
 end

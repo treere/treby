@@ -107,6 +107,14 @@ defmodule TrebyWeb.Layouts do
               </div>
               <div class="hidden xl:ml-6 xl:flex xl:space-x-6">
                 <.link
+                  id="nav-home"
+                  navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app", else: ~p"/app"}
+                  data-nav="/app"
+                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors min-h-[44px]"
+                >
+                  {gettext("Home")}
+                </.link>
+                <.link
                   navigate={
                     if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
                   }
@@ -295,6 +303,19 @@ defmodule TrebyWeb.Layouts do
             </button>
           </div>
           <div class="space-y-1">
+            <.link
+              id="nav-home-mobile"
+              navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app", else: ~p"/app"}
+              data-nav="/app"
+              phx-click={
+                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
+                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
+              }
+              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px] flex items-center gap-2"
+            >
+              <.icon name="hero-home" class="w-5 h-5" />
+              {gettext("Home")}
+            </.link>
             <.link
               navigate={
                 if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
@@ -514,7 +535,7 @@ defmodule TrebyWeb.Layouts do
           <div class="flex justify-between h-16">
             <div class="flex items-center">
               <.link
-                navigate={"/#{@current_tenant.slug}/portal/messages"}
+                navigate={"/#{@current_tenant.slug}/portal"}
                 class="flex-shrink-0 flex items-center"
               >
                 <%= if @current_tenant.settings["logo_url"] do %>
@@ -526,22 +547,33 @@ defmodule TrebyWeb.Layouts do
             </div>
             <div class="hidden sm:flex items-center space-x-4">
               <.link
-                navigate={"/#{@current_tenant.slug}/portal/messages"}
-                class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors"
+                id="portal-nav-dashboard"
+                navigate={"/#{@current_tenant.slug}/portal"}
+                data-nav="/portal"
+                class="nav-link text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors inline-flex items-center px-2.5 py-1.5 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 min-h-[44px]"
               >
-                Messages
+                {gettext("Dashboard")}
+              </.link>
+              <.link
+                navigate={"/#{@current_tenant.slug}/portal/messages"}
+                data-nav="/portal/messages"
+                class="nav-link text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors inline-flex items-center px-2.5 py-1.5 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 min-h-[44px]"
+              >
+                {gettext("Messages")}
               </.link>
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/schedule"}
-                class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors"
+                data-nav="/portal/schedule"
+                class="nav-link text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors inline-flex items-center px-2.5 py-1.5 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 min-h-[44px]"
               >
-                Schedule
+                {gettext("Schedule")}
               </.link>
               <.link
                 navigate={"/#{@current_tenant.slug}/portal/settings"}
-                class="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors"
+                data-nav="/portal/settings"
+                class="nav-link text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-primary transition-colors inline-flex items-center px-2.5 py-1.5 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 min-h-[44px]"
               >
-                Settings
+                {gettext("Settings")}
               </.link>
               <span class="text-sm text-zinc-500 dark:text-zinc-400">
                 {@current_candidate.name}
@@ -602,22 +634,34 @@ defmodule TrebyWeb.Layouts do
           </div>
           <div class="space-y-1">
             <.link
+              id="portal-nav-dashboard-mobile"
+              navigate={"/#{@current_tenant.slug}/portal"}
+              data-nav="/portal"
+              class="block px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px] flex items-center gap-2"
+            >
+              <.icon name="hero-home" class="w-5 h-5" />
+              {gettext("Dashboard")}
+            </.link>
+            <.link
               navigate={"/#{@current_tenant.slug}/portal/messages"}
+              data-nav="/portal/messages"
               class="block px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px]"
             >
-              Messages
+              {gettext("Messages")}
             </.link>
             <.link
               navigate={"/#{@current_tenant.slug}/portal/schedule"}
+              data-nav="/portal/schedule"
               class="block px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px]"
             >
-              Schedule
+              {gettext("Schedule")}
             </.link>
             <.link
               navigate={"/#{@current_tenant.slug}/portal/settings"}
+              data-nav="/portal/settings"
               class="block px-3 py-3 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 min-h-[44px]"
             >
-              Settings
+              {gettext("Settings")}
             </.link>
           </div>
           <div class="border-t border-zinc-200 dark:border-zinc-700 mt-4 pt-4 space-y-1">

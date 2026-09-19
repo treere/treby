@@ -16,10 +16,15 @@ defmodule TrebyWeb.SettingsLayout do
     assigns = assigns |> assign(:nav_groups, groups) |> assign(:nav_role, role)
 
     ~H"""
-    <div class="flex flex-col lg:flex-row gap-6">
+    <div
+      class="flex flex-col lg:flex-row gap-6"
+      id="settings-shell"
+      phx-hook=".SettingsScroll"
+      data-active={if @active_key, do: "1", else: "0"}
+    >
       <!-- Sidebar -->
       <aside class="w-full lg:w-72 lg:shrink-0">
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm lg:sticky lg:top-20">
           <nav class="p-4 space-y-6" aria-label="Settings">
             <div :for={group <- @nav_groups}>
               <div class="flex items-center gap-2 px-2 py-1">
@@ -79,10 +84,26 @@ defmodule TrebyWeb.SettingsLayout do
         </div>
       </aside>
       <!-- Main pane -->
-      <div class="flex-1 min-w-0">
+      <div id="settings-main" class="flex-1 min-w-0">
         {render_slot(@inner_block)}
       </div>
     </div>
+
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".SettingsScroll">
+      export default {
+        mounted() {
+          this.maybeScroll();
+        },
+        updated() {
+          this.maybeScroll();
+        },
+        maybeScroll() {
+          if (this.el.dataset.active !== "1") return;
+          const target = document.getElementById("settings-main");
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    </script>
     """
   end
 end

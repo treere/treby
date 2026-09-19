@@ -49,10 +49,10 @@ defmodule TrebyWeb.DashboardLiveTest do
 
   describe "onboarding checklist" do
     test "shows checklist for new user with no data", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "Get Started with Treby"
@@ -84,7 +84,7 @@ defmodule TrebyWeb.DashboardLiveTest do
         |> Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "Get Started with Treby"
@@ -153,17 +153,17 @@ defmodule TrebyWeb.DashboardLiveTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       refute html =~ "Get Started with Treby"
     end
 
     test "session dismiss hides checklist for current page load", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "Get Started with Treby"
@@ -175,10 +175,10 @@ defmodule TrebyWeb.DashboardLiveTest do
     end
 
     test "permanent dismiss persists to database", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       render_click(view, "dismiss-onboarding", %{"dismiss" => "permanent"})
 
@@ -188,13 +188,13 @@ defmodule TrebyWeb.DashboardLiveTest do
     end
 
     test "permanent dismiss hides checklist on reload", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
 
       # Set dismissed in DB
       {:ok, user} = Treby.Accounts.dismiss_onboarding_checklist(user)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       refute html =~ "Get Started with Treby"
@@ -203,10 +203,10 @@ defmodule TrebyWeb.DashboardLiveTest do
 
   describe "dashboard empty states" do
     test "shows empty state for pipeline overview when no jobs", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "No open jobs yet"
@@ -214,20 +214,20 @@ defmodule TrebyWeb.DashboardLiveTest do
     end
 
     test "shows empty state for upcoming interviews", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "No upcoming interviews"
     end
 
     test "shows empty state for stale candidates", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "No stale candidates"
@@ -283,7 +283,7 @@ defmodule TrebyWeb.DashboardLiveTest do
         |> Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
 
@@ -302,10 +302,10 @@ defmodule TrebyWeb.DashboardLiveTest do
 
   describe "my actions panel" do
     test "shows empty state when there is nothing to do", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "My Actions"
@@ -318,7 +318,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, app, _event} = setup_interview_application(tenant, user.id)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "My Actions"
@@ -340,7 +340,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "My Actions"
@@ -352,7 +352,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       {:ok, _app, _event} = setup_interview_application(tenant, user.id)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       view
       |> element("button", "Fill scorecard")
@@ -408,7 +408,7 @@ defmodule TrebyWeb.DashboardLiveTest do
       Treby.Interviews.complete_interview(event)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "Waiting on others"

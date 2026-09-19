@@ -84,4 +84,5 @@ The system SHALL route all authenticated application pages under `/:tenant_slug/
 
 #### Scenario: Legacy /app redirect
 - **WHEN** a user visits the legacy path `/app` or `/app/*`
-- **THEN** the system redirects to `/choose-tenant` or to the user's sole workspace at `/:tenant_slug/app`
+- **THEN** the system redirects to `/:tenant_slug/app/*` (preserving the original path and query) when the user has a single membership, or to `/choose-tenant` when the user has multiple memberships, or to `/login` when no session exists
+- **AND** no LiveView is rendered at the legacy path

@@ -44,10 +44,10 @@ defmodule TrebyWeb.SettingsLive.BrandingTest do
 
   describe "brand settings form" do
     test "has no logo, color, or published controls", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, _view, html} = live(conn, ~p"/app/settings/branding")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/branding")
 
       assert html =~ "About"
       refute html =~ ">Logo<"
@@ -57,10 +57,10 @@ defmodule TrebyWeb.SettingsLive.BrandingTest do
     end
 
     test "saves about and shows it rendered in the preview tab", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/settings/branding")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/branding")
 
       view
       |> form("#branding-form", %{

@@ -68,7 +68,13 @@ defmodule TrebyWeb.InterviewsLive.Index do
      |> assign(view: view)
      |> assign(filter_interviewer_id: nil)
      |> load_interviews()
-     |> push_patch(to: ~p"/app/interviews?view=#{view}")}
+     |> push_patch(
+       to:
+         if(socket.assigns.current_tenant,
+           do: "/#{socket.assigns.current_tenant.slug}/app/interviews?view=#{view}",
+           else: ~p"/app/interviews?view=#{view}"
+         )
+     )}
   end
 
   def handle_event("filter_interviewer", %{"interviewer_id" => interviewer_id}, socket) do

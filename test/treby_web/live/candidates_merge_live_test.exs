@@ -105,7 +105,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       _c2 = create_candidate(tenant, "First Person", "second@example.com", "555-0101")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/merge")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/merge")
 
       assert render(view) =~ "2 profiles may be the same person"
       assert render(view) =~ "High confidence"
@@ -119,7 +119,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       _c2 = create_candidate(tenant, "First Person", "second@example.com", "555-0101")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/merge")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/merge")
 
       view |> element("button", "Dismiss") |> render_click()
 
@@ -133,7 +133,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       _c2 = create_candidate(tenant, "First Person", "second@example.com", "555-0101")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/merge")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/merge")
 
       view |> element("button", "Dismiss") |> render_click()
       assert render(view) =~ "No duplicate candidates"
@@ -141,7 +141,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       assert Repo.aggregate(DismissedMergeGroup, :count) == 1
 
       conn2 = login_user(conn, user)
-      {:ok, _view2, html2} = live(conn2, ~p"/app/candidates/merge")
+      {:ok, _view2, html2} = live(conn2, "/#{tenant.slug}/app/candidates/merge")
       assert html2 =~ "No duplicate candidates"
     end
 
@@ -153,7 +153,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       app = create_application(tenant, job, stage, absorbed)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/merge")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/merge")
 
       view
       |> element(~s{input[phx-value-candidate_id="#{primary.id}"]})
@@ -176,9 +176,9 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       _c2 = create_candidate(tenant, "First Person", "second@example.com", "555-0101")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
-      assert has_element?(view, ~s{a[href="/app/candidates/merge"]}, "Duplicates")
+      assert has_element?(view, ~s{a[href="/#{tenant.slug}/app/candidates/merge"]}, "Duplicates")
       assert render(view) =~ ~r/rounded-full px-1\.5 py-0\.5">\s*1\s*<\/span>/
     end
 
@@ -188,13 +188,18 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       _c2 = create_candidate(tenant, "First Person", "second@example.com", "555-0101")
 
       conn = login_user(conn, user)
-      {:ok, merge_view, _html} = live(conn, ~p"/app/candidates/merge")
+      {:ok, merge_view, _html} = live(conn, "/#{tenant.slug}/app/candidates/merge")
       merge_view |> element("button", "Dismiss") |> render_click()
 
       conn = login_user(conn, user)
-      {:ok, index_view, html} = live(conn, ~p"/app/candidates")
+      {:ok, index_view, html} = live(conn, "/#{tenant.slug}/app/candidates")
 
-      refute has_element?(index_view, ~s{a[href="/app/candidates/merge"]}, "Duplicates")
+      refute has_element?(
+               index_view,
+               ~s{a[href="/#{tenant.slug}/app/candidates/merge"]},
+               "Duplicates"
+             )
+
       refute html =~ ~r/rounded-full px-1\.5 py-0\.5">\s*1\s*<\/span>/
     end
 
@@ -203,7 +208,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       existing = create_candidate(tenant, "Existing Person", "dup@example.com")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view |> element("button", "+ Add Candidate") |> render_click()
 
@@ -229,7 +234,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       absorbed = create_candidate(tenant, "Absorbed Person", "absorbed@example.com")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view |> element(~s{input[phx-value-id="#{primary.id}"]}) |> render_click()
       view |> element(~s{input[phx-value-id="#{absorbed.id}"]}) |> render_click()
@@ -267,11 +272,11 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       conn = login_user(conn, user)
 
       assert {:error, {:live_redirect, %{to: to}}} =
-               live(conn, ~p"/app/candidates/#{absorbed.id}")
+               live(conn, "/#{tenant.slug}/app/candidates/#{absorbed.id}")
 
       assert to == "/app/candidates/#{primary.id}"
 
-      {:ok, _view, html} = live(conn, to)
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates/#{primary.id}")
       assert html =~ "Primary Person"
     end
   end
@@ -287,7 +292,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       {:ok, _} = Candidates.merge_candidates(primary, [absorbed], user)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{primary.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/#{primary.id}")
 
       assert render(view) =~ ~r/This profile absorbed 1 duplicate\s*profile/
       assert has_element?(view, "button", "Undo merge")

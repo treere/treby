@@ -45,10 +45,10 @@ defmodule TrebyWeb.DashboardI18nTest do
 
   describe "dashboard localization" do
     test "dashboard renders in Italian when locale is Italian", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_with_locale(conn, user, "it")
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "Dashboard"
@@ -61,10 +61,10 @@ defmodule TrebyWeb.DashboardI18nTest do
     end
 
     test "dashboard renders in English when locale is English", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_with_locale(conn, user, "en")
 
-      {:ok, view, _html} = live(conn, ~p"/app")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app")
 
       html = render(view)
       assert html =~ "Dashboard"
@@ -74,15 +74,15 @@ defmodule TrebyWeb.DashboardI18nTest do
     end
 
     test "dashboard welcome message is localized with interpolation", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn_it = login_with_locale(conn, user, "it")
-      {:ok, view_it, _} = live(conn_it, ~p"/app")
+      {:ok, view_it, _} = live(conn_it, "/#{tenant.slug}/app")
       html_it = render(view_it)
       assert html_it =~ "Benvenuto" or html_it =~ "Welcome"
 
       conn2 = Phoenix.ConnTest.build_conn()
       conn_en = login_with_locale(conn2, user, "en")
-      {:ok, view_en, _} = live(conn_en, ~p"/app")
+      {:ok, view_en, _} = live(conn_en, "/#{tenant.slug}/app")
       html_en = render(view_en)
       assert html_en =~ "Welcome"
     end

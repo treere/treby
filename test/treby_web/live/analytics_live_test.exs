@@ -48,9 +48,9 @@ defmodule TrebyWeb.AnalyticsLiveTest do
 
   describe "tenant analytics page" do
     test "shows empty placeholders when no candidates", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/analytics")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/analytics")
       html = render(view)
       # pipeline overview placeholder or empty state
       assert html =~ "pipeline-overview-empty" or html =~ "No pipeline data"
@@ -98,7 +98,7 @@ defmodule TrebyWeb.AnalyticsLiveTest do
         |> Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/analytics")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/analytics")
       html = render(view)
       assert html =~ "<svg"
       assert html =~ "pipeline-overview-chart"
@@ -120,7 +120,7 @@ defmodule TrebyWeb.AnalyticsLiveTest do
         |> Repo.insert()
 
       conn_a = login_user(conn, user_a)
-      {:ok, view, _html} = live(conn_a, ~p"/app/analytics")
+      {:ok, view, _html} = live(conn_a, "/#{tenant.slug}/app/analytics")
       html = render(view)
       # should not see tenant B's data
       refute html =~ tenant_b.slug

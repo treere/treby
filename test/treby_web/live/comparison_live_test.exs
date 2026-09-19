@@ -77,10 +77,10 @@ defmodule TrebyWeb.ComparisonLive.IndexTest do
   end
 
   test "shows error state when no candidate ids are provided", %{conn: conn} do
-    {_tenant, user} = setup_tenant()
+    {tenant, user} = setup_tenant()
     conn = login_user(conn, user)
 
-    {:ok, view, _html} = live(conn, ~p"/app/candidates/compare")
+    {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/compare")
 
     html = render(view)
     assert html =~ "Select 2-3 candidates"

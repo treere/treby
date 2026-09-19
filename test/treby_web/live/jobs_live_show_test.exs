@@ -80,7 +80,7 @@ defmodule TrebyWeb.JobsLive.ShowPipelineTest do
   end
 
   defp job_show_live(conn, job) do
-    {:ok, view, _html} = live(conn, ~p"/app/jobs/#{job.id}")
+    {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}")
     view
   end
 
@@ -704,7 +704,7 @@ defmodule TrebyWeb.JobsLive.ShowPipelineTest do
       conn = login_user(conn, user)
       view = job_show_live(conn, job)
 
-      assert render(view) =~ ~p"/app/applications/#{application.id}/resume"
+      assert render(view) =~ "/#{tenant.slug}/app/applications/#{application.id}/resume"
     end
   end
 

@@ -50,7 +50,7 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
         end_time: ~T[17:00:00]
       })
 
-      {:ok, _view, html} = live(conn |> login(user), ~p"/app/settings/availability")
+      {:ok, _view, html} = live(conn |> login(user), "/#{tenant.slug}/app/settings/availability")
 
       assert html =~ "Availability"
       assert html =~ "Monday"
@@ -59,7 +59,7 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
 
     test "adds a new availability rule", %{conn: conn} do
       {_tenant, user} = setup_user("admin")
-      {:ok, view, _html} = live(conn |> login(user), ~p"/app/settings/availability")
+      {:ok, view, _html} = live(conn |> login(user), "/#{tenant.slug}/app/settings/availability")
 
       view |> element("button", "Add Availability") |> render_click()
 
@@ -80,7 +80,7 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
 
     test "changing the timezone selector updates the user", %{conn: conn} do
       {_tenant, user} = setup_user("admin")
-      {:ok, view, _html} = live(conn |> login(user), ~p"/app/settings/availability")
+      {:ok, view, _html} = live(conn |> login(user), "/#{tenant.slug}/app/settings/availability")
 
       render_change(view, "update_timezone", %{"timezone" => "Europe/Rome"})
 
@@ -91,7 +91,9 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
   describe "company availability page" do
     test "admin can open the page and add a company rule", %{conn: conn} do
       {tenant, user} = setup_user("admin")
-      {:ok, view, _html} = live(conn |> login(user), ~p"/app/settings/company-availability")
+
+      {:ok, view, _html} =
+        live(conn |> login(user), "/#{tenant.slug}/app/settings/company-availability")
 
       view |> element("button", "Add Time Slot") |> render_click()
 
@@ -114,14 +116,16 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
       {_tenant, user} = setup_user("member")
 
       assert {:error, {:redirect, %{to: to}}} =
-               live(conn |> login(user), ~p"/app/settings/company-availability")
+               live(conn |> login(user), "/#{tenant.slug}/app/settings/company-availability")
 
       refute to =~ "company-availability"
     end
 
     test "changing the company timezone updates the tenant", %{conn: conn} do
       {tenant, user} = setup_user("admin")
-      {:ok, view, _html} = live(conn |> login(user), ~p"/app/settings/company-availability")
+
+      {:ok, view, _html} =
+        live(conn |> login(user), "/#{tenant.slug}/app/settings/company-availability")
 
       render_change(view, "update_timezone", %{"timezone" => "Asia/Tokyo"})
 

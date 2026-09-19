@@ -69,7 +69,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
 
       # tenant A can view its own job analytics
       conn_a = login_user(conn, user_a)
-      {:ok, view, html} = live(conn_a, ~p"/app/jobs/#{job_a.id}/analytics")
+      {:ok, view, html} = live(conn_a, "/#{tenant.slug}/app/jobs/#{job_a.id}/analytics")
       assert html =~ "Analytics"
       assert html =~ job_a.title
       assert has_element?(view, "a[href='/app/jobs/#{job_a.id}']")
@@ -78,14 +78,14 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
       conn_b = login_user(build_conn(), user_b)
 
       assert {:error, {:redirect, %{to: "/404"}}} =
-               live(conn_b, ~p"/app/jobs/#{job_a.id}/analytics")
+               live(conn_b, "/#{tenant.slug}/app/jobs/#{job_a.id}/analytics")
     end
 
     test "empty state shows No views yet", %{conn: conn} do
       {tenant, user} = setup_tenant()
       job = create_job(tenant)
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/jobs/#{job.id}/analytics")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}/analytics")
       assert html =~ "No views yet"
       assert html =~ "Total Views"
       assert html =~ "0"
@@ -107,7 +107,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/jobs/#{job.id}/analytics")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}/analytics")
       assert html =~ "linkedin"
       assert html =~ "1"
     end
@@ -129,7 +129,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
       {:ok, closed} = Treby.Jobs.update_job(job, %{status: "closed"})
 
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/jobs/#{closed.id}/analytics")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/jobs/#{closed.id}/analytics")
       assert html =~ "Closed"
       assert html =~ "1"
     end
@@ -140,7 +140,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
       {tenant, user} = setup_tenant()
       job = create_job(tenant)
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}")
       assert has_element?(view, "#job-analytics-link")
       assert has_element?(view, "#job-view-summary")
       assert render(view) =~ "No views yet"
@@ -157,7 +157,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
         })
 
       # reload view should show counts (we need new live)
-      {:ok, view2, _} = live(conn, ~p"/app/jobs/#{job.id}")
+      {:ok, view2, _} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}")
       assert render(view2) =~ "1 views"
     end
 
@@ -177,7 +177,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, html} = live(conn, ~p"/app/jobs")
+      {:ok, view, html} = live(conn, "/#{tenant.slug}/app/jobs")
       assert html =~ job1.title
       assert html =~ job2.title
       # job1 has views, job2 no views
@@ -251,7 +251,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
       {tenant, user} = setup_tenant()
       job = create_job(tenant)
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/#{job.id}/analytics")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}/analytics")
       html = render(view)
       assert html =~ "daily-views-empty"
       assert html =~ "monthly-views-empty"
@@ -280,7 +280,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
       end
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/#{job.id}/analytics")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}/analytics")
       html = render(view)
       assert html =~ "<svg"
       assert html =~ "daily-views-chart"
@@ -305,7 +305,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
         })
 
       conn_a = login_user(conn, user_a)
-      {:ok, view, html} = live(conn_a, ~p"/app/jobs/#{job_a.id}/analytics")
+      {:ok, view, html} = live(conn_a, "/#{tenant.slug}/app/jobs/#{job_a.id}/analytics")
       assert html =~ "<svg"
       assert has_element?(view, "#daily-views-chart")
     end

@@ -338,10 +338,22 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
 
           <div class="mt-8 flex gap-4">
-            <.button variant="primary" navigate={~p"/app/import"}>
+            <.button
+              variant="primary"
+              navigate={
+                if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
+              }
+            >
               {gettext("Import More")}
             </.button>
-            <.button variant="ghost" navigate={~p"/app/candidates"}>
+            <.button
+              variant="ghost"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+              }
+            >
               {gettext("View Candidates")}
             </.button>
           </div>

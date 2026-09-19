@@ -5,17 +5,16 @@ defmodule TrebyWeb.LegacyAppController do
     user = conn.assigns[:current_user]
     suffix = Enum.join(path, "/")
     suffix = if suffix == "", do: "", else: "/#{suffix}"
+    query = if conn.query_string != "", do: "?#{conn.query_string}", else: ""
 
     case Treby.Memberships.list_tenants_for_user(user.id) do
       [] ->
         conn |> redirect(to: ~p"/login")
 
       [%{tenant: tenant}] ->
-        conn |> redirect(to: "/#{tenant.slug}/app#{suffix}")
+        conn |> redirect(to: "/#{tenant.slug}/app#{suffix}#{query}")
 
       _ ->
-        # Multiple workspaces: if path is just root, go to picker, else pick first? Redirect to picker
-        # Preserve query string if any via request_path
         conn |> redirect(to: ~p"/choose-tenant")
     end
   end

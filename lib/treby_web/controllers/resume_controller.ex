@@ -11,7 +11,7 @@ defmodule TrebyWeb.ResumeController do
       nil ->
         conn
         |> put_flash(:error, gettext("No resume available for this application"))
-        |> redirect(to: ~p"/app/candidates/#{application.candidate_id}")
+        |> redirect(to: "/#{tenant.slug}/app/candidates/#{application.candidate_id}")
 
       s3_key ->
         presigned_url = Treby.Uploads.get_presigned_url(tenant.id, s3_key, expires_in: 300)

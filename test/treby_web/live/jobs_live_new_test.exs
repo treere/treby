@@ -47,10 +47,10 @@ defmodule TrebyWeb.JobsLive.NewTest do
 
   describe "dedicated creation page" do
     test "renders form and preview pane", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       assert has_element?(view, "#job-create-form")
       assert has_element?(view, "#job-preview-card")
@@ -63,10 +63,10 @@ defmodule TrebyWeb.JobsLive.NewTest do
     end
 
     test "defaults to open and public", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
       html = render(view)
 
       # form values: status open selected, visible true selected
@@ -81,7 +81,7 @@ defmodule TrebyWeb.JobsLive.NewTest do
       conn = login_user(conn, user)
       pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       count_before = Repo.aggregate(Job, :count, :id)
 
@@ -119,7 +119,7 @@ defmodule TrebyWeb.JobsLive.NewTest do
       conn = login_user(conn, user)
       pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       html =
         view
@@ -144,7 +144,7 @@ defmodule TrebyWeb.JobsLive.NewTest do
       conn = login_user(conn, user)
       pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       result =
         view
@@ -182,7 +182,7 @@ defmodule TrebyWeb.JobsLive.NewTest do
       conn = login_user(conn, user)
       pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       html =
         view
@@ -270,7 +270,7 @@ defmodule TrebyWeb.JobsLive.NewTest do
       conn = login_user(conn, user)
       pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       view
       |> form("#job-create-form", %{
@@ -306,7 +306,7 @@ defmodule TrebyWeb.JobsLive.NewTest do
       conn = login_user(conn, user)
       pipeline_id = Pipeline.default_pipeline_id(tenant.id)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       view
       |> form("#job-create-form", %{
@@ -331,10 +331,10 @@ defmodule TrebyWeb.JobsLive.NewTest do
     end
 
     test "missing required fields shows inline errors", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
 
       html =
         view
@@ -356,7 +356,7 @@ defmodule TrebyWeb.JobsLive.NewTest do
       {:ok, _extra_pipeline} =
         Treby.Pipeline.create_pipeline(%{name: "B Only Pipeline", tenant_id: tenant_b.id})
 
-      {:ok, _view, html} = live(conn, ~p"/app/jobs/new")
+      {:ok, _view, html} = live(conn, "/#{tenant_a.slug}/app/jobs/new")
 
       # Should contain tenant A's default pipeline but not tenant B's extra
       pipelines_a = Pipeline.list_pipelines(tenant_a.id) |> Enum.map(& &1.name)
@@ -372,14 +372,14 @@ defmodule TrebyWeb.JobsLive.NewTest do
     end
 
     test "cancel link goes back to listing", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/jobs/new")
-      assert has_element?(view, ~s(a[href="/app/jobs"]))
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/new")
+      assert has_element?(view, ~s(a[href="/#{tenant.slug}/app/jobs"]))
 
       # Direct navigation to listing works
-      {:ok, _view2, html} = live(conn, ~p"/app/jobs")
+      {:ok, _view2, html} = live(conn, "/#{tenant.slug}/app/jobs")
       assert html =~ "Jobs"
     end
   end

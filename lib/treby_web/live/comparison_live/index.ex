@@ -82,7 +82,11 @@ defmodule TrebyWeb.ComparisonLive.Index do
             {gettext("Compare Candidates")}
           </h1>
           <.link
-            navigate={~p"/app/candidates"}
+            navigate={
+              if @current_tenant,
+                do: "/#{@current_tenant.slug}/app/candidates",
+                else: ~p"/app/candidates"
+            }
             class="text-blue-600 dark:text-blue-400 hover:underline text-sm"
           >
             {gettext("← Back to candidates")}

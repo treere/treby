@@ -57,7 +57,11 @@ defmodule TrebyWeb.CandidatesLive.Merge do
         <div class="flex justify-between items-center mb-8">
           <div>
             <.link
-              navigate={~p"/app/candidates"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+              }
               class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
             >
               &larr; Back to Candidates

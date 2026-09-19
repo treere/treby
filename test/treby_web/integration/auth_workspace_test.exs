@@ -171,7 +171,9 @@ defmodule TrebyWeb.AuthWorkspaceTest do
           "legacy-#{System.unique_integer([:positive])}@test.com"
         )
 
-      {:ok, _view, html} = live(conn |> init_test_session(%{"user_id" => user.id}), ~p"/app/jobs")
+      {:ok, _view, html} =
+        live(conn |> init_test_session(%{"user_id" => user.id}), "/#{tenant.slug}/app/jobs")
+
       assert html =~ "Jobs"
     end
   end

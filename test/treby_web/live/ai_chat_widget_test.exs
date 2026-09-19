@@ -52,7 +52,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   test "renders the floating widget on an app page", %{conn: conn} do
     {_tenant, user} = setup_tenant_with_user()
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     assert has_element?(view, "#ai-chat-trigger")
     assert has_element?(view, "#ai-chat-panel")
@@ -75,7 +75,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
         content: "persisted across pages"
       })
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
     assert render(view) =~ "persisted across pages"
 
     {:ok, jobs_view, _html} = conn |> login(user) |> live(~p"/#{tenant.slug}/app/jobs")
@@ -89,7 +89,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
     Application.put_env(:treby, :rate_limit_backend, Treby.Test.RateLimitDenyBackend)
     on_exit(fn -> Application.put_env(:treby, :rate_limit_backend, previous) end)
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     Phoenix.LiveView.send_update(view.pid, TrebyWeb.AiChatWidget, id: "ai-chat", open: true)
     view |> form("#ai-form-ai-chat-floating") |> render_submit(%{"message" => "hi"})
@@ -115,7 +115,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
 
     on_exit(fn -> Application.put_env(:treby, :ai, previous_ai) end)
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app/ai")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app/ai")
 
     ctx = %{
       tenant_id: tenant.id,
@@ -134,7 +134,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   test "renders streamed chunks relayed from the page", %{conn: conn} do
     {_tenant, user} = setup_tenant_with_user()
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     send(view.pid, {:ai_stream, user.id, "streaming "})
     send(view.pid, {:ai_stream, user.id, "reply"})
@@ -146,7 +146,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   test "ignores streamed chunks for another user", %{conn: conn} do
     {_tenant, user} = setup_tenant_with_user()
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     send(view.pid, {:ai_stream, "someone-else", "top-secret"})
 
@@ -156,7 +156,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   test "shows assistant errors relayed from the page", %{conn: conn} do
     {_tenant, user} = setup_tenant_with_user()
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     send(view.pid, {:ai_error, user.id, "boom"})
 
@@ -169,7 +169,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
 
     first = Conversations.get_or_create_conversation(tenant.id, user.id, "tok-widget")
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     view |> element("#ai-reset-ai-chat-floating") |> render_click()
 
@@ -181,7 +181,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   test "keeps the chat panel open after a reload", %{conn: conn} do
     {_tenant, user} = setup_tenant_with_user()
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     Phoenix.LiveView.send_update(view.pid, TrebyWeb.AiChatWidget, id: "ai-chat", open: true)
     _ = render(view)
@@ -205,7 +205,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
     {:ok, _} =
       Conversations.create_message(conversation, %{role: "user", content: "hello"})
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     Phoenix.LiveView.send_update(view.pid, TrebyWeb.AiChatWidget, id: "ai-chat", thinking: true)
     _ = render(view)
@@ -228,7 +228,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
     {:ok, _} =
       Conversations.create_message(conversation, %{role: "user", content: "hello"})
 
-    {:ok, view, _html} = conn |> login(user) |> live(~p"/app")
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
     Phoenix.LiveView.send_update(view.pid, TrebyWeb.AiChatWidget, id: "ai-chat", thinking: true)
     _ = render(view)

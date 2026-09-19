@@ -89,7 +89,11 @@ defmodule TrebyWeb.JobsLive.Show do
           <:actions>
             <.button
               variant="ghost"
-              navigate={~p"/app/jobs/#{@job.id}/analytics"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/jobs/#{@job.id}/analytics",
+                  else: ~p"/app/jobs/#{@job.id}/analytics"
+              }
               id="job-analytics-link"
             >
               <.icon name="hero-chart-bar" class="w-4 h-4" /> Analytics
@@ -105,7 +109,14 @@ defmodule TrebyWeb.JobsLive.Show do
             <.button variant="ghost" phx-click="start_editing">
               <.icon name="hero-pencil" class="w-4 h-4" /> Edit
             </.button>
-            <.button variant="primary" navigate={~p"/app/pipeline/#{@job.id}"}>
+            <.button
+              variant="primary"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/pipeline/#{@job.id}",
+                  else: ~p"/app/pipeline/#{@job.id}"
+              }
+            >
               <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> View Pipeline
             </.button>
           </:actions>
@@ -387,7 +398,11 @@ defmodule TrebyWeb.JobsLive.Show do
                   />
                   <a
                     :if={application.resume_url}
-                    href={~p"/app/applications/#{application.id}/resume"}
+                    href={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/applications/#{application.id}/resume",
+                        else: ~p"/app/applications/#{application.id}/resume"
+                    }
                     class="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mt-1 inline-block"
                   >
                     View Resume

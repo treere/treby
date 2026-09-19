@@ -444,7 +444,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <div>
                 <div class="flex items-center gap-2">
                   <.link
-                    navigate={~p"/app/pipeline/#{application.job_id}"}
+                    navigate={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/pipeline/#{application.job_id}",
+                        else: ~p"/app/pipeline/#{application.job_id}"
+                    }
                     class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     {application.job.title}
@@ -474,13 +478,21 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <div class="flex items-center gap-3">
                 <a
                   :if={application.resume_url}
-                  href={~p"/app/applications/#{application.id}/resume"}
+                  href={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/applications/#{application.id}/resume",
+                      else: ~p"/app/applications/#{application.id}/resume"
+                  }
                   class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                 >
                   View Resume
                 </a>
                 <.link
-                  navigate={~p"/app/schedule/#{application.id}"}
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/schedule/#{application.id}",
+                      else: ~p"/app/schedule/#{application.id}"
+                  }
                   class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                 >
                   Schedule Interview

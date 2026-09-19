@@ -44,20 +44,20 @@ defmodule TrebyWeb.SettingsLive.FieldsTest do
 
   describe "custom fields page" do
     test "shows empty state when no custom fields exist", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, _view, html} = live(conn, ~p"/app/settings/fields")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/fields")
 
       assert html =~ "Custom Fields"
       assert html =~ "No custom fields defined yet"
     end
 
     test "renders the create form when clicking Add Field", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/settings/fields")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/fields")
 
       view |> element("button", "+ Add Field") |> render_click()
 
@@ -69,7 +69,7 @@ defmodule TrebyWeb.SettingsLive.FieldsTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/settings/fields")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/fields")
       view |> element("button", "+ Add Field") |> render_click()
 
       view
@@ -99,10 +99,10 @@ defmodule TrebyWeb.SettingsLive.FieldsTest do
     end
 
     test "validate keeps name and options when toggling the field type", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/settings/fields")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/fields")
       view |> element("button", "+ Add Field") |> render_click()
 
       view
@@ -160,10 +160,10 @@ defmodule TrebyWeb.SettingsLive.FieldsTest do
     end
 
     test "shows flash error when saving field with empty name", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/settings/fields")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/fields")
       view |> element("button", "+ Add Field") |> render_click()
 
       html =
@@ -192,7 +192,7 @@ defmodule TrebyWeb.SettingsLive.FieldsTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/settings/fields")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/fields")
 
       assert render(view) =~ "Temp Field"
 

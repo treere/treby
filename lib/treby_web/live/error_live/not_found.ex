@@ -18,10 +18,18 @@ defmodule TrebyWeb.ErrorLive.NotFound do
           {gettext("The page or entity you're looking for doesn't exist or has been removed.")}
         </p>
         <div class="flex gap-4">
-          <.button navigate={~p"/app/jobs"} variant="primary">
+          <.button
+            navigate={
+              if @current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs"
+            }
+            variant="primary"
+          >
             {gettext("Back to Jobs")}
           </.button>
-          <.button navigate={~p"/app"} variant="ghost">
+          <.button
+            navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app", else: ~p"/app"}
+            variant="ghost"
+          >
             {gettext("Go to Dashboard")}
           </.button>
         </div>

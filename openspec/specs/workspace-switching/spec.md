@@ -55,3 +55,4 @@ The system SHALL propagate the active workspace context to all authenticated pag
 - **WHEN** a user shares a link `/:tenant_slug/app/jobs/:id`
 - **THEN** a recipient with membership for that tenant sees the same job in that workspace
 - **AND** a recipient without membership sees 403 or is redirected to `/choose-tenant`
+- **AND** a link without slug such as `/app/jobs/:id` redirects to the tenant-scoped equivalent before access checks

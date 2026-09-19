@@ -47,7 +47,7 @@ defmodule TrebyWeb.SettingsLive.NotificationsTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/settings/notifications")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/settings/notifications")
 
       for key <- ["stage_change_candidate", "new_application_candidate", "new_application_team"] do
         assert Notifications.notification_preferences_enabled?(

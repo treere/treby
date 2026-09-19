@@ -527,7 +527,13 @@ defmodule TrebyWeb.JobsLive.New do
           {:noreply,
            socket
            |> put_flash(:info, gettext("Job created successfully"))
-           |> push_navigate(to: ~p"/app/jobs/#{job.id}")}
+           |> push_navigate(
+             to:
+               if(socket.assigns.current_tenant,
+                 do: "/#{socket.assigns.current_tenant.slug}/app/jobs/#{job.id}",
+                 else: ~p"/app/jobs/#{job.id}"
+               )
+           )}
 
         {:error, changeset} ->
           # Keep preview in sync even on error

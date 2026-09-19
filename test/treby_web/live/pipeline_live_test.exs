@@ -75,7 +75,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         |> Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       html = render(view)
       assert html =~ "No applications yet"
@@ -128,7 +128,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       html = render(view)
 
@@ -207,7 +207,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       data = setup_pipeline_data(tenant)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{data.job.id}")
 
       view
       |> render_click("move_candidate", %{
@@ -245,7 +245,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       data = setup_pipeline_data(tenant)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{data.job.id}")
 
       view
       |> render_click("move_candidate", %{
@@ -332,7 +332,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       data = setup_concurrent_data(tenant)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job1.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{data.job1.id}")
 
       assert render(view) =~ "Also in 1 other position"
     end
@@ -352,7 +352,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job1.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{data.job1.id}")
 
       assert render(view) =~ "DUPLICATE"
     end
@@ -423,7 +423,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       data = setup_interview_card_data(tenant, user)
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{data.job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{data.job.id}")
 
       assert render(view) =~ "Mark as completed"
     end
@@ -463,7 +463,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       view |> render_click("reject_application", %{"id" => application.id})
       view |> render_click("update_rejection_reason", %{"value" => "not a fit"})
@@ -525,7 +525,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       view |> render_click("toggle_application", %{"id" => application.id})
       view |> render_change("bulk_select_action", %{"bulk_action" => "move_stage"})
@@ -579,7 +579,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       view |> render_click("toggle_application", %{"id" => application.id})
       view |> render_change("bulk_select_action", %{"bulk_action" => "move_stage"})
@@ -638,7 +638,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       view |> render_click("toggle_application", %{"id" => application.id})
       view |> render_change("bulk_select_action", %{"bulk_action" => "move_stage"})
@@ -687,7 +687,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       assert render(view) =~ "Mark reviewed"
 
@@ -742,7 +742,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       assert has_element?(view, "#stage-#{stage_a.id} #application-#{application.id}")
       refute has_element?(view, "#stage-#{stage_b.id} #application-#{application.id}")
@@ -836,7 +836,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       # Should be in Interview and show Advance
       assert has_element?(view, "#stage-#{interview_stage.id} #application-#{application.id}")
@@ -914,7 +914,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       |> Repo.insert!()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       # Scorecard button should be disabled when no template
       html = render(view)
@@ -971,7 +971,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
       end
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       assert has_element?(view, "#pagination")
       html = render(view)
@@ -1009,7 +1009,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         |> Treby.Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       html = render(view)
       assert html =~ "Responsible"
@@ -1048,7 +1048,7 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
         |> Treby.Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/pipeline/#{job.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/pipeline/#{job.id}")
 
       assert render(view) =~ "Advancer: #{user.name}"
     end

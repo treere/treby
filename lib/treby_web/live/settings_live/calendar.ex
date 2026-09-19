@@ -46,7 +46,15 @@ defmodule TrebyWeb.SettingsLive.Calendar do
           active_key={:calendar}
         >
           <div class="mb-8">
-            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+            <.button
+              variant="ghost"
+              size="sm"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/settings",
+                  else: ~p"/app/settings"
+              }
+            >
               &larr; {gettext("Back to Settings")}
             </.button>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">

@@ -117,7 +117,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <div class="flex items-center gap-3">
             <.link
               :if={@duplicate_count > 0}
-              navigate={~p"/app/candidates/merge"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates/merge",
+                  else: ~p"/app/candidates/merge"
+              }
               class="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-100 hover:bg-amber-100 text-sm font-medium"
             >
               <.icon name="hero-user-group" class="w-4 h-4" />{gettext("Duplicates")}
@@ -312,7 +316,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   <.link
-                    navigate={~p"/app/candidates/#{candidate.id}"}
+                    navigate={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/candidates/#{candidate.id}",
+                        else: ~p"/app/candidates/#{candidate.id}"
+                    }
                     class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     {candidate.name}
@@ -361,7 +369,12 @@ defmodule TrebyWeb.CandidatesLive.Index do
               <.button phx-click="show_create_form" variant="primary">
                 {gettext("Add a candidate")}
               </.button>
-              <.button variant="secondary" navigate={~p"/app/import"}>
+              <.button
+                variant="secondary"
+                navigate={
+                  if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
+                }
+              >
                 {gettext("Import from CSV")}
               </.button>
             </:cta>
@@ -876,7 +889,15 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("bulk_execute_compare", _params, socket) do
     ids = Enum.join(socket.assigns.selected_ids, ",")
-    {:noreply, push_navigate(socket, to: ~p"/app/candidates/compare?ids=#{ids}")}
+
+    {:noreply,
+     push_navigate(socket,
+       to:
+         if(socket.assigns.current_tenant,
+           do: "/#{socket.assigns.current_tenant.slug}/app/candidates/compare?ids=#{ids}",
+           else: ~p"/app/candidates/compare?ids=#{ids}"
+         )
+     )}
   end
 
   def handle_event("bulk_execute_merge", _params, socket) do

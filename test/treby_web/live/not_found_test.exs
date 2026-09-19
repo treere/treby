@@ -78,7 +78,7 @@ defmodule TrebyWeb.NotFoundTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:error, {:redirect, %{to: "/404"}}} = live(conn, ~p"/app/jobs/#{fake_uuid()}")
+      {:error, {:redirect, %{to: "/404"}}} = live(conn, "/#{tenant.slug}/app/jobs/#{fake_uuid()}")
       _ = tenant
     end
 
@@ -86,7 +86,9 @@ defmodule TrebyWeb.NotFoundTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:error, {:redirect, %{to: "/404"}}} = live(conn, ~p"/app/candidates/#{fake_uuid()}")
+      {:error, {:redirect, %{to: "/404"}}} =
+        live(conn, "/#{tenant.slug}/app/candidates/#{fake_uuid()}")
+
       _ = tenant
     end
 
@@ -94,7 +96,9 @@ defmodule TrebyWeb.NotFoundTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:error, {:redirect, %{to: "/404"}}} = live(conn, ~p"/app/schedule/#{fake_uuid()}")
+      {:error, {:redirect, %{to: "/404"}}} =
+        live(conn, "/#{tenant.slug}/app/schedule/#{fake_uuid()}")
+
       _ = tenant
     end
 
@@ -102,7 +106,9 @@ defmodule TrebyWeb.NotFoundTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:error, {:redirect, %{to: "/404"}}} = live(conn, ~p"/app/pipeline/#{fake_uuid()}")
+      {:error, {:redirect, %{to: "/404"}}} =
+        live(conn, "/#{tenant.slug}/app/pipeline/#{fake_uuid()}")
+
       _ = tenant
     end
   end
@@ -114,7 +120,7 @@ defmodule TrebyWeb.NotFoundTest do
       job = create_job(tenant, default_id)
       conn = login_user(conn, user)
 
-      {:ok, _view, html} = live(conn, ~p"/app/jobs/#{job.id}")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}")
 
       assert html =~ job.title
     end
@@ -126,7 +132,7 @@ defmodule TrebyWeb.NotFoundTest do
       conn = login_user(conn, user)
 
       {:error, {:redirect, %{to: "/404"}}} =
-        live(conn, ~p"/app/settings/pipeline/#{fake_uuid()}")
+        live(conn, "/#{tenant.slug}/app/settings/pipeline/#{fake_uuid()}")
 
       _ = tenant
     end

@@ -96,7 +96,7 @@ defmodule TrebyWeb.ScheduleLive.IndexTest do
       data = setup_application(tenant)
 
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/schedule/#{data.application.id}")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/schedule/#{data.application.id}")
 
       assert html =~ "Self-Scheduling"
       refute html =~ "Email Booking Link"

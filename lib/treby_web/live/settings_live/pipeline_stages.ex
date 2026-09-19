@@ -74,7 +74,15 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           active_key={:pipeline}
         >
           <div class="mb-8">
-            <.button variant="ghost" size="sm" navigate={~p"/app/settings/pipeline"}>
+            <.button
+              variant="ghost"
+              size="sm"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/settings/pipeline",
+                  else: ~p"/app/settings/pipeline"
+              }
+            >
               &larr; {gettext("Back to Pipelines")}
             </.button>
             <.form

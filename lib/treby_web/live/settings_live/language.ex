@@ -50,7 +50,13 @@ defmodule TrebyWeb.SettingsLive.Language do
           current_membership={assigns[:current_membership]}
           active_key={:language}
         >
-          <.button variant="ghost" navigate={~p"/app/settings"} size="sm">
+          <.button
+            variant="ghost"
+            navigate={
+              if @current_tenant, do: "/#{@current_tenant.slug}/app/settings", else: ~p"/app/settings"
+            }
+            size="sm"
+          >
             &larr; {gettext("Back to Settings")}
           </.button>
 

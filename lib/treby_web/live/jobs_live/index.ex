@@ -77,7 +77,14 @@ defmodule TrebyWeb.JobsLive.Index do
       <div class="p-8">
         <.page_header title={gettext("Jobs")}>
           <:actions>
-            <.button variant="primary" navigate={~p"/app/jobs/new"}>
+            <.button
+              variant="primary"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/jobs/new",
+                  else: ~p"/app/jobs/new"
+              }
+            >
               <.icon name="hero-plus" class="w-4 h-4" /> {gettext("New Job")}
             </.button>
           </:actions>
@@ -141,7 +148,11 @@ defmodule TrebyWeb.JobsLive.Index do
               >
                 <td class="px-6 py-4 whitespace-nowrap">
                   <.link
-                    navigate={~p"/app/jobs/#{job.id}"}
+                    navigate={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/jobs/#{job.id}",
+                        else: ~p"/app/jobs/#{job.id}"
+                    }
                     class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-medium"
                   >
                     {job.title}
@@ -188,7 +199,11 @@ defmodule TrebyWeb.JobsLive.Index do
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <.link
-                    navigate={~p"/app/pipeline/#{job.id}"}
+                    navigate={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/pipeline/#{job.id}",
+                        else: ~p"/app/pipeline/#{job.id}"
+                    }
                     class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3 inline-flex items-center gap-1"
                   >
                     <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> {gettext(
@@ -231,7 +246,14 @@ defmodule TrebyWeb.JobsLive.Index do
             }
           >
             <:cta>
-              <.button variant="primary" navigate={~p"/app/jobs/new"}>
+              <.button
+                variant="primary"
+                navigate={
+                  if @current_tenant,
+                    do: "/#{@current_tenant.slug}/app/jobs/new",
+                    else: ~p"/app/jobs/new"
+                }
+              >
                 {gettext("Create your first job")}
               </.button>
             </:cta>

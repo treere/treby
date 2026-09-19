@@ -37,7 +37,10 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
      |> assign(editing_template: nil)
      |> assign(form_name: "")
      |> assign(criteria: [])
-     |> assign(confirm_delete: nil)}
+     |> assign(confirm_delete: nil)
+     |> assign(
+       form: to_form(Scorecards.change_scorecard_template(%Treby.Scorecards.ScorecardTemplate{}))
+     )}
   end
 
   def render(assigns) do
@@ -88,15 +91,12 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
               class="space-y-4"
             >
               <div>
-                <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
-                  {gettext("Template Name")}
-                </label>
-                <input
+                <.input
+                  field={@form[:name]}
                   type="text"
                   name="name"
-                  value={@form_name}
+                  label={gettext("Template Name")}
                   placeholder={gettext("e.g. Engineering Interview")}
-                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
 
@@ -265,7 +265,13 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
 
   def handle_event("show_create_form", _, socket) do
     {:noreply,
-     assign(socket, show_form: true, editing_template: nil, form_name: "", criteria: [])}
+     assign(socket,
+       show_form: true,
+       editing_template: nil,
+       form_name: "",
+       criteria: [],
+       form: to_form(Scorecards.change_scorecard_template(%Treby.Scorecards.ScorecardTemplate{}))
+     )}
   end
 
   def handle_event("cancel_form", _, socket) do
@@ -288,7 +294,8 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
        show_form: true,
        editing_template: template,
        form_name: template.name,
-       criteria: template.criteria || []
+       criteria: template.criteria || [],
+       form: to_form(Scorecards.change_scorecard_template(template))
      )}
   end
 

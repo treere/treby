@@ -69,3 +69,6 @@ Fully bilingual interface — Italian and English — with a per-user language s
 
 ## [Notification Center](/features/notification-center)
 In-app inbox with bell and badge, dropdown, full-page list with filters/search/pagination, realtime updates, per-type Email + In-app toggles and retention (7/14/30/60/90) in **Settings → Notifications**.
+
+## [Data & Privacy](/features/data-privacy)
+Async data export (ZIP via signed URL, 7-day window) and erasure with 7-day grace — admin and self-service, fully audited. Find it at **Settings → Data & Privacy**.

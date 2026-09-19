@@ -65,6 +65,16 @@ defmodule Treby.Uploads do
     end)
   end
 
+  def get_file(tenant_id, key) do
+    tenant_id
+    |> scoped_key(key)
+    |> then(fn scoped ->
+      bucket()
+      |> ExAws.S3.get_object(scoped)
+      |> ExAws.request(http_opts: [receive_timeout: 10_000])
+    end)
+  end
+
   def ensure_bucket_exists! do
     bucket_name = bucket()
 

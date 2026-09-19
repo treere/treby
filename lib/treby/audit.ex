@@ -212,6 +212,13 @@ defmodule Treby.Audit do
   end
 
   @doc """
+  Anonymize PII in audit metadata for erased subjects. Delegates to DataPrivacy.Anonymizer.
+  """
+  def anonymize_audit_for_erasure(tenant_id, erased_ids) do
+    Treby.DataPrivacy.Anonymizer.anonymize_audit_metadata(tenant_id, erased_ids)
+  end
+
+  @doc """
   Count events for pagination context.
   """
   def count_events(tenant_id, opts \\ []) do

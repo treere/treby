@@ -135,3 +135,17 @@ The system SHALL log every AI-executed mutation as an audit event with `actor_ty
 #### Scenario: Read not logged as audit
 - **WHEN** the assistant performs a read-only tool
 - **THEN** no `audit_events` row is required (reads are not auditable mutations)
+
+### Requirement: Data & Privacy audit events
+The system SHALL emit namespaced audit events for every Data & Privacy lifecycle transition: `data_privacy.export_requested`, `data_privacy.export_ready`, `data_privacy.export_downloaded`, `data_privacy.erasure_requested`, `data_privacy.erasure_completed`, `data_privacy.erasure_cancelled`, `data_privacy.export_expired`. Each event SHALL include `tenant_id`, `actor_id`, `entity_type="data_privacy_request"`, `entity_id=request.id`, and `metadata` with `type` and `scope`.
+
+#### Scenario: Data & Privacy events appear in audit log
+- **WHEN** any Data & Privacy transition occurs
+- **THEN** an `audit_events` row with the corresponding `data_privacy.*` action is inserted and visible to admins at `/:tenant/app/settings/audit-log` filtered by action prefix `data_privacy.`
+
+### Requirement: Data & Privacy erasure scrubs PII in audit
+The system SHALL, upon Data & Privacy erasure completion, scrub PII from audit events where `actor_id` or `entity_id` matches an erased subject by replacing `metadata` fields containing `email`/`name` with `[redacted]`.
+
+#### Scenario: PII scrubbed after erasure
+- **WHEN** a Data & Privacy erasure completes for a user or tenant
+- **THEN** audit events where `actor_id` or `entity_id` matches an erased subject have `metadata` fields containing `email`/`name` replaced with anonymized values

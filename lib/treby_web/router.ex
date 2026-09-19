@@ -27,6 +27,10 @@ defmodule TrebyWeb.Router do
     plug TrebyWeb.Plugs.CandidateAuth
   end
 
+  pipeline :data_privacy_grace do
+    plug TrebyWeb.Plugs.DataPrivacyGraceBlock
+  end
+
   # Health checks — unauthenticated, tenant-agnostic (k8s liveness/readiness)
   scope "/", TrebyWeb do
     get "/health", HealthController, :health
@@ -36,7 +40,7 @@ defmodule TrebyWeb.Router do
 
   # URL-scoped authenticated app (new)
   scope "/:tenant_slug/app", TrebyWeb do
-    pipe_through [:browser, :require_auth, :require_membership]
+    pipe_through [:browser, :require_auth, :require_membership, :data_privacy_grace]
 
     live_session :default,
       on_mount: [
@@ -89,6 +93,7 @@ defmodule TrebyWeb.Router do
       live "/settings/emails", SettingsLive.EmailTemplates
       live "/settings/notifications", SettingsLive.Notifications
       live "/settings/audit-log", SettingsLive.AuditLog
+      live "/settings/data-privacy", SettingsLive.DataPrivacy
     end
   end
 
@@ -147,6 +152,7 @@ defmodule TrebyWeb.Router do
       live "/settings/emails", SettingsLive.EmailTemplates
       live "/settings/notifications", SettingsLive.Notifications
       live "/settings/audit-log", SettingsLive.AuditLog
+      live "/settings/data-privacy", SettingsLive.DataPrivacy
     end
 
     get "/*path", LegacyAppController, :redirect_legacy
@@ -158,6 +164,11 @@ defmodule TrebyWeb.Router do
     live "/choose-tenant", ChooseTenantLive
     post "/choose-tenant", ChooseTenantController, :choose
     post "/tenants", TenantController, :create
+  end
+
+  scope "/:tenant_slug", TrebyWeb do
+    pipe_through [:browser, :require_auth, :require_membership, :data_privacy_grace]
+    get "/data-privacy/exports/:id/download", DataPrivacyDownloadController, :download
   end
 
   # Auth routes (no auth required)

@@ -423,6 +423,7 @@ msgstr ""
 #: lib/treby_web/live/jobs_live/show.ex:956
 #: lib/treby_web/live/pipeline_live/index.ex:482
 #: lib/treby_web/live/pipeline_live/index.ex:500
+#: lib/treby_web/live/settings_live/data_privacy.ex:227
 #: lib/treby_web/live/settings_live/email_templates.ex:157
 #: lib/treby_web/live/settings_live/fields.ex:130
 #: lib/treby_web/live/settings_live/pipeline.ex:86
@@ -5030,6 +5031,7 @@ msgid "days"
 msgstr ""
 
 #: lib/treby_web/live/notifications_live.ex:135
+#: lib/treby_web/live/settings_live/data_privacy.ex:183
 #, elixir-autogen, elixir-format
 msgid "All types"
 msgstr ""
@@ -5298,4 +5300,148 @@ msgstr ""
 #: lib/treby_web/live/settings_live/company_availability.ex:82
 #, elixir-autogen, elixir-format
 msgid "Wednesday"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:152
+#, elixir-autogen, elixir-format
+msgid "7-day grace period — you can cancel"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:188
+#, elixir-autogen, elixir-format
+msgid "All status"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:103
+#, elixir-autogen, elixir-format
+msgid "Cannot cancel"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:50
+#, elixir-autogen, elixir-format
+msgid "Confirmation does not match company slug"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:128
+#: lib/treby_web/live/settings_live/index.ex:223
+#, elixir-autogen, elixir-format
+msgid "Data export and erasure requests"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:174
+#, elixir-autogen, elixir-format
+msgid "Delete company"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:157
+#, elixir-autogen, elixir-format
+msgid "Delete my account"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:217
+#, elixir-autogen, elixir-format
+msgid "Download"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:185
+#, elixir-autogen, elixir-format
+msgid "Erasure"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:74
+#, elixir-autogen, elixir-format
+msgid "Erasure requested — 7 day grace period"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:184
+#, elixir-autogen, elixir-format
+msgid "Export"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:145
+#, elixir-autogen, elixir-format
+msgid "Export company data"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:135
+#, elixir-autogen, elixir-format
+msgid "Export my data"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/index.ex:230
+#, elixir-autogen, elixir-format
+msgid "Export or delete your personal data"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:32
+#, elixir-autogen, elixir-format
+msgid "Export requested — processing"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/index.ex:237
+#, elixir-autogen, elixir-format
+msgid "Manage my data"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:232
+#, elixir-autogen, elixir-format
+msgid "No requests yet"
+msgstr ""
+
+#: lib/treby_web/controllers/data_privacy_download_controller.ex:15
+#: lib/treby_web/controllers/data_privacy_download_controller.ex:18
+#: lib/treby_web/live/settings_live/data_privacy.ex:92
+#, elixir-autogen, elixir-format
+msgid "Not found"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:47
+#, elixir-autogen, elixir-format
+msgid "Only admins can erase company data"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:17
+#, elixir-autogen, elixir-format
+msgid "Only admins can export tenant data"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:99
+#, elixir-autogen, elixir-format
+msgid "Request cancelled"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:151
+#, elixir-autogen, elixir-format
+msgid "Request erasure"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/index.ex:229
+#, elixir-autogen, elixir-format
+msgid "Your data"
+msgstr ""
+
+#: lib/treby_web/controllers/data_privacy_download_controller.ex:26
+#, elixir-autogen, elixir-format
+msgid "Expired"
+msgstr ""
+
+#: lib/treby_web/controllers/data_privacy_download_controller.ex:11
+#, elixir-autogen, elixir-format
+msgid "Forbidden"
+msgstr ""
+
+#: lib/treby_web/controllers/data_privacy_download_controller.ex:29
+#, elixir-autogen, elixir-format
+msgid "No file"
+msgstr ""
+
+#: lib/treby_web/controllers/data_privacy_download_controller.ex:23
+#, elixir-autogen, elixir-format
+msgid "Not ready or expired"
+msgstr ""
+
+#: lib/treby_web/live/settings_live/data_privacy.ex:127
+#: lib/treby_web/live/settings_live/index.ex:220
+#, elixir-autogen, elixir-format
+msgid "Data & Privacy"
 msgstr ""

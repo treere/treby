@@ -192,3 +192,10 @@ Candidate primary keys SHALL be time-ordered UUIDv7, so that for rows created af
 - **WHEN** records created before the switch (random UUIDv4) are listed
 - **THEN** they appear and remain addressable with no migration or data change
 
+
+### Requirement: Data & Privacy anonymization preserves row
+The system SHALL, upon Data & Privacy erasure, anonymize candidate PII while retaining the row: `name` → `Deleted Candidate <short_id>`, `email` → `deleted+<id>@deleted.local`, `phone`/`linkedin_url` → `nil`, `custom_fields` → `{}`, `notification_preferences` → `{}`. Applications remain as anonymized rows with `resume_url` nulled and S3 resume deleted.
+
+#### Scenario: Candidate anonymized on erasure
+- **WHEN** a Data & Privacy erasure anonymizes a candidate
+- **THEN** the `candidates` row remains with anonymized fields and no hard DELETE is issued

@@ -209,6 +209,34 @@ defmodule TrebyWeb.SettingsLive.Index do
               {gettext("Immutable history of all changes in this workspace")}
             </p>
           </.link>
+
+          <.link
+            :if={@current_membership.role == "admin"}
+            navigate={~p"/app/settings/data-privacy"}
+            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
+            id="settings-data-privacy"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Data & Privacy")}
+            </h2>
+            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+              {gettext("Data export and erasure requests")}
+            </p>
+          </.link>
+        </div>
+
+        <div :if={@current_membership.role != "admin"} class="mt-6">
+          <h3 class="font-semibold text-zinc-900 dark:text-zinc-100">{gettext("Your data")}</h3>
+          <p class="text-sm text-zinc-500">{gettext("Export or delete your personal data")}</p>
+          <div class="mt-2 flex gap-2">
+            <.link
+              navigate={~p"/app/settings/data-privacy"}
+              class="bg-zinc-900 text-white px-4 py-2 rounded-xl text-sm"
+              id="settings-data-privacy-personal"
+            >
+              {gettext("Manage my data")}
+            </.link>
+          </div>
         </div>
       </div>
     </Layouts.app>

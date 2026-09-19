@@ -35,6 +35,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
 
     {:ok,
      socket
+     |> assign(settings_active: true)
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(career_page: career_page)
      |> assign(form: form)
@@ -45,122 +46,130 @@ defmodule TrebyWeb.SettingsLive.Branding do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="mb-8">
-          <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-            &larr; {gettext("Back to Settings")}
-          </.button>
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {gettext("Branding")}
-          </h1>
-          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            {gettext("Customize your career page appearance")}
-          </p>
-        </div>
-
-        <div class="mb-4 flex gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-700 p-1 w-fit">
-          <button
-            type="button"
-            phx-click="switch_brand_tab"
-            phx-value-tab="edit"
-            class={[
-              "rounded-md px-4 py-1.5 text-sm font-medium",
-              if(@brand_tab == :edit,
-                do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
-                else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-              )
-            ]}
-          >
-            {gettext("Edit")}
-          </button>
-          <button
-            type="button"
-            phx-click="switch_brand_tab"
-            phx-value-tab="preview"
-            class={[
-              "rounded-md px-4 py-1.5 text-sm font-medium",
-              if(@brand_tab == :preview,
-                do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
-                else: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-              )
-            ]}
-          >
-            {gettext("Preview")}
-          </button>
-        </div>
-
-        <div
-          :if={@brand_tab == :edit}
-          class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:branding}
         >
-          <.form
-            for={@form}
-            id="branding-form"
-            phx-submit="save_branding"
-            phx-change="validate_branding"
-            class="space-y-4"
-          >
-            <.input
-              field={@form[:title]}
-              type="text"
-              label={gettext("Page Title")}
-              placeholder={gettext("Join our team")}
-            />
-            <.input
-              field={@form[:description]}
-              type="text"
-              label={gettext("Subtitle")}
-              placeholder={gettext("A short tagline under your company name")}
-            />
-            <.input
-              field={@form[:about]}
-              type="textarea"
-              label={gettext("About")}
-              placeholder={gettext("Tell candidates who you are and what you do...")}
-              rows="10"
-            />
-            <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-              {gettext("Supports Markdown formatting")}
-            </p>
-
-            <.button
-              type="submit"
-              variant="primary"
-              class="w-full"
-              loading_text={gettext("Saving...")}
-            >
-              {gettext("Save Branding")}
+          <div class="mb-8">
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              &larr; {gettext("Back to Settings")}
             </.button>
-          </.form>
-        </div>
-
-        <div
-          :if={@brand_tab == :preview}
-          class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-        >
-          <div class="max-w-3xl mx-auto py-8 px-4">
-            <div class="text-center mb-8">
-              <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
-                {@form[:title].value || @current_tenant.name}
-              </h1>
-              <p
-                :if={@form[:description].value not in [nil, ""]}
-                class="mt-4 text-lg text-zinc-500 dark:text-zinc-400"
-              >
-                {@form[:description].value}
-              </p>
-            </div>
-            <.markdown
-              :if={@form[:about].value not in [nil, ""]}
-              text={@form[:about].value}
-            />
-            <p
-              :if={@form[:about].value in [nil, ""]}
-              class="text-center text-sm text-zinc-500 dark:text-zinc-400"
-            >
-              {gettext("Nothing to preview yet — write something in the About field.")}
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Branding")}
+            </h1>
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+              {gettext("Customize your career page appearance")}
             </p>
           </div>
-        </div>
+
+          <div class="mb-4 flex gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-700 p-1 w-fit">
+            <button
+              type="button"
+              phx-click="switch_brand_tab"
+              phx-value-tab="edit"
+              class={[
+                "rounded-md px-4 py-1.5 text-sm font-medium",
+                if(@brand_tab == :edit,
+                  do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                  else:
+                    "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                )
+              ]}
+            >
+              {gettext("Edit")}
+            </button>
+            <button
+              type="button"
+              phx-click="switch_brand_tab"
+              phx-value-tab="preview"
+              class={[
+                "rounded-md px-4 py-1.5 text-sm font-medium",
+                if(@brand_tab == :preview,
+                  do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                  else:
+                    "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                )
+              ]}
+            >
+              {gettext("Preview")}
+            </button>
+          </div>
+
+          <div
+            :if={@brand_tab == :edit}
+            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+          >
+            <.form
+              for={@form}
+              id="branding-form"
+              phx-submit="save_branding"
+              phx-change="validate_branding"
+              class="space-y-4"
+            >
+              <.input
+                field={@form[:title]}
+                type="text"
+                label={gettext("Page Title")}
+                placeholder={gettext("Join our team")}
+              />
+              <.input
+                field={@form[:description]}
+                type="text"
+                label={gettext("Subtitle")}
+                placeholder={gettext("A short tagline under your company name")}
+              />
+              <.input
+                field={@form[:about]}
+                type="textarea"
+                label={gettext("About")}
+                placeholder={gettext("Tell candidates who you are and what you do...")}
+                rows="10"
+              />
+              <p class="-mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                {gettext("Supports Markdown formatting")}
+              </p>
+
+              <.button
+                type="submit"
+                variant="primary"
+                class="w-full"
+                loading_text={gettext("Saving...")}
+              >
+                {gettext("Save Branding")}
+              </.button>
+            </.form>
+          </div>
+
+          <div
+            :if={@brand_tab == :preview}
+            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+          >
+            <div class="max-w-3xl mx-auto py-8 px-4">
+              <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
+                  {@form[:title].value || @current_tenant.name}
+                </h1>
+                <p
+                  :if={@form[:description].value not in [nil, ""]}
+                  class="mt-4 text-lg text-zinc-500 dark:text-zinc-400"
+                >
+                  {@form[:description].value}
+                </p>
+              </div>
+              <.markdown
+                :if={@form[:about].value not in [nil, ""]}
+                text={@form[:about].value}
+              />
+              <p
+                :if={@form[:about].value in [nil, ""]}
+                class="text-center text-sm text-zinc-500 dark:text-zinc-400"
+              >
+                {gettext("Nothing to preview yet — write something in the About field.")}
+              </p>
+            </div>
+          </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     """

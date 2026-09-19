@@ -31,6 +31,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
 
     {:ok,
      socket
+     |> assign(settings_active: true)
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(pipelines: pipelines)
      |> assign(show_form: false)
@@ -42,121 +43,127 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="flex justify-between items-center mb-8">
-          <div>
-            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-              &larr; {gettext("Back to Settings")}
-            </.button>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-              {gettext("Pipelines")}
-            </h1>
-            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-              {gettext("Manage your hiring pipelines")}
-            </p>
-          </div>
-          <.button phx-click="show_create_form" variant="primary">
-            + {gettext("New Pipeline")}
-          </.button>
-        </div>
-
-        <div
-          :if={@show_form}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:pipeline}
         >
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {gettext("New Pipeline")}
-          </h2>
-          <.form
-            for={@form}
-            id="pipeline-form"
-            phx-submit="save_pipeline"
-            class="flex flex-col gap-4 sm:flex-row sm:items-end"
-          >
-            <div class="flex-1 min-w-0">
-              <.input
-                field={@form[:name]}
-                type="text"
-                label={gettext("Name")}
-                placeholder={gettext("e.g. Engineering Pipeline")}
-              />
-            </div>
-            <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit" loading_text={gettext("Creating...")}>{gettext("Create")}</.button>
-              <.button type="button" phx-click="cancel_form" variant="ghost">
-                {gettext("Cancel")}
+          <div class="flex justify-between items-center mb-8">
+            <div>
+              <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+                &larr; {gettext("Back to Settings")}
               </.button>
+              <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+                {gettext("Pipelines")}
+              </h1>
+              <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+                {gettext("Manage your hiring pipelines")}
+              </p>
             </div>
-          </.form>
-        </div>
+            <.button phx-click="show_create_form" variant="primary">
+              + {gettext("New Pipeline")}
+            </.button>
+          </div>
 
-        <div class="space-y-4">
           <div
-            :for={pipeline <- @pipelines}
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6 flex items-center justify-between"
+            :if={@show_form}
+            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
           >
-            <div class="flex items-center gap-4">
-              <div class="flex-shrink-0">
-                <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("New Pipeline")}
+            </h2>
+            <.form
+              for={@form}
+              id="pipeline-form"
+              phx-submit="save_pipeline"
+              class="flex flex-col gap-4 sm:flex-row sm:items-end"
+            >
+              <div class="flex-1 min-w-0">
+                <.input
+                  field={@form[:name]}
+                  type="text"
+                  label={gettext("Name")}
+                  placeholder={gettext("e.g. Engineering Pipeline")}
+                />
               </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                    {pipeline.name}
-                  </h3>
-                  <span
-                    :if={pipeline.is_default}
-                    class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-100 ring-1 ring-inset ring-blue-700/10"
-                  >
-                    {gettext("Default")}
-                  </span>
+              <div class="flex gap-2 shrink-0 sm:mb-2">
+                <.button type="submit" loading_text={gettext("Creating...")}>{gettext("Create")}</.button>
+                <.button type="button" phx-click="cancel_form" variant="ghost">
+                  {gettext("Cancel")}
+                </.button>
+              </div>
+            </.form>
+          </div>
+
+          <div class="space-y-4">
+            <div
+              :for={pipeline <- @pipelines}
+              class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6 flex items-center justify-between"
+            >
+              <div class="flex items-center gap-4">
+                <div class="flex-shrink-0">
+                  <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
                 </div>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400">
-                  {gettext("%{count} stages", count: length(pipeline.pipeline_stages))} &middot; {gettext(
-                    "%{count} active jobs",
-                    count: Pipeline.count_active_jobs(pipeline.id)
-                  )}
-                </p>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                      {pipeline.name}
+                    </h3>
+                    <span
+                      :if={pipeline.is_default}
+                      class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-100 ring-1 ring-inset ring-blue-700/10"
+                    >
+                      {gettext("Default")}
+                    </span>
+                  </div>
+                  <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                    {gettext("%{count} stages", count: length(pipeline.pipeline_stages))} &middot; {gettext(
+                      "%{count} active jobs",
+                      count: Pipeline.count_active_jobs(pipeline.id)
+                    )}
+                  </p>
+                </div>
               </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <.link
-                navigate={~p"/app/settings/pipeline/#{pipeline.id}"}
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium"
-              >
-                {gettext("Edit")}
-              </.link>
-              <button
-                :if={not pipeline.is_default}
-                phx-click="set_default"
-                phx-value-pipeline_id={pipeline.id}
-                class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
-              >
-                {gettext("Set Default")}
-              </button>
-              <button
-                phx-click="duplicate_pipeline"
-                phx-value-pipeline_id={pipeline.id}
-                class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
-              >
-                {gettext("Duplicate")}
-              </button>
-              <button
-                :if={not pipeline.is_default}
-                phx-click="confirm_delete"
-                phx-value-id={pipeline.id}
-                phx-value-title={gettext("Delete pipeline")}
-                phx-value-message={
-                  gettext(
-                    "Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
-                  )
-                }
-                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm"
-              >
-                {gettext("Delete")}
-              </button>
+              <div class="flex items-center gap-2">
+                <.link
+                  navigate={~p"/app/settings/pipeline/#{pipeline.id}"}
+                  class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium"
+                >
+                  {gettext("Edit")}
+                </.link>
+                <button
+                  :if={not pipeline.is_default}
+                  phx-click="set_default"
+                  phx-value-pipeline_id={pipeline.id}
+                  class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
+                >
+                  {gettext("Set Default")}
+                </button>
+                <button
+                  phx-click="duplicate_pipeline"
+                  phx-value-pipeline_id={pipeline.id}
+                  class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
+                >
+                  {gettext("Duplicate")}
+                </button>
+                <button
+                  :if={not pipeline.is_default}
+                  phx-click="confirm_delete"
+                  phx-value-id={pipeline.id}
+                  phx-value-title={gettext("Delete pipeline")}
+                  phx-value-message={
+                    gettext(
+                      "Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
+                    )
+                  }
+                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm"
+                >
+                  {gettext("Delete")}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     <.confirm_dialog

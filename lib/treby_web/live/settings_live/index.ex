@@ -2,6 +2,7 @@ defmodule TrebyWeb.SettingsLive.Index do
   use TrebyWeb, :live_view
 
   alias Treby.{Accounts, Tenants}
+  alias TrebyWeb.SettingsNav
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
@@ -26,7 +27,8 @@ defmodule TrebyWeb.SettingsLive.Index do
           {nil, nil}
       end
 
-    {:ok, assign(socket, current_user: user, current_tenant: tenant)}
+    {:ok,
+     assign(socket, settings_active: true) |> assign(current_user: user, current_tenant: tenant)}
   end
 
   def render(assigns) do
@@ -44,199 +46,63 @@ defmodule TrebyWeb.SettingsLive.Index do
           }
         />
 
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/pipeline"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Pipeline Stages")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Customize your hiring pipeline stages")}
-            </p>
-          </.link>
-
-          <.link
-            navigate={~p"/app/settings/branding"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Branding")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Customize career page appearance")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/team"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{gettext("Team")}</h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Manage team members and invites")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/webhooks"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Webhooks")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Send events to external systems via outbound webhooks")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/fields"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Custom Fields")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Define custom fields for candidates and jobs")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/scorecards"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Scorecard Templates")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Define evaluation criteria for interviews")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/emails"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Message Templates")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Configure message templates for stage transitions")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/notifications"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Notifications")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Configure automated email notifications")}
-            </p>
-          </.link>
-
-          <.link
-            navigate={~p"/app/settings/calendar"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Calendar")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Connect Google Calendar for interview scheduling")}
-            </p>
-          </.link>
-
-          <.link
-            navigate={~p"/app/settings/availability"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Availability")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Set your available hours for interviews")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/company-availability"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-            id="settings-company-availability"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Company Availability")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Set the company's default hours for new team members")}
-            </p>
-          </.link>
-
-          <.link
-            navigate={~p"/app/settings/language"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Language")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Set your preferred language")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/audit-log"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-            id="settings-audit-log"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Audit Log")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Immutable history of all changes in this workspace")}
-            </p>
-          </.link>
-
-          <.link
-            :if={@current_membership.role == "admin"}
-            navigate={~p"/app/settings/data-privacy"}
-            class="card bg-white dark:bg-zinc-800 shadow p-6 hover:shadow-md transition-shadow block"
-            id="settings-data-privacy"
-          >
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {gettext("Data & Privacy")}
-            </h2>
-            <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Data export and erasure requests")}
-            </p>
-          </.link>
+        <div
+          :if={@current_membership && @current_membership.role != "admin"}
+          class="mt-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"
+        >
+          {gettext("Some settings require admin access. You see only your personal settings below.")}
         </div>
 
-        <div :if={@current_membership.role != "admin"} class="mt-6">
-          <h3 class="font-semibold text-zinc-900 dark:text-zinc-100">{gettext("Your data")}</h3>
-          <p class="text-sm text-zinc-500">{gettext("Export or delete your personal data")}</p>
-          <div class="mt-2 flex gap-2">
-            <.link
-              navigate={~p"/app/settings/data-privacy"}
-              class="bg-zinc-900 text-white px-4 py-2 rounded-xl text-sm"
-              id="settings-data-privacy-personal"
-            >
-              {gettext("Manage my data")}
-            </.link>
-          </div>
+        <div class="mt-6">
+          <TrebyWeb.SettingsLayout.settings_shell
+            current_tenant={@current_tenant}
+            current_membership={@current_membership}
+            active_key={nil}
+          >
+            <div class="space-y-8">
+              <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-6">
+                <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  {gettext("Select a setting")}
+                </h2>
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  {gettext(
+                    "Choose a section from the sidebar to configure your workspace. All changes are tenant-scoped."
+                  )}
+                </p>
+              </div>
+
+              <div
+                :for={
+                  group <-
+                    SettingsNav.groups_for_role(
+                      (@current_membership && @current_membership.role) || "member"
+                    )
+                }
+                class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-6"
+              >
+                <div class="flex items-center gap-2">
+                  <.icon name={group.icon} class="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+                  <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+                    {group.label}
+                  </h3>
+                </div>
+                <div class="mt-4 grid grid-cols-1 gap-3">
+                  <.link
+                    :for={item <- group.items}
+                    id={"hub-#{item.dom_id}"}
+                    navigate={SettingsNav.path_with_tenant(item.path, @current_tenant)}
+                    class="flex items-start gap-3 rounded-lg border border-zinc-100 dark:border-zinc-700 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors"
+                  >
+                    <.icon name={item.icon} class="w-5 h-5 mt-0.5 text-zinc-400" />
+                    <span class="flex-1">
+                      <span class="block text-sm font-medium text-zinc-900 dark:text-zinc-100">{item.label}</span>
+                      <span class="block text-xs text-zinc-500 dark:text-zinc-400">{item.subtitle}</span>
+                    </span>
+                  </.link>
+                </div>
+              </div>
+            </div>
+          </TrebyWeb.SettingsLayout.settings_shell>
         </div>
       </div>
     </Layouts.app>

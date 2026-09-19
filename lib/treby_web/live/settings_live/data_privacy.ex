@@ -6,7 +6,7 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
   def mount(_params, _session, socket) do
     tenant = socket.assigns.current_tenant
     requests = if tenant, do: Requests.list_requests(tenant.id), else: []
-    {:ok, assign(socket, requests: requests)}
+    {:ok, assign(socket, requests: requests, settings_active: true)}
   end
 
   def handle_event("request_export", %{"scope" => scope}, socket) do
@@ -123,116 +123,122 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <.page_header
-          title={gettext("Data & Privacy")}
-          subtitle={gettext("Data export and erasure requests")}
-        />
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:data_privacy}
+        >
+          <.page_header
+            title={gettext("Data & Privacy")}
+            subtitle={gettext("Data export and erasure requests")}
+          />
 
-        <div class="mt-6 flex gap-4">
-          <form phx-submit="request_export" class="flex gap-2">
-            <input type="hidden" name="scope" value="user" />
-            <.button type="submit" variant="secondary" id="data-privacy-export-user">
-              {gettext("Export my data")}
-            </.button>
-          </form>
-          <form
-            :if={@current_membership.role == "admin"}
-            phx-submit="request_export"
-            class="flex gap-2"
-          >
-            <input type="hidden" name="scope" value="tenant" />
-            <.button type="submit" variant="primary" id="data-privacy-export-tenant">
-              {gettext("Export company data")}
-            </.button>
-          </form>
-        </div>
-
-        <div class="mt-6 border-t pt-6">
-          <h3 class="font-semibold">{gettext("Request erasure")}</h3>
-          <p class="text-sm text-zinc-500">{gettext("7-day grace period — you can cancel")}</p>
-          <div class="mt-4 flex gap-4 items-end">
-            <form phx-submit="request_erasure" class="flex gap-2 items-end">
+          <div class="mt-6 flex gap-4">
+            <form phx-submit="request_export" class="flex gap-2">
               <input type="hidden" name="scope" value="user" />
-              <.button type="submit" variant="danger" id="data-privacy-erasure-user">
-                {gettext("Delete my account")}
+              <.button type="submit" variant="secondary" id="data-privacy-export-user">
+                {gettext("Export my data")}
               </.button>
             </form>
             <form
               :if={@current_membership.role == "admin"}
-              phx-submit="request_erasure"
-              class="flex gap-2 items-end"
+              phx-submit="request_export"
+              class="flex gap-2"
             >
               <input type="hidden" name="scope" value="tenant" />
-              <input
-                type="text"
-                name="confirm"
-                placeholder={@current_tenant && @current_tenant.slug}
-                class="border rounded-xl px-3 py-2"
-                id="data-privacy-erasure-confirm"
-              />
-              <.button type="submit" variant="danger" id="data-privacy-erasure-tenant">
-                {gettext("Delete company")}
+              <.button type="submit" variant="primary" id="data-privacy-export-tenant">
+                {gettext("Export company data")}
               </.button>
             </form>
           </div>
-        </div>
 
-        <div class="mt-8">
-          <form phx-change="filter" id="data-privacy-filter" class="flex gap-2 mb-4">
-            <select name="type" class="border rounded-xl px-2 py-1">
-              <option value="">{gettext("All types")}</option>
-              <option value="export">{gettext("Export")}</option>
-              <option value="erasure">{gettext("Erasure")}</option>
-            </select>
-            <select name="status" class="border rounded-xl px-2 py-1">
-              <option value="">{gettext("All status")}</option>
-              <option value="pending">pending</option>
-              <option value="processing">processing</option>
-              <option value="ready">ready</option>
-              <option value="completed">completed</option>
-              <option value="expired">expired</option>
-              <option value="cancelled">cancelled</option>
-              <option value="failed">failed</option>
-            </select>
-          </form>
-
-          <div id="data-privacy-requests" class="space-y-2">
-            <div
-              :for={req <- @requests}
-              id={"req-#{req.id}"}
-              class="border rounded-xl p-4 flex justify-between items-center"
-            >
-              <div>
-                <span class="font-mono text-sm">{req.type} / {req.scope}</span>
-                <span class="ml-2 text-sm px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-700">{req.status}</span>
-              </div>
-              <div class="flex gap-2">
-                <.button
-                  :if={req.status == "ready" and req.s3_key}
-                  variant="secondary"
-                  size="sm"
-                  navigate={~p"/#{@current_tenant.slug}/data-privacy/exports/#{req.id}/download"}
-                  id={"data-privacy-download-#{req.id}"}
-                >
-                  {gettext("Download")}
+          <div class="mt-6 border-t pt-6">
+            <h3 class="font-semibold">{gettext("Request erasure")}</h3>
+            <p class="text-sm text-zinc-500">{gettext("7-day grace period — you can cancel")}</p>
+            <div class="mt-4 flex gap-4 items-end">
+              <form phx-submit="request_erasure" class="flex gap-2 items-end">
+                <input type="hidden" name="scope" value="user" />
+                <.button type="submit" variant="danger" id="data-privacy-erasure-user">
+                  {gettext("Delete my account")}
                 </.button>
-                <.button
-                  :if={req.status in ["pending", "processing"]}
-                  variant="ghost"
-                  size="sm"
-                  phx-click="cancel"
-                  phx-value-id={req.id}
-                  id={"data-privacy-cancel-#{req.id}"}
-                >
-                  {gettext("Cancel")}
+              </form>
+              <form
+                :if={@current_membership.role == "admin"}
+                phx-submit="request_erasure"
+                class="flex gap-2 items-end"
+              >
+                <input type="hidden" name="scope" value="tenant" />
+                <input
+                  type="text"
+                  name="confirm"
+                  placeholder={@current_tenant && @current_tenant.slug}
+                  class="border rounded-xl px-3 py-2"
+                  id="data-privacy-erasure-confirm"
+                />
+                <.button type="submit" variant="danger" id="data-privacy-erasure-tenant">
+                  {gettext("Delete company")}
                 </.button>
-              </div>
-            </div>
-            <div :if={@requests == []} class="text-sm text-zinc-500">
-              {gettext("No requests yet")}
+              </form>
             </div>
           </div>
-        </div>
+
+          <div class="mt-8">
+            <form phx-change="filter" id="data-privacy-filter" class="flex gap-2 mb-4">
+              <select name="type" class="border rounded-xl px-2 py-1">
+                <option value="">{gettext("All types")}</option>
+                <option value="export">{gettext("Export")}</option>
+                <option value="erasure">{gettext("Erasure")}</option>
+              </select>
+              <select name="status" class="border rounded-xl px-2 py-1">
+                <option value="">{gettext("All status")}</option>
+                <option value="pending">pending</option>
+                <option value="processing">processing</option>
+                <option value="ready">ready</option>
+                <option value="completed">completed</option>
+                <option value="expired">expired</option>
+                <option value="cancelled">cancelled</option>
+                <option value="failed">failed</option>
+              </select>
+            </form>
+
+            <div id="data-privacy-requests" class="space-y-2">
+              <div
+                :for={req <- @requests}
+                id={"req-#{req.id}"}
+                class="border rounded-xl p-4 flex justify-between items-center"
+              >
+                <div>
+                  <span class="font-mono text-sm">{req.type} / {req.scope}</span>
+                  <span class="ml-2 text-sm px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-700">{req.status}</span>
+                </div>
+                <div class="flex gap-2">
+                  <.button
+                    :if={req.status == "ready" and req.s3_key}
+                    variant="secondary"
+                    size="sm"
+                    navigate={~p"/#{@current_tenant.slug}/data-privacy/exports/#{req.id}/download"}
+                    id={"data-privacy-download-#{req.id}"}
+                  >
+                    {gettext("Download")}
+                  </.button>
+                  <.button
+                    :if={req.status in ["pending", "processing"]}
+                    variant="ghost"
+                    size="sm"
+                    phx-click="cancel"
+                    phx-value-id={req.id}
+                    id={"data-privacy-cancel-#{req.id}"}
+                  >
+                    {gettext("Cancel")}
+                  </.button>
+                </div>
+              </div>
+              <div :if={@requests == []} class="text-sm text-zinc-500">
+                {gettext("No requests yet")}
+              </div>
+            </div>
+          </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     """

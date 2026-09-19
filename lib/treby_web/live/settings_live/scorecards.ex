@@ -30,6 +30,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
 
     {:ok,
      socket
+     |> assign(settings_active: true)
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(templates: templates)
      |> assign(show_form: false)
@@ -43,195 +44,201 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="flex justify-between items-center mb-8">
-          <div>
-            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-              &larr; {gettext("Back to Settings")}
-            </.button>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-              {gettext("Scorecard Templates")}
-            </h1>
-            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-              {gettext("Define evaluation criteria for interviews")}
-            </p>
-          </div>
-          <.button phx-click="show_create_form" variant="primary">
-            + {gettext("Add Template")}
-          </.button>
-        </div>
-
-        <div
-          :if={@show_form}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:scorecards}
         >
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
-          </h2>
-          <form
-            id="template-form"
-            phx-submit="save_template"
-            phx-change="form_changed"
-            class="space-y-4"
-          >
+          <div class="flex justify-between items-center mb-8">
             <div>
-              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
-                {gettext("Template Name")}
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={@form_name}
-                placeholder={gettext("e.g. Engineering Interview")}
-                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
-                {gettext("Criteria")}
-              </label>
-              <div
-                :for={{criterion, idx} <- Enum.with_index(@criteria)}
-                class="flex gap-2 items-center"
-              >
-                <span class="text-sm text-zinc-500 dark:text-zinc-400 w-8">{idx + 1}.</span>
-                <input
-                  type="text"
-                  name={"criteria[#{idx}][name]"}
-                  value={criterion["name"]}
-                  class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder={gettext("Criterion name")}
-                />
-                <select
-                  name={"criteria[#{idx}][type]"}
-                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                >
-                  <option value="number_1_5" selected={criterion["type"] == "number_1_5"}>
-                    {gettext("Number (1-5)")}
-                  </option>
-                  <option value="yes_no_maybe" selected={criterion["type"] == "yes_no_maybe"}>
-                    {gettext("Yes/No/Maybe")}
-                  </option>
-                  <option value="text" selected={criterion["type"] == "text"}>
-                    {gettext("Text")}
-                  </option>
-                </select>
-                <button
-                  type="button"
-                  phx-click="remove_criterion"
-                  phx-value-index={idx}
-                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                >
-                  <.icon name="hero-x-mark" class="w-5 h-5" />
-                </button>
-              </div>
-
-              <div
-                id="criterion-adder"
-                phx-hook=".CriterionAdder"
-                class="flex gap-2 items-center mt-2"
-              >
-                <input
-                  type="text"
-                  id="new_criterion_name"
-                  placeholder={gettext("New criterion name")}
-                  class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
-                <select
-                  id="new_criterion_type"
-                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                >
-                  <option value="number_1_5">{gettext("Number (1-5)")}</option>
-                  <option value="yes_no_maybe">{gettext("Yes/No/Maybe")}</option>
-                  <option value="text">{gettext("Text")}</option>
-                </select>
-                <.button
-                  type="button"
-                  id="add-criterion-btn"
-                  variant="primary"
-                  size="sm"
-                >
-                  + {gettext("Add")}
-                </.button>
-              </div>
-              <script :type={Phoenix.LiveView.ColocatedHook} name=".CriterionAdder">
-                export default {
-                  mounted() {
-                    document.getElementById("add-criterion-btn").addEventListener("click", () => {
-                      const name = document.getElementById("new_criterion_name").value;
-                      const type = document.getElementById("new_criterion_type").value;
-                      if (name.trim()) {
-                        this.pushEvent("add_criterion", { new_criterion_name: name, new_criterion_type: type });
-                      }
-                    });
-                  }
-                }
-              </script>
-            </div>
-
-            <div class="flex gap-2">
-              <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
-                "Save"
-              )}</.button>
-              <.button type="button" phx-click="cancel_form" variant="ghost">
-                {gettext("Cancel")}
+              <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+                &larr; {gettext("Back to Settings")}
               </.button>
+              <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+                {gettext("Scorecard Templates")}
+              </h1>
+              <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+                {gettext("Define evaluation criteria for interviews")}
+              </p>
             </div>
-          </form>
-        </div>
+            <.button phx-click="show_create_form" variant="primary">
+              + {gettext("Add Template")}
+            </.button>
+          </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-            <thead class="bg-zinc-50 dark:bg-zinc-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Name")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Criteria Count")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                  {template.name}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                  {length(template.criteria || [])}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <button
-                    phx-click="edit_template"
-                    phx-value-template_id={template.id}
-                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+          <div
+            :if={@show_form}
+            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
+            </h2>
+            <form
+              id="template-form"
+              phx-submit="save_template"
+              phx-change="form_changed"
+              class="space-y-4"
+            >
+              <div>
+                <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
+                  {gettext("Template Name")}
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={@form_name}
+                  placeholder={gettext("e.g. Engineering Interview")}
+                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
+                  {gettext("Criteria")}
+                </label>
+                <div
+                  :for={{criterion, idx} <- Enum.with_index(@criteria)}
+                  class="flex gap-2 items-center"
+                >
+                  <span class="text-sm text-zinc-500 dark:text-zinc-400 w-8">{idx + 1}.</span>
+                  <input
+                    type="text"
+                    name={"criteria[#{idx}][name]"}
+                    value={criterion["name"]}
+                    class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    placeholder={gettext("Criterion name")}
+                  />
+                  <select
+                    name={"criteria[#{idx}][type]"}
+                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   >
-                    {gettext("Edit")}
-                  </button>
+                    <option value="number_1_5" selected={criterion["type"] == "number_1_5"}>
+                      {gettext("Number (1-5)")}
+                    </option>
+                    <option value="yes_no_maybe" selected={criterion["type"] == "yes_no_maybe"}>
+                      {gettext("Yes/No/Maybe")}
+                    </option>
+                    <option value="text" selected={criterion["type"] == "text"}>
+                      {gettext("Text")}
+                    </option>
+                  </select>
                   <button
-                    phx-click="confirm_delete"
-                    phx-value-id={template.id}
-                    phx-value-title={gettext("Delete template")}
-                    phx-value-message={
-                      gettext(
-                        "Are you sure you want to delete this scorecard template? This action cannot be undone."
-                      )
-                    }
+                    type="button"
+                    phx-click="remove_criterion"
+                    phx-value-index={idx}
                     class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                   >
-                    {gettext("Delete")}
+                    <.icon name="hero-x-mark" class="w-5 h-5" />
                   </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
-            {gettext("No scorecard templates yet. Create your first template!")}
+                </div>
+
+                <div
+                  id="criterion-adder"
+                  phx-hook=".CriterionAdder"
+                  class="flex gap-2 items-center mt-2"
+                >
+                  <input
+                    type="text"
+                    id="new_criterion_name"
+                    placeholder={gettext("New criterion name")}
+                    class="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  />
+                  <select
+                    id="new_criterion_type"
+                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <option value="number_1_5">{gettext("Number (1-5)")}</option>
+                    <option value="yes_no_maybe">{gettext("Yes/No/Maybe")}</option>
+                    <option value="text">{gettext("Text")}</option>
+                  </select>
+                  <.button
+                    type="button"
+                    id="add-criterion-btn"
+                    variant="primary"
+                    size="sm"
+                  >
+                    + {gettext("Add")}
+                  </.button>
+                </div>
+                <script :type={Phoenix.LiveView.ColocatedHook} name=".CriterionAdder">
+                  export default {
+                    mounted() {
+                      document.getElementById("add-criterion-btn").addEventListener("click", () => {
+                        const name = document.getElementById("new_criterion_name").value;
+                        const type = document.getElementById("new_criterion_type").value;
+                        if (name.trim()) {
+                          this.pushEvent("add_criterion", { new_criterion_name: name, new_criterion_type: type });
+                        }
+                      });
+                    }
+                  }
+                </script>
+              </div>
+
+              <div class="flex gap-2">
+                <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                  "Save"
+                )}</.button>
+                <.button type="button" phx-click="cancel_form" variant="ghost">
+                  {gettext("Cancel")}
+                </.button>
+              </div>
+            </form>
           </div>
-        </div>
+
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
+            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+              <thead class="bg-zinc-50 dark:bg-zinc-800">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Name")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Criteria Count")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Actions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+                <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
+                  <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                    {template.name}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                    {length(template.criteria || [])}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button
+                      phx-click="edit_template"
+                      phx-value-template_id={template.id}
+                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                    >
+                      {gettext("Edit")}
+                    </button>
+                    <button
+                      phx-click="confirm_delete"
+                      phx-value-id={template.id}
+                      phx-value-title={gettext("Delete template")}
+                      phx-value-message={
+                        gettext(
+                          "Are you sure you want to delete this scorecard template? This action cannot be undone."
+                        )
+                      }
+                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                    >
+                      {gettext("Delete")}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
+              {gettext("No scorecard templates yet. Create your first template!")}
+            </div>
+          </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     <.confirm_dialog

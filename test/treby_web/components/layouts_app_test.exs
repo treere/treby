@@ -57,22 +57,27 @@ defmodule TrebyWeb.LayoutsAppTest do
       # Inline links group uses xl breakpoint (not sm) and tightened spacing
       assert html =~ ~s(xl:flex xl:space-x-6)
       refute html =~ ~s(sm:flex sm:space-x-8)
-      # Right-side group also gates on xl
-      assert html =~ ~s(xl:flex xl:items-center xl:space-x-4)
 
       # Drawer + overlay gate on xl too
       assert html =~ ~s(id="mobile-nav-drawer")
       assert html =~ ~s(id="mobile-nav-overlay")
 
-      # All key feature links are present (in the inline bar)
+      # Trimmed primary links (Import and Message Queue moved)
       assert html =~ ~s(data-nav="/app/jobs")
       assert html =~ ~s(data-nav="/app/candidates")
-      assert html =~ ~s(data-nav="/app/ai")
-      assert html =~ ~s(data-nav="/app/import")
       assert html =~ ~s(data-nav="/app/interviews")
       assert html =~ ~s(data-nav="/app/analytics")
-      assert html =~ ~s(data-nav="/app/messages-queue")
+      assert html =~ ~s(data-nav="/app/ai")
+      refute html =~ ~s(data-nav="/app/import")
+      refute html =~ ~s(data-nav="/app/messages-queue")
+      # Settings is now a gear icon, still with data-nav
       assert html =~ ~s(data-nav="/app/settings")
+      assert html =~ ~s(aria-label="Settings")
+      assert html =~ ~s(hero-cog-6-tooth)
+
+      # Unified user menu replaces scattered controls
+      assert html =~ ~s(id="user-menu")
+      assert html =~ ~s(id="user-menu-dropdown")
 
       # Drawer links carry the close-on-tap handler
       assert html =~ "mobile-nav-link"

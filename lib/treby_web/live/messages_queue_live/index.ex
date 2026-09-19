@@ -18,6 +18,7 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
       |> assign(:edit_message, nil)
       |> assign(:edit_form, nil)
       |> assign(:page_title, gettext("Message Queue"))
+      |> assign(:settings_active, true)
       |> load_messages(user.tenant_id, tab)
 
     {:ok, socket}

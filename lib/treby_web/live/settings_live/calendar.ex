@@ -30,6 +30,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
 
     {:ok,
      socket
+     |> assign(settings_active: true)
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(connection: connection)
      |> assign(confirm_disconnect: false)}
@@ -39,68 +40,77 @@ defmodule TrebyWeb.SettingsLive.Calendar do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="mb-8">
-          <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-            &larr; {gettext("Back to Settings")}
-          </.button>
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {gettext("Calendar Integration")}
-          </h1>
-          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            Connect your Google Calendar to check availability and create interview events
-          </p>
-        </div>
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:calendar}
+        >
+          <div class="mb-8">
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              &larr; {gettext("Back to Settings")}
+            </.button>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Calendar Integration")}
+            </h1>
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+              Connect your Google Calendar to check availability and create interview events
+            </p>
+          </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
-          <%= if @connection do %>
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    Connected
-                  </span>
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+            <%= if @connection do %>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Connected
+                    </span>
+                  </div>
+                  <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    Connected as <strong>{@connection.provider_email}</strong>
+                  </p>
+                  <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    Connected {Elixir.Calendar.strftime(@connection.connected_at, "%B %d, %Y")}
+                  </p>
                 </div>
-                <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                  Connected as <strong>{@connection.provider_email}</strong>
-                </p>
-                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  Connected {Elixir.Calendar.strftime(@connection.connected_at, "%B %d, %Y")}
-                </p>
+                <.link
+                  href={~p"/auth/google"}
+                  class="inline-flex items-center px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-sm font-medium rounded-md text-zinc-900 dark:text-zinc-100/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                >
+                  Reconnect
+                </.link>
               </div>
-              <.link
-                href={~p"/auth/google"}
-                class="inline-flex items-center px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-sm font-medium rounded-md text-zinc-900 dark:text-zinc-100/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-              >
-                Reconnect
-              </.link>
-            </div>
 
-            <div class="mt-6 pt-6 border-t">
-              <button
-                phx-click="confirm_disconnect"
-                class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium"
-              >
-                {gettext("Disconnect Google Calendar")}
-              </button>
-            </div>
-          <% else %>
-            <div class="text-center py-8">
-              <.icon name="hero-calendar" class="mx-auto h-12 w-12 text-zinc-500 dark:text-zinc-400" />
-              <h3 class="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                {gettext("No calendar connected")}
-              </h3>
-              <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Connect your Google Calendar to check availability against your calendar. Interview
-                scheduling works even without it.
-              </p>
-              <div class="mt-6">
-                <.button variant="primary" href={~p"/auth/google"}>
-                  <.icon name="hero-plus" class="h-4 w-4" /> {gettext("Connect Google Calendar")}
-                </.button>
+              <div class="mt-6 pt-6 border-t">
+                <button
+                  phx-click="confirm_disconnect"
+                  class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium"
+                >
+                  {gettext("Disconnect Google Calendar")}
+                </button>
               </div>
-            </div>
-          <% end %>
-        </div>
+            <% else %>
+              <div class="text-center py-8">
+                <.icon
+                  name="hero-calendar"
+                  class="mx-auto h-12 w-12 text-zinc-500 dark:text-zinc-400"
+                />
+                <h3 class="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  {gettext("No calendar connected")}
+                </h3>
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  Connect your Google Calendar to check availability against your calendar. Interview
+                  scheduling works even without it.
+                </p>
+                <div class="mt-6">
+                  <.button variant="primary" href={~p"/auth/google"}>
+                    <.icon name="hero-plus" class="h-4 w-4" /> {gettext("Connect Google Calendar")}
+                  </.button>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     <.confirm_dialog

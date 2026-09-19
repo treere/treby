@@ -6,7 +6,7 @@ Migrate candidates from a spreadsheet in three steps: upload, map, import.
 
 ## Steps
 
-Find it under **Import** in the main menu.
+Find it on the **Candidates** page — click **Import CSV** in the header (beside Add Candidate). You can also start from the empty-state call-to-action.
 
 1. **Upload** — drag a `.csv` file (max 10 MB). The system reads headers and rows.
 2. **Map** — Treby auto-detects the most common columns:

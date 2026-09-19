@@ -129,28 +129,6 @@ defmodule TrebyWeb.Layouts do
                 <.link
                   navigate={
                     if @current_tenant,
-                      do: "/#{@current_tenant.slug}/app/ai",
-                      else: ~p"/app/ai"
-                  }
-                  data-nav="/app/ai"
-                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  {gettext("Assistant")}
-                </.link>
-                <.link
-                  navigate={
-                    if @current_tenant,
-                      do: "/#{@current_tenant.slug}/app/import",
-                      else: ~p"/app/import"
-                  }
-                  data-nav="/app/import"
-                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  {gettext("Import")}
-                </.link>
-                <.link
-                  navigate={
-                    if @current_tenant,
                       do: "/#{@current_tenant.slug}/app/interviews",
                       else: ~p"/app/interviews"
                   }
@@ -173,50 +151,124 @@ defmodule TrebyWeb.Layouts do
                 <.link
                   navigate={
                     if @current_tenant,
-                      do: "/#{@current_tenant.slug}/app/messages-queue",
-                      else: ~p"/app/messages-queue"
+                      do: "/#{@current_tenant.slug}/app/ai",
+                      else: ~p"/app/ai"
                   }
-                  data-nav="/app/messages-queue"
+                  data-nav="/app/ai"
                   class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  {gettext("Message Queue")}
-                </.link>
-                <.link
-                  :if={
-                    (@current_membership && @current_membership.role == "admin") ||
-                      (@current_scope && Map.get(@current_scope, :role) == "admin")
-                  }
-                  navigate={
-                    if @current_tenant,
-                      do: "/#{@current_tenant.slug}/app/settings",
-                      else: ~p"/app/settings"
-                  }
-                  data-nav="/app/settings"
-                  class="nav-link inline-flex items-center px-2.5 py-1.5 text-sm font-medium rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  {gettext("Settings")}
+                  {gettext("Assistant")}
                 </.link>
               </div>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
               <.notification_bell
                 unread_count={assigns[:notification_unread_count] || 0}
                 recent={assigns[:notification_recent] || []}
                 current_tenant={@current_tenant}
               />
-              <div class="hidden xl:flex xl:items-center xl:space-x-4">
-                <.theme_toggle />
-                <.locale_switcher locale={@locale} />
-                <span :if={@current_scope} class="text-sm text-zinc-500 dark:text-zinc-400">
-                  {@current_scope.name}
-                </span>
-                <.link
-                  href={~p"/session"}
-                  method="delete"
-                  class="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-100"
+              <.link
+                :if={
+                  (@current_membership && @current_membership.role == "admin") ||
+                    (@current_scope && Map.get(@current_scope, :role) == "admin")
+                }
+                navigate={
+                  if @current_tenant,
+                    do: "/#{@current_tenant.slug}/app/settings",
+                    else: ~p"/app/settings"
+                }
+                data-nav="/app/settings"
+                aria-label={gettext("Settings")}
+                id="settings-gear"
+                class={[
+                  "hidden xl:inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors",
+                  if assigns[:settings_active] do
+                    "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  else
+                    "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  end
+                ]}
+              >
+                <.icon name="hero-cog-6-tooth" class="w-5 h-5" />
+              </.link>
+              <div class="hidden xl:block relative" id="user-menu">
+                <button
+                  type="button"
+                  class="flex items-center gap-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 px-2.5 py-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  phx-click={JS.toggle(to: "#user-menu-dropdown")}
                 >
-                  {gettext("Logout")}
-                </.link>
+                  <span :if={@current_scope}>{@current_scope.name}</span>
+                  <span :if={!@current_scope and @current_membership}>{gettext("Account")}</span>
+                  <.icon name="hero-chevron-down" class="w-4 h-4 opacity-60" />
+                </button>
+                <div
+                  id="user-menu-dropdown"
+                  class="hidden absolute right-0 mt-2 w-72 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 overflow-hidden"
+                >
+                  <div
+                    :if={@current_scope}
+                    class="px-4 py-3 border-b border-zinc-100 dark:border-zinc-700"
+                  >
+                    <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                      {@current_scope.name}
+                    </p>
+                    <p
+                      :if={@current_membership}
+                      class="text-xs text-zinc-500 dark:text-zinc-400"
+                    >
+                      {@current_membership.role}
+                    </p>
+                  </div>
+                  <div class="p-3 border-b border-zinc-100 dark:border-zinc-700">
+                    <p class="text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400 mb-2">
+                      {gettext("Theme")}
+                    </p>
+                    <div class="flex justify-center">
+                      <.theme_toggle />
+                    </div>
+                  </div>
+                  <div class="p-3 border-b border-zinc-100 dark:border-zinc-700">
+                    <p class="text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400 mb-2">
+                      {gettext("Language")}
+                    </p>
+                    <div class="flex gap-2">
+                      <.link
+                        href="/locale/en"
+                        class={[
+                          "flex-1 text-center px-3 py-1.5 rounded-lg text-sm font-medium border",
+                          @locale == "en" &&
+                            "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100",
+                          @locale != "en" &&
+                            "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                        ]}
+                      >
+                        English
+                      </.link>
+                      <.link
+                        href="/locale/it"
+                        class={[
+                          "flex-1 text-center px-3 py-1.5 rounded-lg text-sm font-medium border",
+                          @locale == "it" &&
+                            "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100",
+                          @locale != "it" &&
+                            "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                        ]}
+                      >
+                        Italiano
+                      </.link>
+                    </div>
+                  </div>
+                  <div class="p-2">
+                    <.link
+                      href={~p"/session"}
+                      method="delete"
+                      class="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                    >
+                      <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" />
+                      {gettext("Logout")}
+                    </.link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -272,30 +324,6 @@ defmodule TrebyWeb.Layouts do
               {gettext("Candidates")}
             </.link>
             <.link
-              navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app/ai", else: ~p"/app/ai"}
-              data-nav="/app/ai"
-              phx-click={
-                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
-                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
-              }
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {gettext("Assistant")}
-            </.link>
-            <.link
-              navigate={
-                if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
-              }
-              data-nav="/app/import"
-              phx-click={
-                Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
-                |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
-              }
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-            >
-              {gettext("Import")}
-            </.link>
-            <.link
               navigate={
                 if @current_tenant,
                   do: "/#{@current_tenant.slug}/app/interviews",
@@ -326,19 +354,15 @@ defmodule TrebyWeb.Layouts do
               {gettext("Analytics")}
             </.link>
             <.link
-              navigate={
-                if @current_tenant,
-                  do: "/#{@current_tenant.slug}/app/messages-queue",
-                  else: ~p"/app/messages-queue"
-              }
-              data-nav="/app/messages-queue"
+              navigate={if @current_tenant, do: "/#{@current_tenant.slug}/app/ai", else: ~p"/app/ai"}
+              data-nav="/app/ai"
               phx-click={
                 Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
                 |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
               }
               class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
-              {gettext("Message Queue")}
+              {gettext("Assistant")}
             </.link>
             <.link
               :if={
@@ -351,27 +375,64 @@ defmodule TrebyWeb.Layouts do
                   else: ~p"/app/settings"
               }
               data-nav="/app/settings"
+              aria-label={gettext("Settings")}
               phx-click={
                 Phoenix.LiveView.JS.toggle_class("hidden", to: "#mobile-nav-overlay")
                 |> Phoenix.LiveView.JS.toggle_class("-translate-x-full", to: "#mobile-nav-drawer")
               }
-              class="mobile-nav-link block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              class="mobile-nav-link flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
+              <.icon name="hero-cog-6-tooth" class="w-5 h-5" />
               {gettext("Settings")}
             </.link>
           </div>
-          <div class="border-t border-zinc-200 dark:border-zinc-700 mt-4 pt-4 space-y-1">
-            <div class="px-3 py-2 flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <.theme_toggle />
-                <.locale_switcher locale={@locale} id_suffix="-mobile" />
-              </div>
+          <div class="border-t border-zinc-200 dark:border-zinc-700 mt-4 pt-4 space-y-3">
+            <div :if={@current_scope} class="px-3 py-2">
+              <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {@current_scope.name}
+              </p>
+              <p :if={@current_membership} class="text-xs text-zinc-500 dark:text-zinc-400">
+                {@current_membership.role}
+              </p>
+            </div>
+            <div class="px-3">
+              <p class="text-xs font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400 mb-2">
+                {gettext("Theme")}
+              </p>
+              <.theme_toggle />
+            </div>
+            <div class="px-3 flex gap-2">
+              <.link
+                href="/locale/en"
+                class={[
+                  "flex-1 text-center px-3 py-1.5 rounded-lg text-sm font-medium border",
+                  @locale == "en" &&
+                    "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100",
+                  @locale != "en" &&
+                    "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600"
+                ]}
+              >
+                EN
+              </.link>
+              <.link
+                href="/locale/it"
+                class={[
+                  "flex-1 text-center px-3 py-1.5 rounded-lg text-sm font-medium border",
+                  @locale == "it" &&
+                    "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100",
+                  @locale != "it" &&
+                    "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600"
+                ]}
+              >
+                IT
+              </.link>
             </div>
             <.link
               href={~p"/session"}
               method="delete"
-              class="block px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
+              <.icon name="hero-arrow-right-on-rectangle" class="w-5 h-5" />
               {gettext("Logout")}
             </.link>
           </div>

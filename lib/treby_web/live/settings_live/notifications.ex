@@ -31,6 +31,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
 
     {:ok,
      socket
+     |> assign(settings_active: true)
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(preferences: preferences, retention: retention)}
   end
@@ -39,75 +40,83 @@ defmodule TrebyWeb.SettingsLive.Notifications do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="mb-8">
-          <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-            &larr; {gettext("Back to Settings")}
-          </.button>
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {gettext("Notification Preferences")}
-          </h1>
-          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            {gettext("Configure which notifications are sent via email and in-app inbox")}
-          </p>
-        </div>
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:notifications}
+        >
+          <div class="mb-8">
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              &larr; {gettext("Back to Settings")}
+            </.button>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Notification Preferences")}
+            </h1>
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+              {gettext("Configure which notifications are sent via email and in-app inbox")}
+            </p>
+          </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden mb-6">
-          <div class="p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  {gettext("Retention of read notifications")}
-                </h3>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {gettext(
-                    "How long read notifications are kept before automatic deletion (unread are never deleted)"
-                  )}
-                </p>
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden mb-6">
+            <div class="p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    {gettext("Retention of read notifications")}
+                  </h3>
+                  <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    {gettext(
+                      "How long read notifications are kept before automatic deletion (unread are never deleted)"
+                    )}
+                  </p>
+                </div>
+                <form id="retention-form" phx-change="set_retention">
+                  <select
+                    name="retention"
+                    class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
+                  >
+                    <option value="7" selected={@retention == 7}>7 {gettext("days")}</option>
+                    <option value="14" selected={@retention == 14}>14 {gettext("days")}</option>
+                    <option value="30" selected={@retention == 30}>30 {gettext("days")}</option>
+                    <option value="60" selected={@retention == 60}>60 {gettext("days")}</option>
+                    <option value="90" selected={@retention == 90}>90 {gettext("days")}</option>
+                  </select>
+                </form>
               </div>
-              <form id="retention-form" phx-change="set_retention">
-                <select
-                  name="retention"
-                  class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
-                >
-                  <option value="7" selected={@retention == 7}>7 {gettext("days")}</option>
-                  <option value="14" selected={@retention == 14}>14 {gettext("days")}</option>
-                  <option value="30" selected={@retention == 30}>30 {gettext("days")}</option>
-                  <option value="60" selected={@retention == 60}>60 {gettext("days")}</option>
-                  <option value="90" selected={@retention == 90}>90 {gettext("days")}</option>
-                </select>
-              </form>
             </div>
           </div>
-        </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
-          <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
-            <.pref_row
-              title={gettext("Stage Change Notifications")}
-              desc={gettext("Notify candidates when their application moves to a new pipeline stage")}
-              pref_key="stage_change_candidate"
-              pref={@preferences["stage_change_candidate"]}
-            />
-            <.pref_row
-              title={gettext("Application Confirmation")}
-              desc={gettext("Send confirmation to candidates after they apply via the career page")}
-              pref_key="new_application_candidate"
-              pref={@preferences["new_application_candidate"]}
-            />
-            <.pref_row
-              title={gettext("New Application Alerts")}
-              desc={gettext("Notify team when a new application is submitted for any job")}
-              pref_key="new_application_team"
-              pref={@preferences["new_application_team"]}
-            />
-            <.pref_row
-              title={gettext("Interview Reminders")}
-              desc={gettext("Reminders for upcoming interviews")}
-              pref_key="interview_reminder"
-              pref={@preferences["interview_reminder"]}
-            />
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+            <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
+              <.pref_row
+                title={gettext("Stage Change Notifications")}
+                desc={
+                  gettext("Notify candidates when their application moves to a new pipeline stage")
+                }
+                pref_key="stage_change_candidate"
+                pref={@preferences["stage_change_candidate"]}
+              />
+              <.pref_row
+                title={gettext("Application Confirmation")}
+                desc={gettext("Send confirmation to candidates after they apply via the career page")}
+                pref_key="new_application_candidate"
+                pref={@preferences["new_application_candidate"]}
+              />
+              <.pref_row
+                title={gettext("New Application Alerts")}
+                desc={gettext("Notify team when a new application is submitted for any job")}
+                pref_key="new_application_team"
+                pref={@preferences["new_application_team"]}
+              />
+              <.pref_row
+                title={gettext("Interview Reminders")}
+                desc={gettext("Reminders for upcoming interviews")}
+                pref_key="interview_reminder"
+                pref={@preferences["interview_reminder"]}
+              />
+            </div>
           </div>
-        </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     """

@@ -28,6 +28,7 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
 
     socket =
       socket
+      |> assign(settings_active: true)
       |> assign(current_user: user, current_tenant: tenant)
       |> assign(
         filters: %{
@@ -101,159 +102,165 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="mb-8">
-          <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-            &larr; {gettext("Back to Settings")}
-          </.button>
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {gettext("Audit Log")}
-          </h1>
-          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            {gettext("Immutable history of all changes in this workspace")}
-          </p>
-        </div>
-
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-6">
-          <.form
-            for={%{}}
-            id="audit-filter-form"
-            phx-change="filter"
-            phx-submit="filter"
-            class="grid grid-cols-1 md:grid-cols-3 gap-4"
-          >
-            <.input
-              name="action"
-              value={@filters["action"]}
-              type="text"
-              label={gettext("Action prefix")}
-              placeholder="job. / candidate. / pipeline."
-              id="filter-action"
-            />
-            <.input
-              name="entity_type"
-              value={@filters["entity_type"]}
-              type="text"
-              label={gettext("Entity type")}
-              placeholder="job, candidate, application"
-              id="filter-entity-type"
-            />
-            <.input
-              name="search"
-              value={@filters["search"]}
-              type="text"
-              label={gettext("Search")}
-              placeholder={gettext("Search action or entity")}
-              id="filter-search"
-            />
-            <.input
-              name="actor_id"
-              value={@filters["actor_id"]}
-              type="text"
-              label={gettext("Actor ID")}
-              placeholder="user id"
-              id="filter-actor"
-            />
-            <.input
-              name="from"
-              value={@filters["from"]}
-              type="date"
-              label={gettext("From date")}
-              id="filter-from"
-            />
-            <.input
-              name="to"
-              value={@filters["to"]}
-              type="date"
-              label={gettext("To date")}
-              id="filter-to"
-            />
-          </.form>
-          <div class="mt-4 flex gap-2">
-            <.button phx-click="clear_filters" variant="ghost">{gettext("Clear filters")}</.button>
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:audit_log}
+        >
+          <div class="mb-8">
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              &larr; {gettext("Back to Settings")}
+            </.button>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Audit Log")}
+            </h1>
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+              {gettext("Immutable history of all changes in this workspace")}
+            </p>
           </div>
-        </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700" id="audit-table">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                    {gettext("Time")}
-                  </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                    {gettext("Action")}
-                  </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                    {gettext("Entity")}
-                  </th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                    {gettext("Actor")}
-                  </th>
-                  <th class="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody
-                class="divide-y divide-zinc-100 dark:divide-zinc-700"
-                id="audit-events"
-                phx-update="stream"
-              >
-                <tr
-                  :for={{dom_id, event} <- @streams.events}
-                  id={dom_id}
-                  class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-6">
+            <.form
+              for={%{}}
+              id="audit-filter-form"
+              phx-change="filter"
+              phx-submit="filter"
+              class="grid grid-cols-1 md:grid-cols-3 gap-4"
+            >
+              <.input
+                name="action"
+                value={@filters["action"]}
+                type="text"
+                label={gettext("Action prefix")}
+                placeholder="job. / candidate. / pipeline."
+                id="filter-action"
+              />
+              <.input
+                name="entity_type"
+                value={@filters["entity_type"]}
+                type="text"
+                label={gettext("Entity type")}
+                placeholder="job, candidate, application"
+                id="filter-entity-type"
+              />
+              <.input
+                name="search"
+                value={@filters["search"]}
+                type="text"
+                label={gettext("Search")}
+                placeholder={gettext("Search action or entity")}
+                id="filter-search"
+              />
+              <.input
+                name="actor_id"
+                value={@filters["actor_id"]}
+                type="text"
+                label={gettext("Actor ID")}
+                placeholder="user id"
+                id="filter-actor"
+              />
+              <.input
+                name="from"
+                value={@filters["from"]}
+                type="date"
+                label={gettext("From date")}
+                id="filter-from"
+              />
+              <.input
+                name="to"
+                value={@filters["to"]}
+                type="date"
+                label={gettext("To date")}
+                id="filter-to"
+              />
+            </.form>
+            <div class="mt-4 flex gap-2">
+              <.button phx-click="clear_filters" variant="ghost">{gettext("Clear filters")}</.button>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700" id="audit-table">
+                <thead class="bg-zinc-50 dark:bg-zinc-800">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
+                      {gettext("Time")}
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
+                      {gettext("Action")}
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
+                      {gettext("Entity")}
+                    </th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
+                      {gettext("Actor")}
+                    </th>
+                    <th class="px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody
+                  class="divide-y divide-zinc-100 dark:divide-zinc-700"
+                  id="audit-events"
+                  phx-update="stream"
                 >
-                  <td class="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
-                    {Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M:%S UTC")}
-                  </td>
-                  <td class="px-4 py-3">
-                    <span class="inline-flex items-center rounded-full border text-xs font-medium bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-600 px-2 py-0.5">{event.action}</span>
-                  </td>
-                  <td class="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100">
-                    {event.entity_type}: {String.slice(event.entity_id, 0, 8)}
-                  </td>
-                  <td class="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100">
-                    {(event.actor && event.actor.email) || event.actor_type}
-                  </td>
-                  <td class="px-4 py-3 text-right">
-                    <button
-                      phx-click="show_detail"
-                      phx-value-id={event.id}
-                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
-                    >
-                      {gettext("View")}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div :if={@events == []} class="text-center py-8 text-zinc-500 dark:text-zinc-400">
-              {gettext("No audit events found")}
+                  <tr
+                    :for={{dom_id, event} <- @streams.events}
+                    id={dom_id}
+                    class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                  >
+                    <td class="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
+                      {Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M:%S UTC")}
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center rounded-full border text-xs font-medium bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-600 px-2 py-0.5">{event.action}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100">
+                      {event.entity_type}: {String.slice(event.entity_id, 0, 8)}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100">
+                      {(event.actor && event.actor.email) || event.actor_type}
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      <button
+                        phx-click="show_detail"
+                        phx-value-id={event.id}
+                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+                      >
+                        {gettext("View")}
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div :if={@events == []} class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                {gettext("No audit events found")}
+              </div>
             </div>
-          </div>
 
-          <div class="p-4 flex items-center justify-between border-t border-zinc-200 dark:border-zinc-700">
-            <span class="text-sm text-zinc-500 dark:text-zinc-400">
-              {gettext("Total: %{count}", count: @total)} — {gettext("Page %{page}", page: @page)}
-            </span>
-            <div class="flex gap-2">
-              <button
-                :if={@page > 1}
-                phx-click="prev_page"
-                class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-              >
-                {gettext("Previous")}
-              </button>
-              <button
-                :if={@events != [] and length(@events) == @page_size}
-                phx-click="next_page"
-                class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-              >
-                {gettext("Next")}
-              </button>
+            <div class="p-4 flex items-center justify-between border-t border-zinc-200 dark:border-zinc-700">
+              <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                {gettext("Total: %{count}", count: @total)} — {gettext("Page %{page}", page: @page)}
+              </span>
+              <div class="flex gap-2">
+                <button
+                  :if={@page > 1}
+                  phx-click="prev_page"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                >
+                  {gettext("Previous")}
+                </button>
+                <button
+                  :if={@events != [] and length(@events) == @page_size}
+                  phx-click="next_page"
+                  class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                >
+                  {gettext("Next")}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
 
       <div

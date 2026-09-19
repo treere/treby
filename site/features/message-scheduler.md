@@ -17,7 +17,7 @@ The schedule picker offers presets — **Tomorrow 9:00**, **Tomorrow 2:00 PM**, 
 
 ## Message Queue
 
-The **Message Queue** page (in the top navigation) lists every pending, posted, failed, and cancelled message in one place, organized into tabs.
+The **Message Queue** page (under **Settings → Communication**) lists every pending, posted, failed, and cancelled message in one place, organized into tabs.
 
 For each queued message you can:
 

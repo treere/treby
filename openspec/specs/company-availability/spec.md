@@ -38,3 +38,18 @@ The system SHALL store a company timezone, set at registration from the browser 
 #### Scenario: Admin changes timezone
 - **WHEN** an admin changes the company timezone
 - **THEN** all company template rules are interpreted in the new timezone
+
+### Requirement: Company availability discoverability
+The system SHALL expose Company Availability under Organization as primary and with a cross-link under Scheduling, both pointing to the same route.
+
+#### Scenario: Admin finds Company Availability under Organization
+- **WHEN** an admin views the Settings sidebar
+- **THEN** "Company Availability" appears under the Organization group with an `Admin` badge
+
+#### Scenario: Admin finds cross-link under Scheduling
+- **WHEN** an admin views the Scheduling group in the sidebar
+- **THEN** a muted row "Manage company defaults →" links to the same Company Availability route
+
+#### Scenario: Non-admin cannot access Company Availability
+- **WHEN** a non-admin member attempts to open `/app/settings/company-availability`
+- **THEN** access is denied or redirected according to the existing role guard

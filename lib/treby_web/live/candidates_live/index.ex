@@ -125,6 +125,17 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 {@duplicate_count}
               </span>
             </.link>
+            <.link
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/import",
+                  else: ~p"/app/import"
+              }
+              id="candidates-import-button"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-sm font-medium"
+            >
+              <.icon name="hero-arrow-up-tray" class="w-4 h-4" />{gettext("Import CSV")}
+            </.link>
             <.button phx-click="show_create_form" variant="primary">
               + {gettext("Add Candidate")}
             </.button>

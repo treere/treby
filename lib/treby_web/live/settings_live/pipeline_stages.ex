@@ -50,6 +50,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
 
         {:ok,
          socket
+         |> assign(settings_active: true)
          |> assign(current_user: user, current_tenant: tenant)
          |> assign(pipeline: pipeline)
          |> assign(stages: stages_with_counts)
@@ -66,431 +67,446 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
-      <div class="p-8 max-w-4xl">
-        <div class="mb-8">
-          <.button variant="ghost" size="sm" navigate={~p"/app/settings/pipeline"}>
-            &larr; {gettext("Back to Pipelines")}
-          </.button>
-          <.form
-            for={@rename_form}
-            id="pipeline-rename-form"
-            phx-submit="save_pipeline_name"
-            class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end"
-          >
-            <div class="flex-1 min-w-0">
-              <.input
-                field={@rename_form[:name]}
-                type="text"
-                label={gettext("Name")}
-              />
-            </div>
-            <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
-                "Save"
-              )}</.button>
-            </div>
-          </.form>
-          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            {gettext("Configure stages for this pipeline")}
-          </p>
-        </div>
-
-        <div
-          :if={@show_form}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+      <div class="p-8">
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:pipeline}
         >
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {if @editing_stage, do: gettext("Edit Stage"), else: gettext("New Stage")}
-          </h2>
-          <.form
-            for={@form}
-            id="stage-form"
-            phx-submit="save_stage"
-            class="flex flex-col gap-4 sm:flex-row sm:items-end flex-wrap"
-          >
-            <div class="flex-1 min-w-[180px]">
-              <.input
-                field={@form[:name]}
-                type="text"
-                label={gettext("Name")}
-                placeholder={gettext("e.g. Technical Interview")}
-              />
-            </div>
-            <div class="flex-1 min-w-[160px]">
-              <.input
-                field={@form[:stage_type]}
-                type="select"
-                label={gettext("Type")}
-                options={stage_type_options()}
-              />
-            </div>
-            <div class="shrink-0">
-              <.input field={@form[:color]} type="color" label={gettext("Color")} />
-            </div>
+          <div class="mb-8">
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings/pipeline"}>
+              &larr; {gettext("Back to Pipelines")}
+            </.button>
+            <.form
+              for={@rename_form}
+              id="pipeline-rename-form"
+              phx-submit="save_pipeline_name"
+              class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end"
+            >
+              <div class="flex-1 min-w-0">
+                <.input
+                  field={@rename_form[:name]}
+                  type="text"
+                  label={gettext("Name")}
+                />
+              </div>
+              <div class="flex gap-2 shrink-0 sm:mb-2">
+                <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                  "Save"
+                )}</.button>
+              </div>
+            </.form>
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+              {gettext("Configure stages for this pipeline")}
+            </p>
+          </div>
 
-            <div
-              :if={@form[:stage_type].value == "interview"}
-              class="w-full flex flex-col gap-4 sm:flex-row sm:items-end"
+          <div
+            :if={@show_form}
+            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {if @editing_stage, do: gettext("Edit Stage"), else: gettext("New Stage")}
+            </h2>
+            <.form
+              for={@form}
+              id="stage-form"
+              phx-submit="save_stage"
+              class="flex flex-col gap-4 sm:flex-row sm:items-end flex-wrap"
+            >
+              <div class="flex-1 min-w-[180px]">
+                <.input
+                  field={@form[:name]}
+                  type="text"
+                  label={gettext("Name")}
+                  placeholder={gettext("e.g. Technical Interview")}
+                />
+              </div>
+              <div class="flex-1 min-w-[160px]">
+                <.input
+                  field={@form[:stage_type]}
+                  type="select"
+                  label={gettext("Type")}
+                  options={stage_type_options()}
+                />
+              </div>
+              <div class="shrink-0">
+                <.input field={@form[:color]} type="color" label={gettext("Color")} />
+              </div>
+
+              <div
+                :if={@form[:stage_type].value == "interview"}
+                class="w-full flex flex-col gap-4 sm:flex-row sm:items-end"
+              >
+                <div class="flex-1">
+                  <.input
+                    field={@form[:min_examiners]}
+                    type="number"
+                    label={gettext("Min Examiners Required")}
+                    min="1"
+                  />
+                </div>
+                <div class="flex-1">
+                  <.input
+                    field={@form[:scorecard_template_id]}
+                    type="select"
+                    label={gettext("Scorecard Template")}
+                    options={scorecard_template_options(@current_tenant.id)}
+                    prompt={gettext("None")}
+                  />
+                </div>
+              </div>
+
+              <div class="flex gap-2 shrink-0 sm:mb-2">
+                <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
+                  "Save"
+                )}</.button>
+                <.button type="button" phx-click="cancel_form" variant="ghost">
+                  {gettext("Cancel")}
+                </.button>
+              </div>
+            </.form>
+          </div>
+
+          <div
+            :if={@deleting_stage}
+            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm border-l-4 border-yellow-400"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+              {gettext("Reassign candidates")}
+            </h2>
+            <p class="text-zinc-500 dark:text-zinc-400 mb-4">
+              {gettext("%{count} candidates are in \"%{stage}\". Move them to:",
+                count: @deleting_stage.active_count,
+                stage: @deleting_stage.name
+              )}
+            </p>
+            <.form
+              for={%{}}
+              id="reassign-form"
+              phx-submit="confirm_reassign"
+              class="flex flex-col gap-4 sm:flex-row sm:items-end"
             >
               <div class="flex-1">
                 <.input
-                  field={@form[:min_examiners]}
-                  type="number"
-                  label={gettext("Min Examiners Required")}
-                  min="1"
-                />
-              </div>
-              <div class="flex-1">
-                <.input
-                  field={@form[:scorecard_template_id]}
+                  name="target_stage_id"
                   type="select"
-                  label={gettext("Scorecard Template")}
-                  options={scorecard_template_options(@current_tenant.id)}
-                  prompt={gettext("None")}
+                  label={gettext("Move to")}
+                  options={Enum.map(@stages, &{&1.name, &1.id})}
+                  prompt={gettext("Select a stage")}
                 />
               </div>
-            </div>
+              <div class="flex gap-2 shrink-0 sm:mb-2">
+                <.button type="submit" variant="primary" loading_text={gettext("Moving...")}>{gettext(
+                  "Move & Delete"
+                )}</.button>
+                <.button type="button" phx-click="cancel_delete" variant="ghost">
+                  {gettext("Cancel")}
+                </.button>
+              </div>
+            </.form>
+          </div>
 
-            <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit" variant="primary" loading_text={gettext("Saving...")}>{gettext(
-                "Save"
-              )}</.button>
-              <.button type="button" phx-click="cancel_form" variant="ghost">
-                {gettext("Cancel")}
-              </.button>
-            </div>
-          </.form>
-        </div>
-
-        <div
-          :if={@deleting_stage}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm border-l-4 border-yellow-400"
-        >
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-            {gettext("Reassign candidates")}
-          </h2>
-          <p class="text-zinc-500 dark:text-zinc-400 mb-4">
-            {gettext("%{count} candidates are in \"%{stage}\". Move them to:",
-              count: @deleting_stage.active_count,
-              stage: @deleting_stage.name
-            )}
-          </p>
-          <.form
-            for={%{}}
-            id="reassign-form"
-            phx-submit="confirm_reassign"
-            class="flex flex-col gap-4 sm:flex-row sm:items-end"
-          >
-            <div class="flex-1">
-              <.input
-                name="target_stage_id"
-                type="select"
-                label={gettext("Move to")}
-                options={Enum.map(@stages, &{&1.name, &1.id})}
-                prompt={gettext("Select a stage")}
-              />
-            </div>
-            <div class="flex gap-2 shrink-0 sm:mb-2">
-              <.button type="submit" variant="primary" loading_text={gettext("Moving...")}>{gettext(
-                "Move & Delete"
-              )}</.button>
-              <.button type="button" phx-click="cancel_delete" variant="ghost">
-                {gettext("Cancel")}
-              </.button>
-            </div>
-          </.form>
-        </div>
-
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-            <thead class="bg-zinc-50 dark:bg-zinc-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Color")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Name")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Type")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Roles")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr
-                :for={{stage, idx} <- Enum.with_index(@stages)}
-                class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-              >
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="w-6 h-6 rounded-full" style={"background-color: #{stage.color}"} />
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                  {stage.name}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                  <span
-                    :if={stage.stage_type}
-                    class="inline-flex items-center rounded-md bg-zinc-50 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-500 dark:text-zinc-400"
-                  >
-                    {stage.stage_type}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-sm text-zinc-500 dark:text-zinc-400">
-                  <div class="flex flex-wrap gap-1">
-                    <span
-                      :if={stage.stage_type == "interview" && stage.min_examiners > 1}
-                      class="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
-                    >
-                      {gettext("%{count} examiners", count: stage.min_examiners)}
-                    </span>
-                    <span
-                      :if={stage.examiner_count > 0}
-                      class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
-                    >
-                      {gettext("%{count}E", count: stage.examiner_count)}
-                    </span>
-                    <span
-                      :if={stage.reviewer_count > 0}
-                      class="inline-flex items-center rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
-                    >
-                      {gettext("%{count}R", count: stage.reviewer_count)}
-                    </span>
-                    <span
-                      :if={stage.advancer_count > 0}
-                      class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700"
-                    >
-                      {gettext("%{count}A", count: stage.advancer_count)}
-                    </span>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <button
-                    :if={idx > 0}
-                    phx-click="move_stage_up"
-                    phx-value-stage_id={stage.id}
-                    class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
-                  >
-                    &uarr;
-                  </button>
-                  <button
-                    :if={idx < length(@stages) - 1}
-                    phx-click="move_stage_down"
-                    phx-value-stage_id={stage.id}
-                    class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
-                  >
-                    &darr;
-                  </button>
-                  <button
-                    phx-click="edit_stage"
-                    phx-value-stage_id={stage.id}
-                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-2"
-                  >
-                    {gettext("Edit")}
-                  </button>
-                  <button
-                    :if={stage.stage_type == "interview"}
-                    phx-click="show_roles"
-                    phx-value-stage_id={stage.id}
-                    class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-2"
-                  >
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
+            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+              <thead class="bg-zinc-50 dark:bg-zinc-800">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Color")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Name")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Type")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                     {gettext("Roles")}
-                  </button>
-                  <button
-                    phx-click="delete_stage"
-                    phx-value-stage_id={stage.id}
-                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                  >
-                    {gettext("Delete")}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Actions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+                <tr
+                  :for={{stage, idx} <- Enum.with_index(@stages)}
+                  class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+                >
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="w-6 h-6 rounded-full" style={"background-color: #{stage.color}"} />
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                    {stage.name}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                    <span
+                      :if={stage.stage_type}
+                      class="inline-flex items-center rounded-md bg-zinc-50 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-500 dark:text-zinc-400"
+                    >
+                      {stage.stage_type}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div class="flex flex-wrap gap-1">
+                      <span
+                        :if={stage.stage_type == "interview" && stage.min_examiners > 1}
+                        class="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+                      >
+                        {gettext("%{count} examiners", count: stage.min_examiners)}
+                      </span>
+                      <span
+                        :if={stage.examiner_count > 0}
+                        class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
+                      >
+                        {gettext("%{count}E", count: stage.examiner_count)}
+                      </span>
+                      <span
+                        :if={stage.reviewer_count > 0}
+                        class="inline-flex items-center rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
+                      >
+                        {gettext("%{count}R", count: stage.reviewer_count)}
+                      </span>
+                      <span
+                        :if={stage.advancer_count > 0}
+                        class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700"
+                      >
+                        {gettext("%{count}A", count: stage.advancer_count)}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button
+                      :if={idx > 0}
+                      phx-click="move_stage_up"
+                      phx-value-stage_id={stage.id}
+                      class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
+                    >
+                      &uarr;
+                    </button>
+                    <button
+                      :if={idx < length(@stages) - 1}
+                      phx-click="move_stage_down"
+                      phx-value-stage_id={stage.id}
+                      class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
+                    >
+                      &darr;
+                    </button>
+                    <button
+                      phx-click="edit_stage"
+                      phx-value-stage_id={stage.id}
+                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-2"
+                    >
+                      {gettext("Edit")}
+                    </button>
+                    <button
+                      :if={stage.stage_type == "interview"}
+                      phx-click="show_roles"
+                      phx-value-stage_id={stage.id}
+                      class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-2"
+                    >
+                      {gettext("Roles")}
+                    </button>
+                    <button
+                      phx-click="delete_stage"
+                      phx-value-stage_id={stage.id}
+                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                    >
+                      {gettext("Delete")}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        <div class="mt-4">
-          <.button phx-click="show_create_form" variant="primary">
-            + {gettext("Add Stage")}
-          </.button>
-        </div>
+          <div class="mt-4">
+            <.button phx-click="show_create_form" variant="primary">
+              + {gettext("Add Stage")}
+            </.button>
+          </div>
 
-        <%!-- Role Assignment Modal --%>
-        <div
-          :if={@editing_roles}
-          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          phx-click="close_roles"
-        >
+          <%!-- Role Assignment Modal --%>
           <div
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-            phx-click=""
+            :if={@editing_roles}
+            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            phx-click="close_roles"
           >
-            <div class="p-6">
-              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-                {gettext("Roles for")} {@editing_roles.name}
-              </h2>
+            <div
+              class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+              phx-click=""
+            >
+              <div class="p-6">
+                <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+                  {gettext("Roles for")} {@editing_roles.name}
+                </h2>
 
-              <div class="mb-6">
-                <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-                  {gettext("Examiners")}
-                </h3>
-                <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
-                  <span
-                    :for={examiner <- @editing_roles.examiners}
-                    class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs"
-                  >
-                    {examiner.user.name}
-                    <button
-                      phx-click="remove_examiner"
-                      phx-value-stage_id={@editing_roles.id}
-                      phx-value-user_id={examiner.user_id}
-                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                <div class="mb-6">
+                  <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                    {gettext("Examiners")}
+                  </h3>
+                  <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
+                    <span
+                      :for={examiner <- @editing_roles.examiners}
+                      class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs"
                     >
-                      &times;
-                    </button>
-                  </span>
-                </div>
-                <.form
-                  for={%{}}
-                  id="add-examiner-form"
-                  phx-submit="add_examiner"
-                  class="flex gap-2 items-end"
-                >
-                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <div class="flex-1">
-                    <.input
-                      name="user_id"
-                      type="select"
-                      options={
-                        Enum.map(available_users(@users, @editing_roles.examiners), &{&1.name, &1.id})
-                      }
-                      prompt={gettext("Select user...")}
-                      label=""
-                    />
+                      {examiner.user.name}
+                      <button
+                        phx-click="remove_examiner"
+                        phx-value-stage_id={@editing_roles.id}
+                        phx-value-user_id={examiner.user_id}
+                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                      >
+                        &times;
+                      </button>
+                    </span>
                   </div>
-                  <.button
-                    type="submit"
-                    variant="primary"
-                    size="sm"
-                    class="shrink-0"
-                    loading_text={gettext("Adding...")}
+                  <.form
+                    for={%{}}
+                    id="add-examiner-form"
+                    phx-submit="add_examiner"
+                    class="flex gap-2 items-end"
                   >
-                    {gettext("Add")}
-                  </.button>
-                </.form>
-              </div>
-
-              <div class="mb-6">
-                <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-                  {gettext("Reviewers")}
-                </h3>
-                <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
-                  <span
-                    :for={reviewer <- @editing_roles.reviewers}
-                    class="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs"
-                  >
-                    {reviewer.user.name}
-                    <button
-                      phx-click="remove_reviewer"
-                      phx-value-stage_id={@editing_roles.id}
-                      phx-value-user_id={reviewer.user_id}
-                      class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
+                    <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                    <div class="flex-1">
+                      <.input
+                        name="user_id"
+                        type="select"
+                        options={
+                          Enum.map(
+                            available_users(@users, @editing_roles.examiners),
+                            &{&1.name, &1.id}
+                          )
+                        }
+                        prompt={gettext("Select user...")}
+                        label=""
+                      />
+                    </div>
+                    <.button
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      class="shrink-0"
+                      loading_text={gettext("Adding...")}
                     >
-                      &times;
-                    </button>
-                  </span>
+                      {gettext("Add")}
+                    </.button>
+                  </.form>
                 </div>
-                <.form
-                  for={%{}}
-                  id="add-reviewer-form"
-                  phx-submit="add_reviewer"
-                  class="flex gap-2 items-end"
-                >
-                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <div class="flex-1">
-                    <.input
-                      name="user_id"
-                      type="select"
-                      options={
-                        Enum.map(available_users(@users, @editing_roles.reviewers), &{&1.name, &1.id})
-                      }
-                      prompt={gettext("Select user...")}
-                      label=""
-                    />
-                  </div>
-                  <.button
-                    type="submit"
-                    variant="primary"
-                    size="sm"
-                    class="shrink-0"
-                    loading_text={gettext("Adding...")}
-                  >
-                    {gettext("Add")}
-                  </.button>
-                </.form>
-              </div>
 
-              <div class="mb-6">
-                <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-                  {gettext("Advancers")}
-                </h3>
-                <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
-                  <span
-                    :for={advancer <- @editing_roles.advancers}
-                    class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-1 text-xs"
-                  >
-                    {advancer.user.name}
-                    <button
-                      phx-click="remove_advancer"
-                      phx-value-stage_id={@editing_roles.id}
-                      phx-value-user_id={advancer.user_id}
-                      class="text-purple-600 hover:text-purple-900"
+                <div class="mb-6">
+                  <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                    {gettext("Reviewers")}
+                  </h3>
+                  <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
+                    <span
+                      :for={reviewer <- @editing_roles.reviewers}
+                      class="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs"
                     >
-                      &times;
-                    </button>
-                  </span>
-                </div>
-                <.form
-                  for={%{}}
-                  id="add-advancer-form"
-                  phx-submit="add_advancer"
-                  class="flex gap-2 items-end"
-                >
-                  <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                  <div class="flex-1">
-                    <.input
-                      name="user_id"
-                      type="select"
-                      options={
-                        Enum.map(available_users(@users, @editing_roles.advancers), &{&1.name, &1.id})
-                      }
-                      prompt={gettext("Select user...")}
-                      label=""
-                    />
+                      {reviewer.user.name}
+                      <button
+                        phx-click="remove_reviewer"
+                        phx-value-stage_id={@editing_roles.id}
+                        phx-value-user_id={reviewer.user_id}
+                        class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
+                      >
+                        &times;
+                      </button>
+                    </span>
                   </div>
-                  <.button
-                    type="submit"
-                    variant="secondary"
-                    size="sm"
-                    class="shrink-0"
-                    loading_text={gettext("Adding...")}
+                  <.form
+                    for={%{}}
+                    id="add-reviewer-form"
+                    phx-submit="add_reviewer"
+                    class="flex gap-2 items-end"
                   >
-                    {gettext("Add")}
-                  </.button>
-                </.form>
-              </div>
+                    <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                    <div class="flex-1">
+                      <.input
+                        name="user_id"
+                        type="select"
+                        options={
+                          Enum.map(
+                            available_users(@users, @editing_roles.reviewers),
+                            &{&1.name, &1.id}
+                          )
+                        }
+                        prompt={gettext("Select user...")}
+                        label=""
+                      />
+                    </div>
+                    <.button
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      class="shrink-0"
+                      loading_text={gettext("Adding...")}
+                    >
+                      {gettext("Add")}
+                    </.button>
+                  </.form>
+                </div>
 
-              <div class="flex justify-end">
-                <.button type="button" phx-click="close_roles">{gettext("Done")}</.button>
+                <div class="mb-6">
+                  <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                    {gettext("Advancers")}
+                  </h3>
+                  <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
+                    <span
+                      :for={advancer <- @editing_roles.advancers}
+                      class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-1 text-xs"
+                    >
+                      {advancer.user.name}
+                      <button
+                        phx-click="remove_advancer"
+                        phx-value-stage_id={@editing_roles.id}
+                        phx-value-user_id={advancer.user_id}
+                        class="text-purple-600 hover:text-purple-900"
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  </div>
+                  <.form
+                    for={%{}}
+                    id="add-advancer-form"
+                    phx-submit="add_advancer"
+                    class="flex gap-2 items-end"
+                  >
+                    <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                    <div class="flex-1">
+                      <.input
+                        name="user_id"
+                        type="select"
+                        options={
+                          Enum.map(
+                            available_users(@users, @editing_roles.advancers),
+                            &{&1.name, &1.id}
+                          )
+                        }
+                        prompt={gettext("Select user...")}
+                        label=""
+                      />
+                    </div>
+                    <.button
+                      type="submit"
+                      variant="secondary"
+                      size="sm"
+                      class="shrink-0"
+                      loading_text={gettext("Adding...")}
+                    >
+                      {gettext("Add")}
+                    </.button>
+                  </.form>
+                </div>
+
+                <div class="flex justify-end">
+                  <.button type="button" phx-click="close_roles">{gettext("Done")}</.button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     """

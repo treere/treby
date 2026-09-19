@@ -31,6 +31,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
 
     {:ok,
      socket
+     |> assign(settings_active: true)
      |> assign(current_user: user, current_tenant: tenant)
      |> assign(templates: templates)
      |> assign(show_form: false)
@@ -46,188 +47,194 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="flex justify-between items-center mb-8">
-          <div>
-            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-              &larr; {gettext("Back to Settings")}
-            </.button>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-              {gettext("Message Templates")}
-            </h1>
-            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-              {gettext("Configure message templates for stage transitions")}
-            </p>
-          </div>
-          <.button phx-click="show_create_form" variant="primary">
-            + {gettext("Add Template")}
-          </.button>
-        </div>
-
-        <div
-          :if={@show_form}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:email_templates}
         >
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
-          </h2>
-          <div class="mb-4 flex gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-700 p-1 w-fit">
-            <button
-              type="button"
-              phx-click="switch_template_tab"
-              phx-value-tab="edit"
-              class={[
-                "rounded-md px-4 py-1.5 text-sm font-medium",
-                if(@template_tab == :edit,
-                  do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
-                  else:
-                    "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-                )
-              ]}
-            >
-              {gettext("Edit")}
-            </button>
-            <button
-              type="button"
-              phx-click="switch_template_tab"
-              phx-value-tab="preview"
-              class={[
-                "rounded-md px-4 py-1.5 text-sm font-medium",
-                if(@template_tab == :preview,
-                  do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
-                  else:
-                    "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-                )
-              ]}
-            >
-              {gettext("Preview")}
-            </button>
+          <div class="flex justify-between items-center mb-8">
+            <div>
+              <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+                &larr; {gettext("Back to Settings")}
+              </.button>
+              <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+                {gettext("Message Templates")}
+              </h1>
+              <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+                {gettext("Configure message templates for stage transitions")}
+              </p>
+            </div>
+            <.button phx-click="show_create_form" variant="primary">
+              + {gettext("Add Template")}
+            </.button>
           </div>
 
-          <div :if={@template_tab == :edit}>
-            <.form
-              for={@form}
-              id="email-template-form"
-              phx-submit="save_template"
-              phx-change="preview_template"
-              class="space-y-4"
-            >
-              <div class="grid grid-cols-2 gap-4">
-                <.input
-                  field={@form[:name]}
-                  type="text"
-                  label={gettext("Template Name")}
-                  placeholder={gettext("e.g. Rejection Message")}
-                />
-                <.input
-                  field={@form[:stage_type]}
-                  type="select"
-                  label={gettext("Trigger Stage")}
-                  options={[
-                    {gettext("New Application"), "new"},
-                    {gettext("Interview"), "interview"},
-                    {gettext("Offer"), "offer"},
-                    {gettext("Hired"), "hired"},
-                    {gettext("Rejected"), "rejected"}
-                  ]}
-                />
-              </div>
-
-              <.input
-                field={@form[:subject]}
-                type="text"
-                label={gettext("Subject")}
-                placeholder={gettext("e.g. Update on your application for {job_title}")}
-              />
-
-              <.input
-                field={@form[:body]}
-                type="textarea"
-                label={gettext("Body (HTML)")}
-                rows="8"
-                placeholder={
-                  gettext(
-                    "Use variables: {candidate_name}, {job_title}, {company_name}, {stage_name}, {recruiter_name}"
+          <div
+            :if={@show_form}
+            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
+            </h2>
+            <div class="mb-4 flex gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-700 p-1 w-fit">
+              <button
+                type="button"
+                phx-click="switch_template_tab"
+                phx-value-tab="edit"
+                class={[
+                  "rounded-md px-4 py-1.5 text-sm font-medium",
+                  if(@template_tab == :edit,
+                    do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                    else:
+                      "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
                   )
-                }
-              />
+                ]}
+              >
+                {gettext("Edit")}
+              </button>
+              <button
+                type="button"
+                phx-click="switch_template_tab"
+                phx-value-tab="preview"
+                class={[
+                  "rounded-md px-4 py-1.5 text-sm font-medium",
+                  if(@template_tab == :preview,
+                    do: "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm",
+                    else:
+                      "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  )
+                ]}
+              >
+                {gettext("Preview")}
+              </button>
+            </div>
 
-              <div class="flex gap-2">
-                <.button type="submit" loading_text={gettext("Saving...")}>{gettext("Save")}</.button>
-                <.button type="button" phx-click="cancel_form" variant="ghost">
-                  {gettext("Cancel")}
-                </.button>
+            <div :if={@template_tab == :edit}>
+              <.form
+                for={@form}
+                id="email-template-form"
+                phx-submit="save_template"
+                phx-change="preview_template"
+                class="space-y-4"
+              >
+                <div class="grid grid-cols-2 gap-4">
+                  <.input
+                    field={@form[:name]}
+                    type="text"
+                    label={gettext("Template Name")}
+                    placeholder={gettext("e.g. Rejection Message")}
+                  />
+                  <.input
+                    field={@form[:stage_type]}
+                    type="select"
+                    label={gettext("Trigger Stage")}
+                    options={[
+                      {gettext("New Application"), "new"},
+                      {gettext("Interview"), "interview"},
+                      {gettext("Offer"), "offer"},
+                      {gettext("Hired"), "hired"},
+                      {gettext("Rejected"), "rejected"}
+                    ]}
+                  />
+                </div>
+
+                <.input
+                  field={@form[:subject]}
+                  type="text"
+                  label={gettext("Subject")}
+                  placeholder={gettext("e.g. Update on your application for {job_title}")}
+                />
+
+                <.input
+                  field={@form[:body]}
+                  type="textarea"
+                  label={gettext("Body (HTML)")}
+                  rows="8"
+                  placeholder={
+                    gettext(
+                      "Use variables: {candidate_name}, {job_title}, {company_name}, {stage_name}, {recruiter_name}"
+                    )
+                  }
+                />
+
+                <div class="flex gap-2">
+                  <.button type="submit" loading_text={gettext("Saving...")}>{gettext("Save")}</.button>
+                  <.button type="button" phx-click="cancel_form" variant="ghost">
+                    {gettext("Cancel")}
+                  </.button>
+                </div>
+              </.form>
+            </div>
+
+            <div :if={@template_tab == :preview} class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+                <strong>{gettext("Subject")}:</strong> {@preview_subject}
+              </p>
+              <div class="text-sm text-zinc-900 dark:text-zinc-100">
+                {@preview_body}
               </div>
-            </.form>
-          </div>
-
-          <div :if={@template_tab == :preview} class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
-              <strong>{gettext("Subject")}:</strong> {@preview_subject}
-            </p>
-            <div class="text-sm text-zinc-900 dark:text-zinc-100">
-              {@preview_body}
             </div>
           </div>
-        </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-            <thead class="bg-zinc-50 dark:bg-zinc-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Name")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Stage Type")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Subject")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                  {template.name}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                  {template.stage_type}
-                </td>
-                <td class="px-6 py-4 text-zinc-500 dark:text-zinc-400 max-w-xs truncate">
-                  {template.subject}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <button
-                    phx-click="edit_template"
-                    phx-value-template_id={template.id}
-                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
-                  >
-                    {gettext("Edit")}
-                  </button>
-                  <button
-                    phx-click="confirm_delete"
-                    phx-value-id={template.id}
-                    phx-value-title={gettext("Delete template")}
-                    phx-value-message={
-                      gettext(
-                        "Are you sure you want to delete this message template? This action cannot be undone."
-                      )
-                    }
-                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                  >
-                    {gettext("Delete")}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
-            {gettext("No message templates yet. Create your first template!")}
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
+            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+              <thead class="bg-zinc-50 dark:bg-zinc-800">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Name")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Stage Type")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Subject")}
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    {gettext("Actions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+                <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
+                  <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                    {template.name}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                    {template.stage_type}
+                  </td>
+                  <td class="px-6 py-4 text-zinc-500 dark:text-zinc-400 max-w-xs truncate">
+                    {template.subject}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <button
+                      phx-click="edit_template"
+                      phx-value-template_id={template.id}
+                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+                    >
+                      {gettext("Edit")}
+                    </button>
+                    <button
+                      phx-click="confirm_delete"
+                      phx-value-id={template.id}
+                      phx-value-title={gettext("Delete template")}
+                      phx-value-message={
+                        gettext(
+                          "Are you sure you want to delete this message template? This action cannot be undone."
+                        )
+                      }
+                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                    >
+                      {gettext("Delete")}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
+              {gettext("No message templates yet. Create your first template!")}
+            </div>
           </div>
-        </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     <.confirm_dialog

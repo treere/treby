@@ -76,128 +76,137 @@ defmodule TrebyWeb.SettingsLive.Availability do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
       <div class="p-8">
-        <div class="mb-8">
-          <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
-            &larr; {gettext("Back to Settings")}
-          </.button>
-          <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {gettext("Availability")}
-          </h1>
-          <p class="mt-1 text-zinc-500 dark:text-zinc-400">
-            {gettext("Set your available hours for interview scheduling")}
-          </p>
-          <div class="mt-4 flex items-center gap-3">
-            <label for="user-timezone" class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-              {gettext("Timezone")}
-            </label>
-            <select
-              name="timezone"
-              id="user-timezone"
-              phx-change="update_timezone"
-              class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            >
-              <option :for={tz <- @timezones} value={tz} selected={tz == @user_timezone}>
-                {tz}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="mb-6">
-          <.button variant="primary" phx-click="show_create_form">
-            <.icon name="hero-plus" class="mr-2 h-4 w-4" /> Add Availability
-          </.button>
-        </div>
-
-        <div
-          :if={@show_form}
-          class="mb-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+        <TrebyWeb.SettingsLayout.settings_shell
+          current_tenant={@current_tenant}
+          current_membership={@current_membership}
+          active_key={:availability}
         >
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-            {if @editing_rule, do: gettext("Edit Availability"), else: "New Availability"}
-          </h2>
-          <.form
-            for={@form}
-            id="availability-form"
-            phx-submit="save_rule"
-            phx-change="validate_rule"
-            class="space-y-4"
-          >
-            <.input
-              field={@form[:day_of_week]}
-              type="select"
-              label={gettext("Day of Week")}
-              options={Enum.map(@days_of_week, fn {val, label} -> {label, val} end)}
-            />
-            <div class="grid grid-cols-2 gap-4">
-              <.input field={@form[:start_time]} type="time" label={gettext("Start Time")} />
-              <.input field={@form[:end_time]} type="time" label={gettext("End Time")} />
+          <div class="mb-8">
+            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              &larr; {gettext("Back to Settings")}
+            </.button>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+              {gettext("Availability")}
+            </h1>
+            <p class="mt-1 text-zinc-500 dark:text-zinc-400">
+              {gettext("Set your available hours for interview scheduling")}
+            </p>
+            <div class="mt-4 flex items-center gap-3">
+              <label for="user-timezone" class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {gettext("Timezone")}
+              </label>
+              <select
+                name="timezone"
+                id="user-timezone"
+                phx-change="update_timezone"
+                class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              >
+                <option :for={tz <- @timezones} value={tz} selected={tz == @user_timezone}>
+                  {tz}
+                </option>
+              </select>
             </div>
-            <div class="flex gap-4">
-              <.button type="submit" loading_text={gettext("Saving...")}>{gettext("Save")}</.button>
-              <.button type="button" variant="ghost" phx-click="cancel_form">
-                Cancel
-              </.button>
-            </div>
-          </.form>
-        </div>
+          </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-            <thead class="bg-zinc-50 dark:bg-zinc-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                  Day
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                  Hours
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <%= for rule <- @rules do %>
+          <div class="mb-6">
+            <.button variant="primary" phx-click="show_create_form">
+              <.icon name="hero-plus" class="mr-2 h-4 w-4" /> Add Availability
+            </.button>
+          </div>
+
+          <div
+            :if={@show_form}
+            class="mb-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
+          >
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {if @editing_rule, do: gettext("Edit Availability"), else: "New Availability"}
+            </h2>
+            <.form
+              for={@form}
+              id="availability-form"
+              phx-submit="save_rule"
+              phx-change="validate_rule"
+              class="space-y-4"
+            >
+              <.input
+                field={@form[:day_of_week]}
+                type="select"
+                label={gettext("Day of Week")}
+                options={Enum.map(@days_of_week, fn {val, label} -> {label, val} end)}
+              />
+              <div class="grid grid-cols-2 gap-4">
+                <.input field={@form[:start_time]} type="time" label={gettext("Start Time")} />
+                <.input field={@form[:end_time]} type="time" label={gettext("End Time")} />
+              </div>
+              <div class="flex gap-4">
+                <.button type="submit" loading_text={gettext("Saving...")}>{gettext("Save")}</.button>
+                <.button type="button" variant="ghost" phx-click="cancel_form">
+                  Cancel
+                </.button>
+              </div>
+            </.form>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
+            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
+              <thead class="bg-zinc-50 dark:bg-zinc-800">
                 <tr>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    {day_name(rule.day_of_week)}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
-                    {format_time(rule.start_time)} - {format_time(rule.end_time)}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      phx-click="edit_rule"
-                      phx-value-rule_id={rule.id}
-                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      phx-click="confirm_delete"
-                      phx-value-id={rule.id}
-                      phx-value-title={gettext("Delete rule")}
-                      phx-value-message={
-                        gettext(
-                          "Are you sure you want to delete this availability rule? This action cannot be undone."
-                        )
-                      }
-                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                    >
-                      {gettext("Delete")}
-                    </button>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
+                    Day
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
+                    Hours
+                  </th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
+                <%= for rule <- @rules do %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      {day_name(rule.day_of_week)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
+                      {format_time(rule.start_time)} - {format_time(rule.end_time)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        phx-click="edit_rule"
+                        phx-value-rule_id={rule.id}
+                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        phx-click="confirm_delete"
+                        phx-value-id={rule.id}
+                        phx-value-title={gettext("Delete rule")}
+                        phx-value-message={
+                          gettext(
+                            "Are you sure you want to delete this availability rule? This action cannot be undone."
+                          )
+                        }
+                        class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                      >
+                        {gettext("Delete")}
+                      </button>
+                    </td>
+                  </tr>
+                <% end %>
+                <tr :if={@rules == []}>
+                  <td
+                    colspan="3"
+                    class="px-6 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                  >
+                    No availability rules set. Add your available hours to enable interview scheduling.
                   </td>
                 </tr>
-              <% end %>
-              <tr :if={@rules == []}>
-                <td colspan="3" class="px-6 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                  No availability rules set. Add your available hours to enable interview scheduling.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
+        </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>
     <.confirm_dialog
@@ -231,7 +240,8 @@ defmodule TrebyWeb.SettingsLive.Availability do
     {:ok, _user} = Treby.Repo.update(Ecto.Changeset.change(user, %{timezone: timezone}))
 
     {:noreply,
-     assign(socket, current_user: %{user | timezone: timezone}, user_timezone: timezone)}
+     assign(socket, settings_active: true)
+     |> assign(current_user: %{user | timezone: timezone}, user_timezone: timezone)}
   end
 
   def handle_event("edit_rule", %{"rule_id" => rule_id}, socket) do

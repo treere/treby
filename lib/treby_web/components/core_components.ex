@@ -142,7 +142,7 @@ defmodule TrebyWeb.CoreComponents do
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
-  attr :value, :any
+  attr :value, :any, default: nil
 
   attr :type, :string,
     default: "text",
@@ -171,7 +171,7 @@ defmodule TrebyWeb.CoreComponents do
     |> assign(field: nil, id: assigns.id || field.id)
     |> assign(:errors, Enum.map(errors, &translate_error(&1)))
     |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
-    |> assign_new(:value, fn -> field.value end)
+    |> assign(:value, field.value)
     |> input()
   end
 

@@ -254,4 +254,24 @@ defmodule TrebyWeb.CareersLive.ApplyUploadTest do
       refute html =~ "support@treby.app"
     end
   end
+
+  describe "custom application fields" do
+    test "renders a select custom field without a bound form value", %{conn: conn} do
+      {tenant, job} = setup_tenant_with_job()
+
+      {:ok, _} =
+        Treby.Customization.create_custom_field(%{
+          tenant_id: tenant.id,
+          name: "Referral source",
+          field_type: "select",
+          applies_to: "application",
+          options: ["LinkedIn", "Referral", "Career page"]
+        })
+
+      {:ok, _view, html} = live(conn, ~p"/#{tenant.slug}/careers/#{job.id}/apply")
+
+      assert html =~ "Referral source"
+      assert html =~ "LinkedIn"
+    end
+  end
 end

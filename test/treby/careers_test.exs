@@ -46,8 +46,7 @@ defmodule Treby.CareersTest do
         tenant
         |> Ecto.build_assoc(:career_pages)
         |> CareerPage.changeset(%{
-          title: "Join Us",
-          primary_color: "#3b82f6"
+          title: "Join Us"
         })
         |> Repo.insert()
 

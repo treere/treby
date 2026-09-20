@@ -68,7 +68,7 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       candidate = create_candidate(tenant, "No App Candidate")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       view |> render_click("reject_candidate", %{})
 
@@ -90,7 +90,7 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       candidate = create_candidate(tenant, "No Info Candidate")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       view |> render_click("request_info", %{})
 
@@ -109,7 +109,7 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       candidate = create_candidate(tenant, "No Msg Candidate")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       view |> render_click("new_portal_message", %{})
 
@@ -137,7 +137,7 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       refute render(view) =~ "Realtime from candidate"
 
@@ -160,10 +160,10 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       conn = login_user(conn, user)
 
       {:ok, _view, html} =
-        live(conn, ~p"/app/candidates/#{candidate.id}?return_to=/app/jobs/job-123")
+        live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}?return_to=/app/jobs/job-123")
 
       assert html =~ "Back to Job"
-      assert html =~ ~p"/app/jobs/job-123"
+      assert html =~ "/#{tenant.slug}/app/jobs/job-123"
     end
 
     test "back link returns to the pipeline board", %{conn: conn} do
@@ -173,10 +173,13 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       conn = login_user(conn, user)
 
       {:ok, _view, html} =
-        live(conn, ~p"/app/candidates/#{candidate.id}?return_to=/app/pipeline/job-123")
+        live(
+          conn,
+          "/#{tenant.slug}/app/candidates/#{candidate.id}?return_to=/app/pipeline/job-123"
+        )
 
       assert html =~ "Back to Pipeline"
-      assert html =~ ~p"/app/pipeline/job-123"
+      assert html =~ "/#{tenant.slug}/app/pipeline/job-123"
     end
 
     test "back link falls back to candidates for direct visits", %{conn: conn} do
@@ -184,10 +187,10 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       candidate = create_candidate(tenant, "Back Nav Direct")
 
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       assert html =~ "Back to Candidates"
-      assert html =~ ~p"/app/candidates"
+      assert html =~ "/#{tenant.slug}/app/candidates"
     end
 
     test "back link falls back to candidates for invalid return paths", %{conn: conn} do
@@ -197,10 +200,10 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       conn = login_user(conn, user)
 
       {:ok, _view, html} =
-        live(conn, ~p"/app/candidates/#{candidate.id}?return_to=https://evil.com")
+        live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}?return_to=https://evil.com")
 
       assert html =~ "Back to Candidates"
-      assert html =~ ~p"/app/candidates"
+      assert html =~ "/#{tenant.slug}/app/candidates"
     end
   end
 
@@ -259,7 +262,7 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
       |> Repo.insert!()
 
       conn = login_user(conn, user)
-      {:ok, view, html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, view, html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       assert html =~ "Scheduled Interviews"
       assert html =~ user.name

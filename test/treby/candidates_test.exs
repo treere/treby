@@ -36,6 +36,18 @@ defmodule Treby.CandidatesTest do
     {tenant, user}
   end
 
+  describe "email validation" do
+    test "rejects an undotted domain like a@b" do
+      changeset = Candidate.changeset(%Candidate{}, %{name: "Bad", email: "a@b"})
+      refute changeset.valid?
+      assert {"must be a valid email address", _} = changeset.errors[:email]
+    end
+
+    test "accepts a dotted domain" do
+      assert Candidate.changeset(%Candidate{}, %{name: "Ok", email: "a@b.com"}).valid?
+    end
+  end
+
   describe "create_or_find/2 concurrency" do
     test "parallel creates with the same email produce a single candidate" do
       {tenant, _user} = setup_tenant()

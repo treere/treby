@@ -53,7 +53,14 @@ defmodule TrebyWeb.SettingsLive.CompanyAvailability do
       end
 
     if user.role != "admin" do
-      {:noreply, push_navigate(socket, to: ~p"/app/settings/availability")}
+      {:noreply,
+       push_navigate(socket,
+         to:
+           if(socket.assigns.current_tenant,
+             do: "/#{socket.assigns.current_tenant.slug}/app/settings/availability",
+             else: ~p"/app/settings/availability"
+           )
+       )}
     else
       rules = Availability.list_company_rules(tenant.id)
 
@@ -91,7 +98,14 @@ defmodule TrebyWeb.SettingsLive.CompanyAvailability do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <TrebyWeb.SettingsLayout.settings_shell
           current_tenant={@current_tenant}
@@ -99,7 +113,15 @@ defmodule TrebyWeb.SettingsLive.CompanyAvailability do
           active_key={:company_availability}
         >
           <div class="mb-8">
-            <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+            <.button
+              variant="ghost"
+              size="sm"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/settings",
+                  else: ~p"/app/settings"
+              }
+            >
               &larr; {gettext("Back to Settings")}
             </.button>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">

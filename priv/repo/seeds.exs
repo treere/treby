@@ -193,8 +193,7 @@ end)
   tenant_id: tenant.id,
   title: "Acme Corp Careers",
   description: "Join us in building the future!",
-  published: true,
-  primary_color: "#2563EB"
+  published: true
 })
 |> Repo.insert!()
 

@@ -33,8 +33,12 @@ defmodule Treby.Candidates.Candidate do
       :custom_fields,
       :notification_preferences
     ])
+    |> update_change(:email, &normalize_email/1)
     |> validate_required([:name, :email])
-    |> validate_format(:email, ~r/@/)
+    |> Treby.Emails.validate_format(:email)
     |> unique_constraint(:email, name: :candidates_tenant_email_unique_active)
   end
+
+  defp normalize_email(email) when is_binary(email), do: String.trim(email)
+  defp normalize_email(email), do: email
 end

@@ -65,6 +65,8 @@ defmodule TrebyWeb.SettingsLive.Team do
       flash={@flash}
       current_scope={@current_user}
       locale={@locale}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
       current_tenant={@current_tenant}
       current_membership={@current_membership}
       available_tenants={assigns[:available_tenants] || []}
@@ -77,7 +79,15 @@ defmodule TrebyWeb.SettingsLive.Team do
         >
           <div class="flex justify-between items-center mb-8">
             <div>
-              <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              <.button
+                variant="ghost"
+                size="sm"
+                navigate={
+                  if @current_tenant,
+                    do: "/#{@current_tenant.slug}/app/settings",
+                    else: ~p"/app/settings"
+                }
+              >
                 &larr; {gettext("Back to Settings")}
               </.button>
               <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">

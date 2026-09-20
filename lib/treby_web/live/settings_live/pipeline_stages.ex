@@ -66,7 +66,14 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <TrebyWeb.SettingsLayout.settings_shell
           current_tenant={@current_tenant}
@@ -74,7 +81,15 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           active_key={:pipeline}
         >
           <div class="mb-8">
-            <.button variant="ghost" size="sm" navigate={~p"/app/settings/pipeline"}>
+            <.button
+              variant="ghost"
+              size="sm"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/settings/pipeline",
+                  else: ~p"/app/settings/pipeline"
+              }
+            >
               &larr; {gettext("Back to Pipelines")}
             </.button>
             <.form

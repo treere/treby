@@ -58,9 +58,15 @@ The system SHALL provide an application form for each job. Upon submission, the 
 - **THEN** a conversation is created with context "general" and a system message "Your application for {job_title} has been received"
 - **AND** the confirmation ping email contains a "View Your Application" button linking to `/:tenant_slug/portal`
 
+#### Scenario: Oversized or invalid resume
+- **WHEN** a visitor selects a resume larger than 10MB or of an unsupported type
+- **THEN** the file entry shows the reason ("File is too large (max 10MB)" or "File type not accepted")
+- **AND** the submit button stays enabled (no permanent "Uploading...") so the visitor can remove the file and continue
+
 #### Scenario: Submit with missing required fields
 - **WHEN** a visitor submits an application without required fields
 - **THEN** the form shows validation errors
+- **AND** each offending field is highlighted and shows its message (e.g. "can't be blank") below the input, even when HTML5 validation is bypassed
 
 ### Requirement: Thank you page
 The system SHALL show a confirmation after application submission.
@@ -101,6 +107,12 @@ The system SHALL display structured job metadata (location, employment type, wor
 - **WHEN** a visitor searches on the career page with a query matching a job's location
 - **THEN** that job appears in the results
 
+#### Scenario: Search persists in the URL
+- **WHEN** a visitor submits a search on the tenant or global career page
+- **THEN** the query is reflected in the URL as `?query=...`
+- **AND** reloading the page or navigating back from a job re-applies the same search
+- **AND** clearing the search returns to the bare career path
+
 ### Requirement: Guided multi-apply
 The system SHALL guide candidates applying to multiple positions with prefill and applied-state awareness.
 
@@ -112,14 +124,31 @@ The system SHALL guide candidates applying to multiple positions with prefill an
 - **WHEN** an authenticated candidate for tenant `acme` visits `/acme/careers`
 - **THEN** each job they have already applied to shows an "Applied ✓" badge
 
+#### Scenario: Post-submit portal link for authenticated candidate
+- **WHEN** an authenticated candidate for the tenant submits (or re-submits) an application
+- **THEN** the "View Your Application" and "Track your application" actions link directly to `/:tenant_slug/portal`
+- **AND** anonymous visitors are sent to `/:tenant_slug/portal/login` instead
+
 #### Scenario: Job detail shows already-applied CTA
 - **WHEN** an authenticated candidate who has already applied to that job views `/:tenant_slug/careers/:job_id`
 - **THEN** the "Apply Now" button is replaced with "Already applied — View status" linking to `/:tenant_slug/portal`
 
+#### Scenario: Unknown company slug
+- **WHEN** a visitor opens `/:unknown_slug/careers` for a company that does not exist
+- **THEN** a friendly page explains the company could not be found
+- **AND** it offers a "Browse all open positions" link to the global `/careers` page (no list of existing company slugs is shown)
+
 ### Requirement: Public career page content
-The company description shown at the top of the public career page is authored as plain Markdown in Settings → Brand and rendered as sanitized HTML (headings, lists, links, emphasis). The textarea carries a short hint that Markdown is supported.
+The system SHALL author the company description shown at the top of the public career page as plain Markdown in Settings → Brand and render it as sanitized HTML (headings, lists, links, emphasis). The textarea SHALL carry a short hint that Markdown is supported.
 
 #### Scenario: Markdown company description
 - **WHEN** a company description contains Markdown (e.g. a list or a link)
 - **THEN** the career page top shows it rendered (list bullets, clickable link)
 - **AND** any raw HTML/script content is stripped
+
+### Requirement: Public career footer
+Public career pages (tenant index, global index, job detail, application form) SHALL render the shared public footer so the legal pages are reachable from them.
+
+#### Scenario: Legal links on career pages
+- **WHEN** a visitor views any public career page
+- **THEN** the footer links to `/terms` and `/privacy`

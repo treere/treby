@@ -41,10 +41,10 @@ defmodule TrebyWeb.SettingsLive.TeamTest do
 
   describe "team page reachability" do
     test "loads on legacy path without tenant_id in session", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, _view, html} = live(conn, ~p"/app/settings/team")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/team")
 
       assert html =~ "Team Management"
     end
@@ -53,7 +53,7 @@ defmodule TrebyWeb.SettingsLive.TeamTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user, %{"tenant_id" => tenant.id})
 
-      {:ok, _view, html} = live(conn, ~p"/app/settings/team")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/team")
 
       assert html =~ "Team Management"
     end

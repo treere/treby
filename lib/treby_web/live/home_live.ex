@@ -155,41 +155,7 @@ defmodule TrebyWeb.HomeLive do
         </div>
       </div>
 
-      <%!-- Footer --%>
-      <footer class="bg-zinc-50 dark:bg-zinc-900" aria-labelledby="footer-heading">
-        <h2 id="footer-heading" class="sr-only">{gettext("Footer")}</h2>
-        <div class="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8">
-          <div class="xl:grid xl:grid-cols-3 xl:gap-8">
-            <div>
-              <span class="text-2xl font-bold text-orange-600">Treby</span>
-              <p class="mt-4 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-                {gettext("Modern applicant tracking for growing teams.")}
-              </p>
-            </div>
-            <div class="mt-10 xl:mt-0">
-              <h3 class="text-sm font-semibold leading-6 text-zinc-900 dark:text-zinc-100">
-                {gettext("Discover")}
-              </h3>
-              <ul role="list" class="mt-4 space-y-3">
-                <li>
-                  <.link
-                    navigate={~p"/careers"}
-                    id="footer-careers-link"
-                    class="text-sm leading-6 text-zinc-500 dark:text-zinc-400 hover:text-orange-600"
-                  >
-                    {gettext("Careers")}
-                  </.link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
-            <p class="text-xs/6 text-zinc-500 dark:text-zinc-400">
-              &copy; {DateTime.utc_now().year} Treby. {gettext("All rights reserved")}
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Layouts.public_footer />
     </div>
     """
   end

@@ -132,7 +132,7 @@ The system SHALL show human, candidate-friendly post-apply guidance and a config
 - **THEN** no help block is shown on the thank-you state either
 
 ### Requirement: Public job detail content
-The job description on the public job detail page is rendered as sanitized HTML from its Markdown source (replacing the plaintext block). The company block keeps showing name, logo, and description, with the description rendered from Markdown as well.
+The system SHALL render the job description on the public job detail page as sanitized HTML from its Markdown source (replacing the plaintext block). The company block SHALL keep showing name, logo, and description, with the description rendered from Markdown as well.
 
 #### Scenario: Markdown job description
 - **WHEN** a job description contains Markdown (e.g. headings or a list)

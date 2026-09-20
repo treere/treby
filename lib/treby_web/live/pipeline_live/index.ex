@@ -153,12 +153,23 @@ defmodule TrebyWeb.PipelineLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>
             <.link
-              navigate={~p"/app/jobs/#{@job.id}"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/jobs/#{@job.id}",
+                  else: ~p"/app/jobs/#{@job.id}"
+              }
               class="text-orange-600 hover:text-orange-700 text-sm"
             >
               &larr; Back to Job
@@ -342,7 +353,11 @@ defmodule TrebyWeb.PipelineLive.Index do
                 <% end %>
                 <a
                   :if={application.resume_url}
-                  href={~p"/app/applications/#{application.id}/resume"}
+                  href={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/applications/#{application.id}/resume",
+                      else: ~p"/app/applications/#{application.id}/resume"
+                  }
                   class="text-xs text-orange-600 hover:text-orange-700 mt-1 inline-block"
                 >
                   View Resume

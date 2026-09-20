@@ -19,7 +19,7 @@ defmodule TrebyWeb.Registration do
     registration
     |> cast(attrs, [:email])
     |> validate_required([:email])
-    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> Treby.Emails.validate_format(:email)
   end
 
   def changeset(registration, attrs) do
@@ -33,7 +33,7 @@ defmodule TrebyWeb.Registration do
       :tos_accepted
     ])
     |> validate_required([:company_name, :name, :email, :password])
-    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> Treby.Emails.validate_format(:email)
     |> validate_length(:password, min: 6, message: "must be at least 6 characters")
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_acceptance(:tos_accepted, message: "must be accepted")

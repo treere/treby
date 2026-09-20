@@ -133,32 +133,39 @@ defmodule TrebyWeb.DashboardLive do
         id: :create_job,
         label: gettext("Create a job posting"),
         done: Jobs.tenant_has_jobs?(tenant.id),
-        href: "/app/jobs"
+        href: "/#{tenant.slug}/app/jobs"
       },
       %{
         id: :add_candidate,
         label: gettext("Add your first candidate"),
         done: Candidates.tenant_has_candidates?(tenant.id),
-        href: "/app/candidates"
+        href: "/#{tenant.slug}/app/candidates"
       },
       %{
         id: :invite_team,
         label: gettext("Invite your team"),
         done: Accounts.has_members_besides?(tenant.id, user.id),
-        href: "/app/settings/team"
+        href: "/#{tenant.slug}/app/settings/team"
       },
       %{
         id: :brand_career,
         label: gettext("Customize your career page"),
         done: Careers.has_branding?(tenant.id),
-        href: "/app/settings/branding"
+        href: "/#{tenant.slug}/app/settings/branding"
       }
     ]
   end
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8 max-w-7xl mx-auto">
         <.page_header
           title={gettext("Dashboard")}
@@ -360,7 +367,12 @@ defmodule TrebyWeb.DashboardLive do
                 "Job postings let candidates apply through your career page and help you track applicants through each stage."
               )
             }
-            action={%{href: "/app/jobs", label: gettext("Create your first job")}}
+            action={
+              %{
+                href: if(@current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: "/app/jobs"),
+                label: gettext("Create your first job")
+              }
+            }
           />
           <div :for={job_data <- @pipeline_snapshot} class="mb-6 last:mb-0">
             <h3 class="font-medium text-zinc-900 dark:text-zinc-100/90 mb-2">{job_data.job.title}</h3>

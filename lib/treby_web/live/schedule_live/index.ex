@@ -72,7 +72,14 @@ defmodule TrebyWeb.ScheduleLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <.page_header
           title={gettext("Schedule Interview")}
@@ -83,10 +90,21 @@ defmodule TrebyWeb.ScheduleLive.Index do
             )
           }
           breadcrumbs={[
-            %{label: gettext("Candidates"), href: ~p"/app/candidates"},
+            %{
+              label: gettext("Candidates"),
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+                )
+            },
             %{
               label: @application.candidate.name,
-              href: ~p"/app/candidates/#{@application.candidate_id}"
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates/#{@application.candidate_id}",
+                  else: ~p"/app/candidates/#{@application.candidate_id}"
+                )
             },
             %{label: gettext("Schedule Interview")}
           ]}
@@ -105,7 +123,14 @@ defmodule TrebyWeb.ScheduleLive.Index do
                   </p>
                   <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                     {gettext("Schedule ad-hoc without weekly rules — or")}
-                    <.link navigate={~p"/app/settings/availability"} class="link link-primary">
+                    <.link
+                      navigate={
+                        if @current_tenant,
+                          do: "/#{@current_tenant.slug}/app/settings/availability",
+                          else: ~p"/app/settings/availability"
+                      }
+                      class="link link-primary"
+                    >
                       {gettext("Set weekly availability → Settings → Availability")}
                     </.link>
                   </p>
@@ -508,7 +533,13 @@ defmodule TrebyWeb.ScheduleLive.Index do
         {:noreply,
          socket
          |> put_flash(:info, gettext("Interview scheduled successfully!"))
-         |> push_navigate(to: ~p"/app/candidates/#{candidate_id}")}
+         |> push_navigate(
+           to:
+             if(socket.assigns.current_tenant,
+               do: "/#{socket.assigns.current_tenant.slug}/app/candidates/#{candidate_id}",
+               else: ~p"/app/candidates/#{candidate_id}"
+             )
+         )}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, gettext("Failed to schedule interview"))}

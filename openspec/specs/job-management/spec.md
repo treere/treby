@@ -144,6 +144,11 @@ A job posting SHALL NOT be markable visible while its status is closed; attempti
 - **WHEN** a user sets visible on a job whose status is open
 - **THEN** validation passes
 
+#### Scenario: Closing a visible job coerces to private
+- **WHEN** a user closes an open job that is currently visible (public) without explicitly setting visibility
+- **THEN** the job status becomes "closed" and visibility is coerced to false (private)
+- **AND** the job is hidden from the public career page
+
 ### Requirement: Job description authoring
 The system SHALL allow authoring job descriptions as plain Markdown in a regular textarea with a short hint that Markdown is supported. No toolbar or preview is offered.
 

@@ -195,7 +195,7 @@ defmodule Treby.Webhooks do
   subscription. Used by the admin UI "Send test" action (pre-save and saved).
   """
   def test_ping(url, secret) when is_binary(url) and is_binary(secret) do
-    if String.starts_with?(url, "https://") do
+    if String.starts_with?(url, "https://") or String.starts_with?(url, "http://") do
       delivery_id = UUID.generate()
 
       envelope = %{
@@ -225,7 +225,7 @@ defmodule Treby.Webhooks do
         {:error, reason} -> {:error, inspect(reason)}
       end
     else
-      {:error, "URL must start with https://"}
+      {:error, "URL must start with http:// or https://"}
     end
   end
 

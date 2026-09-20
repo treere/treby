@@ -81,14 +81,31 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <.page_header
           title={gettext("%{title} — Analytics", title: @job.title)}
           subtitle={gettext("Views and conversion for this position")}
           breadcrumbs={[
-            %{label: gettext("Jobs"), href: ~p"/app/jobs"},
-            %{label: @job.title, href: ~p"/app/jobs/#{@job.id}"},
+            %{
+              label: gettext("Jobs"),
+              href: if(@current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs")
+            },
+            %{
+              label: @job.title,
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/jobs/#{@job.id}",
+                  else: ~p"/app/jobs/#{@job.id}"
+                )
+            },
             %{label: gettext("Analytics")}
           ]}
         />

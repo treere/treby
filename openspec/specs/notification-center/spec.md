@@ -26,6 +26,11 @@ The system SHALL provide a per-user, per-tenant notification inbox. Each hiring 
 #### Scenario: Mark all as read
 - **WHEN** a user clicks "Mark all read" in the dropdown or on the full page
 - **THEN** the system sets `read_at` to now for all unread rows of that user
+- **AND** the bell badge and dropdown update immediately to zero without a page reload
+
+#### Scenario: Mark single as read updates badge
+- **WHEN** a user marks a single notification as read
+- **THEN** the bell badge decrements immediately without a page reload
 
 #### Scenario: Unread rows persist
 - **WHEN** a notification is unread

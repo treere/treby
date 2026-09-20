@@ -7,16 +7,16 @@ Provide a friendly, on-brand "Not Found" page and redirect to it when entity-det
 ## Requirements
 
 ### Requirement: Not Found page exists at a dedicated route
-The system SHALL provide a "Not Found" page served at the `/404` route, rendering a friendly, on-brand page instead of a stacktrace.
+The system SHALL provide a public "Not Found" page served at the `/404` route, rendering a friendly, on-brand page with the public header and footer instead of the authenticated app shell, and no stacktrace.
 
 #### Scenario: Direct visit to the 404 route
 - **WHEN** a user navigates to `/404`
-- **THEN** a styled "Not Found" page is displayed
+- **THEN** a styled "Not Found" page is displayed with the public header and footer (no app navigation or sidebar)
 - **AND** no stacktrace or exception details are shown
 
 #### Scenario: Not Found page includes a way back
 - **WHEN** a user views the Not Found page
-- **THEN** a visible link/button is provided to return to a relevant section of the app (e.g. the job/candidate list or home)
+- **THEN** it offers "Browse all positions" linking to `/careers` and "Go to homepage" linking to `/`
 
 ### Requirement: Non-existent app entity redirects to Not Found
 The authenticated app SHALL redirect to the Not Found page when an entity-detail LiveView is mounted for a record that does not exist.

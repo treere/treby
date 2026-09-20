@@ -30,9 +30,18 @@ defmodule Treby.Workers.WebhookDeliveryTest do
   end
 
   describe "Webhooks.test_ping/2" do
-    test "rejects non-https URLs without making a request" do
-      assert {:error, "URL must start with https://"} =
-               Webhooks.test_ping("http://insecure.test/h", "secret")
+    test "rejects non-http(s) URLs without making a request" do
+      assert {:error, "URL must start with http:// or https://"} =
+               Webhooks.test_ping("ftp://insecure.test/h", "secret")
+    end
+
+    test "accepts http and https URLs (http allowed for dev)" do
+      Req.Test.stub(Treby.GoogleApiMock, fn conn ->
+        Plug.Conn.send_resp(conn, 200, "ok")
+      end)
+
+      assert {:ok, 200} = Webhooks.test_ping("http://example.com/hook", "secret")
+      assert {:ok, 200} = Webhooks.test_ping("https://example.com/hook", "secret")
     end
 
     test "rejects invalid url/secret arguments" do

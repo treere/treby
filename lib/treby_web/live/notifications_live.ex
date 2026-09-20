@@ -67,6 +67,8 @@ defmodule TrebyWeb.NotificationsLive do
       current_scope={@current_user}
       current_tenant={@current_tenant}
       locale={@locale}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
       available_tenants={assigns[:available_tenants] || []}
     >
       <div class="p-8 max-w-4xl mx-auto">
@@ -76,6 +78,7 @@ defmodule TrebyWeb.NotificationsLive do
           </h1>
           <button
             :if={@unread_count > 0}
+            id="notifications-mark-all-read"
             phx-click="mark_all_read"
             class="text-sm font-medium text-orange-600 hover:text-orange-700"
           >
@@ -248,7 +251,11 @@ defmodule TrebyWeb.NotificationsLive do
     {:noreply,
      push_patch(socket,
        to:
-         ~p"/app/notifications?#{%{filter: socket.assigns.filter, type: socket.assigns.type_filter, search: search}}"
+         notifications_path(socket.assigns.current_tenant, %{
+           filter: socket.assigns.filter,
+           type: socket.assigns.type_filter,
+           search: search
+         })
      )}
   end
 
@@ -256,7 +263,11 @@ defmodule TrebyWeb.NotificationsLive do
     {:noreply,
      push_patch(socket,
        to:
-         ~p"/app/notifications?#{%{filter: socket.assigns.filter, type: type, search: socket.assigns.search}}"
+         notifications_path(socket.assigns.current_tenant, %{
+           filter: socket.assigns.filter,
+           type: type,
+           search: socket.assigns.search
+         })
      )}
   end
 
@@ -300,10 +311,19 @@ defmodule TrebyWeb.NotificationsLive do
 
     total_pages = max(1, ceil_div(counts.total, @page_size))
 
+    recent =
+      if user && tenant do
+        Inbox.list_for_user(user.id, tenant.id, filter: :unread, limit: 5)
+      else
+        []
+      end
+
     socket
     |> assign(
       counts: counts,
       unread_count: unread_count,
+      notification_unread_count: unread_count,
+      notification_recent: recent,
       page: page,
       total_pages: total_pages,
       page_size: @page_size

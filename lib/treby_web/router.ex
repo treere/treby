@@ -93,67 +93,22 @@ defmodule TrebyWeb.Router do
       live "/settings/emails", SettingsLive.EmailTemplates
       live "/settings/notifications", SettingsLive.Notifications
       live "/settings/audit-log", SettingsLive.AuditLog
-      live "/settings/data-privacy", SettingsLive.DataPrivacy
     end
-  end
 
-  # Legacy /app (session-based, keep for one release for backward compat with existing tests/links)
-  scope "/app", TrebyWeb do
-    pipe_through [:browser, :require_auth]
-
-    live_session :legacy_default,
+    live_session :data_privacy,
       on_mount: [
         {TrebyWeb.Hooks.SetLocale, :set_locale},
         {TrebyWeb.Hooks.RequireMembership, :default},
         {TrebyWeb.Hooks.AiChat, :default},
         {TrebyWeb.Hooks.Notifications, :default}
       ] do
-      live "/", DashboardLive
-      live "/ai", AiChatLive
-      live "/jobs", JobsLive.Index
-      live "/jobs/new", JobsLive.New
-      live "/jobs/:id/analytics", JobsLive.Analytics
-      live "/jobs/:id", JobsLive.Show
-      live "/candidates", CandidatesLive.Index
-      live "/candidates/merge", CandidatesLive.Merge
-      live "/candidates/compare", ComparisonLive.Index
-      live "/candidates/:id", CandidatesLive.Show
-      live "/pipeline/:job_id", PipelineLive.Index
-      live "/analytics", AnalyticsLive.Index
-      live "/schedule/:application_id", ScheduleLive.Index
-      live "/interviews", InterviewsLive.Index
-      live "/import", ImportLive.Index
-      live "/messages-queue", MessagesQueueLive.Index
-      live "/settings", SettingsLive.Index
-      live "/settings/calendar", SettingsLive.Calendar
-      live "/settings/availability", SettingsLive.Availability
-      live "/settings/language", SettingsLive.Language
-      live "/notifications", NotificationsLive
-
-      get "/applications/:id/resume", ResumeController, :show
-    end
-
-    live_session :legacy_admin,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequireRole, %{role: "admin"}}
-      ] do
-      live "/settings/pipeline", SettingsLive.Pipeline
-      live "/settings/pipeline/:id", SettingsLive.PipelineStages
-      live "/settings/fields", SettingsLive.Fields
-      live "/settings/team", SettingsLive.Team
-      live "/settings/webhooks", SettingsLive.Webhooks
-      live "/settings/branding", SettingsLive.Branding
-      live "/settings/company-availability", SettingsLive.CompanyAvailability
-      live "/settings/scorecards", SettingsLive.Scorecards
-      live "/settings/emails", SettingsLive.EmailTemplates
-      live "/settings/notifications", SettingsLive.Notifications
-      live "/settings/audit-log", SettingsLive.AuditLog
       live "/settings/data-privacy", SettingsLive.DataPrivacy
     end
+  end
+
+  # Legacy /app — redirect only (BREAKING: no LiveViews, use /:tenant_slug/app)
+  scope "/app", TrebyWeb do
+    pipe_through [:browser, :require_auth]
 
     get "/*path", LegacyAppController, :redirect_legacy
   end

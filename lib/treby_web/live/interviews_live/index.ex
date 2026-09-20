@@ -68,7 +68,13 @@ defmodule TrebyWeb.InterviewsLive.Index do
      |> assign(view: view)
      |> assign(filter_interviewer_id: nil)
      |> load_interviews()
-     |> push_patch(to: ~p"/app/interviews?view=#{view}")}
+     |> push_patch(
+       to:
+         if(socket.assigns.current_tenant,
+           do: "/#{socket.assigns.current_tenant.slug}/app/interviews?view=#{view}",
+           else: ~p"/app/interviews?view=#{view}"
+         )
+     )}
   end
 
   def handle_event("filter_interviewer", %{"interviewer_id" => interviewer_id}, socket) do
@@ -218,7 +224,14 @@ defmodule TrebyWeb.InterviewsLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8 max-w-6xl mx-auto">
         <.page_header
           title={gettext("Interviews")}

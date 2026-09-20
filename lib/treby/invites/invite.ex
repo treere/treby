@@ -22,7 +22,7 @@ defmodule Treby.Invites.Invite do
     invite
     |> cast(attrs, [:email, :role, :token, :expires_at, :tenant_id])
     |> validate_required([:email, :role, :token, :expires_at, :tenant_id])
-    |> validate_format(:email, ~r/@/)
+    |> Treby.Emails.validate_format(:email)
     |> validate_inclusion(:role, ~w(admin member))
     |> unique_constraint([:tenant_id, :email])
     |> unique_constraint(:token)

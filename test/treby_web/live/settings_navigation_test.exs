@@ -46,9 +46,9 @@ defmodule TrebyWeb.SettingsNavigationTest do
     test "admin sees five groups in fixed order and all items including Message Queue", %{
       conn: conn
     } do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/settings")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
 
       assert html =~ "Organization"
       assert html =~ "Hiring Process"
@@ -79,9 +79,9 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "member sees reduced settings with callout and hidden empty groups", %{conn: conn} do
-      {_tenant, user} = setup_tenant("member")
+      {tenant, user} = setup_tenant("member")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/settings")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
 
       assert html =~ "Some settings require admin"
       assert html =~ "Calendar"
@@ -95,9 +95,9 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "active item is highlighted with aria-current", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/settings/pipeline")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/pipeline")
 
       assert html =~ ~s(id="settings-nav-pipeline")
       assert html =~ ~s(aria-current="page")
@@ -105,18 +105,18 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "deep link to webhooks preserves active state", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/settings/webhooks")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/webhooks")
 
       assert html =~ ~s(id="settings-nav-webhooks")
       assert html =~ ~s(aria-current="page")
     end
 
     test "message queue renders inside settings shell with active", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/messages-queue")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/messages-queue")
 
       assert html =~ ~s(id="settings-nav-message-queue")
       assert html =~ ~s(aria-current="page")
@@ -124,9 +124,9 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "company availability cross-link under Scheduling", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/settings/team")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/team")
 
       assert html =~ ~s(id="settings-nav-company-availability-crosslink")
       assert html =~ "Manage company defaults"
@@ -142,16 +142,16 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "personal settings accessible to member via default session", %{conn: conn} do
-      {_tenant, user} = setup_tenant("member")
+      {tenant, user} = setup_tenant("member")
       conn = login_user(conn, user)
 
-      {:ok, _view, html} = live(conn, ~p"/app/settings/calendar")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/calendar")
       assert html =~ "Calendar" or html =~ "Google Calendar"
 
-      {:ok, _view, html2} = live(conn, ~p"/app/settings/availability")
+      {:ok, _view, html2} = live(conn, "/#{tenant.slug}/app/settings/availability")
       assert html2 =~ "Availability" or html2 =~ "available hours"
 
-      {:ok, _view, html3} = live(conn, ~p"/app/settings/language")
+      {:ok, _view, html3} = live(conn, "/#{tenant.slug}/app/settings/language")
       assert html3 =~ "Language"
     end
   end
@@ -160,7 +160,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     test "candidates header shows Import CSV button tenant-aware", %{conn: conn} do
       {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/candidates")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       assert html =~ ~s(id="candidates-import-button")
       assert html =~ "Import CSV"
@@ -170,9 +170,9 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "gear icon active on settings page", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/settings")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
 
       assert html =~ ~s(id="settings-gear")
       assert html =~ "hero-cog-6-tooth"

@@ -37,12 +37,22 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
      |> assign(editing_template: nil)
      |> assign(form_name: "")
      |> assign(criteria: [])
-     |> assign(confirm_delete: nil)}
+     |> assign(confirm_delete: nil)
+     |> assign(
+       form: to_form(Scorecards.change_scorecard_template(%Treby.Scorecards.ScorecardTemplate{}))
+     )}
   end
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <TrebyWeb.SettingsLayout.settings_shell
           current_tenant={@current_tenant}
@@ -51,7 +61,15 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
         >
           <div class="flex justify-between items-center mb-8">
             <div>
-              <.button variant="ghost" size="sm" navigate={~p"/app/settings"}>
+              <.button
+                variant="ghost"
+                size="sm"
+                navigate={
+                  if @current_tenant,
+                    do: "/#{@current_tenant.slug}/app/settings",
+                    else: ~p"/app/settings"
+                }
+              >
                 &larr; {gettext("Back to Settings")}
               </.button>
               <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
@@ -80,15 +98,12 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
               class="space-y-4"
             >
               <div>
-                <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
-                  {gettext("Template Name")}
-                </label>
-                <input
+                <.input
+                  field={@form[:name]}
                   type="text"
                   name="name"
-                  value={@form_name}
+                  label={gettext("Template Name")}
                   placeholder={gettext("e.g. Engineering Interview")}
-                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
 
@@ -257,7 +272,13 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
 
   def handle_event("show_create_form", _, socket) do
     {:noreply,
-     assign(socket, show_form: true, editing_template: nil, form_name: "", criteria: [])}
+     assign(socket,
+       show_form: true,
+       editing_template: nil,
+       form_name: "",
+       criteria: [],
+       form: to_form(Scorecards.change_scorecard_template(%Treby.Scorecards.ScorecardTemplate{}))
+     )}
   end
 
   def handle_event("cancel_form", _, socket) do
@@ -280,7 +301,8 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
        show_form: true,
        editing_template: template,
        form_name: template.name,
-       criteria: template.criteria || []
+       criteria: template.criteria || [],
+       form: to_form(Scorecards.change_scorecard_template(template))
      )}
   end
 

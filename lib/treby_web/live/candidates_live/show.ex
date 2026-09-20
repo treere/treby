@@ -43,7 +43,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
     candidate = Candidates.get_candidate(tenant.id, id)
 
-    return_path = safe_return_path(params["return_to"])
+    return_path = safe_return_path(params["return_to"], tenant.slug)
     return_label = return_label(return_path)
 
     if is_nil(candidate) do
@@ -56,7 +56,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
          socket
          |> assign(current_user: user, current_tenant: tenant)
          |> put_flash(:info, gettext("This candidate was merged into another profile."))
-         |> push_navigate(to: merged_redirect(primary_id, return_path))}
+         |> push_navigate(to: merged_redirect(primary_id, return_path, tenant.slug))}
       else
         mount_active(socket, candidate, tenant, user, return_path, return_label)
       end
@@ -141,7 +141,14 @@ defmodule TrebyWeb.CandidatesLive.Show do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <.link
           navigate={@return_path}
@@ -444,7 +451,11 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <div>
                 <div class="flex items-center gap-2">
                   <.link
-                    navigate={~p"/app/pipeline/#{application.job_id}"}
+                    navigate={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/pipeline/#{application.job_id}",
+                        else: ~p"/app/pipeline/#{application.job_id}"
+                    }
                     class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     {application.job.title}
@@ -474,13 +485,21 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <div class="flex items-center gap-3">
                 <a
                   :if={application.resume_url}
-                  href={~p"/app/applications/#{application.id}/resume"}
+                  href={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/applications/#{application.id}/resume",
+                      else: ~p"/app/applications/#{application.id}/resume"
+                  }
                   class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                 >
                   View Resume
                 </a>
                 <.link
-                  navigate={~p"/app/schedule/#{application.id}"}
+                  navigate={
+                    if @current_tenant,
+                      do: "/#{@current_tenant.slug}/app/schedule/#{application.id}",
+                      else: ~p"/app/schedule/#{application.id}"
+                  }
                   class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                 >
                   Schedule Interview
@@ -1563,29 +1582,31 @@ defmodule TrebyWeb.CandidatesLive.Show do
     end
   end
 
-  defp safe_return_path(nil), do: "/app/candidates"
+  defp safe_return_path(nil, slug), do: "/#{slug}/app/candidates"
 
-  defp safe_return_path(return_to) when is_binary(return_to) do
+  defp safe_return_path(return_to, slug) when is_binary(return_to) do
     if String.starts_with?(return_to, "/app/jobs/") or
          String.starts_with?(return_to, "/app/pipeline/") do
-      return_to
+      "/#{slug}#{return_to}"
     else
-      "/app/candidates"
+      "/#{slug}/app/candidates"
     end
   end
 
-  defp safe_return_path(_), do: "/app/candidates"
+  defp safe_return_path(_, slug), do: "/#{slug}/app/candidates"
 
-  defp merged_redirect(primary_id, "/app/candidates"), do: ~p"/app/candidates/#{primary_id}"
-
-  defp merged_redirect(primary_id, return_path) do
-    ~p"/app/candidates/#{primary_id}?return_to=#{return_path}"
+  defp merged_redirect(primary_id, return_path, slug) do
+    if return_path == "/#{slug}/app/candidates" do
+      "/#{slug}/app/candidates/#{primary_id}"
+    else
+      "/#{slug}/app/candidates/#{primary_id}?return_to=#{return_path}"
+    end
   end
 
   defp return_label(path) do
     cond do
-      String.starts_with?(path, "/app/pipeline/") -> "Pipeline"
-      String.starts_with?(path, "/app/jobs/") -> "Job"
+      String.contains?(path, "/app/pipeline/") -> "Pipeline"
+      String.contains?(path, "/app/jobs/") -> "Job"
       true -> "Candidates"
     end
   end

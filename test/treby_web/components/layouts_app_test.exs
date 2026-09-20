@@ -46,9 +46,9 @@ defmodule TrebyWeb.LayoutsAppTest do
     test "inline links show at xl, hamburger below xl, drawer has all links + close handler", %{
       conn: conn
     } do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/candidates")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       # Hamburger button is in the bar and hidden at xl (shown below xl)
       assert html =~ ~s(aria-label="Toggle navigation")
@@ -61,6 +61,10 @@ defmodule TrebyWeb.LayoutsAppTest do
       # Drawer + overlay gate on xl too
       assert html =~ ~s(id="mobile-nav-drawer")
       assert html =~ ~s(id="mobile-nav-overlay")
+
+      # Nav links are tenant-scoped (current_tenant reaches the layout)
+      assert html =~ ~s(href="/#{tenant.slug}/app/jobs")
+      assert html =~ ~s(href="/#{tenant.slug}/app/candidates")
 
       # Trimmed primary links (Import and Message Queue moved)
       assert html =~ ~s(data-nav="/app/jobs")
@@ -87,9 +91,9 @@ defmodule TrebyWeb.LayoutsAppTest do
     end
 
     test "data tables are wrapped in a horizontal scroll container", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/candidates")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates")
       # Candidate table card switched from overflow-hidden to overflow-x-auto
       assert html =~ "shadow-sm overflow-x-auto"
       assert html =~ "<table"

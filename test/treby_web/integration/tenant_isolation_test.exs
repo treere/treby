@@ -72,12 +72,13 @@ defmodule TrebyWeb.TenantIsolationTest do
     end
 
     test "unauthenticated user is redirected to login", %{conn: conn} do
-      conn = get(conn, ~p"/app")
+      {tenant, _user} = create_tenant_with_user()
+      conn = get(conn, "/#{tenant.slug}/app")
       assert redirected_to(conn) == "/login"
     end
 
     test "authenticated user can access their dashboard", %{conn: conn} do
-      {_tenant, user} = create_tenant_with_user()
+      {tenant, user} = create_tenant_with_user()
 
       conn =
         conn
@@ -85,7 +86,7 @@ defmodule TrebyWeb.TenantIsolationTest do
           "user_id" => user.id,
           "tenant_id" => user.tenant_id
         })
-        |> get(~p"/app")
+        |> get("/#{tenant.slug}/app")
 
       assert html_response(conn, 200)
     end

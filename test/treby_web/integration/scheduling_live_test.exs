@@ -140,7 +140,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/interviews")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/interviews")
 
       assert has_element?(view, "h1", "Interviews")
       assert has_element?(view, "p", "Manage and view all scheduled interviews")
@@ -153,7 +153,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/interviews")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/interviews")
 
       assert has_element?(view, "p", "No interviews scheduled yet")
     end
@@ -178,7 +178,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/interviews")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/interviews")
 
       assert has_element?(view, "h3", "Test Candidate")
       assert has_element?(view, "span", "Test Engineer")
@@ -191,7 +191,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/interviews")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/interviews")
 
       view |> element("button", "My Interviews") |> render_click()
 
@@ -209,7 +209,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/schedule/#{app.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/schedule/#{app.id}")
 
       assert has_element?(view, "h1", "Schedule Interview")
       assert has_element?(view, "strong", "Test Candidate")
@@ -226,7 +226,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/schedule/#{app.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/schedule/#{app.id}")
 
       assert has_element?(view, "p", "No team members have set their availability yet.")
     end
@@ -240,7 +240,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, view, _html} = live(conn, ~p"/app/schedule/#{app.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/schedule/#{app.id}")
 
       assert has_element?(view, "span", "Interviewer User")
     end
@@ -253,7 +253,7 @@ defmodule TrebyWeb.SchedulingLiveTest do
         conn
         |> init_test_session(%{"user_id" => user.id, "tenant_id" => tenant.id})
 
-      {:ok, _view, html} = live(conn, ~p"/app/schedule/#{app.id}")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/schedule/#{app.id}")
 
       assert html =~ "Self-Scheduling"
       refute html =~ "Generate Booking Link"

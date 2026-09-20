@@ -29,6 +29,7 @@ defmodule TrebyWeb.JobsLive.New do
      |> assign(form: form)
      |> assign(preview_job: preview_job)
      |> assign(career_page: nil)
+     |> assign(custom_field_errors: MapSet.new())
      |> refresh_workspace()}
   end
 
@@ -73,7 +74,14 @@ defmodule TrebyWeb.JobsLive.New do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <.page_header
           title={gettext("New Job")}
@@ -225,20 +233,62 @@ defmodule TrebyWeb.JobsLive.New do
                         label={field.name}
                         options={field.options}
                         prompt="—"
+                        value={nil}
+                        errors={
+                          if MapSet.member?(@custom_field_errors, to_string(field.id)),
+                            do: [gettext("can't be blank")],
+                            else: []
+                        }
                       />
                     <% field.field_type == "date" -> %>
-                      <.input name={"custom_fields[#{field.id}]"} type="date" label={field.name} />
+                      <.input
+                        name={"custom_fields[#{field.id}]"}
+                        type="date"
+                        label={field.name}
+                        value={nil}
+                        errors={
+                          if MapSet.member?(@custom_field_errors, to_string(field.id)),
+                            do: [gettext("can't be blank")],
+                            else: []
+                        }
+                      />
                     <% field.field_type == "number" -> %>
-                      <.input name={"custom_fields[#{field.id}]"} type="number" label={field.name} />
+                      <.input
+                        name={"custom_fields[#{field.id}]"}
+                        type="number"
+                        label={field.name}
+                        value={nil}
+                        errors={
+                          if MapSet.member?(@custom_field_errors, to_string(field.id)),
+                            do: [gettext("can't be blank")],
+                            else: []
+                        }
+                      />
                     <% field.field_type == "url" -> %>
                       <.input
                         name={"custom_fields[#{field.id}]"}
                         type="url"
                         label={field.name}
                         placeholder="https://"
+                        value={nil}
+                        errors={
+                          if MapSet.member?(@custom_field_errors, to_string(field.id)),
+                            do: [gettext("can't be blank")],
+                            else: []
+                        }
                       />
                     <% true -> %>
-                      <.input name={"custom_fields[#{field.id}]"} type="text" label={field.name} />
+                      <.input
+                        name={"custom_fields[#{field.id}]"}
+                        type="text"
+                        label={field.name}
+                        value={nil}
+                        errors={
+                          if MapSet.member?(@custom_field_errors, to_string(field.id)),
+                            do: [gettext("can't be blank")],
+                            else: []
+                        }
+                      />
                   <% end %>
                 </div>
               </div>
@@ -420,7 +470,8 @@ defmodule TrebyWeb.JobsLive.New do
     {:noreply,
      socket
      |> assign(form: to_form(changeset))
-     |> assign(preview_job: preview_job)}
+     |> assign(preview_job: preview_job)
+     |> assign(custom_field_errors: MapSet.new())}
   end
 
   def handle_event("save", params, socket) do
@@ -457,11 +508,25 @@ defmodule TrebyWeb.JobsLive.New do
 
     if required_fields != [] do
       missing = Enum.map_join(required_fields, ", ", & &1.name)
+      # ponytail: per-field highlight for required custom fields, reuse changeset for form state
+      initial = %Job{
+        status: "open",
+        visible: true,
+        pipeline_id: socket.assigns.default_pipeline_id,
+        tenant_id: tenant.id
+      }
+
+      changeset = Jobs.change_job(initial, job_params) |> Map.put(:action, :validate)
+      error_ids = MapSet.new(Enum.map(required_fields, &to_string(&1.id)))
 
       {:noreply,
        socket
+       |> assign(form: to_form(changeset))
+       |> assign(custom_field_errors: error_ids)
+       |> assign(preview_job: build_preview_job(changeset, tenant))
        |> put_flash(:error, gettext("Please fill in required fields: %{fields}", fields: missing))}
     else
+      socket = assign(socket, :custom_field_errors, MapSet.new())
       attrs = Map.put(attrs, "custom_fields", custom_fields_values)
 
       case Jobs.create_job(attrs) do
@@ -469,7 +534,13 @@ defmodule TrebyWeb.JobsLive.New do
           {:noreply,
            socket
            |> put_flash(:info, gettext("Job created successfully"))
-           |> push_navigate(to: ~p"/app/jobs/#{job.id}")}
+           |> push_navigate(
+             to:
+               if(socket.assigns.current_tenant,
+                 do: "/#{socket.assigns.current_tenant.slug}/app/jobs/#{job.id}",
+                 else: ~p"/app/jobs/#{job.id}"
+               )
+           )}
 
         {:error, changeset} ->
           # Keep preview in sync even on error

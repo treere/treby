@@ -37,12 +37,15 @@ The system SHALL display key product features on the landing page as SaaS minima
 - **AND** each card has a `text-zinc-900` title and `text-zinc-500` brief description covering job management, candidate tracking, and interview scheduling
 
 ### Requirement: Footer
-The system SHALL display a footer with basic information.
+The system SHALL display a public footer with the product name, a short tagline, and links to the global job board and the legal pages.
 
 #### Scenario: Footer content
 - **WHEN** a visitor scrolls to the bottom of the landing page
-- **THEN** a footer is visible with the product name
-- **AND** copyright or attribution text is present
+- **THEN** a footer is visible with the product name and copyright text
+
+#### Scenario: Footer legal links
+- **WHEN** a visitor views the footer
+- **THEN** it links to `/careers`, `/terms`, and `/privacy`
 
 ### Requirement: Careers discovery
 The system SHALL provide a discoverable link to the public job board from the landing page.

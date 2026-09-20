@@ -150,6 +150,14 @@ defmodule TrebyWeb.InviteFlowTest do
       assert html =~ email_alice
     end
 
+    test "invalid token redirects to login with a visible message", %{conn: conn} do
+      conn = get(conn, "/invite/invalid-#{System.unique_integer([:positive])}")
+      assert redirected_to(conn) == "/login"
+
+      login_page = get(recycle(conn), ~p"/login")
+      assert html_response(login_page, 200) =~ "Invalid or expired invite link"
+    end
+
     test "new email shows registration form", %{conn: conn} do
       tenant = create_tenant("NewInvite")
       email = "new-#{System.unique_integer([:positive])}@test.com"

@@ -167,7 +167,7 @@ defmodule TrebyWeb.BookingFlowTest do
       data = setup_application(tenant)
 
       conn = login_admin(conn, admin)
-      {:ok, view, _html} = live(conn, ~p"/app/schedule/#{data.application.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/schedule/#{data.application.id}")
 
       view |> element("button", "Examiner User") |> render_click()
       book_first_slot(view)
@@ -190,7 +190,7 @@ defmodule TrebyWeb.BookingFlowTest do
       GoogleApiMock.stub_event_create("evt-booking", "https://meet.google.com/booking-link")
 
       conn = login_admin(conn, admin)
-      {:ok, view, _html} = live(conn, ~p"/app/schedule/#{data.application.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/schedule/#{data.application.id}")
 
       allow(Treby.GoogleApiMock, self(), view.pid)
 

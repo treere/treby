@@ -40,12 +40,13 @@ defmodule TrebyWeb.NotificationsLiveTest do
 
   describe "auth and isolation" do
     test "redirects when not logged in", %{conn: conn} do
-      assert {:error, {:redirect, _}} = live(conn, ~p"/app/notifications")
+      {tenant, _user} = setup_tenant_with_user()
+      assert {:error, {:redirect, _}} = live(conn, "/#{tenant.slug}/app/notifications")
     end
 
     test "tenant isolation: user sees only own notifications", %{conn: conn} do
       {tenant1, user1} = setup_tenant_with_user()
-      {tenant2, user2} = setup_tenant_with_user()
+      {tenant2, _user2} = setup_tenant_with_user()
 
       {:ok, _} =
         Inbox.create_for_tenant(tenant1.id, %{
@@ -62,7 +63,7 @@ defmodule TrebyWeb.NotificationsLiveTest do
         })
 
       conn1 = login(conn, user1)
-      {:ok, view, _} = live(conn1, ~p"/app/notifications")
+      {:ok, view, _} = live(conn1, "/#{tenant1.slug}/app/notifications")
       html = render(view)
       assert html =~ "For user1"
       refute html =~ "For user2"
@@ -88,40 +89,55 @@ defmodule TrebyWeb.NotificationsLiveTest do
         })
 
       conn = login(conn, user)
-      {:ok, view, _} = live(conn, ~p"/app/notifications")
+      {:ok, view, _} = live(conn, "/#{tenant.slug}/app/notifications")
       html = render(view)
       assert html =~ "Hello world"
       assert html =~ "Interview"
 
       # filter unread
-      {:ok, view2, _} = live(conn, ~p"/app/notifications?filter=unread")
+      {:ok, view2, _} = live(conn, "/#{tenant.slug}/app/notifications?filter=unread")
       html2 = render(view2)
       assert html2 =~ "Hello world"
 
       # search
-      {:ok, view3, _} = live(conn, ~p"/app/notifications?search=Hello")
-      html3 = render(view3)
-      assert html3 =~ "Hello world"
-      refute html3 =~ "body2"
+      {:ok, view3, _} = live(conn, "/#{tenant.slug}/app/notifications?search=Hello")
+      list_html = view3 |> element("#notifications") |> render()
+      assert list_html =~ "Hello world"
+      refute list_html =~ "body2"
     end
 
-    test "mark read and mark all read", %{conn: conn} do
+    test "mark all read clears the bell badge and the list", %{conn: conn} do
       {tenant, user} = setup_tenant_with_user()
       {:ok, _} = Inbox.create_for_tenant(tenant.id, %{type: "new_application", title: "t1"})
       {:ok, _} = Inbox.create_for_tenant(tenant.id, %{type: "new_application", title: "t2"})
       conn = login(conn, user)
-      {:ok, view, _} = live(conn, ~p"/app/notifications")
-      # mark all read
-      view |> element("button", "Mark all read") |> render_click()
-      html = render(view)
-      # after marking, unread badge should be 0, but page reloads via load_notifications
-      assert html =~ "Notifications"
+      {:ok, view, _} = live(conn, "/#{tenant.slug}/app/notifications")
+
+      assert has_element?(view, "#notification-badge")
+
+      view |> element("#notifications-mark-all-read") |> render_click()
+
+      refute has_element?(view, "#notification-badge")
+      assert Inbox.unread_count(user.id, tenant.id) == 0
+    end
+
+    test "mark read decrements the bell badge", %{conn: conn} do
+      {tenant, user} = setup_tenant_with_user()
+      {:ok, [n]} = Inbox.create_for_tenant(tenant.id, %{type: "new_application", title: "t1"})
+      {:ok, _} = Inbox.create_for_tenant(tenant.id, %{type: "new_application", title: "t2"})
+      conn = login(conn, user)
+      {:ok, view, _} = live(conn, "/#{tenant.slug}/app/notifications")
+
+      view |> render_click("mark_read", %{"id" => n.id})
+
+      assert has_element?(view, "#notification-badge")
+      assert Inbox.unread_count(user.id, tenant.id) == 1
     end
 
     test "realtime via PubSub inserts new notification", %{conn: conn} do
       {tenant, user} = setup_tenant_with_user()
       conn = login(conn, user)
-      {:ok, view, _} = live(conn, ~p"/app/notifications")
+      {:ok, view, _} = live(conn, "/#{tenant.slug}/app/notifications")
       # broadcast new notification
       {:ok, [n]} =
         Inbox.create_for_tenant(tenant.id, %{type: "new_application", title: "Realtime title"})
@@ -143,10 +159,9 @@ defmodule TrebyWeb.NotificationsLiveTest do
         Inbox.create_for_tenant(tenant.id, %{type: "new_application", title: "Badge test"})
 
       conn = login(conn, user)
-      {:ok, view, _} = live(conn, ~p"/app")
-      html = render(view)
-      # bell should be present
-      assert html =~ "notification-bell" or html =~ "hero-bell"
+      {:ok, view, _} = live(conn, "/#{tenant.slug}/app")
+      assert has_element?(view, "#notification-badge", "1")
+      assert has_element?(view, "#notification-bell")
     end
   end
 end

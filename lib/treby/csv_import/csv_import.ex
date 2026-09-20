@@ -85,7 +85,7 @@ defmodule Treby.CsvImport do
       if email_value in [nil, ""] do
         ["Email is required" | errors]
       else
-        if email_value =~ ~r/@/ do
+        if Treby.Emails.valid?(email_value) do
           errors
         else
           ["Invalid email format: #{email_value}" | errors]

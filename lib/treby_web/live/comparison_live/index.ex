@@ -75,14 +75,25 @@ defmodule TrebyWeb.ComparisonLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             {gettext("Compare Candidates")}
           </h1>
           <.link
-            navigate={~p"/app/candidates"}
+            navigate={
+              if @current_tenant,
+                do: "/#{@current_tenant.slug}/app/candidates",
+                else: ~p"/app/candidates"
+            }
             class="text-blue-600 dark:text-blue-400 hover:underline text-sm"
           >
             {gettext("← Back to candidates")}

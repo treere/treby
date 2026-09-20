@@ -47,7 +47,13 @@ defmodule TrebyWeb.MessagesQueueLive.Index do
       |> assign(:tab, tab)
       |> assign(:selected_ids, MapSet.new())
       |> load_messages(current_user.tenant_id, tab)
-      |> push_patch(to: ~p"/app/messages-queue?tab=#{tab}")
+      |> push_patch(
+        to:
+          if(socket.assigns.current_tenant,
+            do: "/#{socket.assigns.current_tenant.slug}/app/messages-queue?tab=#{tab}",
+            else: ~p"/app/messages-queue?tab=#{tab}"
+          )
+      )
 
     {:noreply, socket}
   end

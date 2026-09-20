@@ -45,12 +45,20 @@ defmodule Treby.Jobs.Job do
   end
 
   defp validate_visible_requires_open(changeset) do
-    # Only trigger when visible is explicitly turned on: merely closing an
-    # open visible job (status change alone) must keep working.
-    if get_change(changeset, :visible) == true and get_field(changeset, :status) == "closed" do
-      add_error(changeset, :visible, "cannot be visible when the job is closed")
-    else
-      changeset
+    status = get_field(changeset, :status)
+    visible = get_field(changeset, :visible)
+    status_change = get_change(changeset, :status)
+
+    cond do
+      status == "closed" and visible == true and status_change == "closed" ->
+        # R4 fix: closing a visible job coerces to private instead of staying public
+        put_change(changeset, :visible, false)
+
+      status == "closed" and visible == true ->
+        add_error(changeset, :visible, "cannot be visible when the job is closed")
+
+      true ->
+        changeset
     end
   end
 

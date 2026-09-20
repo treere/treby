@@ -20,7 +20,6 @@ defmodule TrebyWeb.CareerPageTest do
       |> CareerPage.changeset(%{
         title: "Join Our Team",
         description: "We are hiring!",
-        primary_color: "#3b82f6",
         published: true
       })
       |> Repo.insert()
@@ -36,6 +35,34 @@ defmodule TrebyWeb.CareerPageTest do
       |> Repo.insert()
 
     {tenant, career_page, job}
+  end
+
+  describe "public footer" do
+    test "career pages link to terms and privacy", %{conn: conn} do
+      {tenant, _career_page, _job} = setup_tenant_with_career_page()
+      {:ok, _view, html} = live(conn, ~p"/#{tenant.slug}/careers")
+
+      assert html =~ ~s(href="/terms")
+      assert html =~ ~s(href="/privacy")
+    end
+
+    test "global careers page links to terms and privacy", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/careers")
+
+      assert html =~ ~s(href="/terms")
+      assert html =~ ~s(href="/privacy")
+    end
+  end
+
+  describe "unknown tenant" do
+    test "shows a friendly not-found page linking to all positions", %{conn: conn} do
+      {:ok, _view, html} =
+        live(conn, "/does-not-exist-#{System.unique_integer([:positive])}/careers")
+
+      assert html =~ "find that company"
+      assert html =~ "Browse all open positions"
+      assert html =~ ~s(href="/careers")
+    end
   end
 
   describe "career page" do

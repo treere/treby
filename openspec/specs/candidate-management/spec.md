@@ -18,9 +18,13 @@ The system SHALL allow creating candidates with contact information. The system 
 - **AND** an application for that job is created in the first stage
 - **AND** the candidate appears in that job's pipeline
 
-#### Scenario: Duplicate email detection
-- **WHEN** a user tries to create a candidate with an existing email in the same tenant
-- **THEN** the system returns the existing candidate (upsert behavior)
+#### Scenario: Duplicate email without job shows validation error
+- **WHEN** a user tries to create a candidate with an existing email in the same tenant without selecting a job
+- **THEN** the system returns a validation error "has already been taken" on email and no new candidate is created
+
+#### Scenario: Duplicate email with job reuses existing candidate
+- **WHEN** a user tries to create a candidate with an existing email in the same tenant and selects a job
+- **THEN** the system returns the existing candidate (upsert behavior) and creates an application for the selected job (flagged duplicate if already applied)
 - **AND** the existing candidate is an active (non-absorbed) candidate
 
 #### Scenario: Absorbed candidate is not reused

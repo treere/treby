@@ -53,13 +53,27 @@ defmodule TrebyWeb.ImportLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8 max-w-4xl mx-auto">
         <.page_header
           title={gettext("Import Candidates")}
           subtitle={gettext("Upload a CSV file to bulk import candidates")}
           breadcrumbs={[
-            %{label: gettext("Candidates"), href: ~p"/app/candidates"},
+            %{
+              label: gettext("Candidates"),
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+                )
+            },
             %{label: gettext("Import")}
           ]}
         />
@@ -338,10 +352,22 @@ defmodule TrebyWeb.ImportLive.Index do
           </div>
 
           <div class="mt-8 flex gap-4">
-            <.button variant="primary" navigate={~p"/app/import"}>
+            <.button
+              variant="primary"
+              navigate={
+                if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
+              }
+            >
               {gettext("Import More")}
             </.button>
-            <.button variant="ghost" navigate={~p"/app/candidates"}>
+            <.button
+              variant="ghost"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+              }
+            >
               {gettext("View Candidates")}
             </.button>
           </div>
@@ -356,23 +382,30 @@ defmodule TrebyWeb.ImportLive.Index do
   end
 
   def handle_event("process_upload", _params, socket) do
-    [{_ref, _entry}] = socket.assigns.uploads.csv.entries
+    case socket.assigns.uploads.csv.entries do
+      [] ->
+        {:noreply,
+         socket
+         |> put_flash(:error, gettext("Please select a CSV file"))
+         |> assign(upload_errors: [gettext("No file selected")])}
 
-    {:noreply,
-     consume_uploaded_entries(socket, :csv, fn meta, _entry ->
-       csv_content = File.read!(meta.path)
+      [{_ref, _entry}] ->
+        {:noreply,
+         consume_uploaded_entries(socket, :csv, fn meta, _entry ->
+           csv_content = File.read!(meta.path)
 
-       case CsvImport.parse_csv(csv_content) do
-         {:ok, %{rows: rows, headers: headers}} ->
-           {:ok, mapping} = CsvImport.auto_detect_mapping(headers)
+           case CsvImport.parse_csv(csv_content) do
+             {:ok, %{rows: rows, headers: headers}} ->
+               {:ok, mapping} = CsvImport.auto_detect_mapping(headers)
 
-           socket
-           |> assign(step: 2, rows: rows, headers: headers, mapping: mapping)
+               socket
+               |> assign(step: 2, rows: rows, headers: headers, mapping: mapping)
 
-         {:error, reason} ->
-           put_flash(socket, :error, reason)
-       end
-     end)}
+             {:error, reason} ->
+               put_flash(socket, :error, reason)
+           end
+         end)}
+    end
   end
 
   def handle_event("update_mapping", %{"header" => header, "value" => value}, socket) do

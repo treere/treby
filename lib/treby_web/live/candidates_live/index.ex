@@ -110,14 +110,25 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{gettext("Candidates")}</h1>
           <div class="flex items-center gap-3">
             <.link
               :if={@duplicate_count > 0}
-              navigate={~p"/app/candidates/merge"}
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates/merge",
+                  else: ~p"/app/candidates/merge"
+              }
               class="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-100 hover:bg-amber-100 text-sm font-medium"
             >
               <.icon name="hero-user-group" class="w-4 h-4" />{gettext("Duplicates")}
@@ -312,7 +323,11 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
                   <.link
-                    navigate={~p"/app/candidates/#{candidate.id}"}
+                    navigate={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/candidates/#{candidate.id}",
+                        else: ~p"/app/candidates/#{candidate.id}"
+                    }
                     class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     {candidate.name}
@@ -361,7 +376,12 @@ defmodule TrebyWeb.CandidatesLive.Index do
               <.button phx-click="show_create_form" variant="primary">
                 {gettext("Add a candidate")}
               </.button>
-              <.button variant="secondary" navigate={~p"/app/import"}>
+              <.button
+                variant="secondary"
+                navigate={
+                  if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
+                }
+              >
                 {gettext("Import from CSV")}
               </.button>
             </:cta>
@@ -717,7 +737,15 @@ defmodule TrebyWeb.CandidatesLive.Index do
     else
       attrs = Map.put(attrs, "custom_fields", custom_fields_values)
 
-      result = Candidates.create_or_find(socket.assigns.current_tenant.id, attrs)
+      # R2 fix: profile-only creation (no job) must show duplicate error,
+      # while job-linked creation keeps idempotent dedup via create_or_find
+      # ponytail: branch on job_id, reuse existing context helpers
+      result =
+        if job_id in [nil, ""] do
+          Candidates.create_candidate(attrs)
+        else
+          Candidates.create_or_find(socket.assigns.current_tenant.id, attrs)
+        end
 
       case result do
         {:ok, candidate} ->
@@ -868,7 +896,15 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("bulk_execute_compare", _params, socket) do
     ids = Enum.join(socket.assigns.selected_ids, ",")
-    {:noreply, push_navigate(socket, to: ~p"/app/candidates/compare?ids=#{ids}")}
+
+    {:noreply,
+     push_navigate(socket,
+       to:
+         if(socket.assigns.current_tenant,
+           do: "/#{socket.assigns.current_tenant.slug}/app/candidates/compare?ids=#{ids}",
+           else: ~p"/app/candidates/compare?ids=#{ids}"
+         )
+     )}
   end
 
   def handle_event("bulk_execute_merge", _params, socket) do
@@ -1122,27 +1158,35 @@ defmodule TrebyWeb.CandidatesLive.Index do
   end
 
   defp delete_candidate(socket, candidate_id) do
-    candidate = Candidates.get_candidate!(socket.assigns.current_tenant.id, candidate_id)
-
-    case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
-      {:ok, _candidate} ->
+    case Candidates.get_candidate(socket.assigns.current_tenant.id, candidate_id) do
+      nil ->
         {:noreply,
          socket
          |> load_page(socket.assigns.page)
          |> assign(confirm_delete: nil)
-         |> put_flash(:info, gettext("Candidate deleted"))}
+         |> put_flash(:info, gettext("Candidate already deleted"))}
 
-      {:error, :unauthorized} ->
-        {:noreply,
-         socket
-         |> assign(confirm_delete: nil)
-         |> put_flash(:error, gettext("Only admins can delete candidates"))}
+      candidate ->
+        case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
+          {:ok, _candidate} ->
+            {:noreply,
+             socket
+             |> load_page(socket.assigns.page)
+             |> assign(confirm_delete: nil)
+             |> put_flash(:info, gettext("Candidate deleted"))}
 
-      {:error, _} ->
-        {:noreply,
-         socket
-         |> assign(confirm_delete: nil)
-         |> put_flash(:error, gettext("Failed to delete candidate"))}
+          {:error, :unauthorized} ->
+            {:noreply,
+             socket
+             |> assign(confirm_delete: nil)
+             |> put_flash(:error, gettext("Only admins can delete candidates"))}
+
+          {:error, _} ->
+            {:noreply,
+             socket
+             |> assign(confirm_delete: nil)
+             |> put_flash(:error, gettext("Failed to delete candidate"))}
+        end
     end
   end
 

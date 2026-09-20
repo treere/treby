@@ -36,6 +36,8 @@ defmodule TrebyWeb.Layouts do
     doc: "the current locale"
 
   attr :current_tenant, :map, default: nil
+  attr :notification_unread_count, :integer, default: 0
+  attr :notification_recent, :list, default: []
   attr :available_tenants, :list, default: []
   attr :current_membership, :map, default: nil
   attr :assistant, :boolean, default: true
@@ -176,10 +178,6 @@ defmodule TrebyWeb.Layouts do
                 current_tenant={@current_tenant}
               />
               <.link
-                :if={
-                  (@current_membership && @current_membership.role == "admin") ||
-                    (@current_scope && Map.get(@current_scope, :role) == "admin")
-                }
                 navigate={
                   if @current_tenant,
                     do: "/#{@current_tenant.slug}/app/settings",
@@ -386,10 +384,6 @@ defmodule TrebyWeb.Layouts do
               {gettext("Assistant")}
             </.link>
             <.link
-              :if={
-                (@current_membership && @current_membership.role == "admin") ||
-                  (@current_scope && Map.get(@current_scope, :role) == "admin")
-              }
               navigate={
                 if @current_tenant,
                   do: "/#{@current_tenant.slug}/app/settings",
@@ -484,12 +478,21 @@ defmodule TrebyWeb.Layouts do
   language before signing in.
   """
   attr :locale, :string, required: true
+  attr :flash, :map, default: %{}
 
   def auth_toolbar(assigns) do
     ~H"""
     <div class="absolute top-4 right-4 z-50 flex items-center gap-2">
       <.theme_toggle />
       <.locale_switcher locale={@locale} />
+    </div>
+    <div
+      id="auth-flash"
+      aria-live="polite"
+      class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"
+    >
+      <.flash kind={:info} flash={@flash} id="auth-flash-info" />
+      <.flash kind={:error} flash={@flash} id="auth-flash-error" />
     </div>
     """
   end
@@ -516,6 +519,67 @@ defmodule TrebyWeb.Layouts do
         </div>
       </div>
     </header>
+    """
+  end
+
+  @doc """
+  Public footer for landing and tenant-public pages (careers).
+  Links to the global job board and the legal pages.
+  """
+  def public_footer(assigns) do
+    ~H"""
+    <footer class="bg-zinc-50 dark:bg-zinc-900" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" class="sr-only">{gettext("Footer")}</h2>
+      <div class="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8">
+        <div class="xl:grid xl:grid-cols-3 xl:gap-8">
+          <div>
+            <span class="text-2xl font-bold text-orange-600">Treby</span>
+            <p class="mt-4 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+              {gettext("Modern applicant tracking for growing teams.")}
+            </p>
+          </div>
+          <div class="mt-10 xl:mt-0">
+            <h3 class="text-sm font-semibold leading-6 text-zinc-900 dark:text-zinc-100">
+              {gettext("Discover")}
+            </h3>
+            <ul role="list" class="mt-4 space-y-3">
+              <li>
+                <.link
+                  navigate={~p"/careers"}
+                  id="footer-careers-link"
+                  class="text-sm leading-6 text-zinc-500 dark:text-zinc-400 hover:text-orange-600"
+                >
+                  {gettext("Careers")}
+                </.link>
+              </li>
+              <li>
+                <.link
+                  navigate={~p"/terms"}
+                  id="footer-terms-link"
+                  class="text-sm leading-6 text-zinc-500 dark:text-zinc-400 hover:text-orange-600"
+                >
+                  {gettext("Terms")}
+                </.link>
+              </li>
+              <li>
+                <.link
+                  navigate={~p"/privacy"}
+                  id="footer-privacy-link"
+                  class="text-sm leading-6 text-zinc-500 dark:text-zinc-400 hover:text-orange-600"
+                >
+                  {gettext("Privacy")}
+                </.link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
+          <p class="text-xs/6 text-zinc-500 dark:text-zinc-400">
+            &copy; {DateTime.utc_now().year} Treby. {gettext("All rights reserved")}
+          </p>
+        </div>
+      </div>
+    </footer>
     """
   end
 
@@ -755,6 +819,7 @@ defmodule TrebyWeb.Layouts do
         <.icon name="hero-bell" class="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
         <span
           :if={@unread_count > 0}
+          id="notification-badge"
           class="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[11px] font-bold text-white bg-red-500 rounded-full"
         >
           {@unread_count}

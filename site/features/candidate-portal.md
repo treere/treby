@@ -12,6 +12,7 @@ Candidates have a personal portal where they track their applications without ne
 - They receive a **6-digit code** by email, valid for **10 minutes** and single-use, from `noreply@treby.app` — the login screens remind you to *"check spam folder"* and that *"you can request a new code after 60 seconds"*
 - On the code screen you see **Code valid 10 minutes — check spam folder, sender noreply@treby.app**, plus **Didn't receive it? Check spam or correct your email** with a **Correct email** link back to login (no account enumeration)
 - If you request a code too quickly, you see *"Wait 60 seconds before requesting another code"*; the **Resend code** button notes the 60-second cooldown
+- After **5 wrong codes** the code is locked and the page tells you to request a new one
 - They enter the code and access the portal for a few hours, then can sign out explicitly
 
 Candidates never get a password; team access and candidate access are completely separate.

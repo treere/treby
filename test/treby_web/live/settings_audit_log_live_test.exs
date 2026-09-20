@@ -84,6 +84,59 @@ defmodule TrebyWeb.SettingsAuditLogLiveTest do
       assert html =~ "Metadata"
     end
 
+    test "filters are reflected in the URL and persist across reloads", %{conn: conn} do
+      {tenant, admin} = setup_tenant("admin")
+
+      {:ok, _} =
+        Audit.log_event("job.created", "job", Ecto.UUID.generate(), %{
+          tenant_id: tenant.id,
+          actor_id: admin.id,
+          metadata: %{}
+        })
+
+      {:ok, _} =
+        Audit.log_event("candidate.created", "candidate", Ecto.UUID.generate(), %{
+          tenant_id: tenant.id,
+          actor_id: admin.id,
+          metadata: %{}
+        })
+
+      conn = login_user(conn, admin)
+      {:ok, view, _} = live(conn, ~p"/#{tenant.slug}/app/settings/audit-log")
+
+      view
+      |> element("#audit-filter-form")
+      |> render_change(%{
+        action: "job.",
+        entity_type: "",
+        search: "",
+        actor_id: "",
+        from: "",
+        to: ""
+      })
+
+      assert_patch(view, "/#{tenant.slug}/app/settings/audit-log?action=job.")
+
+      # a fresh mount on that URL keeps the filter applied
+      {:ok, view2, html2} = live(conn, "/#{tenant.slug}/app/settings/audit-log?action=job.")
+      assert html2 =~ "job.created"
+      refute html2 =~ "candidate.created"
+      assert has_element?(view2, "#filter-action[value='job.']")
+    end
+
+    test "clear filters resets the URL", %{conn: conn} do
+      {tenant, admin} = setup_tenant("admin")
+      conn = login_user(conn, admin)
+
+      {:ok, view, _} = live(conn, "/#{tenant.slug}/app/settings/audit-log?action=job.")
+      assert has_element?(view, "#filter-action[value='job.']")
+
+      view |> element("button", "Clear filters") |> render_click()
+
+      assert_patch(view, "/#{tenant.slug}/app/settings/audit-log")
+      refute has_element?(view, "#filter-action[value='job.']")
+    end
+
     test "member is redirected with permission denied", %{conn: conn} do
       {tenant, _admin} = setup_tenant("admin")
       {_, member} = setup_tenant_member(tenant)

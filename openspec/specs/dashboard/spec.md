@@ -19,7 +19,7 @@ The system SHALL identify candidates that need follow-up.
 
 #### Scenario: Stale candidates shown
 - **WHEN** a user visits the dashboard
-- **THEN** candidates with no activity (stage change, note, interview) for more than 5 days are listed
+- **THEN** candidates with no activity (stage change, note, interview) for more than 7 days are listed (using last activity or updated_at if no activity)
 - **AND** each stale candidate shows name, job title, current stage, and days since last activity
 
 #### Scenario: No stale candidates

@@ -14,6 +14,8 @@ defmodule TrebyWeb.AiChatLive do
       current_scope={@current_user}
       current_tenant={@current_tenant}
       locale={@locale}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
       available_tenants={assigns[:available_tenants] || []}
       assistant={false}
     >

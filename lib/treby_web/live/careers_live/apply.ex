@@ -73,7 +73,14 @@ defmodule TrebyWeb.CareersLive.Apply do
             <% end %>
           </p>
           <div class="mt-6 space-y-4">
-            <.button variant="primary" navigate={~p"/#{@tenant.slug}/portal/login"}>
+            <.button
+              variant="primary"
+              navigate={
+                if @prefill != %{},
+                  do: "/#{@tenant.slug}/portal",
+                  else: "/#{@tenant.slug}/portal/login"
+              }
+            >
               {gettext("View Your Application")}
             </.button>
             <div>
@@ -97,7 +104,11 @@ defmodule TrebyWeb.CareersLive.Apply do
           <div class="mt-6 space-y-4">
             <.button
               variant="primary"
-              navigate={~p"/#{@tenant.slug}/portal/login"}
+              navigate={
+                if @prefill != %{},
+                  do: "/#{@tenant.slug}/portal",
+                  else: "/#{@tenant.slug}/portal/login"
+              }
               class="min-h-[44px]"
             >
               {gettext("Track your application")}
@@ -207,14 +218,20 @@ defmodule TrebyWeb.CareersLive.Apply do
                     {gettext("Remove")}
                   </.button>
                 </div>
-                <div :if={!entry.done?} class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
+                <div
+                  :if={entry_in_progress?(@uploads.resume, entry)}
+                  class="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2"
+                >
                   <div
                     class="bg-primary h-2 rounded-full transition-all"
                     style={"width: #{entry.progress}%"}
                   >
                   </div>
                 </div>
-                <p :if={!entry.done?} class="text-xs text-zinc-500 dark:text-zinc-400">
+                <p
+                  :if={entry_in_progress?(@uploads.resume, entry)}
+                  class="text-xs text-zinc-500 dark:text-zinc-400"
+                >
                   {entry.progress}% {gettext("uploading...")}
                 </p>
                 <p :for={err <- upload_errors(@uploads.resume, entry)} class="text-error text-sm">
@@ -231,9 +248,9 @@ defmodule TrebyWeb.CareersLive.Apply do
               variant="primary"
               class="w-full min-h-[44px]"
               loading_text={gettext("Submitting...")}
-              disabled={Enum.any?(@uploads.resume.entries, fn e -> !e.done? end)}
+              disabled={resume_uploading?(@uploads.resume)}
             >
-              <%= if Enum.any?(@uploads.resume.entries, fn e -> !e.done? end) do %>
+              <%= if resume_uploading?(@uploads.resume) do %>
                 <span class="inline-flex items-center gap-2">
                   <.icon name="hero-arrow-path" class="w-4 h-4 animate-spin" />
                   {gettext("Uploading...")}
@@ -262,6 +279,7 @@ defmodule TrebyWeb.CareersLive.Apply do
           <% end %>
         </.card>
       </div>
+      <Layouts.public_footer />
     </div>
     """
   end
@@ -306,8 +324,11 @@ defmodule TrebyWeb.CareersLive.Apply do
         {:ok, candidate} ->
           handle_candidate_found(socket, candidate, job, custom_fields_values, application_params)
 
-        {:error, _changeset} ->
-          {:noreply, put_flash(socket, :error, gettext("Please review the errors below"))}
+        {:error, changeset} ->
+          {:noreply,
+           socket
+           |> assign(form: to_form(changeset, as: :application))
+           |> put_flash(:error, gettext("Please review the errors below"))}
       end
     end
   end
@@ -439,6 +460,14 @@ defmodule TrebyWeb.CareersLive.Apply do
     else
       _ -> %{}
     end
+  end
+
+  defp resume_uploading?(upload) do
+    Enum.any?(upload.entries, &entry_in_progress?(upload, &1))
+  end
+
+  defp entry_in_progress?(upload, entry) do
+    not entry.done? and upload_errors(upload, entry) == []
   end
 
   defp upload_error_to_string(:too_large), do: gettext("File is too large (max 10MB)")

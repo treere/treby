@@ -54,10 +54,10 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
   describe "empty state" do
     test "shows empty state with CTAs when no candidates exist", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       html = render(view)
       assert html =~ "No candidates yet"
@@ -66,10 +66,10 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
     end
 
     test "clicking Add a candidate in empty state opens the create form", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       refute render(view) =~ "candidate-form"
 
@@ -93,7 +93,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         |> Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       html = render(view)
       refute html =~ "No candidates yet"
@@ -103,10 +103,10 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
   describe "form validation" do
     test "shows flash error when creating candidate with empty name", %{conn: conn} do
-      {_tenant, user} = setup_tenant()
+      {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view
       |> element("button", "+ Add Candidate")
@@ -133,7 +133,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       create_candidate(tenant, "Bob Jones", "bob@example.com")
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       html =
         view
@@ -150,7 +150,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       create_candidate(tenant, "Bob Jones", "bob@example.com")
       conn = login_user(conn, user)
 
-      {:ok, _view, html} = live(conn, ~p"/app/candidates?search=carol")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates?search=carol")
 
       assert html =~ "Carol Williams"
       refute html =~ "Bob Jones"
@@ -163,7 +163,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       create_candidate(tenant, "Bob Jones", "bob@example.com")
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/candidates?search=carol")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates?search=carol")
       assert render(view) =~ "Carol Williams"
       refute render(view) =~ "Bob Jones"
 
@@ -184,7 +184,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       create_candidate(tenant, "Bulk One", "bulk1@example.com")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view |> element(~s{input[phx-click="toggle_candidate"]}) |> render_click()
 
@@ -220,7 +220,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         |> Repo.insert()
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       view |> element("button", "Edit") |> render_click()
 
@@ -284,7 +284,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         })
 
       conn = login_user(conn, user)
-      {:ok, _view, html} = live(conn, ~p"/app/candidates/#{candidate.id}")
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates/#{candidate.id}")
 
       assert html =~ "Schedule Interview"
       assert html =~ "/app/schedule/#{application.id}"
@@ -346,7 +346,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         create_candidate_with_application(tenant, job, stage, "Bulk Test", "bulk@example.com")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view |> element(~s{input[phx-value-id="#{candidate.id}"]}) |> render_click()
 
@@ -371,7 +371,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         create_candidate_with_application(tenant, job, stage, "Bulk Test", "bulk@example.com")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view |> element(~s{input[phx-value-id="#{candidate.id}"]}) |> render_click()
 
@@ -420,7 +420,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         create_candidate_with_application(tenant, job, stage, "Bob Compare", "bobc@example.com")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view |> element(~s{input[phx-value-id="#{alice.id}"]}) |> render_click()
       view |> element(~s{input[phx-value-id="#{bob.id}"]}) |> render_click()
@@ -449,7 +449,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
         create_candidate_with_application(tenant, job, stage, "Bob Compare", "bobc2@example.com")
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       view |> element(~s{input[phx-value-id="#{alice.id}"]}) |> render_click()
       view |> element(~s{input[phx-value-id="#{bob.id}"]}) |> render_click()
@@ -460,7 +460,9 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
 
       view |> element("button", "Compare") |> render_click()
 
-      expected = ~p"/app/candidates/compare?ids=#{Enum.join([bob.id, alice.id], ",")}"
+      expected =
+        "/#{tenant.slug}/app/candidates/compare?ids=#{Enum.join([bob.id, alice.id], ",")}"
+
       assert_redirect(view, expected)
     end
   end
@@ -471,7 +473,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       candidate = create_candidate(tenant, "Delete Me", "delete@example.com")
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       assert render(view) =~ "Delete Me"
 
@@ -498,7 +500,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       candidate = create_candidate(tenant, "Legacy Delete", "legacy@example.com")
       conn = login_user(conn, user)
 
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       html = render_click(view, "confirm_delete", %{"id" => candidate.id})
 
@@ -521,7 +523,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       end
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates")
 
       assert has_element?(view, "#pagination")
       html = render(view)
@@ -555,7 +557,7 @@ defmodule TrebyWeb.CandidatesLive.IndexTest do
       end
 
       conn = login_user(conn, user)
-      {:ok, view, _html} = live(conn, ~p"/app/candidates?page=2")
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/candidates?page=2")
 
       assert render(view) =~ "Showing 26–35 of 35"
 

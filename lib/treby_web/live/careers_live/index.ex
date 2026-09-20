@@ -7,17 +7,34 @@ defmodule TrebyWeb.CareersLive.Index do
     socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
     career_page = Careers.get_career_page_by_tenant(tenant.id)
-    jobs = Jobs.list_visible_jobs(tenant.id)
     applied_job_ids = applied_job_ids_for_session(session, tenant.id)
 
     {:ok,
      socket
      |> assign(tenant: tenant)
      |> assign(career_page: career_page)
-     |> assign(jobs: jobs)
      |> assign(applied_job_ids: applied_job_ids)
+     |> assign(jobs: [])
      |> assign(search_query: "")
      |> assign(search_form: to_form(%{"query" => ""}, as: :search))}
+  end
+
+  def handle_params(params, _uri, socket) do
+    query = params["query"] || ""
+
+    {:noreply,
+     socket
+     |> assign(jobs: load_jobs(socket.assigns.tenant.id, query))
+     |> assign(search_query: query)
+     |> assign(search_form: to_form(%{"query" => query}, as: :search))}
+  end
+
+  defp load_jobs(tenant_id, query) do
+    if String.trim(query) == "" do
+      Jobs.list_visible_jobs(tenant_id)
+    else
+      Jobs.search_visible_jobs(tenant_id, query)
+    end
   end
 
   defp applied_job_ids_for_session(session, tenant_id) do
@@ -124,16 +141,15 @@ defmodule TrebyWeb.CareersLive.Index do
   end
 
   def handle_event("search", %{"query" => query}, socket) do
-    jobs =
-      if String.trim(query) == "" do
-        Jobs.list_visible_jobs(socket.assigns.tenant.id)
-      else
-        Jobs.search_visible_jobs(socket.assigns.tenant.id, query)
-      end
+    {:noreply, push_patch(socket, to: careers_path(socket.assigns.tenant.slug, query))}
+  end
 
-    {:noreply,
-     socket
-     |> assign(jobs: jobs)
-     |> assign(search_query: query)}
+  defp careers_path(slug, query) do
+    base = "/#{slug}/careers"
+
+    case String.trim(query) do
+      "" -> base
+      q -> base <> "?" <> URI.encode_query(%{"query" => q})
+    end
   end
 end

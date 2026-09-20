@@ -102,6 +102,12 @@ The system SHALL display structured job metadata (location, employment type, wor
 - **WHEN** a visitor searches on the career page with a query matching a job's location
 - **THEN** that job appears in the results
 
+#### Scenario: Search persists in the URL
+- **WHEN** a visitor submits a search on the tenant or global career page
+- **THEN** the query is reflected in the URL as `?query=...`
+- **AND** reloading the page or navigating back from a job re-applies the same search
+- **AND** clearing the search returns to the bare career path
+
 ### Requirement: Guided multi-apply
 The system SHALL guide candidates applying to multiple positions with prefill and applied-state awareness.
 

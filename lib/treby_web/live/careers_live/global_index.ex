@@ -5,15 +5,32 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
-    jobs = Jobs.list_all_visible_jobs()
     applied_job_ids = applied_job_ids_for_session(session)
 
     {:ok,
      socket
-     |> assign(jobs: jobs)
+     |> assign(jobs: [])
      |> assign(applied_job_ids: applied_job_ids)
      |> assign(search_query: "")
      |> assign(search_form: to_form(%{"query" => ""}, as: :search))}
+  end
+
+  def handle_params(params, _uri, socket) do
+    query = params["query"] || ""
+
+    {:noreply,
+     socket
+     |> assign(jobs: load_jobs(query))
+     |> assign(search_query: query)
+     |> assign(search_form: to_form(%{"query" => query}, as: :search))}
+  end
+
+  defp load_jobs(query) do
+    if String.trim(query) == "" do
+      Jobs.list_all_visible_jobs()
+    else
+      Jobs.search_all_visible_jobs(query)
+    end
   end
 
   defp applied_job_ids_for_session(session) do
@@ -108,16 +125,13 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
   end
 
   def handle_event("search", %{"query" => query}, socket) do
-    jobs =
-      if String.trim(query) == "" do
-        Jobs.list_all_visible_jobs()
-      else
-        Jobs.search_all_visible_jobs(query)
-      end
+    {:noreply, push_patch(socket, to: careers_path(query))}
+  end
 
-    {:noreply,
-     socket
-     |> assign(jobs: jobs)
-     |> assign(search_query: query)}
+  defp careers_path(query) do
+    case String.trim(query) do
+      "" -> "/careers"
+      q -> "/careers?" <> URI.encode_query(%{"query" => q})
+    end
   end
 end

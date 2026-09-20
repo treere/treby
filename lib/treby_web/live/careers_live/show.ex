@@ -234,6 +234,7 @@ defmodule TrebyWeb.CareersLive.Show do
           </.button>
         </.card>
       </div>
+      <Layouts.public_footer />
     </div>
     """
   end

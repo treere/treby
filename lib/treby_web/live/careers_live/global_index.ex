@@ -120,6 +120,7 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
           </.link>
         </div>
       </div>
+      <Layouts.public_footer />
     </div>
     """
   end

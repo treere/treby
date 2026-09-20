@@ -36,6 +36,8 @@ defmodule TrebyWeb.HomeLiveTest do
 
       assert html =~ "Modern applicant tracking"
       assert html =~ "All rights reserved"
+      assert html =~ ~s(href="/terms")
+      assert html =~ ~s(href="/privacy")
     end
   end
 end

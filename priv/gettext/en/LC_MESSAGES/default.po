@@ -33,8 +33,8 @@ msgstr ""
 msgid "Analytics"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:889
-#: lib/treby_web/components/layouts.ex:901
+#: lib/treby_web/components/layouts.ex:950
+#: lib/treby_web/components/layouts.ex:962
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr ""
@@ -103,26 +103,26 @@ msgstr ""
 #: lib/treby_web/components/layouts.ex:187
 #: lib/treby_web/components/layouts.ex:393
 #: lib/treby_web/components/layouts.ex:401
-#: lib/treby_web/components/layouts.ex:579
-#: lib/treby_web/components/layouts.ex:667
+#: lib/treby_web/components/layouts.ex:640
+#: lib/treby_web/components/layouts.ex:728
 #: lib/treby_web/live/candidate_portal_live/settings.ex:55
 #: lib/treby_web/live/settings_live/index.ex:46
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:896
+#: lib/treby_web/components/layouts.ex:957
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:884
+#: lib/treby_web/components/layouts.ex:945
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr ""
 
 #: lib/treby_web/components/core_components.ex:94
-#: lib/treby_web/components/layouts.ex:875
+#: lib/treby_web/components/layouts.ex:936
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr ""
@@ -132,7 +132,7 @@ msgstr ""
 msgid "A better way to hire"
 msgstr ""
 
-#: lib/treby_web/live/home_live.ex:188
+#: lib/treby_web/components/layouts.ex:578
 #, elixir-autogen, elixir-format
 msgid "All rights reserved"
 msgstr ""
@@ -214,7 +214,7 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
-#: lib/treby_web/live/home_live.ex:166
+#: lib/treby_web/components/layouts.ex:538
 #, elixir-autogen, elixir-format
 msgid "Modern applicant tracking for growing teams."
 msgstr ""
@@ -655,7 +655,7 @@ msgstr ""
 msgid "Failed to save calendar connection"
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:472
+#: lib/treby_web/live/careers_live/apply.ex:473
 #: lib/treby_web/live/import_live/index.ex:485
 #, elixir-autogen, elixir-format
 msgid "File is too large (max 10MB)"
@@ -958,8 +958,8 @@ msgstr ""
 msgid "Notification Preferences"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:756
-#: lib/treby_web/components/layouts.ex:772
+#: lib/treby_web/components/layouts.ex:817
+#: lib/treby_web/components/layouts.ex:833
 #: lib/treby_web/live/notifications_live.ex:77
 #, elixir-autogen, elixir-format
 msgid "Notifications"
@@ -1469,8 +1469,8 @@ msgstr ""
 msgid "Customize your career page"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:558
-#: lib/treby_web/components/layouts.ex:646
+#: lib/treby_web/components/layouts.ex:619
+#: lib/treby_web/components/layouts.ex:707
 #: lib/treby_web/live/dashboard_live.ex:171
 #, elixir-autogen, elixir-format
 msgid "Dashboard"
@@ -1787,7 +1787,7 @@ msgstr ""
 #: lib/treby_web/live/candidates_live/index.ex:802
 #: lib/treby_web/live/candidates_live/show.ex:1095
 #: lib/treby_web/live/candidates_live/show.ex:1161
-#: lib/treby_web/live/careers_live/apply.ex:330
+#: lib/treby_web/live/careers_live/apply.ex:331
 #: lib/treby_web/live/jobs_live/new.ex:553
 #: lib/treby_web/live/jobs_live/show.ex:1209
 #: lib/treby_web/live/jobs_live/show.ex:1318
@@ -1982,7 +1982,7 @@ msgstr ""
 msgid "Failed to send invite. Email may already be invited."
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:400
+#: lib/treby_web/live/careers_live/apply.ex:401
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Failed to submit application"
 msgstr ""
@@ -2287,7 +2287,7 @@ msgid "Timezone"
 msgstr ""
 
 #: lib/treby_web/components/layouts.ex:60
-#: lib/treby_web/components/layouts.ex:607
+#: lib/treby_web/components/layouts.ex:668
 #, elixir-autogen, elixir-format
 msgid "Toggle navigation"
 msgstr ""
@@ -2434,7 +2434,7 @@ msgstr ""
 msgid "Edit Candidate"
 msgstr ""
 
-#: lib/treby_web/live/home_live.ex:160
+#: lib/treby_web/components/layouts.ex:532
 #, elixir-autogen, elixir-format
 msgid "Footer"
 msgstr ""
@@ -2528,8 +2528,8 @@ msgstr ""
 msgid "Merge into one"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:565
-#: lib/treby_web/components/layouts.ex:653
+#: lib/treby_web/components/layouts.ex:626
+#: lib/treby_web/components/layouts.ex:714
 #: lib/treby_web/live/candidate_portal_live/messages.ex:54
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Messages"
@@ -3744,7 +3744,7 @@ msgstr ""
 msgid "One of the profiles was already merged"
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:480
+#: lib/treby_web/live/careers_live/apply.ex:481
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Only one file is allowed"
 msgstr ""
@@ -3832,7 +3832,7 @@ msgstr ""
 msgid "Undid a profile merge"
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:481
+#: lib/treby_web/live/careers_live/apply.ex:482
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Upload error: %{reason}"
 msgstr ""
@@ -3858,12 +3858,12 @@ msgstr ""
 msgid "We've sent you an offer. You can review it in your messages."
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:409
+#: lib/treby_web/live/careers_live/apply.ex:410
 #, elixir-autogen, elixir-format
 msgid "Welcome - %{title}"
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:418
+#: lib/treby_web/live/careers_live/apply.ex:419
 #, elixir-autogen, elixir-format
 msgid "Welcome! Thank you for applying for %{title}. We've received your application and will review it shortly. You can use this portal to communicate with our team."
 msgstr ""
@@ -3910,8 +3910,8 @@ msgstr ""
 msgid "Apply Now"
 msgstr ""
 
+#: lib/treby_web/components/layouts.ex:552
 #: lib/treby_web/live/home_live.ex:33
-#: lib/treby_web/live/home_live.ex:180
 #, elixir-autogen, elixir-format
 msgid "Careers"
 msgstr ""
@@ -3922,7 +3922,7 @@ msgstr ""
 msgid "Contract"
 msgstr ""
 
-#: lib/treby_web/live/home_live.ex:171
+#: lib/treby_web/components/layouts.ex:543
 #, elixir-autogen, elixir-format
 msgid "Discover"
 msgstr ""
@@ -4032,7 +4032,7 @@ msgstr ""
 msgid "You have already applied to this position."
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:633
+#: lib/treby_web/components/layouts.ex:694
 #, elixir-autogen, elixir-format
 msgid "Close navigation"
 msgstr ""
@@ -4064,7 +4064,7 @@ msgstr ""
 msgid "Didn't receive it? Check spam or correct your email."
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:476
+#: lib/treby_web/live/careers_live/apply.ex:477
 #, elixir-autogen, elixir-format, fuzzy
 msgid "File type not accepted (use PDF, DOC, or DOCX). If you have a photo, convert it to PDF or contact support."
 msgstr ""
@@ -4081,7 +4081,7 @@ msgstr ""
 msgid "Not selected"
 msgstr ""
 
-#: lib/treby_web/live/careers_live/apply.ex:307
+#: lib/treby_web/live/careers_live/apply.ex:308
 #, elixir-autogen, elixir-format
 msgid "Please fix the resume upload or remove the file to apply without a CV."
 msgstr ""
@@ -4470,7 +4470,7 @@ msgstr ""
 msgid "User Agent:"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:869
+#: lib/treby_web/components/layouts.ex:930
 #: lib/treby_web/live/notifications_live.ex:201
 #: lib/treby_web/live/settings_live/audit_log.ex:259
 #, elixir-autogen, elixir-format, fuzzy
@@ -4926,7 +4926,7 @@ msgstr ""
 msgid "Invalid retention value"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:780
+#: lib/treby_web/components/layouts.ex:841
 #, elixir-autogen, elixir-format
 msgid "Mark all read"
 msgstr ""
@@ -5399,8 +5399,8 @@ msgstr ""
 msgid "Pending actions"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:572
-#: lib/treby_web/components/layouts.ex:660
+#: lib/treby_web/components/layouts.ex:633
+#: lib/treby_web/components/layouts.ex:721
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Schedule"
 msgstr ""
@@ -5469,4 +5469,14 @@ msgstr ""
 #: lib/treby_web/live/careers_live/index.ex:67
 #, elixir-autogen, elixir-format
 msgid "We couldn't find that company"
+msgstr ""
+
+#: lib/treby_web/components/layouts.ex:570
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Privacy"
+msgstr ""
+
+#: lib/treby_web/components/layouts.ex:561
+#, elixir-autogen, elixir-format
+msgid "Terms"
 msgstr ""

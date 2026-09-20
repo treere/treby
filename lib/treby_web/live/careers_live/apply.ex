@@ -279,6 +279,7 @@ defmodule TrebyWeb.CareersLive.Apply do
           <% end %>
         </.card>
       </div>
+      <Layouts.public_footer />
     </div>
     """
   end

@@ -139,9 +139,16 @@ The system SHALL guide candidates applying to multiple positions with prefill an
 - **AND** it offers a "Browse all open positions" link to the global `/careers` page (no list of existing company slugs is shown)
 
 ### Requirement: Public career page content
-The company description shown at the top of the public career page is authored as plain Markdown in Settings → Brand and rendered as sanitized HTML (headings, lists, links, emphasis). The textarea carries a short hint that Markdown is supported.
+The system SHALL author the company description shown at the top of the public career page as plain Markdown in Settings → Brand and render it as sanitized HTML (headings, lists, links, emphasis). The textarea SHALL carry a short hint that Markdown is supported.
 
 #### Scenario: Markdown company description
 - **WHEN** a company description contains Markdown (e.g. a list or a link)
 - **THEN** the career page top shows it rendered (list bullets, clickable link)
 - **AND** any raw HTML/script content is stripped
+
+### Requirement: Public career footer
+Public career pages (tenant index, global index, job detail, application form) SHALL render the shared public footer so the legal pages are reachable from them.
+
+#### Scenario: Legal links on career pages
+- **WHEN** a visitor views any public career page
+- **THEN** the footer links to `/terms` and `/privacy`

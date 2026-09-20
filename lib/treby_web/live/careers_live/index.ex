@@ -171,6 +171,7 @@ defmodule TrebyWeb.CareersLive.Index do
           </div>
         <% end %>
       </div>
+      <Layouts.public_footer />
     </div>
     """
   end

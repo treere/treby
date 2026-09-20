@@ -1,8 +1,10 @@
 # AI Agent
 
+## Purpose
+
 The Treby AI assistant: a per-turn specialized multi-agent system that helps the hiring team manage jobs, candidates, pipeline, analytics, communications and workspace settings from inside the app.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Specialized agent profiles
 The assistant SHALL select a specialized agent profile per turn from a fixed set (recruiter, analytics, comms, admin) and SHALL use only that profile's tools and system prompt. Classification MAY additionally yield `:out_of_domain` or `:malicious`; in those cases the chat SHALL refuse the request and SHALL NOT run the agent loop or any tool.

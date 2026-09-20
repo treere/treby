@@ -1,8 +1,10 @@
 # AI Response Control
 
+## Purpose
+
 Outbound safety controller for the Treby AI assistant. After the agent produces its final answer, the controller reviews the reply — blocking inappropriate content, normalizing formatting, and performing a best-effort check for data-exfiltration or security issues — before the message is persisted and broadcast.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Outbound controller reviews final reply
 After the agent produces a `:final_answer`, the system SHALL pass the reply (and the request context) to an outbound controller before persisting and broadcasting it. The controller SHALL decide whether to pass, block, or sanitize the reply and MAY normalize formatting.

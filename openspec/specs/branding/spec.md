@@ -7,7 +7,7 @@ Allow admins to customize the appearance and branding of the public career page.
 ## Requirements
 
 ### Requirement: Career page branding
-The Brand settings form contains only title, subtitle (short description), about (long Markdown story), and save — no logo upload, no color picker, no Published toggle. Branding is always live. An Edit/Preview tab switcher shows the rendered result (title, subtitle, about) exactly as the public page displays it.
+The system SHALL keep the Brand settings form limited to title, subtitle (short description), about (long Markdown story), and save — no logo upload, no color picker, no Published toggle. Branding SHALL always be live. An Edit/Preview tab switcher SHALL show the rendered result (title, subtitle, about) exactly as the public page displays it.
 
 #### Scenario: Set page text
 - **WHEN** an admin sets title, subtitle, and about

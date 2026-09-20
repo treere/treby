@@ -188,10 +188,14 @@ defmodule Treby.Scorecards do
         scorecards
         |> Enum.flat_map(fn sc -> Map.to_list(sc.scores || %{}) end)
         |> Enum.group_by(fn {key, _} -> key end)
-        |> Enum.map(fn {key, entries} ->
+        |> Enum.flat_map(fn {key, entries} ->
           values = Enum.map(entries, fn {_, v} -> v end) |> Enum.filter(&is_number/1)
-          avg = if values == [], do: 0, else: Enum.sum(values) / length(values)
-          {key, avg}
+
+          if values == [] do
+            []
+          else
+            [{key, Enum.sum(values) / length(values)}]
+          end
         end)
         |> Map.new()
 

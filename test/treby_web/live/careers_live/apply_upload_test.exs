@@ -122,6 +122,22 @@ defmodule TrebyWeb.CareersLive.ApplyUploadTest do
       assert Treby.Repo.get_by(Treby.Candidates.Candidate, email: email) == nil
     end
 
+    test "empty name and email show per-field can't be blank, not just a flash", %{conn: conn} do
+      {tenant, job} = setup_tenant_with_job()
+      {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/careers/#{job.id}/apply")
+
+      html =
+        view
+        |> form("#apply-form", %{
+          "application" => %{"name" => "", "email" => "", "phone" => ""}
+        })
+        |> render_submit()
+
+      assert html =~ "input-error"
+      assert html =~ "be blank"
+      refute html =~ "Thank you!"
+    end
+
     test "help block shows configurable email when present", %{conn: conn} do
       {tenant, job} = setup_tenant_with_job("help@example.com")
       {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/careers/#{job.id}/apply")

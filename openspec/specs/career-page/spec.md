@@ -61,6 +61,7 @@ The system SHALL provide an application form for each job. Upon submission, the 
 #### Scenario: Submit with missing required fields
 - **WHEN** a visitor submits an application without required fields
 - **THEN** the form shows validation errors
+- **AND** each offending field is highlighted and shows its message (e.g. "can't be blank") below the input, even when HTML5 validation is bypassed
 
 ### Requirement: Thank you page
 The system SHALL show a confirmation after application submission.

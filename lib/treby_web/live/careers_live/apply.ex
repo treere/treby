@@ -306,8 +306,11 @@ defmodule TrebyWeb.CareersLive.Apply do
         {:ok, candidate} ->
           handle_candidate_found(socket, candidate, job, custom_fields_values, application_params)
 
-        {:error, _changeset} ->
-          {:noreply, put_flash(socket, :error, gettext("Please review the errors below"))}
+        {:error, changeset} ->
+          {:noreply,
+           socket
+           |> assign(form: to_form(changeset, as: :application))
+           |> put_flash(:error, gettext("Please review the errors below"))}
       end
     end
   end

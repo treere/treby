@@ -2250,7 +2250,7 @@ msgstr ""
 msgid "Search candidates..."
 msgstr ""
 
-#: lib/treby_web/live/careers_live/index.ex:80
+#: lib/treby_web/live/careers_live/index.ex:114
 #, elixir-autogen, elixir-format
 msgid "Search positions..."
 msgstr ""
@@ -2586,7 +2586,7 @@ msgstr ""
 msgid "Nothing to schedule"
 msgstr ""
 
-#: lib/treby_web/live/careers_live/index.ex:89
+#: lib/treby_web/live/careers_live/index.ex:123
 #, elixir-autogen, elixir-format
 msgid "Open Positions"
 msgstr ""
@@ -2683,7 +2683,7 @@ msgid "Scorecard"
 msgstr ""
 
 #: lib/treby_web/live/careers_live/global_index.ex:65
-#: lib/treby_web/live/careers_live/index.ex:83
+#: lib/treby_web/live/careers_live/index.ex:117
 #: lib/treby_web/live/settings_live/audit_log.ex:179
 #, elixir-autogen, elixir-format
 msgid "Search"
@@ -3899,7 +3899,7 @@ msgid "Application not found."
 msgstr ""
 
 #: lib/treby_web/live/careers_live/global_index.ex:99
-#: lib/treby_web/live/careers_live/index.ex:120
+#: lib/treby_web/live/careers_live/index.ex:154
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Applied ✓"
 msgstr ""
@@ -4211,7 +4211,7 @@ msgstr ""
 msgid "Cancel Interview"
 msgstr ""
 
-#: lib/treby_web/live/careers_live/index.ex:102
+#: lib/treby_web/live/careers_live/index.ex:136
 #, elixir-autogen, elixir-format
 msgid "Check back later for new opportunities."
 msgstr ""
@@ -4358,7 +4358,7 @@ msgstr ""
 msgid "No interviews scheduled yet — interviews will appear here once scheduled."
 msgstr ""
 
-#: lib/treby_web/live/careers_live/index.ex:101
+#: lib/treby_web/live/careers_live/index.ex:135
 #, elixir-autogen, elixir-format
 msgid "No open positions at this time."
 msgstr ""
@@ -4374,7 +4374,7 @@ msgid "No pipeline data"
 msgstr ""
 
 #: lib/treby_web/live/careers_live/global_index.ex:75
-#: lib/treby_web/live/careers_live/index.ex:95
+#: lib/treby_web/live/careers_live/index.ex:129
 #, elixir-autogen, elixir-format
 msgid "No positions match your search."
 msgstr ""
@@ -4445,7 +4445,7 @@ msgid "Total: %{count}"
 msgstr ""
 
 #: lib/treby_web/live/careers_live/global_index.ex:76
-#: lib/treby_web/live/careers_live/index.ex:96
+#: lib/treby_web/live/careers_live/index.ex:130
 #, elixir-autogen, elixir-format
 msgid "Try a different keyword."
 msgstr ""
@@ -4683,7 +4683,7 @@ msgid "Saving..."
 msgstr ""
 
 #: lib/treby_web/live/careers_live/global_index.ex:65
-#: lib/treby_web/live/careers_live/index.ex:83
+#: lib/treby_web/live/careers_live/index.ex:117
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Searching..."
 msgstr ""
@@ -5449,4 +5449,24 @@ msgstr ""
 #: lib/treby_web/controllers/candidate_otp_controller.ex:120
 #, elixir-autogen, elixir-format
 msgid "Too many attempts. Request a new code."
+msgstr ""
+
+#: lib/treby_web/live/careers_live/index.ex:75
+#, elixir-autogen, elixir-format
+msgid "Browse all open positions"
+msgstr ""
+
+#: lib/treby_web/live/careers_live/index.ex:82
+#, elixir-autogen, elixir-format
+msgid "Go to homepage"
+msgstr ""
+
+#: lib/treby_web/live/careers_live/index.ex:70
+#, elixir-autogen, elixir-format
+msgid "The company you're looking for doesn't exist or has moved. Browse all open positions instead."
+msgstr ""
+
+#: lib/treby_web/live/careers_live/index.ex:67
+#, elixir-autogen, elixir-format
+msgid "We couldn't find that company"
 msgstr ""

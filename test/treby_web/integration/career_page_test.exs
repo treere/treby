@@ -37,6 +37,17 @@ defmodule TrebyWeb.CareerPageTest do
     {tenant, career_page, job}
   end
 
+  describe "unknown tenant" do
+    test "shows a friendly not-found page linking to all positions", %{conn: conn} do
+      {:ok, _view, html} =
+        live(conn, "/does-not-exist-#{System.unique_integer([:positive])}/careers")
+
+      assert html =~ "find that company"
+      assert html =~ "Browse all open positions"
+      assert html =~ ~s(href="/careers")
+    end
+  end
+
   describe "career page" do
     test "public career page lists open jobs", %{conn: conn} do
       {tenant, _career_page, job} = setup_tenant_with_career_page()

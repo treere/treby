@@ -133,6 +133,11 @@ The system SHALL guide candidates applying to multiple positions with prefill an
 - **WHEN** an authenticated candidate who has already applied to that job views `/:tenant_slug/careers/:job_id`
 - **THEN** the "Apply Now" button is replaced with "Already applied — View status" linking to `/:tenant_slug/portal`
 
+#### Scenario: Unknown company slug
+- **WHEN** a visitor opens `/:unknown_slug/careers` for a company that does not exist
+- **THEN** a friendly page explains the company could not be found
+- **AND** it offers a "Browse all open positions" link to the global `/careers` page (no list of existing company slugs is shown)
+
 ### Requirement: Public career page content
 The company description shown at the top of the public career page is authored as plain Markdown in Settings → Brand and rendered as sanitized HTML (headings, lists, links, emphasis). The textarea carries a short hint that Markdown is supported.
 

@@ -10,23 +10,30 @@ defmodule TrebyWeb.CandidateOtpController do
   Processes the OTP request. Generates a code and emails it to the candidate.
   Always shows the same success message to prevent email enumeration.
   """
-  def create(conn, %{"tenant_slug" => slug, "email" => email}) do
+  def create(conn, %{"tenant_slug" => slug} = params) do
     tenant = Tenants.get_tenant_by_slug!(slug)
-    email = email |> String.trim() |> String.downcase()
-    ip = Treby.Audit.attrs_from_conn(conn)[:ip] || "unknown"
+    email = params["email"] |> to_string() |> String.trim() |> String.downcase()
 
-    with :allow <- Treby.RateLimit.check(:otp_request_ip, ip),
-         :allow <- Treby.RateLimit.check(:otp_request_email, "#{tenant.id}:#{email}") do
-      do_create(conn, tenant, slug, email)
+    if email == "" do
+      conn
+      |> put_flash(:error, gettext("Please enter your email address"))
+      |> redirect(to: "/#{slug}/portal/login")
     else
-      {:deny, _retry_after_ms} ->
-        conn
-        |> put_session("otp_email", email)
-        |> put_flash(
-          :rate_limit,
-          gettext("Too many code requests. Please wait a few minutes and try again.")
-        )
-        |> redirect(to: "/#{slug}/portal/login")
+      ip = Treby.Audit.attrs_from_conn(conn)[:ip] || "unknown"
+
+      with :allow <- Treby.RateLimit.check(:otp_request_ip, ip),
+           :allow <- Treby.RateLimit.check(:otp_request_email, "#{tenant.id}:#{email}") do
+        do_create(conn, tenant, slug, email)
+      else
+        {:deny, _retry_after_ms} ->
+          conn
+          |> put_session("otp_email", email)
+          |> put_flash(
+            :rate_limit,
+            gettext("Too many code requests. Please wait a few minutes and try again.")
+          )
+          |> redirect(to: "/#{slug}/portal/login")
+      end
     end
   end
 
@@ -73,10 +80,24 @@ defmodule TrebyWeb.CandidateOtpController do
   Verifies the OTP code and creates a candidate session with a limited lifetime.
   """
   def verify(conn, %{"tenant_slug" => slug} = params) do
-    email = get_session(conn, "otp_email") || Map.get(params, "email", "")
+    email =
+      (get_session(conn, "otp_email") || Map.get(params, "email", ""))
+      |> to_string()
+      |> String.trim()
+
     tenant = Tenants.get_tenant_by_slug!(slug)
     ip = Treby.Audit.attrs_from_conn(conn)[:ip] || "unknown"
 
+    if email == "" do
+      conn
+      |> put_flash(:error, gettext("Please enter your email address"))
+      |> redirect(to: "/#{slug}/portal/login")
+    else
+      verify_with_rate_limit(conn, tenant, slug, email, params, ip)
+    end
+  end
+
+  defp verify_with_rate_limit(conn, tenant, slug, email, params, ip) do
     case Treby.RateLimit.check(:otp_verify_ip, ip) do
       :allow ->
         do_verify(conn, tenant, slug, email, params)

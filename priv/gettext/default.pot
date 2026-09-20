@@ -395,8 +395,8 @@ msgstr ""
 msgid "Check your email"
 msgstr ""
 
-#: lib/treby_web/controllers/candidate_otp_controller.ex:55
-#: lib/treby_web/controllers/candidate_otp_controller.ex:67
+#: lib/treby_web/controllers/candidate_otp_controller.ex:62
+#: lib/treby_web/controllers/candidate_otp_controller.ex:74
 #, elixir-autogen, elixir-format
 msgid "Check your email for your login code"
 msgstr ""
@@ -594,8 +594,8 @@ msgstr ""
 #: lib/treby_web/controllers/registration_html/setup.html.heex:28
 #: lib/treby_web/controllers/session_html/new.html.heex:32
 #: lib/treby_web/controllers/session_html/new.html.heex:39
-#: lib/treby_web/live/candidate_portal_live/request_link.ex:45
 #: lib/treby_web/live/candidate_portal_live/request_link.ex:52
+#: lib/treby_web/live/candidate_portal_live/request_link.ex:59
 #: lib/treby_web/live/candidate_portal_live/verify.ex:153
 #: lib/treby_web/live/candidate_portal_live/verify.ex:160
 #, elixir-autogen, elixir-format
@@ -742,8 +742,8 @@ msgstr ""
 msgid "Invalid file type. Please upload a CSV file"
 msgstr ""
 
-#: lib/treby_web/controllers/candidate_otp_controller.ex:121
-#: lib/treby_web/controllers/candidate_otp_controller.ex:131
+#: lib/treby_web/controllers/candidate_otp_controller.ex:142
+#: lib/treby_web/controllers/candidate_otp_controller.ex:152
 #: lib/treby_web/controllers/registration_controller.ex:82
 #, elixir-autogen, elixir-format
 msgid "Invalid or expired code. Please try again."
@@ -4036,7 +4036,7 @@ msgstr ""
 msgid "Code valid 10 minutes — check spam folder, sender noreply@treby.app."
 msgstr ""
 
-#: lib/treby_web/live/candidate_portal_live/request_link.ex:68
+#: lib/treby_web/live/candidate_portal_live/request_link.ex:75
 #: lib/treby_web/live/candidate_portal_live/verify.ex:176
 #, elixir-autogen, elixir-format
 msgid "Code valid 10 minutes — check spam folder, sender noreply@treby.app. You can request a new code after 60 seconds."
@@ -4110,7 +4110,7 @@ msgstr ""
 msgid "Uploading..."
 msgstr ""
 
-#: lib/treby_web/controllers/candidate_otp_controller.ex:61
+#: lib/treby_web/controllers/candidate_otp_controller.ex:68
 #, elixir-autogen, elixir-format
 msgid "Wait 60 seconds before requesting another code"
 msgstr ""
@@ -4506,12 +4506,12 @@ msgstr ""
 msgid "The job you're looking for has been closed or removed."
 msgstr ""
 
-#: lib/treby_web/controllers/candidate_otp_controller.ex:27
+#: lib/treby_web/controllers/candidate_otp_controller.ex:33
 #, elixir-autogen, elixir-format
 msgid "Too many code requests. Please wait a few minutes and try again."
 msgstr ""
 
-#: lib/treby_web/controllers/candidate_otp_controller.ex:88
+#: lib/treby_web/controllers/candidate_otp_controller.ex:109
 #, elixir-autogen, elixir-format
 msgid "Too many verification attempts. Please wait a minute and try again."
 msgstr ""
@@ -4687,7 +4687,7 @@ msgstr ""
 msgid "Send Request"
 msgstr ""
 
-#: lib/treby_web/live/candidate_portal_live/request_link.ex:63
+#: lib/treby_web/live/candidate_portal_live/request_link.ex:70
 #: lib/treby_web/live/candidate_portal_live/verify.ex:171
 #, elixir-autogen, elixir-format
 msgid "Send login code"
@@ -4698,7 +4698,7 @@ msgstr ""
 #: lib/treby_web/controllers/registration_html/verify.html.heex:65
 #: lib/treby_web/live/candidate_portal_live/index.ex:359
 #: lib/treby_web/live/candidate_portal_live/message_thread.ex:118
-#: lib/treby_web/live/candidate_portal_live/request_link.ex:61
+#: lib/treby_web/live/candidate_portal_live/request_link.ex:68
 #: lib/treby_web/live/candidate_portal_live/verify.ex:113
 #: lib/treby_web/live/candidate_portal_live/verify.ex:169
 #: lib/treby_web/live/candidates_live/show.ex:795
@@ -5439,8 +5439,8 @@ msgstr ""
 msgid "Too many login attempts. Try again in %{time}."
 msgstr ""
 
-#: lib/treby_web/controllers/candidate_otp_controller.ex:114
-#: lib/treby_web/controllers/candidate_otp_controller.ex:120
+#: lib/treby_web/controllers/candidate_otp_controller.ex:135
+#: lib/treby_web/controllers/candidate_otp_controller.ex:141
 #, elixir-autogen, elixir-format
 msgid "Too many attempts. Request a new code."
 msgstr ""
@@ -5479,4 +5479,10 @@ msgstr ""
 #: lib/treby_web/live/error_live/not_found.ex:25
 #, elixir-autogen, elixir-format
 msgid "Browse all positions"
+msgstr ""
+
+#: lib/treby_web/controllers/candidate_otp_controller.ex:19
+#: lib/treby_web/controllers/candidate_otp_controller.ex:93
+#, elixir-autogen, elixir-format
+msgid "Please enter your email address"
 msgstr ""

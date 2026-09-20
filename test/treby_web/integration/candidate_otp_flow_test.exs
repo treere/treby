@@ -75,6 +75,34 @@ defmodule TrebyWeb.CandidateOtpFlowTest do
       assert_no_email_sent()
     end
 
+    test "missing or blank email is rejected without sending a code", %{conn: conn} do
+      {tenant, _candidate} = setup_tenant_and_candidate()
+
+      conn = post(conn, "/#{tenant.slug}/portal/login", %{})
+      assert redirected_to(conn) == "/#{tenant.slug}/portal/login"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Please enter your email address"
+
+      blank = post(conn, "/#{tenant.slug}/portal/login", %{"email" => "   "})
+      assert redirected_to(blank) == "/#{tenant.slug}/portal/login"
+      assert Phoenix.Flash.get(blank.assigns.flash, :error) == "Please enter your email address"
+
+      assert_no_email_sent()
+    end
+
+    test "login page renders the blank-email error", %{conn: conn} do
+      {tenant, _candidate} = setup_tenant_and_candidate()
+      conn = post(conn, "/#{tenant.slug}/portal/login", %{"email" => ""})
+      page = get(conn, "/#{tenant.slug}/portal/login")
+      assert html_response(page, 200) =~ "Please enter your email address"
+    end
+
+    test "verify without an email in session redirects to login", %{conn: conn} do
+      {tenant, _candidate} = setup_tenant_and_candidate()
+      conn = post(conn, "/#{tenant.slug}/portal/verify", %{"code" => "123456"})
+      assert redirected_to(conn) == "/#{tenant.slug}/portal/login"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Please enter your email address"
+    end
+
     test "verifies a valid code and creates a session", %{conn: conn} do
       {tenant, candidate} = setup_tenant_and_candidate()
 

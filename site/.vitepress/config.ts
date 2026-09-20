@@ -1,6 +1,8 @@
 import { defineConfig } from "vitepress"
+import { withMermaid } from "vitepress-plugin-mermaid"
 
-export default defineConfig({
+export default withMermaid(
+  defineConfig({
   base: "/treby/",
   title: "Treby",
   description: "Open-source Applicant Tracking System built with Phoenix LiveView",
@@ -82,5 +84,6 @@ export default defineConfig({
       message: "Built with Phoenix LiveView",
       copyright: "MIT License",
     },
-  },
-})
+    },
+  }),
+)

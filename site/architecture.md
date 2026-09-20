@@ -4,26 +4,17 @@
 
 Treby is a web application where each company (tenant) has fully isolated data. A company sees only its own jobs, candidates, and pipelines.
 
-```
-┌───────────────────────────────────────────────────────┐
-│                     Browser                            │
-│                  (your computer)                       │
-├───────────────────────────────────────────────────────┤
-│                 Treby Application                      │
-│         interactive pages + real-time                  │
-│                updates                                 │
-├───────────────────────────────────────────────────────┤
-│                  Treby Logic                           │
-│   Users │ Pipeline │ Interviews │ Scorecards │ Portal   │
-│   Jobs  │Candidates│ Calendars  │ Messages   │ Sources  │
-├────────────────────────────────────────────────────────┤
-│                     Database                           │
-│         (single database, data isolated                │
-│          per company)                                  │
-├────────────────────────────────────────────────────────┤
-│              External Services                          │
-│  File Storage (CVs, logos) │ Calendars │ Email         │
-└────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  Browser["Browser<br/>(your computer)"]
+  App["Treby Application<br/>interactive pages + real-time updates"]
+  Logic["Treby Logic<br/>Users · Pipeline · Interviews · Scorecards · Portal<br/>Jobs · Candidates · Calendars · Messages · Sources"]
+  DB["Database<br/>single database, data isolated per company"]
+  Ext["External Services<br/>File Storage (CVs, logos) · Calendars · Email"]
+
+  Browser --> App --> Logic
+  Logic --> DB
+  Logic --> Ext
 ```
 
 All pages are interactive and update without reloading the browser. When someone moves a candidate in the pipeline, every teammate sees the move in real time.
@@ -79,25 +70,24 @@ Treby is built with Phoenix LiveView, a PostgreSQL database, S3 storage, email v
 
 ## Simplified Data Model
 
-```
-Companies
-  ├── Users (admin / member)
-  │   ├── Calendar connections
-  │   └── Weekly availability
-  ├── Pipelines (default + templates)
-  │   └── Stages (order, color, type, scorecards)
-  │       └── Applications (job, candidate, stage, read status, source)
-  │           ├── Notes and star-rated feedback
-  │           └── Interviews (date, status, meeting link)
-  │               └── Scorecards (one per examiner)
-  ├── Open Positions
-  ├── Candidates (profile shared across multiple positions)
-  │   └── Portal conversations and messages
-  ├── Candidate Sources
-  ├── Custom Fields
-  ├── Career Pages (title, description, color, logo)
-  ├── Message Templates per Stage
-  └── Scorecard Templates
+```mermaid
+flowchart TD
+  Company["Company"]
+  Company --> Users["Users (admin / member)"]
+  Users --> Calendars["Calendar connections"]
+  Users --> Availability["Weekly availability"]
+  Company --> Pipelines["Pipelines (default + templates)"]
+  Pipelines --> Stages["Stages (order, color, type, scorecards)"]
+  Stages --> Applications["Applications (job, candidate, stage, read status, source)"]
+  Applications --> Notes["Notes and star-rated feedback"]
+  Applications --> Interviews["Interviews (date, status, meeting link)"]
+  Interviews --> Scorecards["Scorecards (one per examiner)"]
+  Company --> Positions["Open positions"]
+  Company --> Candidates["Candidates (profile shared across multiple positions)"]
+  Candidates --> Conversations["Portal conversations and messages"]
+  Company --> Fields["Custom fields"]
+  Company --> Career["Career pages (title, description, color, logo)"]
+  Company --> Templates["Message templates per stage & scorecard templates"]
 ```
 
 ## Integrations

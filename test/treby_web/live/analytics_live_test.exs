@@ -120,7 +120,7 @@ defmodule TrebyWeb.AnalyticsLiveTest do
         |> Repo.insert()
 
       conn_a = login_user(conn, user_a)
-      {:ok, view, _html} = live(conn_a, "/#{tenant.slug}/app/analytics")
+      {:ok, view, _html} = live(conn_a, "/#{tenant_a.slug}/app/analytics")
       html = render(view)
       # should not see tenant B's data
       refute html =~ tenant_b.slug

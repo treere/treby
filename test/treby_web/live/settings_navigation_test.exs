@@ -46,7 +46,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     test "admin sees five groups in fixed order and all items including Message Queue", %{
       conn: conn
     } do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
 
@@ -79,7 +79,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "member sees reduced settings with callout and hidden empty groups", %{conn: conn} do
-      {_tenant, user} = setup_tenant("member")
+      {tenant, user} = setup_tenant("member")
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
 
@@ -95,7 +95,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "active item is highlighted with aria-current", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/pipeline")
 
@@ -105,7 +105,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "deep link to webhooks preserves active state", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/webhooks")
 
@@ -114,7 +114,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "message queue renders inside settings shell with active", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/messages-queue")
 
@@ -124,7 +124,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "company availability cross-link under Scheduling", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/team")
 
@@ -142,7 +142,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "personal settings accessible to member via default session", %{conn: conn} do
-      {_tenant, user} = setup_tenant("member")
+      {tenant, user} = setup_tenant("member")
       conn = login_user(conn, user)
 
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/calendar")
@@ -170,7 +170,7 @@ defmodule TrebyWeb.SettingsNavigationTest do
     end
 
     test "gear icon active on settings page", %{conn: conn} do
-      {_tenant, user} = setup_tenant("admin")
+      {tenant, user} = setup_tenant("admin")
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
 

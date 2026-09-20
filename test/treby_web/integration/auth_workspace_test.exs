@@ -165,7 +165,7 @@ defmodule TrebyWeb.AuthWorkspaceTest do
     end
 
     test "legacy /app still renders via session fallback", %{conn: conn} do
-      {_tenant, user} =
+      {tenant, user} =
         create_user(
           create_tenant("Legacy"),
           "legacy-#{System.unique_integer([:positive])}@test.com"

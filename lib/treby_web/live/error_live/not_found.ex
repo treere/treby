@@ -3,7 +3,11 @@ defmodule TrebyWeb.ErrorLive.NotFound do
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
-    {:ok, assign(socket, locale: socket.assigns.locale)}
+
+    {:ok,
+     socket
+     |> assign(current_tenant: socket.assigns[:current_tenant])
+     |> assign(locale: socket.assigns.locale)}
   end
 
   def render(assigns) do

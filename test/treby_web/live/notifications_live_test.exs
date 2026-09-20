@@ -40,6 +40,7 @@ defmodule TrebyWeb.NotificationsLiveTest do
 
   describe "auth and isolation" do
     test "redirects when not logged in", %{conn: conn} do
+      {tenant, _user} = setup_tenant_with_user()
       assert {:error, {:redirect, _}} = live(conn, "/#{tenant.slug}/app/notifications")
     end
 
@@ -62,7 +63,7 @@ defmodule TrebyWeb.NotificationsLiveTest do
         })
 
       conn1 = login(conn, user1)
-      {:ok, view, _} = live(conn1, "/#{tenant.slug}/app/notifications")
+      {:ok, view, _} = live(conn1, "/#{tenant1.slug}/app/notifications")
       html = render(view)
       assert html =~ "For user1"
       refute html =~ "For user2"

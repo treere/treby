@@ -87,8 +87,18 @@ defmodule TrebyWeb.JobsLive.Analytics do
           title={gettext("%{title} — Analytics", title: @job.title)}
           subtitle={gettext("Views and conversion for this position")}
           breadcrumbs={[
-            %{label: gettext("Jobs"), href: ~p"/app/jobs"},
-            %{label: @job.title, href: ~p"/app/jobs/#{@job.id}"},
+            %{
+              label: gettext("Jobs"),
+              href: if(@current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs")
+            },
+            %{
+              label: @job.title,
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/jobs/#{@job.id}",
+                  else: ~p"/app/jobs/#{@job.id}"
+                )
+            },
             %{label: gettext("Analytics")}
           ]}
         />

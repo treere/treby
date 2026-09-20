@@ -274,7 +274,7 @@ defmodule TrebyWeb.CandidatesMergeLiveTest do
       assert {:error, {:live_redirect, %{to: to}}} =
                live(conn, "/#{tenant.slug}/app/candidates/#{absorbed.id}")
 
-      assert to == "/app/candidates/#{primary.id}"
+      assert to == "/#{tenant.slug}/app/candidates/#{primary.id}"
 
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates/#{primary.id}")
       assert html =~ "Primary Person"

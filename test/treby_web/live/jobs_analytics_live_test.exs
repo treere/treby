@@ -69,16 +69,16 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
 
       # tenant A can view its own job analytics
       conn_a = login_user(conn, user_a)
-      {:ok, view, html} = live(conn_a, "/#{tenant.slug}/app/jobs/#{job_a.id}/analytics")
+      {:ok, view, html} = live(conn_a, "/#{tenant_a.slug}/app/jobs/#{job_a.id}/analytics")
       assert html =~ "Analytics"
       assert html =~ job_a.title
-      assert has_element?(view, "a[href='/app/jobs/#{job_a.id}']")
+      assert has_element?(view, "a[href='/#{tenant_a.slug}/app/jobs/#{job_a.id}']")
 
       # tenant B cannot view tenant A's job -> redirects to 404
       conn_b = login_user(build_conn(), user_b)
 
       assert {:error, {:redirect, %{to: "/404"}}} =
-               live(conn_b, "/#{tenant.slug}/app/jobs/#{job_a.id}/analytics")
+               live(conn_b, "/#{tenant_b.slug}/app/jobs/#{job_a.id}/analytics")
     end
 
     test "empty state shows No views yet", %{conn: conn} do
@@ -305,7 +305,7 @@ defmodule TrebyWeb.JobsAnalyticsLiveTest do
         })
 
       conn_a = login_user(conn, user_a)
-      {:ok, view, html} = live(conn_a, "/#{tenant.slug}/app/jobs/#{job_a.id}/analytics")
+      {:ok, view, html} = live(conn_a, "/#{tenant_a.slug}/app/jobs/#{job_a.id}/analytics")
       assert html =~ "<svg"
       assert has_element?(view, "#daily-views-chart")
     end

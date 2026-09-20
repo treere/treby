@@ -80,7 +80,8 @@ defmodule TrebyWeb.JobsLive.ShowPipelineTest do
   end
 
   defp job_show_live(conn, job) do
-    {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs/#{job.id}")
+    slug = Tenants.get_tenant!(job.tenant_id).slug
+    {:ok, view, _html} = live(conn, "/#{slug}/app/jobs/#{job.id}")
     view
   end
 

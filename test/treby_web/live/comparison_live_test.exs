@@ -66,7 +66,7 @@ defmodule TrebyWeb.ComparisonLive.IndexTest do
     conn = login_user(conn, user)
 
     {:ok, view, _html} =
-      live(conn, "/app/candidates/compare?ids=#{alice.id},#{bob.id}")
+      live(conn, "/#{tenant.slug}/app/candidates/compare?ids=#{alice.id},#{bob.id}")
 
     html = render(view)
 

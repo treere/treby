@@ -248,7 +248,11 @@ defmodule TrebyWeb.NotificationsLive do
     {:noreply,
      push_patch(socket,
        to:
-         ~p"/app/notifications?#{%{filter: socket.assigns.filter, type: socket.assigns.type_filter, search: search}}"
+         notifications_path(socket.assigns.current_tenant, %{
+           filter: socket.assigns.filter,
+           type: socket.assigns.type_filter,
+           search: search
+         })
      )}
   end
 
@@ -256,7 +260,11 @@ defmodule TrebyWeb.NotificationsLive do
     {:noreply,
      push_patch(socket,
        to:
-         ~p"/app/notifications?#{%{filter: socket.assigns.filter, type: type, search: socket.assigns.search}}"
+         notifications_path(socket.assigns.current_tenant, %{
+           filter: socket.assigns.filter,
+           type: type,
+           search: socket.assigns.search
+         })
      )}
   end
 

@@ -83,10 +83,21 @@ defmodule TrebyWeb.ScheduleLive.Index do
             )
           }
           breadcrumbs={[
-            %{label: gettext("Candidates"), href: ~p"/app/candidates"},
+            %{
+              label: gettext("Candidates"),
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+                )
+            },
             %{
               label: @application.candidate.name,
-              href: ~p"/app/candidates/#{@application.candidate_id}"
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates/#{@application.candidate_id}",
+                  else: ~p"/app/candidates/#{@application.candidate_id}"
+                )
             },
             %{label: gettext("Schedule Interview")}
           ]}

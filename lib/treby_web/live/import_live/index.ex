@@ -59,7 +59,14 @@ defmodule TrebyWeb.ImportLive.Index do
           title={gettext("Import Candidates")}
           subtitle={gettext("Upload a CSV file to bulk import candidates")}
           breadcrumbs={[
-            %{label: gettext("Candidates"), href: ~p"/app/candidates"},
+            %{
+              label: gettext("Candidates"),
+              href:
+                if(@current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates",
+                  else: ~p"/app/candidates"
+                )
+            },
             %{label: gettext("Import")}
           ]}
         />

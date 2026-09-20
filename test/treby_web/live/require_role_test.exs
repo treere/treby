@@ -32,7 +32,7 @@ defmodule TrebyWeb.RequireRoleTest do
     {tenant, user}
   end
 
-  @admin_pages ~w(pipeline fields team webhooks branding company-availability scorecards emails notifications audit-log data-privacy)
+  @admin_pages ~w(pipeline fields team webhooks branding company-availability scorecards emails notifications audit-log)
 
   test "member blocked on all admin settings (tenant slug path)", %{conn: conn} do
     {tenant, member} = tenant_with("member")
@@ -47,6 +47,13 @@ defmodule TrebyWeb.RequireRoleTest do
       assert to =~ tenant.slug or to =~ "choose-tenant" or to =~ "/app",
              "redirect for #{page} should go to tenant app or picker, got #{to}"
     end
+  end
+
+  test "member allowed on data-privacy (own data scope)", %{conn: conn} do
+    {tenant, member} = tenant_with("member")
+    conn = init_test_session(conn, %{"user_id" => member.id})
+    assert {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/data-privacy")
+    assert html =~ "Data"
   end
 
   test "admin passes on team page", %{conn: conn} do

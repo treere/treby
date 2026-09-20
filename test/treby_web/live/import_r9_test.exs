@@ -55,7 +55,7 @@ defmodule TrebyWeb.ImportR9Test do
     assert html =~ "Import Candidates"
     assert html =~ "No file selected"
 
-    # The handle_event for empty entries should not crash - we verify by checking the code handles [] 
+    # The handle_event for empty entries should not crash - we verify by checking the code handles []
     # and would show flash if triggered
     # Since we cannot easily trigger the hidden button, we just verify the view state
     assert true

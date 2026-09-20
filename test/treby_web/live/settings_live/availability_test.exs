@@ -58,7 +58,7 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
     end
 
     test "adds a new availability rule", %{conn: conn} do
-      {_tenant, user} = setup_user("admin")
+      {tenant, user} = setup_user("admin")
       {:ok, view, _html} = live(conn |> login(user), "/#{tenant.slug}/app/settings/availability")
 
       view |> element("button", "Add Availability") |> render_click()
@@ -79,7 +79,7 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
     end
 
     test "changing the timezone selector updates the user", %{conn: conn} do
-      {_tenant, user} = setup_user("admin")
+      {tenant, user} = setup_user("admin")
       {:ok, view, _html} = live(conn |> login(user), "/#{tenant.slug}/app/settings/availability")
 
       render_change(view, "update_timezone", %{"timezone" => "Europe/Rome"})
@@ -113,7 +113,7 @@ defmodule TrebyWeb.SettingsLive.AvailabilityTest do
     end
 
     test "non-admin is redirected away", %{conn: conn} do
-      {_tenant, user} = setup_user("member")
+      {tenant, user} = setup_user("member")
 
       assert {:error, {:redirect, %{to: to}}} =
                live(conn |> login(user), "/#{tenant.slug}/app/settings/company-availability")

@@ -82,7 +82,10 @@ defmodule TrebyWeb.JobsLive.Show do
         <.page_header
           title={@job.title}
           breadcrumbs={[
-            %{label: gettext("Jobs"), href: ~p"/app/jobs"},
+            %{
+              label: gettext("Jobs"),
+              href: if(@current_tenant, do: "/#{@current_tenant.slug}/app/jobs", else: ~p"/app/jobs")
+            },
             %{label: @job.title}
           ]}
         >

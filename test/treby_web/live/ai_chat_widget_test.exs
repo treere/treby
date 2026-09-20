@@ -50,7 +50,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   end
 
   test "renders the floating widget on an app page", %{conn: conn} do
-    {_tenant, user} = setup_tenant_with_user()
+    {tenant, user} = setup_tenant_with_user()
 
     {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
@@ -132,7 +132,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   end
 
   test "renders streamed chunks relayed from the page", %{conn: conn} do
-    {_tenant, user} = setup_tenant_with_user()
+    {tenant, user} = setup_tenant_with_user()
 
     {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
@@ -144,7 +144,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   end
 
   test "ignores streamed chunks for another user", %{conn: conn} do
-    {_tenant, user} = setup_tenant_with_user()
+    {tenant, user} = setup_tenant_with_user()
 
     {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
@@ -154,7 +154,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   end
 
   test "shows assistant errors relayed from the page", %{conn: conn} do
-    {_tenant, user} = setup_tenant_with_user()
+    {tenant, user} = setup_tenant_with_user()
 
     {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 
@@ -179,7 +179,7 @@ defmodule TrebyWeb.AiChatWidgetTest do
   end
 
   test "keeps the chat panel open after a reload", %{conn: conn} do
-    {_tenant, user} = setup_tenant_with_user()
+    {tenant, user} = setup_tenant_with_user()
 
     {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
 

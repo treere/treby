@@ -68,7 +68,11 @@ defmodule TrebyWeb.NotFoundTest do
       {:ok, view, html} = live(conn, ~p"/404")
 
       assert html =~ "404"
-      assert has_element?(view, "a", "Back to Jobs")
+      assert has_element?(view, "a", "Browse all positions")
+      assert has_element?(view, "a", "Go to homepage")
+      # public layout: no authenticated app chrome
+      refute html =~ "notification-bell"
+      assert html =~ ~s(href="/terms")
       _ = tenant
     end
   end

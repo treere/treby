@@ -339,7 +339,6 @@ msgstr "Almeno 6 caratteri"
 msgid "Back"
 msgstr "Indietro"
 
-#: lib/treby_web/live/error_live/not_found.ex:36
 #: lib/treby_web/live/jobs_live/new.ex:103
 #, elixir-autogen, elixir-format
 msgid "Back to Jobs"
@@ -689,11 +688,6 @@ msgstr "Password dimenticata?"
 msgid "Full Name"
 msgstr "Nome Completo"
 
-#: lib/treby_web/live/error_live/not_found.ex:42
-#, elixir-autogen, elixir-format
-msgid "Go to Dashboard"
-msgstr "Vai alla Dashboard"
-
 #: lib/treby_web/controllers/google_auth_controller.ex:60
 #, elixir-autogen, elixir-format
 msgid "Google Calendar connected successfully"
@@ -990,7 +984,7 @@ msgstr "Solo un file consentito"
 msgid "Or"
 msgstr "Oppure"
 
-#: lib/treby_web/live/error_live/not_found.ex:24
+#: lib/treby_web/live/error_live/not_found.ex:18
 #, elixir-autogen, elixir-format
 msgid "Page not found"
 msgstr "Pagina non trovata"
@@ -1238,7 +1232,7 @@ msgstr "Termini di Servizio"
 msgid "Text"
 msgstr "Testo"
 
-#: lib/treby_web/live/error_live/not_found.ex:27
+#: lib/treby_web/live/error_live/not_found.ex:21
 #, elixir-autogen, elixir-format
 msgid "The page or entity you're looking for doesn't exist or has been removed."
 msgstr "La pagina o l'entità che stai cercando non esiste o è stata rimossa."
@@ -5469,6 +5463,7 @@ msgid "Browse all open positions"
 msgstr "Sfoglia tutte le posizioni aperte"
 
 #: lib/treby_web/live/careers_live/index.ex:82
+#: lib/treby_web/live/error_live/not_found.ex:28
 #, elixir-autogen, elixir-format
 msgid "Go to homepage"
 msgstr "Vai alla homepage"
@@ -5492,3 +5487,8 @@ msgstr "Informativa sulla Privacy"
 #, elixir-autogen, elixir-format
 msgid "Terms"
 msgstr "Termini"
+
+#: lib/treby_web/live/error_live/not_found.ex:25
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Browse all positions"
+msgstr "Sfoglia tutte le posizioni aperte"

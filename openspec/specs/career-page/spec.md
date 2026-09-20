@@ -113,6 +113,11 @@ The system SHALL guide candidates applying to multiple positions with prefill an
 - **WHEN** an authenticated candidate for tenant `acme` visits `/acme/careers`
 - **THEN** each job they have already applied to shows an "Applied ✓" badge
 
+#### Scenario: Post-submit portal link for authenticated candidate
+- **WHEN** an authenticated candidate for the tenant submits (or re-submits) an application
+- **THEN** the "View Your Application" and "Track your application" actions link directly to `/:tenant_slug/portal`
+- **AND** anonymous visitors are sent to `/:tenant_slug/portal/login` instead
+
 #### Scenario: Job detail shows already-applied CTA
 - **WHEN** an authenticated candidate who has already applied to that job views `/:tenant_slug/careers/:job_id`
 - **THEN** the "Apply Now" button is replaced with "Already applied — View status" linking to `/:tenant_slug/portal`

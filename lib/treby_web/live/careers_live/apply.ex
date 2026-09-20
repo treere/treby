@@ -73,7 +73,14 @@ defmodule TrebyWeb.CareersLive.Apply do
             <% end %>
           </p>
           <div class="mt-6 space-y-4">
-            <.button variant="primary" navigate={~p"/#{@tenant.slug}/portal/login"}>
+            <.button
+              variant="primary"
+              navigate={
+                if @prefill != %{},
+                  do: "/#{@tenant.slug}/portal",
+                  else: "/#{@tenant.slug}/portal/login"
+              }
+            >
               {gettext("View Your Application")}
             </.button>
             <div>
@@ -97,7 +104,11 @@ defmodule TrebyWeb.CareersLive.Apply do
           <div class="mt-6 space-y-4">
             <.button
               variant="primary"
-              navigate={~p"/#{@tenant.slug}/portal/login"}
+              navigate={
+                if @prefill != %{},
+                  do: "/#{@tenant.slug}/portal",
+                  else: "/#{@tenant.slug}/portal/login"
+              }
               class="min-h-[44px]"
             >
               {gettext("Track your application")}

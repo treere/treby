@@ -65,6 +65,14 @@ if tenant do
   apps = Repo.all(from a in Treby.Pipeline.Application, where: a.tenant_id == ^tenant.id, limit: 2)
   IO.puts("__TRBY_APPS__")
   Enum.each(apps, fn a -> IO.puts("#{a.id}") end)
+  conv = Repo.one(from c in Treby.CandidatePortal.Conversation, where: c.tenant_id == ^tenant.id, order_by: [asc: c.inserted_at], limit: 1)
+  IO.puts("__TRBY_CONV__")
+  if conv do
+    IO.puts(conv.id)
+    cand = Repo.get!(Treby.Candidates.Candidate, conv.candidate_id)
+    IO.puts("__TRBY_PORTAL_CANDIDATE__")
+    IO.puts(cand.email)
+  end
 else
   IO.puts("__TRBY_TENANT__")
 end
@@ -84,12 +92,16 @@ function resolveSeedIds() {
   let tenantSlug = "acme"
   let pipelineId = null
   const appIds = []
+  let conversationId = null
+  let portalCandidateEmail = null
   for (const line of stdout.split("\n")) {
     if (line.startsWith("__TRBY_TENANT__")) { section = "tenant"; continue }
     if (line.startsWith("__TRBY_JOBS__")) { section = "jobs"; continue }
     if (line.startsWith("__TRBY_CANDIDATES__")) { section = "candidates"; continue }
     if (line.startsWith("__TRBY_PIPELINE__")) { section = "pipeline"; continue }
     if (line.startsWith("__TRBY_APPS__")) { section = "apps"; continue }
+    if (line.startsWith("__TRBY_CONV__")) { section = "conv"; continue }
+    if (line.startsWith("__TRBY_PORTAL_CANDIDATE__")) { section = "portal_candidate"; continue }
     if (!section || line.trim() === "") continue
     if (section === "tenant") {
       const [slug] = line.split("|")
@@ -108,6 +120,12 @@ function resolveSeedIds() {
       section = null
     } else if (section === "apps") {
       if (line.trim()) appIds.push(line.trim())
+    } else if (section === "conv") {
+      conversationId = line.trim()
+      section = null
+    } else if (section === "portal_candidate") {
+      portalCandidateEmail = line.trim()
+      section = null
     }
   }
   const firstJob = Object.values(jobs)[0]
@@ -118,7 +136,41 @@ function resolveSeedIds() {
   if (!firstJob || !secondJob || !firstCandidate) {
     throw new Error("Could not resolve seed entity ids — run `mix ecto.reset` first. Output: " + stdout)
   }
-  return { tenantSlug, firstJob, secondJob, firstCandidate, secondCandidate, pipelineId, firstApp }
+  return { tenantSlug, firstJob, secondJob, firstCandidate, secondCandidate, pipelineId, firstApp, conversationId, portalCandidateEmail }
+}
+
+// Generate a fresh, known OTP for a seeded candidate so the screenshot script
+// can authenticate to the candidate portal without reading the email.
+function generateCandidateOtp(email) {
+  if (!email) return null
+  const script = `
+Logger.configure(level: :critical)
+import Ecto.Query, only: [from: 2]
+alias Treby.{Repo, Tenants, Candidates, CandidatePortal}
+tenant = Repo.all(Tenants.Tenant) |> Enum.find(&(&1.slug == "${seedIds.tenantSlug}"))
+cand = Repo.one(from c in Candidates.Candidate, where: c.tenant_id == ^tenant.id and c.email == ^"${email}", limit: 1)
+if cand do
+  Repo.delete_all(from o in CandidatePortal.CandidateOtp, where: o.candidate_id == ^cand.id)
+  case CandidatePortal.generate_otp(cand) do
+    {:ok, code} -> IO.puts("__TRBY_OTP__" <> code)
+    other -> IO.puts("__TRBY_OTP_ERR__" <> inspect(other))
+  end
+else
+  IO.puts("__TRBY_OTP_ERR__candidate not found")
+end
+`
+  const res = spawnSync("mix", ["run", "-e", script], {
+    cwd: resolve(__dirname, ".."),
+    encoding: "utf8",
+    env: { ...process.env },
+  })
+  const out = res.stdout || ""
+  const match = out.match(/__TRBY_OTP__(\d{6})/)
+  if (!match) {
+    console.warn("  ⚠ OTP generation failed:", out.trim() || res.stderr)
+    return null
+  }
+  return match[1]
 }
 
 const seedIds = resolveSeedIds()
@@ -244,6 +296,7 @@ const screenshotDefs = [
   { name: "01-homepage", url: () => `${BASE_URL}/` },
   { name: "03-login-page", url: () => `${BASE_URL}/login` },
   { name: "19-register-page", url: () => `${BASE_URL}/register` },
+  { name: "45-careers-global", url: () => `${BASE_URL}/careers` },
   { name: "16-public-careers", url: () => `${BASE_URL}/${tenant}/careers` },
   {
     name: "17-public-job-detail",
@@ -271,6 +324,9 @@ const screenshotDefs = [
   { name: "14-settings-fields", url: () => `${BASE_URL}/${tenant}/app/settings/fields`, auth: true },
   { name: "15-settings-branding", url: () => `${BASE_URL}/${tenant}/app/settings/branding`, auth: true },
   { name: "23-message-queue", url: () => `${BASE_URL}/${tenant}/app/messages-queue`, auth: true },
+  { name: "43-notifications-inbox", url: () => `${BASE_URL}/${tenant}/app/notifications`, auth: true },
+  { name: "48-settings-data-privacy", url: () => `${BASE_URL}/${tenant}/app/settings/data-privacy`, auth: true },
+  { name: "49-job-new", url: () => `${BASE_URL}/${tenant}/app/jobs/new`, auth: true },
 
   // New useful screenshots
   { name: "29-csv-import", url: () => `${BASE_URL}/${tenant}/app/import`, auth: true },
@@ -298,12 +354,21 @@ const screenshotDefs = [
   ...(seedIds.firstApp
     ? [{ name: "41-schedule-page", url: () => `${BASE_URL}/${tenant}/app/schedule/${seedIds.firstApp}`, auth: true }]
     : []),
-  { name: "42-portal-verify", url: () => `${BASE_URL}/${tenant}/portal/verify` },
   { name: "44-ai-assistant", url: () => `${BASE_URL}/${tenant}/app/ai`, auth: true },
 
   // Workspace switching (multi user)
   { name: "27-workspace-picker", url: () => `${BASE_URL}/choose-tenant`, auth: "multi" },
   { name: "28-header-switcher", url: () => `${BASE_URL}/${tenant}/app`, auth: "multi", openSwitcher: true },
+
+  // Candidate portal (OTP auth)
+  { name: "42-portal-verify", url: () => `${BASE_URL}/${tenant}/portal/verify`, auth: "candidate", manual: true },
+  { name: "50-portal-dashboard", url: () => `${BASE_URL}/${tenant}/portal`, auth: "candidate" },
+  { name: "51-portal-messages", url: () => `${BASE_URL}/${tenant}/portal/messages`, auth: "candidate" },
+  ...(seedIds.conversationId
+    ? [{ name: "52-portal-message-thread", url: () => `${BASE_URL}/${tenant}/portal/messages/${seedIds.conversationId}`, auth: "candidate" }]
+    : []),
+  { name: "53-portal-schedule", url: () => `${BASE_URL}/${tenant}/portal/schedule`, auth: "candidate" },
+  { name: "54-portal-settings", url: () => `${BASE_URL}/${tenant}/portal/settings`, auth: "candidate" },
 ]
 
 async function waitForServer(url, timeoutMs = 120000) {
@@ -476,6 +541,7 @@ async function run() {
     // Login as admin if needed
     const needAdmin = effectiveDefs.some((d) => d.auth === true)
     const needMulti = effectiveDefs.some((d) => d.auth === "multi")
+    const needCandidate = effectiveDefs.some((d) => d.auth === "candidate")
     if (needAdmin) {
       console.log("Logging in as admin@acme.com...")
       await login(page, "admin@acme.com", "password123")
@@ -553,6 +619,51 @@ async function run() {
       }
     } else {
       console.log("Skipping dark mode (not in filter)")
+    }
+
+    // Candidate portal (OTP auth): capture the verify step, then log in with a
+    // freshly generated code and capture the authenticated portal pages.
+    if (needCandidate) {
+      console.log("Logging in to candidate portal...")
+      if (!seedIds.portalCandidateEmail) {
+        console.warn("  ⚠ No seeded candidate with a conversation found — skipping portal screenshots")
+      } else {
+        try {
+          await page.goto(`${BASE_URL}/${tenant}/portal/login`, { waitUntil: "domcontentloaded", timeout: 15000 })
+          await page.fill('input[name="email"]', seedIds.portalCandidateEmail)
+          await page.click('button[type="submit"]')
+          await page.waitForTimeout(1500)
+          try { await page.waitForLoadState("networkidle", { timeout: 3000 }) } catch {}
+          // Verify step screenshot (shows the 6-digit code form)
+          await page.screenshot({ path: resolve(SCREENSHOTS_DIR, "42-portal-verify.png") })
+          console.log("    ✓ 42-portal-verify.png")
+
+          const code = generateCandidateOtp(seedIds.portalCandidateEmail)
+          if (!code) throw new Error("could not generate candidate OTP")
+          await page.fill('input[name="code"]', code)
+          await page.click('button[type="submit"]')
+          await page.waitForTimeout(2000)
+          try { await page.waitForLoadState("networkidle", { timeout: 3000 }) } catch {}
+          if (!page.url().includes("/portal")) {
+            throw new Error(`Candidate login failed (url=${page.url()})`)
+          }
+          console.log(`  ✓ Logged in candidate -> ${page.url()}`)
+
+          const candidateDefs = effectiveDefs.filter((d) => d.auth === "candidate" && !d.manual)
+          for (const def of candidateDefs) {
+            try {
+              await capturePage(page, def)
+            } catch (err) {
+              console.warn(`  ⚠ Failed to capture ${def.name}: ${err.message}`)
+            }
+            await page.waitForTimeout(300)
+          }
+        } catch (err) {
+          console.warn(`  ⚠ Candidate portal capture failed: ${err.message}`)
+        }
+      }
+    } else {
+      console.log("Skipping candidate portal pages (not in filter)")
     }
 
     await browser.close()

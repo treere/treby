@@ -153,7 +153,14 @@ defmodule TrebyWeb.PipelineLive.Index do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_user} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_user}
+      locale={@locale}
+      current_tenant={assigns[:current_tenant]}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="p-8">
         <div class="flex justify-between items-center mb-8">
           <div>

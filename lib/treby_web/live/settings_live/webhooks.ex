@@ -81,6 +81,8 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
       flash={@flash}
       current_scope={@current_user}
       locale={@locale}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
       current_tenant={@current_tenant}
       current_membership={@current_membership}
       available_tenants={assigns[:available_tenants] || []}

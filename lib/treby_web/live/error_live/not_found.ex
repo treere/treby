@@ -12,7 +12,12 @@ defmodule TrebyWeb.ErrorLive.NotFound do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} locale={@locale}>
+    <Layouts.app
+      flash={@flash}
+      locale={@locale}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
+    >
       <div class="max-w-7xl mx-auto px-4 py-24 flex flex-col items-center justify-center text-center">
         <p class="text-7xl font-bold text-blue-600 dark:text-blue-400 mb-4">404</p>
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">

@@ -32,6 +32,8 @@ defmodule TrebyWeb.ChooseTenantLive do
       current_tenant={@current_tenant}
       current_membership={@current_membership}
       available_tenants={@available_tenants}
+      notification_unread_count={assigns[:notification_unread_count] || 0}
+      notification_recent={assigns[:notification_recent] || []}
     >
       <div class="max-w-xl mx-auto py-12">
         <h1 class="text-2xl font-bold mb-6">{gettext("Choose workspace")}</h1>

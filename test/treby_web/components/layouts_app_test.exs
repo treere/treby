@@ -62,6 +62,10 @@ defmodule TrebyWeb.LayoutsAppTest do
       assert html =~ ~s(id="mobile-nav-drawer")
       assert html =~ ~s(id="mobile-nav-overlay")
 
+      # Nav links are tenant-scoped (current_tenant reaches the layout)
+      assert html =~ ~s(href="/#{tenant.slug}/app/jobs")
+      assert html =~ ~s(href="/#{tenant.slug}/app/candidates")
+
       # Trimmed primary links (Import and Message Queue moved)
       assert html =~ ~s(data-nav="/app/jobs")
       assert html =~ ~s(data-nav="/app/candidates")

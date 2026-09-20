@@ -23,12 +23,27 @@ defmodule Treby.RateLimit do
   @spec check(atom(), String.t()) :: verdict()
   def check(bucket, key) when is_atom(bucket) and is_binary(key) do
     {scale_ms, limit} = bucket_config(bucket)
+    id = "#{bucket}:#{key}"
 
-    backend().check_rate("#{bucket}:#{key}", scale_ms, limit)
-    |> case do
+    case backend().check_rate(id, scale_ms, limit) do
       {:allow, _count} -> :allow
-      {:deny, _limit} -> {:deny, scale_ms}
+      {:deny, _limit} -> {:deny, retry_after_ms(id, scale_ms, limit)}
     end
+  end
+
+  defp retry_after_ms(id, scale_ms, limit) do
+    case backend().inspect_bucket(id, scale_ms, limit) do
+      {:ok, {_count, _remaining, ms_to_next_bucket, _created_at, _updated_at}}
+      when is_integer(ms_to_next_bucket) and ms_to_next_bucket > 0 ->
+        ms_to_next_bucket
+
+      _ ->
+        scale_ms
+    end
+  rescue
+    _ -> scale_ms
+  catch
+    _, _ -> scale_ms
   end
 
   @doc false

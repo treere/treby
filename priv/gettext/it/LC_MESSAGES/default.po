@@ -746,7 +746,7 @@ msgstr "Importazione completata"
 msgid "Imported"
 msgstr "Importati"
 
-#: lib/treby_web/controllers/session_controller.ex:78
+#: lib/treby_web/controllers/session_controller.ex:88
 #, elixir-autogen, elixir-format
 msgid "Invalid email or password"
 msgstr "Email o password non validi"
@@ -794,7 +794,7 @@ msgstr "Unisciti a %{tenant_name}"
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
-#: lib/treby_web/controllers/session_controller.ex:86
+#: lib/treby_web/controllers/session_controller.ex:96
 #, elixir-autogen, elixir-format
 msgid "Logged out successfully"
 msgstr "Disconnessione riuscita"
@@ -1305,9 +1305,9 @@ msgstr "Abbiamo inviato un codice a 6 cifre a"
 msgid "We sent a verification code to %{email}"
 msgstr "Abbiamo inviato un codice di verifica a %{email}"
 
-#: lib/treby_web/controllers/session_controller.ex:62
-#: lib/treby_web/controllers/session_controller.ex:67
 #: lib/treby_web/controllers/session_controller.ex:72
+#: lib/treby_web/controllers/session_controller.ex:77
+#: lib/treby_web/controllers/session_controller.ex:82
 #, elixir-autogen, elixir-format
 msgid "Welcome back!"
 msgstr "Bentornato!"
@@ -4527,11 +4527,6 @@ msgstr "L'offerta che cerchi è stata chiusa o rimossa."
 msgid "Too many code requests. Please wait a few minutes and try again."
 msgstr "Troppe richieste di codice. Attendi qualche minuto e riprova."
 
-#: lib/treby_web/controllers/session_controller.ex:24
-#, elixir-autogen, elixir-format
-msgid "Too many login attempts. Please wait a minute and try again."
-msgstr "Troppi tentativi di accesso. Attendi un minuto e riprova."
-
 #: lib/treby_web/controllers/candidate_otp_controller.ex:88
 #, elixir-autogen, elixir-format
 msgid "Too many verification attempts. Please wait a minute and try again."
@@ -5446,3 +5441,18 @@ msgstr "Seleziona un file CSV"
 #, elixir-autogen, elixir-format
 msgid "can't be blank"
 msgstr "non può essere vuoto"
+
+#: lib/treby_web/controllers/session_controller.ex:37
+#, elixir-autogen, elixir-format
+msgid "%{count} minutes"
+msgstr "%{count} minuti"
+
+#: lib/treby_web/controllers/session_controller.ex:33
+#, elixir-autogen, elixir-format
+msgid "%{count} seconds"
+msgstr "%{count} secondi"
+
+#: lib/treby_web/controllers/session_controller.ex:24
+#, elixir-autogen, elixir-format
+msgid "Too many login attempts. Try again in %{time}."
+msgstr "Troppi tentativi di accesso. Riprova tra %{time}."

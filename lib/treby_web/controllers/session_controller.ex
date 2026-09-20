@@ -16,15 +16,25 @@ defmodule TrebyWeb.SessionController do
          :allow <- Treby.RateLimit.check(:login_email, email_key) do
       do_create(conn, email, password)
     else
-      {:deny, _retry_after_ms} ->
+      {:deny, retry_after_ms} ->
         conn
         |> put_status(:too_many_requests)
         |> put_flash(
           :rate_limit,
-          gettext("Too many login attempts. Please wait a minute and try again.")
+          gettext("Too many login attempts. Try again in %{time}.",
+            time: humanize_duration(retry_after_ms)
+          )
         )
         |> render(:new, rate_limited: true)
     end
+  end
+
+  defp humanize_duration(ms) when ms < 60_000 do
+    gettext("%{count} seconds", count: max(1, div(ms, 1000)))
+  end
+
+  defp humanize_duration(ms) do
+    gettext("%{count} minutes", count: max(1, div(ms, 60_000)))
   end
 
   defp do_create(conn, email, password) do

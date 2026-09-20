@@ -87,6 +87,8 @@ defmodule TrebyWeb.AuthFlowTest do
       denied = post(conn, ~p"/session", params)
       assert denied.status == 429
       assert denied.resp_body =~ "rate-limit-error"
+      assert denied.resp_body =~ "Try again in"
+      assert denied.resp_body =~ "seconds"
     end
 
     test "user can log out", %{conn: conn} do

@@ -738,7 +738,7 @@ msgstr ""
 msgid "Imported"
 msgstr ""
 
-#: lib/treby_web/controllers/session_controller.ex:78
+#: lib/treby_web/controllers/session_controller.ex:88
 #, elixir-autogen, elixir-format
 msgid "Invalid email or password"
 msgstr ""
@@ -786,7 +786,7 @@ msgstr ""
 msgid "LinkedIn"
 msgstr ""
 
-#: lib/treby_web/controllers/session_controller.ex:86
+#: lib/treby_web/controllers/session_controller.ex:96
 #, elixir-autogen, elixir-format
 msgid "Logged out successfully"
 msgstr ""
@@ -1295,9 +1295,9 @@ msgstr ""
 msgid "We sent a verification code to %{email}"
 msgstr ""
 
-#: lib/treby_web/controllers/session_controller.ex:62
-#: lib/treby_web/controllers/session_controller.ex:67
 #: lib/treby_web/controllers/session_controller.ex:72
+#: lib/treby_web/controllers/session_controller.ex:77
+#: lib/treby_web/controllers/session_controller.ex:82
 #, elixir-autogen, elixir-format
 msgid "Welcome back!"
 msgstr ""
@@ -4517,11 +4517,6 @@ msgstr ""
 msgid "Too many code requests. Please wait a few minutes and try again."
 msgstr ""
 
-#: lib/treby_web/controllers/session_controller.ex:24
-#, elixir-autogen, elixir-format
-msgid "Too many login attempts. Please wait a minute and try again."
-msgstr ""
-
 #: lib/treby_web/controllers/candidate_otp_controller.ex:88
 #, elixir-autogen, elixir-format
 msgid "Too many verification attempts. Please wait a minute and try again."
@@ -5433,4 +5428,19 @@ msgstr ""
 #: lib/treby_web/live/jobs_live/new.ex:288
 #, elixir-autogen, elixir-format
 msgid "can't be blank"
+msgstr ""
+
+#: lib/treby_web/controllers/session_controller.ex:37
+#, elixir-autogen, elixir-format, fuzzy
+msgid "%{count} minutes"
+msgstr ""
+
+#: lib/treby_web/controllers/session_controller.ex:33
+#, elixir-autogen, elixir-format, fuzzy
+msgid "%{count} seconds"
+msgstr ""
+
+#: lib/treby_web/controllers/session_controller.ex:24
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Too many login attempts. Try again in %{time}."
 msgstr ""

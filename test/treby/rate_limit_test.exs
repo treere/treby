@@ -1,3 +1,8 @@
+defmodule Treby.Test.RateLimitNoInspectBackend do
+  @moduledoc false
+  def check_rate(_id, _scale_ms, _limit), do: {:deny, 1}
+end
+
 defmodule Treby.RateLimitTest do
   use ExUnit.Case, async: true
 
@@ -11,7 +16,20 @@ defmodule Treby.RateLimitTest do
       assert :allow = RateLimit.check(:rate_limit_unit_test_bucket, key)
     end
 
-    assert {:deny, 60_000} = RateLimit.check(:rate_limit_unit_test_bucket, key)
+    assert {:deny, ms} = RateLimit.check(:rate_limit_unit_test_bucket, key)
+    assert is_integer(ms) and ms > 0 and ms <= 60_000
+  end
+
+  test "denies with the bucket window when the backend has no inspect_bucket" do
+    previous = Application.get_env(:treby, :rate_limit_backend, Hammer)
+    Application.put_env(:treby, :rate_limit_backend, Treby.Test.RateLimitNoInspectBackend)
+    on_exit(fn -> Application.put_env(:treby, :rate_limit_backend, previous) end)
+
+    assert {:deny, 60_000} =
+             RateLimit.check(
+               :rate_limit_unit_test_bucket,
+               "window-#{System.unique_integer([:positive])}"
+             )
   end
 
   test "bucket_config/1 resolves configured buckets and defaults" do

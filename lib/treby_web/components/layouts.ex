@@ -478,12 +478,21 @@ defmodule TrebyWeb.Layouts do
   language before signing in.
   """
   attr :locale, :string, required: true
+  attr :flash, :map, default: %{}
 
   def auth_toolbar(assigns) do
     ~H"""
     <div class="absolute top-4 right-4 z-50 flex items-center gap-2">
       <.theme_toggle />
       <.locale_switcher locale={@locale} />
+    </div>
+    <div
+      id="auth-flash"
+      aria-live="polite"
+      class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"
+    >
+      <.flash kind={:info} flash={@flash} id="auth-flash-info" />
+      <.flash kind={:error} flash={@flash} id="auth-flash-error" />
     </div>
     """
   end

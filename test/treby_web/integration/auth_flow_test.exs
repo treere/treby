@@ -62,6 +62,10 @@ defmodule TrebyWeb.AuthFlowTest do
         })
 
       assert redirected_to(conn) == "/login"
+
+      # the error must be visible on the login page, not silently dropped
+      login_page = get(recycle(conn), ~p"/login")
+      assert html_response(login_page, 200) =~ "Invalid email or password"
     end
 
     test "throttles excessive login attempts with 429 and rate-limit banner", %{

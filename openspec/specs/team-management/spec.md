@@ -45,7 +45,7 @@ The system SHALL allow invitees to join the workspace via the invite link. If th
 
 #### Scenario: Invalid invite
 - **WHEN** an invitee visits /invite/:token with an invalid or expired token
-- **THEN** the system shows an error: "Invalid or expired invite"
+- **THEN** the system redirects to the login page and displays the error "Invalid or expired invite link" there, so the invitee actually sees why they landed on login
 
 ### Requirement: Role-based access control
 The system SHALL enforce role-based access for admin and member roles. The role SHALL be taken from the current membership for the active workspace, not from the user row.

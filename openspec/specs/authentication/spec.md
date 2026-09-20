@@ -121,6 +121,10 @@ The system SHALL throttle staff login attempts per IP address and per email to s
 - **THEN** further attempts for that email are rejected with HTTP 429 until the window passes
 - **AND** attempts for other emails are unaffected
 
+#### Scenario: Invalid credentials show an error
+- **WHEN** a user submits an unknown email or a wrong password
+- **THEN** the system redirects to `/login` and the login page displays the localized "Invalid email or password" message (unauthenticated pages render the generic flash, not only the rate-limit banner)
+
 ### Requirement: Loading feedback on login
 The system SHALL show loading feedback when the user submits the login form, so the user understands the sign-in is being processed.
 

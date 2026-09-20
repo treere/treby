@@ -33,8 +33,8 @@ msgstr ""
 msgid "Analytics"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:880
-#: lib/treby_web/components/layouts.ex:892
+#: lib/treby_web/components/layouts.ex:889
+#: lib/treby_web/components/layouts.ex:901
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr ""
@@ -103,26 +103,26 @@ msgstr ""
 #: lib/treby_web/components/layouts.ex:187
 #: lib/treby_web/components/layouts.ex:393
 #: lib/treby_web/components/layouts.ex:401
-#: lib/treby_web/components/layouts.ex:570
-#: lib/treby_web/components/layouts.ex:658
+#: lib/treby_web/components/layouts.ex:579
+#: lib/treby_web/components/layouts.ex:667
 #: lib/treby_web/live/candidate_portal_live/settings.ex:55
 #: lib/treby_web/live/settings_live/index.ex:46
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:887
+#: lib/treby_web/components/layouts.ex:896
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:875
+#: lib/treby_web/components/layouts.ex:884
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr ""
 
 #: lib/treby_web/components/core_components.ex:94
-#: lib/treby_web/components/layouts.ex:866
+#: lib/treby_web/components/layouts.ex:875
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr ""
@@ -958,8 +958,8 @@ msgstr ""
 msgid "Notification Preferences"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:747
-#: lib/treby_web/components/layouts.ex:763
+#: lib/treby_web/components/layouts.ex:756
+#: lib/treby_web/components/layouts.ex:772
 #: lib/treby_web/live/notifications_live.ex:77
 #, elixir-autogen, elixir-format
 msgid "Notifications"
@@ -1469,8 +1469,8 @@ msgstr ""
 msgid "Customize your career page"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:549
-#: lib/treby_web/components/layouts.ex:637
+#: lib/treby_web/components/layouts.ex:558
+#: lib/treby_web/components/layouts.ex:646
 #: lib/treby_web/live/dashboard_live.ex:171
 #, elixir-autogen, elixir-format
 msgid "Dashboard"
@@ -2287,7 +2287,7 @@ msgid "Timezone"
 msgstr ""
 
 #: lib/treby_web/components/layouts.ex:60
-#: lib/treby_web/components/layouts.ex:598
+#: lib/treby_web/components/layouts.ex:607
 #, elixir-autogen, elixir-format
 msgid "Toggle navigation"
 msgstr ""
@@ -2528,8 +2528,8 @@ msgstr ""
 msgid "Merge into one"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:556
-#: lib/treby_web/components/layouts.ex:644
+#: lib/treby_web/components/layouts.ex:565
+#: lib/treby_web/components/layouts.ex:653
 #: lib/treby_web/live/candidate_portal_live/messages.ex:54
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Messages"
@@ -4032,7 +4032,7 @@ msgstr ""
 msgid "You have already applied to this position."
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:624
+#: lib/treby_web/components/layouts.ex:633
 #, elixir-autogen, elixir-format
 msgid "Close navigation"
 msgstr ""
@@ -4470,7 +4470,7 @@ msgstr ""
 msgid "User Agent:"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:860
+#: lib/treby_web/components/layouts.ex:869
 #: lib/treby_web/live/notifications_live.ex:201
 #: lib/treby_web/live/settings_live/audit_log.ex:259
 #, elixir-autogen, elixir-format, fuzzy
@@ -4926,7 +4926,7 @@ msgstr ""
 msgid "Invalid retention value"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:771
+#: lib/treby_web/components/layouts.ex:780
 #, elixir-autogen, elixir-format
 msgid "Mark all read"
 msgstr ""
@@ -5399,8 +5399,8 @@ msgstr ""
 msgid "Pending actions"
 msgstr ""
 
-#: lib/treby_web/components/layouts.ex:563
-#: lib/treby_web/components/layouts.ex:651
+#: lib/treby_web/components/layouts.ex:572
+#: lib/treby_web/components/layouts.ex:660
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Schedule"
 msgstr ""

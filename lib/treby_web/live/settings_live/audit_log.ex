@@ -30,26 +30,16 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
       socket
       |> assign(settings_active: true)
       |> assign(current_user: user, current_tenant: tenant)
-      |> assign(
-        filters: %{
-          "action" => "",
-          "entity_type" => "",
-          "search" => "",
-          "actor_id" => "",
-          "from" => "",
-          "to" => ""
-        }
-      )
+      |> assign(filters: empty_filters())
       |> assign(page: 1, page_size: 25, selected: nil, total: 0)
       |> assign(events: [])
-      |> load_events()
 
-    {:ok, stream(socket, :events, socket.assigns.events)}
+    {:ok, stream(socket, :events, [])}
   end
 
   def handle_params(params, _url, socket) do
-    filters = build_filters(params, socket.assigns.filters)
-    page = String.to_integer(params["page"] || to_string(socket.assigns.page))
+    filters = build_filters(params)
+    page = String.to_integer(params["page"] || "1")
 
     socket =
       socket
@@ -59,10 +49,34 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
     {:noreply, stream(socket, :events, socket.assigns.events, reset: true)}
   end
 
-  defp build_filters(params, existing) do
-    Enum.reduce(~w(action entity_type search actor_id from to), %{}, fn key, acc ->
-      Map.put(acc, key, params[key] || existing[key] || "")
+  defp empty_filters do
+    %{
+      "action" => "",
+      "entity_type" => "",
+      "search" => "",
+      "actor_id" => "",
+      "from" => "",
+      "to" => ""
+    }
+  end
+
+  defp build_filters(params) do
+    Enum.reduce(~w(action entity_type search actor_id from to), empty_filters(), fn key, acc ->
+      Map.put(acc, key, params[key] || "")
     end)
+  end
+
+  defp audit_log_path(nil, _filters, _page), do: "/app/settings/audit-log"
+
+  defp audit_log_path(tenant, filters, page) do
+    query =
+      filters
+      |> Enum.reject(fn {_k, v} -> v in [nil, ""] end)
+      |> then(fn q -> if page > 1, do: Map.put(q, "page", to_string(page)), else: q end)
+      |> URI.encode_query()
+
+    base = "/#{tenant.slug}/app/settings/audit-log"
+    if query == "", do: base, else: base <> "?" <> query
   end
 
   defp load_events(socket) do
@@ -343,37 +357,40 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
   end
 
   def handle_event("filter", params, socket) do
-    filters = build_filters(params, %{})
+    filters = build_filters(params)
 
-    {:noreply, socket |> assign(filters: filters, page: 1) |> load_events() |> stream_events()}
+    {:noreply,
+     push_patch(socket,
+       to: audit_log_path(socket.assigns.current_tenant, filters, 1)
+     )}
   end
 
   def handle_event("clear_filters", _params, socket) do
     {:noreply,
-     socket
-     |> assign(
-       filters: %{
-         "action" => "",
-         "entity_type" => "",
-         "search" => "",
-         "actor_id" => "",
-         "from" => "",
-         "to" => ""
-       },
-       page: 1
-     )
-     |> load_events()
-     |> stream_events()}
+     push_patch(socket,
+       to: audit_log_path(socket.assigns.current_tenant, empty_filters(), 1)
+     )}
   end
 
   def handle_event("prev_page", _params, socket) do
     page = max(1, socket.assigns.page - 1)
-    {:noreply, socket |> assign(page: page) |> load_events() |> stream_events()}
+
+    {:noreply,
+     push_patch(socket,
+       to: audit_log_path(socket.assigns.current_tenant, socket.assigns.filters, page)
+     )}
   end
 
   def handle_event("next_page", _params, socket) do
     {:noreply,
-     socket |> assign(page: socket.assigns.page + 1) |> load_events() |> stream_events()}
+     push_patch(socket,
+       to:
+         audit_log_path(
+           socket.assigns.current_tenant,
+           socket.assigns.filters,
+           socket.assigns.page + 1
+         )
+     )}
   end
 
   def handle_event("show_detail", %{"id" => id}, socket) do
@@ -386,9 +403,5 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
 
   def handle_event("close_detail", _params, socket) do
     {:noreply, assign(socket, selected: nil)}
-  end
-
-  defp stream_events(socket) do
-    socket |> stream(:events, socket.assigns.events, reset: true)
   end
 end

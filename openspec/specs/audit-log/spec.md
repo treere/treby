@@ -85,6 +85,12 @@ The system SHALL provide an admin-only audit log view at `/:company/app/settings
 - **WHEN** a member navigates to the audit log route
 - **THEN** the system redirects to the dashboard with a permission-denied flash (consistent with `role-based-access` admin-only settings)
 
+#### Scenario: Filters and page persist in the URL
+- **WHEN** an admin changes a filter or navigates pages
+- **THEN** the current filters and page are reflected in the URL query string
+- **AND** reloading or sharing that URL re-applies the same filters and page
+- **AND** clearing the filters returns the URL to the bare audit log path
+
 #### Scenario: Event detail shows diff
 - **WHEN** an admin clicks an audit event row
 - **THEN** a detail drawer/modal shows `action`, `actor` (name/email or "System"), `entity`, `timestamp`, and rendered `before`/`after` diff

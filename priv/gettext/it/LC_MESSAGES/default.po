@@ -345,7 +345,7 @@ msgstr "Indietro"
 msgid "Back to Jobs"
 msgstr "Torna ai Lavori"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:127
+#: lib/treby_web/live/settings_live/audit_log.ex:141
 #: lib/treby_web/live/settings_live/availability.ex:101
 #: lib/treby_web/live/settings_live/branding.ex:71
 #: lib/treby_web/live/settings_live/calendar.ex:65
@@ -2694,7 +2694,7 @@ msgstr "Scorecard"
 
 #: lib/treby_web/live/careers_live/global_index.ex:48
 #: lib/treby_web/live/careers_live/index.ex:66
-#: lib/treby_web/live/settings_live/audit_log.ex:165
+#: lib/treby_web/live/settings_live/audit_log.ex:179
 #, elixir-autogen, elixir-format
 msgid "Search"
 msgstr "Cerca"
@@ -2795,7 +2795,7 @@ msgstr "This position is no longer available"
 
 #: lib/treby_web/live/candidates_live/index.ex:613
 #: lib/treby_web/live/pipeline_live/index.ex:599
-#: lib/treby_web/live/settings_live/audit_log.ex:203
+#: lib/treby_web/live/settings_live/audit_log.ex:217
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Time"
 msgstr "Fuso orario"
@@ -4146,12 +4146,12 @@ msgstr "Candidatura inviata. Controlla la tua email — inclusa la cartella spam
 msgid "uploading..."
 msgstr "caricamento in corso..."
 
-#: lib/treby_web/live/settings_live/audit_log.ex:206
+#: lib/treby_web/live/settings_live/audit_log.ex:220
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Action"
 msgstr "Azioni"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:149
+#: lib/treby_web/live/settings_live/audit_log.ex:163
 #, elixir-autogen, elixir-format
 msgid "Action prefix"
 msgstr "Action prefix"
@@ -4161,17 +4161,17 @@ msgstr "Action prefix"
 msgid "Activity for your workspace will appear here."
 msgstr "Activity for your workspace will appear here."
 
-#: lib/treby_web/live/settings_live/audit_log.ex:212
+#: lib/treby_web/live/settings_live/audit_log.ex:226
 #, elixir-autogen, elixir-format
 msgid "Actor"
 msgstr "Actor"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:173
+#: lib/treby_web/live/settings_live/audit_log.ex:187
 #, elixir-autogen, elixir-format
 msgid "Actor ID"
 msgstr "Actor ID"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:302
+#: lib/treby_web/live/settings_live/audit_log.ex:316
 #, elixir-autogen, elixir-format
 msgid "Actor:"
 msgstr "Actor:"
@@ -4186,7 +4186,7 @@ msgstr "Add Field"
 msgid "Add candidates and move them through your pipeline to see analytics."
 msgstr "Add candidates and move them through your pipeline to see analytics."
 
-#: lib/treby_web/live/settings_live/audit_log.ex:332
+#: lib/treby_web/live/settings_live/audit_log.ex:346
 #, elixir-autogen, elixir-format
 msgid "After"
 msgstr "After"
@@ -4196,12 +4196,12 @@ msgstr "After"
 msgid "Are you sure you want to reject"
 msgstr "Sei sicuro di voler eliminare questo modello?"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:130
+#: lib/treby_web/live/settings_live/audit_log.ex:144
 #, elixir-autogen, elixir-format
 msgid "Audit Log"
 msgstr "Audit Log"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:325
+#: lib/treby_web/live/settings_live/audit_log.ex:339
 #, elixir-autogen, elixir-format
 msgid "Before"
 msgstr "Before"
@@ -4226,7 +4226,7 @@ msgstr "Cancel Interview"
 msgid "Check back later for new opportunities."
 msgstr "Check back later for new opportunities."
 
-#: lib/treby_web/live/settings_live/audit_log.ex:193
+#: lib/treby_web/live/settings_live/audit_log.ex:207
 #, elixir-autogen, elixir-format
 msgid "Clear filters"
 msgstr "Clear filters"
@@ -4266,22 +4266,22 @@ msgstr "Disconnect Google Calendar"
 msgid "Disconnect Google Calendar?"
 msgstr "Disconnect Google Calendar?"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:209
+#: lib/treby_web/live/settings_live/audit_log.ex:223
 #, elixir-autogen, elixir-format
 msgid "Entity"
 msgstr "Entity"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:157
+#: lib/treby_web/live/settings_live/audit_log.ex:171
 #, elixir-autogen, elixir-format
 msgid "Entity type"
 msgstr "Entity type"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:299
+#: lib/treby_web/live/settings_live/audit_log.ex:313
 #, elixir-autogen, elixir-format
 msgid "Entity:"
 msgstr "Entity:"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:181
+#: lib/treby_web/live/settings_live/audit_log.ex:195
 #, elixir-autogen, elixir-format
 msgid "From date"
 msgstr "From date"
@@ -4291,12 +4291,12 @@ msgstr "From date"
 msgid "High confidence"
 msgstr "High confidence"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:313
+#: lib/treby_web/live/settings_live/audit_log.ex:327
 #, elixir-autogen, elixir-format
 msgid "IP:"
 msgstr "IP:"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:133
+#: lib/treby_web/live/settings_live/audit_log.ex:147
 #, elixir-autogen, elixir-format
 msgid "Immutable history of all changes in this workspace"
 msgstr "Immutable history of all changes in this workspace"
@@ -4317,7 +4317,7 @@ msgstr "Mark as completed"
 msgid "Medium confidence"
 msgstr "Medium confidence"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:318
+#: lib/treby_web/live/settings_live/audit_log.ex:332
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr "Metadata"
@@ -4332,7 +4332,7 @@ msgstr "Move candidates through stages to see your hiring funnel."
 msgid "My Interviews"
 msgstr "Colloqui"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:273
+#: lib/treby_web/live/settings_live/audit_log.ex:287
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Next"
 msgstr "Testo"
@@ -4347,7 +4347,7 @@ msgstr "Ancora nessuna attività."
 msgid "No analytics data yet"
 msgstr "No analytics data yet"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:252
+#: lib/treby_web/live/settings_live/audit_log.ex:266
 #, elixir-autogen, elixir-format
 msgid "No audit events found"
 msgstr "No audit events found"
@@ -4389,7 +4389,7 @@ msgstr "No pipeline data"
 msgid "No positions match your search."
 msgstr "No positions match your search."
 
-#: lib/treby_web/live/settings_live/audit_log.ex:258
+#: lib/treby_web/live/settings_live/audit_log.ex:272
 #, elixir-autogen, elixir-format
 msgid "Page %{page}"
 msgstr "Page %{page}"
@@ -4409,7 +4409,7 @@ msgstr "Pipeline stages will appear here once candidates are added."
 msgid "Prev"
 msgstr "Anteprima"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:266
+#: lib/treby_web/live/settings_live/audit_log.ex:280
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr "Previous"
@@ -4419,7 +4419,7 @@ msgstr "Previous"
 msgid "Scheduling for %{candidate} — %{job}"
 msgstr "Scheduling for %{candidate} — %{job}"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:166
+#: lib/treby_web/live/settings_live/audit_log.ex:180
 #, elixir-autogen, elixir-format
 msgid "Search action or entity"
 msgstr "Search action or entity"
@@ -4439,17 +4439,17 @@ msgstr "Il candidato può scegliere la propria fascia oraria dal portale. Inviag
 msgid "This marks the interview as done. The candidate's stage will not change automatically; you can collect scorecards before advancing."
 msgstr "This marks the interview as done. The candidate's stage will not change automatically; you can collect scorecards before advancing."
 
-#: lib/treby_web/live/settings_live/audit_log.ex:308
+#: lib/treby_web/live/settings_live/audit_log.ex:322
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Time:"
 msgstr "Fuso orario"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:188
+#: lib/treby_web/live/settings_live/audit_log.ex:202
 #, elixir-autogen, elixir-format, fuzzy
 msgid "To date"
 msgstr "Job updated"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:258
+#: lib/treby_web/live/settings_live/audit_log.ex:272
 #, elixir-autogen, elixir-format
 msgid "Total: %{count}"
 msgstr "Total: %{count}"
@@ -4475,14 +4475,14 @@ msgstr "Try selecting another week or another interviewer."
 msgid "Upload a CSV file to bulk import candidates"
 msgstr "Upload a CSV file to bulk import candidates"
 
-#: lib/treby_web/live/settings_live/audit_log.ex:315
+#: lib/treby_web/live/settings_live/audit_log.ex:329
 #, elixir-autogen, elixir-format
 msgid "User Agent:"
 msgstr "User Agent:"
 
 #: lib/treby_web/components/layouts.ex:860
 #: lib/treby_web/live/notifications_live.ex:201
-#: lib/treby_web/live/settings_live/audit_log.ex:245
+#: lib/treby_web/live/settings_live/audit_log.ex:259
 #, elixir-autogen, elixir-format, fuzzy
 msgid "View"
 msgstr "Visualizzazioni"

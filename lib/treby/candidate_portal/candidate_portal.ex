@@ -22,6 +22,7 @@ defmodule Treby.CandidatePortal do
                                  [Treby.CandidatePortal, :otp_resend_cooldown_seconds],
                                  60
                                )
+  @otp_max_attempts 5
 
   @doc """
   Returns the lifetime of a candidate session, in hours.
@@ -90,21 +91,15 @@ defmodule Treby.CandidatePortal do
     now = DateTime.utc_now()
     hashed_code = hash_otp(raw_code)
 
-    CandidateOtp
-    |> where([o], o.candidate_id == ^candidate.id and o.code == ^hashed_code)
-    |> Repo.one()
-    |> case do
+    case latest_pending_otp(candidate.id) do
       nil ->
         {:error, :invalid_or_expired}
 
-      %{used_at: used_at} when not is_nil(used_at) ->
-        {:error, :invalid_or_expired}
-
-      %{attempts: attempts} when attempts >= 5 ->
+      %{attempts: attempts} when attempts >= @otp_max_attempts ->
         {:error, :too_many_attempts}
 
-      otp ->
-        if DateTime.compare(otp.expires_at, now) == :lt do
+      %{code: ^hashed_code, expires_at: expires_at} = otp ->
+        if DateTime.compare(expires_at, now) == :lt do
           {:error, :invalid_or_expired}
         else
           Repo.transaction(fn ->
@@ -125,29 +120,37 @@ defmodule Treby.CandidatePortal do
               {:error, :invalid}
           end
         end
+
+      _otp ->
+        {:error, :invalid_or_expired}
     end
   end
 
   @doc """
-  Registers a failed verification attempt for a candidate's pending code.
+  Registers a failed verification attempt for a candidate's pending code,
+  regardless of the submitted code so brute-force guesses are counted.
   """
-  def record_failed_otp_attempt(%Candidate{} = candidate, raw_code) do
-    hashed_code = hash_otp(raw_code)
-
-    CandidateOtp
-    |> where([o], o.candidate_id == ^candidate.id and o.code == ^hashed_code)
-    |> Repo.one()
-    |> case do
+  def record_failed_otp_attempt(%Candidate{} = candidate) do
+    case latest_pending_otp(candidate.id) do
       nil ->
         :ok
 
       otp ->
-        otp
-        |> CandidateOtp.changeset(%{attempts: otp.attempts + 1})
-        |> Repo.update()
-        |> case do
-          {:ok, _} -> :ok
-          {:error, _} -> :ok
+        attempts = otp.attempts + 1
+
+        case otp
+             |> CandidateOtp.changeset(%{attempts: attempts})
+             |> Repo.update() do
+          {:ok, _} ->
+            if attempts >= @otp_max_attempts do
+              invalidate_pending_otps(candidate.id)
+              :too_many_attempts
+            else
+              :ok
+            end
+
+          {:error, _} ->
+            :ok
         end
     end
   end

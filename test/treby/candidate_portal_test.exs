@@ -164,9 +164,11 @@ defmodule Treby.CandidatePortalTest do
       assert {:error, :invalid_or_expired} = CandidatePortal.verify_otp(candidate, code)
     end
 
-    test "record_failed_otp_attempt/2 increments attempts", %{candidate: candidate} do
-      {:ok, code} = CandidatePortal.generate_otp(candidate)
-      CandidatePortal.record_failed_otp_attempt(candidate, code)
+    test "record_failed_otp_attempt/1 increments attempts for a wrong code", %{
+      candidate: candidate
+    } do
+      {:ok, _code} = CandidatePortal.generate_otp(candidate)
+      CandidatePortal.record_failed_otp_attempt(candidate)
 
       otp =
         Repo.one(
@@ -174,6 +176,17 @@ defmodule Treby.CandidatePortalTest do
         )
 
       assert otp.attempts == 1
+    end
+
+    test "locks and invalidates the code after 5 failed attempts", %{candidate: candidate} do
+      {:ok, code} = CandidatePortal.generate_otp(candidate)
+
+      for _ <- 1..4 do
+        assert :ok = CandidatePortal.record_failed_otp_attempt(candidate)
+      end
+
+      assert :too_many_attempts = CandidatePortal.record_failed_otp_attempt(candidate)
+      assert {:error, :invalid_or_expired} = CandidatePortal.verify_otp(candidate, code)
     end
 
     test "session_lifetime_hours/0 returns a positive value" do

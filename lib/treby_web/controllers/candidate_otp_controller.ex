@@ -109,11 +109,20 @@ defmodule TrebyWeb.CandidateOtpController do
             |> delete_session("otp_email")
             |> redirect(to: "/#{slug}/portal")
 
+          {:error, :too_many_attempts} ->
+            conn
+            |> put_flash(:error, gettext("Too many attempts. Request a new code."))
+            |> redirect(to: "/#{slug}/portal/verify")
+
           {:error, _reason} ->
-            CandidatePortal.record_failed_otp_attempt(candidate, code)
+            message =
+              case CandidatePortal.record_failed_otp_attempt(candidate) do
+                :too_many_attempts -> gettext("Too many attempts. Request a new code.")
+                :ok -> gettext("Invalid or expired code. Please try again.")
+              end
 
             conn
-            |> put_flash(:error, gettext("Invalid or expired code. Please try again."))
+            |> put_flash(:error, message)
             |> redirect(to: "/#{slug}/portal/verify")
         end
 

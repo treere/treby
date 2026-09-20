@@ -20,6 +20,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
   def render(assigns) do
     ~H"""
     <div class="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 px-4">
+      <Layouts.flash_group flash={@flash} />
       <div class="max-w-md w-full">
         <.card class="shadow-sm">
           <div class="text-center mb-6">

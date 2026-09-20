@@ -96,6 +96,33 @@ defmodule TrebyWeb.CandidateOtpFlowTest do
       assert get_session(conn, "candidate_expires_at") != nil
     end
 
+    test "shows too many attempts after 5 wrong codes and invalidates the code", %{conn: conn} do
+      {tenant, candidate} = setup_tenant_and_candidate()
+
+      conn =
+        post(conn, ~p"/#{tenant.slug}/portal/login", %{"email" => candidate.email})
+
+      email = capture_email()
+      code = extract_code(email)
+
+      conn =
+        Enum.reduce(1..5, conn, fn _, c ->
+          post(c, ~p"/#{tenant.slug}/portal/verify", %{"code" => "000000"})
+        end)
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Too many attempts. Request a new code."
+
+      # the error is actually rendered on the verify page
+      page = get(conn, ~p"/#{tenant.slug}/portal/verify")
+      assert html_response(page, 200) =~ "Too many attempts"
+
+      # the real code was invalidated by the lock
+      conn2 = post(conn, ~p"/#{tenant.slug}/portal/verify", %{"code" => code})
+      assert redirected_to(conn2) == "/#{tenant.slug}/portal/verify"
+      assert get_session(conn2, "candidate_id") == nil
+    end
+
     test "throttles excessive OTP requests with rate-limit banner", %{conn: conn} do
       {tenant, _candidate} = setup_tenant_and_candidate()
       old_limits = Application.get_env(:treby, :rate_limits)

@@ -61,7 +61,12 @@ defmodule TrebyWeb.RegistrationTest do
 
     test "invalid email format shows an inline error", %{conn: conn} do
       conn = post(conn, ~p"/register", %{"user" => %{"email" => "not-an-email"}})
-      assert html_response(conn, 422) =~ "must have the @ sign and no spaces"
+      assert html_response(conn, 422) =~ "must be a valid email address"
+    end
+
+    test "undotted domain is rejected", %{conn: conn} do
+      conn = post(conn, ~p"/register", %{"user" => %{"email" => "a@b"}})
+      assert html_response(conn, 422) =~ "must be a valid email address"
     end
 
     test "already registered email shows a field error and sends no code", %{conn: conn} do

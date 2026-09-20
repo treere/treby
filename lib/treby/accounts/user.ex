@@ -28,7 +28,7 @@ defmodule Treby.Accounts.User do
     |> cast(attrs, [:email, :password, :name, :role, :timezone])
     |> validate_required([:email, :password, :name])
     |> normalize_email()
-    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> Treby.Emails.validate_format(:email)
     |> validate_length(:password, min: 6, message: "must be at least 6 characters")
     |> unique_constraint([:tenant_id, :email])
     |> unique_constraint(:email, name: :users_email_unique_lower_index)

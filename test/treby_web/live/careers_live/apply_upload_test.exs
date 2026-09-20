@@ -74,6 +74,25 @@ defmodule TrebyWeb.CareersLive.ApplyUploadTest do
 
       html = render(view)
       assert html =~ "File type not accepted"
+      refute has_element?(view, "button[type=submit][disabled]")
+      assert html =~ "Submit Application"
+    end
+
+    test "oversized resume shows size error without freezing the submit button", %{conn: conn} do
+      {tenant, job} = setup_tenant_with_job()
+      {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/careers/#{job.id}/apply")
+
+      view
+      |> file_input("#apply-form", :resume, [
+        %{name: "big.pdf", content: :binary.copy("a", 11_000_000), type: "application/pdf"}
+      ])
+      |> render_upload("big.pdf")
+
+      html = render(view)
+      assert html =~ "File is too large"
+      refute html =~ "Uploading..."
+      refute has_element?(view, "button[type=submit][disabled]")
+      assert html =~ "Submit Application"
     end
 
     test "submit with no file still succeeds", %{conn: conn} do

@@ -58,6 +58,11 @@ The system SHALL provide an application form for each job. Upon submission, the 
 - **THEN** a conversation is created with context "general" and a system message "Your application for {job_title} has been received"
 - **AND** the confirmation ping email contains a "View Your Application" button linking to `/:tenant_slug/portal`
 
+#### Scenario: Oversized or invalid resume
+- **WHEN** a visitor selects a resume larger than 10MB or of an unsupported type
+- **THEN** the file entry shows the reason ("File is too large (max 10MB)" or "File type not accepted")
+- **AND** the submit button stays enabled (no permanent "Uploading...") so the visitor can remove the file and continue
+
 #### Scenario: Submit with missing required fields
 - **WHEN** a visitor submits an application without required fields
 - **THEN** the form shows validation errors

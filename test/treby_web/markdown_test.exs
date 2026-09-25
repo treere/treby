@@ -39,6 +39,31 @@ defmodule TrebyWeb.MarkdownTest do
     assert html =~ "yo"
   end
 
+  test "renders GFM tables with no attributes" do
+    html = rendered("| Name | Role |\n|------|------|\n| Ada  | Dev  |\n")
+
+    assert html =~ "<table>"
+    assert html =~ "<thead>"
+    assert html =~ "<tbody>"
+    assert html =~ "<th>Name</th>"
+    assert html =~ "<td>Ada</td>"
+    refute html =~ "<table "
+    refute html =~ "<td "
+    refute html =~ "<th "
+  end
+
+  test "keeps tables while stripping scripts and dangerous URLs" do
+    html =
+      rendered(
+        "| A | B |\n|---|---|\n| <script>alert(1)</script> | [bad](javascript:alert(1)) |\n"
+      )
+
+    assert html =~ "<table>"
+    assert html =~ "<td>"
+    refute html =~ "<script>"
+    refute html =~ "javascript:"
+  end
+
   test "handles nil and empty input" do
     assert {:safe, _} = Markdown.to_safe_html(nil)
     assert rendered("") == ""

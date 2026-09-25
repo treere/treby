@@ -11,7 +11,9 @@ The assistant is available on every page inside a workspace, for signed-in team 
 - **Floating widget** — click the assistant button in the bottom-right corner of any page to open it, and close it when you are done. The panel floats over the page, so you can keep scrolling and working underneath.
 - **Full page** — open **Assistant** in the top navigation, or go to **`/<workspace>/app/ai`**, for a full-width chat.
 
-The widget remembers whether it was open: leave it open, change page or refresh, and it stays open. It is open or closed per browser.
+You can **drag the widget by its header** to move it anywhere on the screen, and **drag the bottom-right corner** to make it larger or smaller. It always stays inside the visible window.
+
+The widget remembers whether it was open and where you placed it: leave it open, move or resize it, change page or refresh, and it comes back the same way. This is remembered per browser.
 
 ## What it can do
 
@@ -36,7 +38,7 @@ If your request spans more than one area, ask the assistant to **switch** to the
 
 1. Open the widget or the **Assistant** page.
 2. Type your message and press **Send**.
-3. The reply appears as it is written, formatted as rich text — headings, lists, and code render as you watch.
+3. The reply appears as it is written, formatted as rich text — headings, lists, code, and tables render as you watch.
 4. The chat scrolls automatically to the newest message. If you have scrolled up to read earlier messages, it only scrolls once you go back to the bottom.
 5. Keep using the page while the reply is being written; the assistant works in the background.
 

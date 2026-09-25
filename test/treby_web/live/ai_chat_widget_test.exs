@@ -82,6 +82,24 @@ defmodule TrebyWeb.AiChatWidgetTest do
     assert render(jobs_view) =~ "persisted across pages"
   end
 
+  test "renders a markdown table in an assistant reply", %{conn: conn} do
+    {tenant, user} = setup_tenant_with_user()
+
+    conversation = Conversations.get_or_create_conversation(tenant.id, user.id, "tok-widget")
+
+    {:ok, _} =
+      Conversations.create_message(conversation, %{
+        role: "assistant",
+        content: "| Name | Role |\n|------|------|\n| Ada  | Dev  |\n"
+      })
+
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
+
+    assert has_element?(view, "#ai-chat-panel table")
+    assert has_element?(view, "#ai-chat-panel table th", "Name")
+    assert has_element?(view, "#ai-chat-panel table td", "Ada")
+  end
+
   test "shows a localized error and starts no chat when rate limited", %{conn: conn} do
     {tenant, user} = setup_tenant_with_user()
 

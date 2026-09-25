@@ -240,6 +240,7 @@ defmodule TrebyWeb.AiChatWidget do
         <div
           data-ai-chat-panel
           id="ai-chat-panel"
+          phx-hook="AiChatGeometry"
           class={[
             "fixed bottom-4 right-4 z-40 flex flex-col w-[24rem] max-w-[calc(100vw-2rem)] h-[32rem] max-h-[calc(100vh-2rem)] rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden",
             !@open && "hidden"
@@ -279,14 +280,27 @@ defmodule TrebyWeb.AiChatWidget do
   defp chat_panel(assigns) do
     ~H"""
     <div class="flex flex-col h-full min-h-0">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
-        <div>
-          <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-            {gettext("Assistant")}
-          </h2>
-          <p class="text-xs text-zinc-500 dark:text-zinc-400">
-            {gettext("Ask about jobs, the platform, or the page you are on.")}
-          </p>
+      <div
+        data-ai-chat-drag={@variant == :floating}
+        class={[
+          "flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700",
+          @variant == :floating && "cursor-grab active:cursor-grabbing touch-none select-none"
+        ]}
+      >
+        <div class="flex items-center gap-2 min-w-0">
+          <.icon
+            :if={@variant == :floating}
+            name="hero-bars-3"
+            class="w-4 h-4 shrink-0 text-zinc-400 dark:text-zinc-500"
+          />
+          <div>
+            <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+              {gettext("Assistant")}
+            </h2>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
+              {gettext("Ask about jobs, the platform, or the page you are on.")}
+            </p>
+          </div>
         </div>
         <div class="flex items-center gap-1">
           <button
@@ -436,6 +450,25 @@ defmodule TrebyWeb.AiChatWidget do
           {gettext("Send")}
         </button>
       </form>
+
+      <div
+        :if={@variant == :floating}
+        data-ai-chat-resize
+        aria-hidden="true"
+        class="absolute bottom-0 right-0 z-10 flex h-5 w-5 items-end justify-end p-0.5 text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-nwse-resize touch-none"
+      >
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          class="h-3 w-3"
+        >
+          <path d="M14 6 L6 14" />
+          <path d="M14 11 L11 14" />
+        </svg>
+      </div>
     </div>
     """
   end

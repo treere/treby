@@ -1,7 +1,9 @@
 defmodule TrebyWeb.Markdown do
   @moduledoc """
-  Renders user-authored Markdown (company and job descriptions) to sanitized
-  safe HTML for display on public pages.
+  Renders user- and assistant-authored Markdown (company and job descriptions,
+  assistant replies) to sanitized safe HTML for display in the app.
+
+  Parsing uses CommonMark plus GFM tables.
   """
 
   @doc """
@@ -14,7 +16,7 @@ defmodule TrebyWeb.Markdown do
 
   def to_safe_html(text) when is_binary(text) do
     text
-    |> MDEx.to_html!()
+    |> MDEx.to_html!(extension: [table: true])
     |> HtmlSanitizeEx.Scrubber.scrub(TrebyWeb.MarkdownScrubber)
     |> Phoenix.HTML.raw()
   end

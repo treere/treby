@@ -252,7 +252,10 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
             </div>
 
             <div class="mb-4">
-              <.status_badge status={@selected_application.pipeline_stage.name} />
+              <.status_badge
+                status={@selected_application.pipeline_stage.name}
+                label={human_status(@selected_application.pipeline_stage.name)}
+              />
             </div>
 
             <div class="bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 mb-4">
@@ -456,7 +459,10 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
                       {application.job.description}
                     </p>
                   </div>
-                  <.status_badge status={application.pipeline_stage.name} />
+                  <.status_badge
+                    status={application.pipeline_stage.name}
+                    label={human_status(application.pipeline_stage.name)}
+                  />
                 </div>
               </button>
             <% end %>
@@ -466,20 +472,6 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
     </Layouts.candidate_portal>
     """
   end
-
-  defp status_badge(assigns) do
-    ~H"""
-    <.badge variant={badge_variant(@status)}>{human_status(@status)}</.badge>
-    """
-  end
-
-  defp badge_variant("new"), do: "default"
-  defp badge_variant("screening"), do: "info"
-  defp badge_variant("interview"), do: "warning"
-  defp badge_variant("offer"), do: "success"
-  defp badge_variant("hired"), do: "success"
-  defp badge_variant("rejected"), do: "danger"
-  defp badge_variant(_), do: "default"
 
   defp human_status("new"), do: gettext("Received")
   defp human_status("screening"), do: gettext("Screening")

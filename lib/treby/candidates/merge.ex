@@ -98,7 +98,7 @@ defmodule Treby.Candidates.Merge do
         primary_candidate_id: primary.id,
         absorbed_candidate_id: absorbed.id,
         tenant_id: primary.tenant_id,
-        actor_id: actor && actor.id,
+        actor_id: Treby.Authorization.Actor.id(actor),
         merged_at: now,
         application_mapping: HelpersMap.stringify_keys(application_mapping),
         thread_mapping: HelpersMap.stringify_keys(conversation_mapping),
@@ -111,7 +111,7 @@ defmodule Treby.Candidates.Merge do
       "candidate",
       primary.id,
       %{
-        actor_id: actor && actor.id,
+        actor_id: Treby.Authorization.Actor.id(actor),
         tenant_id: primary.tenant_id,
         absorbed_candidate_id: absorbed.id
       }
@@ -119,7 +119,7 @@ defmodule Treby.Candidates.Merge do
 
     Treby.Audit.log_event("candidate.merged", "candidate", primary.id, %{
       tenant_id: primary.tenant_id,
-      actor_id: actor && actor.id,
+      actor_id: Treby.Authorization.Actor.id(actor),
       metadata: %{absorbed_candidate_id: absorbed.id}
     })
 
@@ -187,7 +187,7 @@ defmodule Treby.Candidates.Merge do
             "candidate",
             primary.id,
             %{
-              actor_id: actor && actor.id,
+              actor_id: Treby.Authorization.Actor.id(actor),
               tenant_id: primary.tenant_id,
               absorbed_candidate_id: absorbed.id
             }
@@ -195,7 +195,7 @@ defmodule Treby.Candidates.Merge do
 
           Treby.Audit.log_event("candidate.merge_undone", "candidate", primary.id, %{
             tenant_id: primary.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{absorbed_candidate_id: absorbed.id}
           })
 
@@ -267,7 +267,7 @@ defmodule Treby.Candidates.Merge do
     |> DismissedMergeGroup.changeset(%{
       tenant_id: tenant_id,
       group_key: group_key,
-      dismissed_by: actor && actor.id,
+      dismissed_by: Treby.Authorization.Actor.id(actor),
       dismissed_at: DateTime.utc_now()
     })
     |> Repo.insert(

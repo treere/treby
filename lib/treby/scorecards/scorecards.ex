@@ -38,7 +38,7 @@ defmodule Treby.Scorecards do
         {:ok, tmpl} ->
           Treby.Audit.log_event("scorecard_template.created", "scorecard_template", tmpl.id, %{
             tenant_id: tmpl.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{after: %{name: tmpl.name}}
           })
 
@@ -65,7 +65,7 @@ defmodule Treby.Scorecards do
         {:ok, updated} ->
           Treby.Audit.log_event("scorecard_template.updated", "scorecard_template", updated.id, %{
             tenant_id: updated.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{before: before, after: Map.take(updated, [:name])}
           })
 
@@ -90,7 +90,7 @@ defmodule Treby.Scorecards do
         {:ok, deleted} ->
           Treby.Audit.log_event("scorecard_template.deleted", "scorecard_template", deleted.id, %{
             tenant_id: deleted.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{before: %{name: deleted.name}}
           })
 

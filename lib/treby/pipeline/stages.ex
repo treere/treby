@@ -325,7 +325,7 @@ defmodule Treby.Pipeline.Stages do
             tenant_id:
               stage.pipeline_id &&
                 (Repo.get(PipelineDef, stage.pipeline_id) || %{tenant_id: nil}).tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{after: Map.take(stage, [:name, :position, :color, :stage_type])}
           })
 
@@ -353,7 +353,7 @@ defmodule Treby.Pipeline.Stages do
           Treby.Audit.log_event("pipeline.stage_updated", "pipeline_stage", updated.id, %{
             tenant_id:
               (Repo.get(PipelineDef, updated.pipeline_id) || %{tenant_id: nil}).tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{
               before: before,
               after: Map.take(updated, [:name, :position, :color, :stage_type])
@@ -382,7 +382,7 @@ defmodule Treby.Pipeline.Stages do
           Treby.Audit.log_event("pipeline.stage_deleted", "pipeline_stage", deleted.id, %{
             tenant_id:
               (Repo.get(PipelineDef, deleted.pipeline_id) || %{tenant_id: nil}).tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{before: Map.take(deleted, [:name, :position, :color])}
           })
 

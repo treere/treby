@@ -147,14 +147,14 @@ defmodule Treby.Interviews do
           "application",
           event.application_id,
           %{
-            completed_by: actor && actor.id,
+            completed_by: Treby.Authorization.Actor.id(actor),
             tenant_id: event.tenant_id
           }
         )
 
         Treby.Audit.log_event("interview.completed", "interview_event", completed_event.id, %{
           tenant_id: completed_event.tenant_id,
-          actor_id: actor && actor.id,
+          actor_id: Treby.Authorization.Actor.id(actor),
           metadata: %{before: %{status: "scheduled"}, after: %{status: "completed"}}
         })
 

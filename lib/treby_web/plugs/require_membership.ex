@@ -3,10 +3,13 @@ defmodule TrebyWeb.Plugs.RequireMembership do
 
   @moduledoc """
   Verifies the authenticated user has a membership for the tenant identified by
-  the URL slug. Assigns current_tenant, current_membership and available_tenants.
+  the URL slug. Assigns current_tenant, current_membership, current_actor and
+  available_tenants.
   """
 
   import Plug.Conn
+
+  alias Treby.Authorization.Actor
 
   def init(opts), do: opts
 
@@ -19,6 +22,7 @@ defmodule TrebyWeb.Plugs.RequireMembership do
         conn
         |> assign(:current_tenant, tenant)
         |> assign(:current_membership, membership)
+        |> assign(:current_actor, Actor.from(membership, tenant))
         |> assign(:available_tenants, available)
 
       {:error, :no_tenant} ->

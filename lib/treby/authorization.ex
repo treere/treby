@@ -205,7 +205,7 @@ defmodule Treby.Authorization do
          {:ok, row} <- upsert_override(tenant_id, role, action_str, truthy?(allowed)) do
       Treby.Audit.log_event("role_permission.updated", "role_permission", row.id, %{
         tenant_id: tenant_id,
-        actor_id: actor && actor.id,
+        actor_id: Treby.Authorization.Actor.id(actor),
         metadata: %{role: role, action: action_str, allowed: truthy?(allowed)}
       })
 
@@ -241,7 +241,7 @@ defmodule Treby.Authorization do
     if count > 0 && row do
       Treby.Audit.log_event("role_permission.reset", "role_permission", row.id, %{
         tenant_id: tenant_id,
-        actor_id: actor && actor.id,
+        actor_id: Treby.Authorization.Actor.id(actor),
         metadata: %{role: role, action: action_str}
       })
     end

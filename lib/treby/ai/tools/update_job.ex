@@ -45,7 +45,7 @@ defmodule Treby.AI.Tools.UpdateJob do
         attrs =
           args
           |> Map.take(@fields)
-          |> Map.put("actor_id", actor && actor.id)
+          |> Map.put("actor_id", Treby.Authorization.Actor.id(actor))
 
         case Treby.Jobs.update_job(job, attrs) do
           {:ok, updated} -> {:ok, %{"id" => updated.id, "title" => updated.title}}

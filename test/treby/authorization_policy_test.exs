@@ -64,6 +64,13 @@ defmodule Treby.Authorization.PolicyTest do
     refute Policy.can?(actor, :applications_move)
   end
 
+  test "Actor.id/1 is nil-safe" do
+    assert Actor.id(nil) == nil
+    assert Actor.id(%{id: 42, role: "recruiter"}) == 42
+    assert Actor.id(%{"id" => 7}) == 7
+    assert Actor.id(%{role: "recruiter"}) == nil
+  end
+
   test "revoked override denies on rebuilt actor (confirm re-check)" do
     suffix = System.unique_integer([:positive])
 

@@ -3,11 +3,14 @@ defmodule TrebyWeb.Hooks.RequireMembership do
 
   @moduledoc """
   LiveView on_mount that loads tenant from slug and verifies membership.
-  Assigns current_user, current_tenant, current_membership, available_tenants.
+  Assigns current_user, current_tenant, current_membership, current_actor,
+  available_tenants.
   """
 
   import Phoenix.LiveView, only: [put_flash: 3, redirect: 2]
   import Phoenix.Component, only: [assign: 3]
+
+  alias Treby.Authorization.Actor
 
   def on_mount(
         :default,
@@ -24,6 +27,7 @@ defmodule TrebyWeb.Hooks.RequireMembership do
          |> assign(:current_user, user)
          |> assign(:current_tenant, tenant)
          |> assign(:current_membership, membership)
+         |> assign(:current_actor, Actor.from(membership, tenant))
          |> assign(:available_tenants, available)}
 
       {:error, _} ->
@@ -46,17 +50,12 @@ defmodule TrebyWeb.Hooks.RequireMembership do
          |> assign(:current_user, user)
          |> assign(:current_tenant, tenant)
          |> assign(:current_membership, membership)
+         |> assign(:current_actor, Actor.from(membership, tenant))
          |> assign(:available_tenants, available)}
 
       [] ->
         {:halt,
          socket |> put_flash(:error, gettext("No workspace found")) |> redirect(to: "/login")}
-
-      _ ->
-        {:cont,
-         socket
-         |> assign(:current_user, user)
-         |> assign(:available_tenants, available)}
     end
   end
 

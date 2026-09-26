@@ -8,16 +8,16 @@ defmodule TrebyWeb.SettingsLive.Team do
     # Support both slug and legacy session
     {user, tenant, membership} =
       cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant,
+           socket.assigns[:current_membership]}
+
         params["tenant_slug"] ->
           slug = params["tenant_slug"]
           tenant = Tenants.get_tenant_by_slug(slug)
           user = Accounts.get_user!(session["user_id"])
           membership = Treby.Memberships.get_membership(user.id, tenant.id)
           {user, tenant, membership}
-
-        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
-          {socket.assigns.current_user, socket.assigns.current_tenant,
-           socket.assigns[:current_membership]}
 
         session["user_id"] && session["tenant_id"] ->
           user = Accounts.get_user!(session["user_id"])

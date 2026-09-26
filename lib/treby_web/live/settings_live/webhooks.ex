@@ -9,16 +9,16 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
 
     {user, tenant, membership} =
       cond do
+        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+          {socket.assigns.current_user, socket.assigns.current_tenant,
+           socket.assigns[:current_membership]}
+
         params["tenant_slug"] ->
           slug = params["tenant_slug"]
           tenant = Treby.Tenants.get_tenant_by_slug(slug)
           user = Treby.Accounts.get_user!(session["user_id"])
           membership = Treby.Memberships.get_membership(user.id, tenant.id)
           {user, tenant, membership}
-
-        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
-          {socket.assigns.current_user, socket.assigns.current_tenant,
-           socket.assigns[:current_membership]}
 
         session["user_id"] && session["tenant_id"] ->
           user = Treby.Accounts.get_user!(session["user_id"])

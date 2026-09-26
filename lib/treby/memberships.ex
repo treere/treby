@@ -98,7 +98,7 @@ defmodule Treby.Memberships do
         {:ok, updated} ->
           Treby.Audit.log_event("membership.updated", "membership", updated.id, %{
             tenant_id: updated.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{after: %{role: updated.role}}
           })
 
@@ -115,7 +115,7 @@ defmodule Treby.Memberships do
       {:ok, deleted} ->
         Treby.Audit.log_event("membership.removed", "membership", deleted.id, %{
           tenant_id: deleted.tenant_id,
-          actor_id: actor && actor.id,
+          actor_id: Treby.Authorization.Actor.id(actor),
           metadata: %{before: %{user_id: deleted.user_id, role: deleted.role}}
         })
 

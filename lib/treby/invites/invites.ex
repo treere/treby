@@ -41,7 +41,7 @@ defmodule Treby.Invites do
         {:ok, invite} ->
           Treby.Audit.log_event("team.invite_created", "invite", invite.id, %{
             tenant_id: invite.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{after: %{email: invite.email}}
           })
 
@@ -68,7 +68,7 @@ defmodule Treby.Invites do
         {:ok, deleted} ->
           Treby.Audit.log_event("team.invite_deleted", "invite", deleted.id, %{
             tenant_id: deleted.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{before: %{email: deleted.email}}
           })
 

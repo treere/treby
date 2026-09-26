@@ -33,7 +33,7 @@ defmodule Treby.AI.Tools.AddNote do
       attrs = %{
         "tenant_id" => ctx[:tenant_id],
         "application_id" => args["application_id"],
-        "author_id" => actor && actor.id,
+        "author_id" => Treby.Authorization.Actor.id(actor),
         "content" => args["content"],
         "type" => args["type"] || "note",
         "rating" => args["rating"]

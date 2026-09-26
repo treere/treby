@@ -30,6 +30,10 @@ defmodule Treby.Authorization.Actor do
     from(%{current_membership: membership, current_tenant: tenant})
   end
 
+  @doc "Nil-safe actor id: nil actor yields nil, present actor yields its id."
+  def id(nil), do: nil
+  def id(%{} = actor), do: Map.get(actor, :id) || Map.get(actor, "id")
+
   defp membership_context?(source) do
     Map.has_key?(source, :current_membership) or Map.has_key?(source, "current_membership") or
       Map.has_key?(source, :membership)

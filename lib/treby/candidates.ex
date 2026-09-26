@@ -168,7 +168,7 @@ defmodule Treby.Candidates do
         {:ok, deleted} ->
           Treby.Audit.log_event("candidate.deleted", "candidate", deleted.id, %{
             tenant_id: deleted.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{before: %{name: deleted.name, email: deleted.email}}
           })
 

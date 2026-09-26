@@ -5,6 +5,17 @@ defmodule TrebyWeb.RouteGuardsTest do
 
   alias Treby.{Tenants, Repo, Memberships}
   alias Treby.Accounts.User
+  alias Treby.Authorization.Actor
+  alias TrebyWeb.Hooks.RequireMembership
+
+  defp mount_socket(params, session) do
+    RequireMembership.on_mount(
+      :default,
+      params,
+      session,
+      %Phoenix.LiveView.Socket{assigns: %{__changed__: %{}, flash: %{}}}
+    )
+  end
 
   defp tenant_with(role) do
     suffix = System.unique_integer([:positive])
@@ -105,5 +116,39 @@ defmodule TrebyWeb.RouteGuardsTest do
     {tenant, member} = tenant_with("member")
     conn = init_test_session(conn, %{"user_id" => member.id, "tenant_id" => tenant.id})
     assert {:error, {:redirect, _}} = live(conn, "/app/settings/team")
+  end
+
+  test "guard assigns current_actor matching membership derivation" do
+    {tenant, user} = tenant_with("recruiter")
+    membership = Memberships.get_membership(user.id, tenant.id)
+
+    assert {:cont, socket} =
+             mount_socket(%{"tenant_slug" => tenant.slug}, %{"user_id" => user.id})
+
+    assert socket.assigns.current_actor == Actor.from(membership, tenant)
+    assert socket.assigns.current_actor.id == user.id
+  end
+
+  test "guard legacy fallback picks first membership with derived actor" do
+    {_, user} = tenant_with("member")
+    {other, _} = tenant_with("member")
+
+    {:ok, _} =
+      Memberships.create_membership(%{user_id: user.id, tenant_id: other.id, role: "member"})
+
+    assert {:cont, socket} = mount_socket(%{}, %{"user_id" => user.id})
+    assert socket.assigns.current_actor.id == user.id
+
+    assert socket.assigns.current_actor ==
+             Actor.from(socket.assigns.current_membership, socket.assigns.current_tenant)
+  end
+
+  test "guard denies unknown workspace, contract unchanged" do
+    {_tenant, user} = tenant_with("member")
+
+    assert {:halt, socket} =
+             mount_socket(%{"tenant_slug" => "no-such-workspace"}, %{"user_id" => user.id})
+
+    assert {:redirect, %{to: "/choose-tenant"}} = socket.redirected
   end
 end

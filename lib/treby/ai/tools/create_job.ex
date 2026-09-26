@@ -38,7 +38,7 @@ defmodule Treby.AI.Tools.CreateJob do
       args
       |> Map.take(@fields)
       |> Map.put("tenant_id", ctx[:tenant_id])
-      |> Map.put("actor_id", actor && actor.id)
+      |> Map.put("actor_id", Treby.Authorization.Actor.id(actor))
 
     case Treby.Jobs.create_job(attrs) do
       {:ok, job} -> {:ok, %{"id" => job.id, "title" => job.title}}

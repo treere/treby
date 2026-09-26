@@ -39,7 +39,7 @@ defmodule Treby.AI.Tools.ScheduleInterview do
         "end_at_utc" => args["end_at_utc"],
         "duration_minutes" => args["duration_minutes"],
         "notes" => args["notes"],
-        "scheduled_by_id" => actor && actor.id,
+        "scheduled_by_id" => Treby.Authorization.Actor.id(actor),
         "examiner_ids" => args["examiner_ids"] || []
       }
 

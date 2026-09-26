@@ -40,7 +40,7 @@ defmodule Treby.Customization do
         {:ok, cf} ->
           Treby.Audit.log_event("custom_field.created", "custom_field", cf.id, %{
             tenant_id: cf.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{after: %{name: cf.name, applies_to: cf.applies_to}}
           })
 
@@ -63,7 +63,7 @@ defmodule Treby.Customization do
         {:ok, updated} ->
           Treby.Audit.log_event("custom_field.updated", "custom_field", updated.id, %{
             tenant_id: updated.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{before: before, after: Map.take(updated, [:name, :applies_to])}
           })
 
@@ -84,7 +84,7 @@ defmodule Treby.Customization do
         {:ok, deleted} ->
           Treby.Audit.log_event("custom_field.deleted", "custom_field", deleted.id, %{
             tenant_id: deleted.tenant_id,
-            actor_id: actor && actor.id,
+            actor_id: Treby.Authorization.Actor.id(actor),
             metadata: %{before: %{name: deleted.name}}
           })
 

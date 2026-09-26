@@ -57,6 +57,36 @@ defmodule Treby.AI.SpecializedAgentsTest do
     assert MapSet.member?(analytics, "handoff")
   end
 
+  test "profiles expose the full catalog and role filtering applies per profile" do
+    recruiter = Profiles.get(:recruiter).tools |> Enum.map(& &1.name()) |> MapSet.new()
+    analytics = Profiles.get(:analytics).tools |> Enum.map(& &1.name()) |> MapSet.new()
+    comms = Profiles.get(:comms).tools |> Enum.map(& &1.name()) |> MapSet.new()
+    admin = Profiles.get(:admin).tools |> Enum.map(& &1.name()) |> MapSet.new()
+
+    assert MapSet.member?(recruiter, "list_notes")
+    assert MapSet.member?(recruiter, "schedule_interview")
+    assert MapSet.member?(recruiter, "list_calendar_connections")
+    assert MapSet.member?(analytics, "dashboard_summary")
+    assert MapSet.member?(comms, "cancel_scheduled_message")
+    assert MapSet.member?(comms, "list_email_templates")
+    assert MapSet.member?(recruiter, "delete_candidate")
+    assert MapSet.member?(recruiter, "merge_candidates")
+    assert MapSet.member?(admin, "bulk_delete_candidates")
+    assert MapSet.member?(admin, "list_webhooks")
+    assert MapSet.member?(admin, "create_pipeline")
+
+    member_recruiter =
+      Profiles.get(:recruiter).tools
+      |> Tools.for_role("member")
+      |> Enum.map(& &1.name())
+      |> MapSet.new()
+
+    refute MapSet.member?(member_recruiter, "delete_candidate")
+    refute MapSet.member?(member_recruiter, "find_interview_substitutes")
+    assert MapSet.member?(member_recruiter, "create_candidate")
+    assert MapSet.member?(member_recruiter, "schedule_interview")
+  end
+
   test "handoff switches the session domain for the next turn" do
     tenant_id = "tenant-handoff"
     user_id = "user-handoff"

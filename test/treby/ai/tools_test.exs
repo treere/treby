@@ -36,7 +36,7 @@ defmodule Treby.AI.ToolsTest do
   end
 
   test "all tools are registered with a schema" do
-    assert length(Tools.all()) == 27
+    assert length(Tools.all()) == 100
 
     for tool <- Tools.all() do
       assert is_binary(tool.name())
@@ -44,7 +44,50 @@ defmodule Treby.AI.ToolsTest do
       assert is_map(tool.schema())
       assert tool.schema()["type"] == "object"
       assert is_boolean(tool.destructive?())
+      assert Tools.required_role(tool) in [:any, :admin]
     end
+  end
+
+  test "tool names are unique" do
+    names = Enum.map(Tools.all(), & &1.name())
+    assert Enum.uniq(names) == names
+  end
+
+  test "required_role defaults to :any and flags admin tools" do
+    assert Tools.required_role(Tools.ListJobs) == :any
+    assert Tools.required_role(Tools.DeleteJob) == :admin
+    assert Tools.required_role(Tools.DeleteCandidate) == :admin
+  end
+
+  test "for_role hides admin tools from members and keeps them for admins" do
+    all = Tools.all()
+
+    member_tools = Tools.for_role(all, "member")
+    admin_tools = Tools.for_role(all, "admin")
+
+    refute Tools.DeleteJob in member_tools
+    refute Tools.DeleteCandidate in member_tools
+    assert Tools.DeleteJob in admin_tools
+    assert Tools.ListJobs in member_tools
+    assert length(member_tools) < length(admin_tools)
+  end
+
+  test "authorize denies admin tools for members and allows any tools" do
+    assert :ok = Tools.authorize(Tools.ListJobs, %{role: "member"})
+    assert {:error, :unauthorized} = Tools.authorize(Tools.DeleteJob, %{role: "member"})
+    assert :ok = Tools.authorize(Tools.DeleteJob, %{role: "admin"})
+  end
+
+  test "validate rejects wrong argument types and accepts valid ones" do
+    assert {:ok, %{"job_id" => "abc"}} = Tools.validate(Tools.GetJob, %{"job_id" => "abc"})
+    assert {:error, message} = Tools.validate(Tools.GetJob, %{"job_id" => 123})
+    assert message =~ "job_id"
+    assert {:error, _} = Tools.validate(Tools.GetJob, %{})
+  end
+
+  test "validate tolerates unknown keys" do
+    assert {:ok, %{"job_id" => "abc"}} =
+             Tools.validate(Tools.GetJob, %{"job_id" => "abc", "extra" => true})
   end
 
   test "destructive flag only on writes" do
@@ -74,7 +117,7 @@ defmodule Treby.AI.ToolsTest do
     job_b = create_job(tenant_b, %{title: "B job"})
 
     assert {:error, "job not found"} =
-             DeleteJob.run(%{"job_id" => job_b.id}, %{tenant_id: tenant_a.id})
+             DeleteJob.run(%{"job_id" => job_b.id}, %{tenant_id: tenant_a.id, role: "admin"})
 
     assert {:error, "job not found"} =
              UpdateJob.run(

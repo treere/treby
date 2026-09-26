@@ -92,6 +92,15 @@ defmodule TrebyWeb.LayoutsCandidatePortalTest do
       # Go back to list and check
     end
 
+    test "renders no assistant widget for candidates", %{conn: conn} do
+      {tenant, candidate, _app, _stage} = setup_tenant_candidate_with_app()
+      conn = login(conn, candidate, tenant)
+      {:ok, view, _html} = live(conn, ~p"/#{tenant.slug}/portal")
+      html = render(view)
+      refute html =~ "ai-chat-trigger"
+      refute html =~ "ai-chat-panel"
+    end
+
     test "close button has aria-label and 44px target", %{conn: conn} do
       {tenant, candidate, app, _stage} = setup_tenant_candidate_with_app("new")
       conn = login(conn, candidate, tenant)

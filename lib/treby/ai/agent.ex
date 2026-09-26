@@ -34,7 +34,7 @@ defmodule Treby.AI.Agent do
         Conversations.create_message(conversation, %{role: "user", content: text})
 
       messages = build_messages(conversation, ctx, profile)
-      tools = profile.tools
+      tools = Tools.for_role(profile.tools, ctx[:role])
 
       debug_log("start", %{user_id: ctx.user_id, tools: length(tools)})
 
@@ -60,7 +60,7 @@ defmodule Treby.AI.Agent do
         {:error, "unknown tool"}
 
       tool ->
-        case tool.run(run.args, ctx) do
+        case Tools.run(tool, run.args, ctx) do
           {:ok, result} ->
             {:ok, _} =
               Conversations.update_tool_run(run, %{status: "executed", result: %{ok: result}})
@@ -175,8 +175,9 @@ defmodule Treby.AI.Agent do
         Jason.encode!(%{error: "unknown tool"})
 
       tool ->
-        case tool.run(decode_args(call.arguments), ctx) do
+        case Tools.run(tool, decode_args(call.arguments), ctx) do
           {:ok, result} -> safe_json(%{ok: result}, call.name)
+          {:error, :unauthorized} -> Jason.encode!(%{error: "unauthorized"})
           {:error, reason} -> Jason.encode!(%{error: Tools.format_errors(reason)})
         end
     end

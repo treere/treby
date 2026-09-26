@@ -17,22 +17,22 @@ The widget remembers whether it was open and where you placed it: leave it open,
 
 ## What it can do
 
-The assistant routes each request to the right specialist, so you can stay on the same page and get the job done:
+The assistant acts **as you**: it can read and change exactly what your role allows in the current workspace, and nothing more. What it offers therefore depends on whether you are an **admin** or a **member**:
 
-- **Recruiting** — create or find candidates, list and search them, open a job application, move an application between pipeline stages, and add notes or scorecards.
-- **Analytics** — ask for pipeline statistics, conversion and hiring-funnel reports, job-view counts, and side-by-side candidate comparisons.
-- **Communications** — send or schedule messages to candidates, manage email templates per stage, and invite teammates.
-- **Workspace admin** — add or remove team members, add pipeline stages, bulk-import candidates from a CSV, and update workspace settings.
+- **Recruiting** — list and open jobs, candidates and applications; search candidates; create candidates and applications; move applications between pipeline stages; mark applications reviewed; add, edit and delete notes; schedule, reschedule, complete and cancel interviews; submit scorecards; compare candidates; read pipelines and stage assignments.
+- **Analytics** — pipeline statistics, conversion and hiring-funnel reports, job-view counts, candidate comparisons, and a workspace dashboard summary.
+- **Communications** — send or schedule messages to candidates, list, reschedule, cancel or retry scheduled messages, and read email templates.
+- **Workspace admin** *(admins only)* — add, remove or change the role of team members; invite people; configure pipelines and stages and who is assigned to them; manage custom fields and the career page; import candidates from CSV; run bulk actions; manage notifications, data-privacy requests and webhooks; and read the audit log.
 
-It also keeps the general abilities:
+The assistant also keeps the general abilities:
 
 - **Answer questions about the platform** — it knows which page you are on, including the filters and data on it, and explains what to do there.
 - **Read the form and the page you are working on** — when a page has a form it can see the fields, and it can also read the main record on the page (a job, candidate, application, or stage) to give accurate answers.
-- **List your jobs** — read-only, shown straight away.
-- **Create, update, or delete a job** — these change data, so each one requires your confirmation first.
 - **Propose form text fixes** — when you are editing a form, it can suggest corrected or pre-filled values. Confirm the suggestion and the values are applied to the form on the page for you.
+- **Switch specialist** — if your request spans more than one area, ask the assistant to switch and it hands the conversation to the relevant specialist.
 
-If your request spans more than one area, ask the assistant to **switch** to the relevant specialist and it will hand the conversation over.
+Admins see the full set of tools. Members never see or run admin-only actions, even if they ask: those requests are refused.
+
 
 ## Chatting
 
@@ -67,5 +67,5 @@ Click **Reset** at the top right of the chat and confirm. This starts a fresh co
 ## Limits
 
 - Messages are rate-limited per user to keep usage predictable.
-- The assistant works on the current workspace only. It never reads or changes another workspace.
+- The assistant works on the current workspace only, and only within your role. It never reads or changes another workspace, and a member cannot trigger admin-only actions.
 - Every action it performs on your behalf is written to the **Audit Log** (admin only, under **Settings → Audit Log**) so you can always see what happened and who approved it.

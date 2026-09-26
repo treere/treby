@@ -32,6 +32,7 @@ defmodule Treby.AI.Context do
       user: user,
       user_id: user && user.id,
       role: membership && membership.role,
+      actor: actor(user, membership),
       page: inspect(view),
       url: assigns[:current_path],
       params: assigns[:current_params] || %{},
@@ -44,6 +45,9 @@ defmodule Treby.AI.Context do
 
     Map.put(ctx, :system_prompt, system_prompt(ctx))
   end
+
+  defp actor(_user, nil), do: nil
+  defp actor(user, membership), do: %{id: user && user.id, role: membership.role}
 
   defp snapshot(assigns) do
     assigns

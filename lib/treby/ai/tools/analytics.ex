@@ -2,11 +2,12 @@ defmodule Treby.AI.Tools.Analytics do
   @moduledoc "Analytics & reporting tools."
 
   alias Treby.AI.Tools.{
-    ExplainPage,
-    PipelineStats,
-    JobViewsReport,
     CandidateCompare,
-    FunnelReport
+    DashboardSummary,
+    ExplainPage,
+    FunnelReport,
+    JobViewsReport,
+    PipelineStats
   }
 
   @tools [
@@ -14,7 +15,8 @@ defmodule Treby.AI.Tools.Analytics do
     PipelineStats,
     JobViewsReport,
     CandidateCompare,
-    FunnelReport
+    FunnelReport,
+    DashboardSummary
   ]
 
   def all, do: @tools

@@ -27,17 +27,19 @@ defmodule Treby.AI.Tools.CreateCandidate do
   end
 
   def run(args, ctx) do
-    attrs =
-      args
-      |> Map.take(@fields)
-      |> Map.put("tenant_id", ctx[:tenant_id])
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      attrs =
+        args
+        |> Map.take(@fields)
+        |> Map.put("tenant_id", ctx[:tenant_id])
 
-    case Treby.Candidates.create_or_find(ctx[:tenant_id], attrs) do
-      {:ok, candidate} ->
-        {:ok, %{"id" => candidate.id, "name" => candidate.name, "email" => candidate.email}}
+      case Treby.Candidates.create_or_find(ctx[:tenant_id], attrs) do
+        {:ok, candidate} ->
+          {:ok, %{"id" => candidate.id, "name" => candidate.name, "email" => candidate.email}}
 
-      {:error, reason} ->
-        {:error, Tools.format_errors(reason)}
+        {:error, reason} ->
+          {:error, Tools.format_errors(reason)}
+      end
     end
   end
 end

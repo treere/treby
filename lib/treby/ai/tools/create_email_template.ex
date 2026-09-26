@@ -9,6 +9,8 @@ defmodule Treby.AI.Tools.CreateEmailTemplate do
 
   def destructive?, do: true
 
+  def required_role, do: :admin
+
   def schema do
     %{
       "type" => "object",
@@ -34,7 +36,7 @@ defmodule Treby.AI.Tools.CreateEmailTemplate do
       "body" => args["body"]
     }
 
-    case Treby.EmailTemplates.upsert_email_template(attrs, ctx[:user]) do
+    case Treby.EmailTemplates.upsert_email_template(attrs, Tools.actor(ctx)) do
       {:ok, template} -> {:ok, %{"id" => template.id}}
       {:error, reason} -> {:error, Tools.format_errors(reason)}
     end

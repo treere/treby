@@ -69,7 +69,14 @@ defmodule Treby.AI.AgentTest do
         status: "pending_confirm"
       })
 
-    assert {:ok, _result} = Agent.confirm_tool_run(run, %{tenant_id: tenant.id, user: user})
+    assert {:ok, _result} =
+             Agent.confirm_tool_run(run, %{
+               tenant_id: tenant.id,
+               user: user,
+               role: "admin",
+               actor: %{id: user.id, role: "admin"}
+             })
+
     assert Repo.get(Job, job.id) == nil
 
     {events, _} = Audit.list_events(tenant.id)
@@ -96,6 +103,28 @@ defmodule Treby.AI.AgentTest do
 
     {events, _} = Audit.list_events(tenant.id)
     assert Enum.filter(events, &(&1.action == "ai.tool.executed")) == []
+  end
+
+  test "confirm refuses an admin tool for a member context" do
+    {tenant, user} = setup_tenant()
+
+    job =
+      tenant
+      |> Ecto.build_assoc(:jobs)
+      |> Job.changeset(%{title: "Protected", description: "d"})
+      |> Repo.insert!()
+
+    run = pending_run(tenant, user, "delete_job", %{"job_id" => job.id})
+
+    assert {:error, :unauthorized} =
+             Agent.confirm_tool_run(run, %{
+               tenant_id: tenant.id,
+               user: user,
+               role: "member",
+               actor: %{id: user.id, role: "member"}
+             })
+
+    assert Repo.get(Job, job.id)
   end
 
   test "reject marks the run rejected and does not mutate" do

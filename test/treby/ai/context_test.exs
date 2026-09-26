@@ -52,6 +52,24 @@ defmodule Treby.AI.ContextTest do
     assert ctx.params == %{"tenant_id" => other_tenant.id}
   end
 
+  test "actor carries the membership role, not the user role" do
+    {tenant, user} = tenant_with_user()
+
+    socket = %{
+      view: TrebyWeb.AiChatLive,
+      assigns: %{
+        current_user: user,
+        current_tenant: tenant,
+        current_membership: %{role: "member"}
+      }
+    }
+
+    ctx = Context.build(socket)
+
+    assert ctx.role == "member"
+    assert ctx.actor == %{id: user.id, role: "member"}
+  end
+
   test "assigns snapshot excludes sensitive/internal keys" do
     {tenant, user} = tenant_with_user()
 

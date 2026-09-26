@@ -40,10 +40,12 @@ defmodule Treby.AI.Tools.UpdateJob do
         {:error, "job not found"}
 
       job ->
+        actor = Tools.actor(ctx)
+
         attrs =
           args
           |> Map.take(@fields)
-          |> Map.put("actor_id", ctx[:user] && ctx[:user].id)
+          |> Map.put("actor_id", actor && actor.id)
 
         case Treby.Jobs.update_job(job, attrs) do
           {:ok, updated} -> {:ok, %{"id" => updated.id, "title" => updated.title}}

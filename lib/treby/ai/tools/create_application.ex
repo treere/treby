@@ -24,17 +24,19 @@ defmodule Treby.AI.Tools.CreateApplication do
   end
 
   def run(args, ctx) do
-    attrs = %{
-      "tenant_id" => ctx[:tenant_id],
-      "job_id" => args["job_id"],
-      "candidate_id" => args["candidate_id"],
-      "pipeline_stage_id" => args["pipeline_stage_id"],
-      "applied_at" => args["applied_at"] || DateTime.utc_now() |> DateTime.to_iso8601()
-    }
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      attrs = %{
+        "tenant_id" => ctx[:tenant_id],
+        "job_id" => args["job_id"],
+        "candidate_id" => args["candidate_id"],
+        "pipeline_stage_id" => args["pipeline_stage_id"],
+        "applied_at" => args["applied_at"] || DateTime.utc_now() |> DateTime.to_iso8601()
+      }
 
-    case Treby.Pipeline.create_application(attrs, []) do
-      {:ok, application} -> {:ok, %{"id" => application.id}}
-      {:error, reason} -> {:error, Tools.format_errors(reason)}
+      case Treby.Pipeline.create_application(attrs, actor: Tools.actor(ctx)) do
+        {:ok, application} -> {:ok, %{"id" => application.id}}
+        {:error, reason} -> {:error, Tools.format_errors(reason)}
+      end
     end
   end
 end

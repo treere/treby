@@ -91,13 +91,22 @@ defmodule TrebyWeb.AiChatWidget do
     ctx = session_ctx(socket)
     tenant = ctx.current_tenant
     user = ctx.current_user
+    membership = ctx[:current_membership]
+    role = membership && membership.role
 
     case Conversations.get_tool_run(tenant.id, id) do
       nil ->
         {:noreply, socket}
 
       run ->
-        case Agent.confirm_tool_run(run, %{tenant_id: tenant.id, user: user}) do
+        confirm_ctx = %{
+          tenant_id: tenant.id,
+          user: user,
+          role: role,
+          actor: %{id: user.id, role: role}
+        }
+
+        case Agent.confirm_tool_run(run, confirm_ctx) do
           {:ok, _result} -> {:noreply, reload(assign(socket, :ai_error, nil))}
           {:error, _reason} -> {:noreply, assign(socket, :ai_error, gettext("Action failed."))}
         end
@@ -181,6 +190,7 @@ defmodule TrebyWeb.AiChatWidget do
     %{
       current_user: socket.assigns[:current_user] || host[:current_user],
       current_tenant: socket.assigns[:current_tenant] || host[:current_tenant],
+      current_membership: socket.assigns[:current_membership] || host[:current_membership],
       ai_session_token: socket.assigns[:ai_session_token] || host[:ai_session_token]
     }
   end

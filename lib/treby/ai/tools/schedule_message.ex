@@ -22,23 +22,25 @@ defmodule Treby.AI.Tools.ScheduleMessage do
   end
 
   def run(args, ctx) do
-    case DateTime.from_iso8601(args["send_at"]) do
-      {:ok, send_at, _} ->
-        attrs = %{
-          "conversation_id" => args["conversation_id"],
-          "body" => args["body"],
-          "send_at" => send_at,
-          "sender_type" => "recruiter",
-          "tenant_id" => ctx[:tenant_id]
-        }
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      case DateTime.from_iso8601(args["send_at"]) do
+        {:ok, send_at, _} ->
+          attrs = %{
+            "conversation_id" => args["conversation_id"],
+            "body" => args["body"],
+            "send_at" => send_at,
+            "sender_type" => "recruiter",
+            "tenant_id" => ctx[:tenant_id]
+          }
 
-        case Treby.ScheduledMessages.create_scheduled_message(attrs) do
-          {:ok, sm} -> {:ok, %{"id" => sm.id, "status" => sm.status}}
-          {:error, reason} -> {:error, Tools.format_errors(reason)}
-        end
+          case Treby.ScheduledMessages.create_scheduled_message(attrs) do
+            {:ok, sm} -> {:ok, %{"id" => sm.id, "status" => sm.status}}
+            {:error, reason} -> {:error, Tools.format_errors(reason)}
+          end
 
-      _ ->
-        {:error, "invalid send_at; use an ISO8601 UTC datetime"}
+        _ ->
+          {:error, "invalid send_at; use an ISO8601 UTC datetime"}
+      end
     end
   end
 end

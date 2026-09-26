@@ -2,16 +2,30 @@ defmodule Treby.AI.Tools.Comms do
   @moduledoc "Communication tools."
 
   alias Treby.AI.Tools.{
-    SendMessage,
-    ScheduleMessage,
+    CancelScheduledMessage,
     CreateEmailTemplate,
-    InviteMember
+    DeleteEmailTemplate,
+    InviteMember,
+    ListEmailTemplates,
+    ListScheduledMessages,
+    RescheduleScheduledMessage,
+    RetryScheduledMessage,
+    ScheduleMessage,
+    SendMessage,
+    UpdateEmailTemplate
   }
 
   @tools [
     SendMessage,
     ScheduleMessage,
+    ListScheduledMessages,
+    CancelScheduledMessage,
+    RescheduleScheduledMessage,
+    RetryScheduledMessage,
+    ListEmailTemplates,
     CreateEmailTemplate,
+    UpdateEmailTemplate,
+    DeleteEmailTemplate,
     InviteMember
   ]
 

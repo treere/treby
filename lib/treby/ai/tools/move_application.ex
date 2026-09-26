@@ -20,16 +20,20 @@ defmodule Treby.AI.Tools.MoveApplication do
     }
   end
 
-  def run(args, _ctx) do
-    case Treby.Pipeline.get_application(args["id"]) do
-      nil ->
-        {:error, "application not found"}
+  def run(args, ctx) do
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      case Treby.Pipeline.get_application(args["id"]) do
+        nil ->
+          {:error, "application not found"}
 
-      application ->
-        case Treby.Pipeline.move_application(application, args["stage_id"], []) do
-          {:ok, _} -> {:ok, %{"id" => application.id, "stage_id" => args["stage_id"]}}
-          {:error, reason} -> {:error, Tools.format_errors(reason)}
-        end
+        application ->
+          case Treby.Pipeline.move_application(application, args["stage_id"],
+                 actor: Tools.actor(ctx)
+               ) do
+            {:ok, _} -> {:ok, %{"id" => application.id, "stage_id" => args["stage_id"]}}
+            {:error, reason} -> {:error, Tools.format_errors(reason)}
+          end
+      end
     end
   end
 end

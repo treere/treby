@@ -27,18 +27,22 @@ defmodule Treby.AI.Tools.AddNote do
   end
 
   def run(args, ctx) do
-    attrs = %{
-      "tenant_id" => ctx[:tenant_id],
-      "application_id" => args["application_id"],
-      "author_id" => ctx[:user] && ctx[:user].id,
-      "content" => args["content"],
-      "type" => args["type"] || "note",
-      "rating" => args["rating"]
-    }
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      actor = Tools.actor(ctx)
 
-    case Treby.Notes.create_note(attrs) do
-      {:ok, note} -> {:ok, %{"id" => note.id}}
-      {:error, reason} -> {:error, Tools.format_errors(reason)}
+      attrs = %{
+        "tenant_id" => ctx[:tenant_id],
+        "application_id" => args["application_id"],
+        "author_id" => actor && actor.id,
+        "content" => args["content"],
+        "type" => args["type"] || "note",
+        "rating" => args["rating"]
+      }
+
+      case Treby.Notes.create_note(attrs) do
+        {:ok, note} -> {:ok, %{"id" => note.id}}
+        {:error, reason} -> {:error, Tools.format_errors(reason)}
+      end
     end
   end
 end

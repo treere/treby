@@ -1,6 +1,8 @@
 defmodule Treby.AI.Tools.ImportCsv do
   @moduledoc "Destructive tool: bulk-import candidates from CSV text."
 
+  alias Treby.AI.Tools
+
   def name, do: "import_candidates_csv"
 
   def description,
@@ -8,6 +10,8 @@ defmodule Treby.AI.Tools.ImportCsv do
       "Bulk-create candidates from CSV text (columns: name,email[,phone,linkedin_url]). First row may be a header."
 
   def destructive?, do: true
+
+  def required_role, do: :admin
 
   def schema do
     %{
@@ -21,27 +25,29 @@ defmodule Treby.AI.Tools.ImportCsv do
   end
 
   def run(args, ctx) do
-    rows =
-      args["csv_text"]
-      |> String.split(~r/\R/)
-      |> Enum.reject(&(&1 |> String.trim() == ""))
-      |> then(fn lines -> if args["has_header"], do: tl(lines), else: lines end)
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      rows =
+        args["csv_text"]
+        |> String.split(~r/\R/)
+        |> Enum.reject(&(&1 |> String.trim() == ""))
+        |> then(fn lines -> if args["has_header"], do: tl(lines), else: lines end)
 
-    {created, errors} =
-      Enum.reduce(rows, {0, []}, fn line, {ok, errs} ->
-        case parse_row(line) do
-          {:ok, attrs} ->
-            case Treby.Candidates.create_or_find(ctx[:tenant_id], attrs) do
-              {:ok, _} -> {ok + 1, errs}
-              {:error, reason} -> {ok, [reason | errs]}
-            end
+      {created, errors} =
+        Enum.reduce(rows, {0, []}, fn line, {ok, errs} ->
+          case parse_row(line) do
+            {:ok, attrs} ->
+              case Treby.Candidates.create_or_find(ctx[:tenant_id], attrs) do
+                {:ok, _} -> {ok + 1, errs}
+                {:error, reason} -> {ok, [reason | errs]}
+              end
 
-          :skip ->
-            {ok, errs}
-        end
-      end)
+            :skip ->
+              {ok, errs}
+          end
+        end)
 
-    {:ok, %{"created" => created, "errors" => Enum.reverse(errors)}}
+      {:ok, %{"created" => created, "errors" => Enum.reverse(errors)}}
+    end
   end
 
   defp parse_row(line) do

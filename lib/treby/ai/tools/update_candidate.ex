@@ -27,17 +27,19 @@ defmodule Treby.AI.Tools.UpdateCandidate do
   end
 
   def run(args, ctx) do
-    case Treby.Candidates.get_candidate(ctx[:tenant_id], args["id"]) do
-      nil ->
-        {:error, "candidate not found"}
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      case Treby.Candidates.get_candidate(ctx[:tenant_id], args["id"]) do
+        nil ->
+          {:error, "candidate not found"}
 
-      candidate ->
-        attrs = args |> Map.take(@fields)
+        candidate ->
+          attrs = args |> Map.take(@fields)
 
-        case Treby.Candidates.update_candidate(candidate, attrs, %{}) do
-          {:ok, updated} -> {:ok, %{"id" => updated.id, "name" => updated.name}}
-          {:error, reason} -> {:error, Tools.format_errors(reason)}
-        end
+          case Treby.Candidates.update_candidate(candidate, attrs, %{}) do
+            {:ok, updated} -> {:ok, %{"id" => updated.id, "name" => updated.name}}
+            {:error, reason} -> {:error, Tools.format_errors(reason)}
+          end
+      end
     end
   end
 end

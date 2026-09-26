@@ -10,6 +10,8 @@ defmodule Treby.AI.Tools.AddPipelineStage do
 
   def destructive?, do: true
 
+  def required_role, do: :admin
+
   def schema do
     %{
       "type" => "object",
@@ -40,7 +42,7 @@ defmodule Treby.AI.Tools.AddPipelineStage do
       "color" => args["color"]
     }
 
-    case Treby.Pipeline.create_pipeline_stage(attrs, ctx[:user]) do
+    case Treby.Pipeline.create_pipeline_stage(attrs, Tools.actor(ctx)) do
       {:ok, stage} -> {:ok, %{"id" => stage.id, "name" => stage.name}}
       {:error, reason} -> {:error, Tools.format_errors(reason)}
     end

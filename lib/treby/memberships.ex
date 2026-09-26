@@ -66,6 +66,26 @@ defmodule Treby.Memberships do
     |> Repo.all()
   end
 
+  def update_membership(%Membership{} = membership, attrs, actor \\ nil) do
+    if actor && actor.role != "admin" do
+      {:error, :unauthorized}
+    else
+      case membership |> Membership.changeset(attrs) |> Repo.update() do
+        {:ok, updated} ->
+          Treby.Audit.log_event("membership.updated", "membership", updated.id, %{
+            tenant_id: updated.tenant_id,
+            actor_id: actor && actor.id,
+            metadata: %{after: %{role: updated.role}}
+          })
+
+          {:ok, updated}
+
+        error ->
+          error
+      end
+    end
+  end
+
   def remove_membership(%Membership{} = membership, actor \\ nil) do
     case Repo.delete(membership) do
       {:ok, deleted} ->

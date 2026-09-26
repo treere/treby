@@ -9,6 +9,8 @@ defmodule Treby.AI.Tools.InviteMember do
 
   def destructive?, do: true
 
+  def required_role, do: :admin
+
   def schema do
     %{
       "type" => "object",
@@ -27,7 +29,7 @@ defmodule Treby.AI.Tools.InviteMember do
       "tenant_id" => ctx[:tenant_id]
     }
 
-    case Treby.Invites.create_invite(attrs, ctx[:user]) do
+    case Treby.Invites.create_invite(attrs, Tools.actor(ctx)) do
       {:ok, invite} -> {:ok, %{"id" => invite.id, "email" => invite.email}}
       {:error, reason} -> {:error, Tools.format_errors(reason)}
     end

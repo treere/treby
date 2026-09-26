@@ -9,6 +9,8 @@ defmodule Treby.AI.Tools.UpdateSettings do
 
   def destructive?, do: true
 
+  def required_role, do: :admin
+
   def schema do
     %{
       "type" => "object",
@@ -19,14 +21,16 @@ defmodule Treby.AI.Tools.UpdateSettings do
   end
 
   def run(args, ctx) do
-    unless Map.has_key?(args, "name") and args["name"] != "" do
-      {:error, "nothing to update"}
-    else
-      tenant = Treby.Tenants.get_tenant!(ctx[:tenant_id])
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      unless Map.has_key?(args, "name") and args["name"] != "" do
+        {:error, "nothing to update"}
+      else
+        tenant = Treby.Tenants.get_tenant!(ctx[:tenant_id])
 
-      case Treby.Tenants.update_tenant(tenant, %{"name" => args["name"]}) do
-        {:ok, updated} -> {:ok, %{"id" => updated.id, "name" => updated.name}}
-        {:error, reason} -> {:error, Tools.format_errors(reason)}
+        case Treby.Tenants.update_tenant(tenant, %{"name" => args["name"]}) do
+          {:ok, updated} -> {:ok, %{"id" => updated.id, "name" => updated.name}}
+          {:error, reason} -> {:error, Tools.format_errors(reason)}
+        end
       end
     end
   end

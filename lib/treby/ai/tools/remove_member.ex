@@ -9,6 +9,8 @@ defmodule Treby.AI.Tools.RemoveMember do
 
   def destructive?, do: true
 
+  def required_role, do: :admin
+
   def schema do
     %{
       "type" => "object",
@@ -20,7 +22,11 @@ defmodule Treby.AI.Tools.RemoveMember do
   end
 
   def run(args, ctx) do
-    case Treby.Memberships.remove_membership_by_ids(args["user_id"], ctx[:tenant_id], ctx[:user]) do
+    case Treby.Memberships.remove_membership_by_ids(
+           args["user_id"],
+           ctx[:tenant_id],
+           Tools.actor(ctx)
+         ) do
       {:ok, _} -> {:ok, %{"removed" => args["user_id"]}}
       {:error, reason} -> {:error, Tools.format_errors(reason)}
     end

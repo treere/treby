@@ -21,17 +21,19 @@ defmodule Treby.AI.Tools.SendMessage do
   end
 
   def run(args, ctx) do
-    attrs = %{
-      "conversation_id" => args["conversation_id"],
-      "body" => args["body"],
-      "sender_type" => "recruiter",
-      "message_type" => "text",
-      "tenant_id" => ctx[:tenant_id]
-    }
+    with :ok <- Tools.authorize(__MODULE__, ctx) do
+      attrs = %{
+        "conversation_id" => args["conversation_id"],
+        "body" => args["body"],
+        "sender_type" => "recruiter",
+        "message_type" => "text",
+        "tenant_id" => ctx[:tenant_id]
+      }
 
-    case Treby.CandidatePortal.send_message(attrs) do
-      {:ok, message} -> {:ok, %{"id" => message.id}}
-      {:error, reason} -> {:error, Tools.format_errors(reason)}
+      case Treby.CandidatePortal.send_message(attrs) do
+        {:ok, message} -> {:ok, %{"id" => message.id}}
+        {:error, reason} -> {:error, Tools.format_errors(reason)}
+      end
     end
   end
 end

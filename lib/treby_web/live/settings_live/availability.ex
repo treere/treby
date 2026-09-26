@@ -162,64 +162,42 @@ defmodule TrebyWeb.SettingsLive.Availability do
             </.form>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                    Day
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                    Hours
-                  </th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-                <%= for rule <- @rules do %>
-                  <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      {day_name(rule.day_of_week)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
-                      {format_time(rule.start_time)} - {format_time(rule.end_time)}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        phx-click="edit_rule"
-                        phx-value-rule_id={rule.id}
-                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        phx-click="confirm_delete"
-                        phx-value-id={rule.id}
-                        phx-value-title={gettext("Delete rule")}
-                        phx-value-message={
-                          gettext(
-                            "Are you sure you want to delete this availability rule? This action cannot be undone."
-                          )
-                        }
-                        class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                      >
-                        {gettext("Delete")}
-                      </button>
-                    </td>
-                  </tr>
-                <% end %>
-                <tr :if={@rules == []}>
-                  <td
-                    colspan="3"
-                    class="px-6 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
-                  >
-                    No availability rules set. Add your available hours to enable interview scheduling.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <.table id="availability-rules" rows={@rules} row_id={fn r -> "rule-#{r.id}" end}>
+            <:col :let={rule} label="Day">
+              <span class="whitespace-nowrap text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {day_name(rule.day_of_week)}
+              </span>
+            </:col>
+            <:col :let={rule} label="Hours">
+              <span class="whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
+                {format_time(rule.start_time)} - {format_time(rule.end_time)}
+              </span>
+            </:col>
+            <:action :let={rule}>
+              <button
+                phx-click="edit_rule"
+                phx-value-rule_id={rule.id}
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-4"
+              >
+                Edit
+              </button>
+              <button
+                phx-click="confirm_delete"
+                phx-value-id={rule.id}
+                phx-value-title={gettext("Delete rule")}
+                phx-value-message={
+                  gettext(
+                    "Are you sure you want to delete this availability rule? This action cannot be undone."
+                  )
+                }
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+              >
+                {gettext("Delete")}
+              </button>
+            </:action>
+          </.table>
+          <div :if={@rules == []} class="p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            No availability rules set. Add your available hours to enable interview scheduling.
           </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>

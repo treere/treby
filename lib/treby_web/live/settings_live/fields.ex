@@ -154,74 +154,55 @@ defmodule TrebyWeb.SettingsLive.Fields do
             </.form>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Name")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Type")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Applies To")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Required")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-                <tr :for={field <- @custom_fields} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                  <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                    {field.name}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                    {field.field_type}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                    {field.applies_to}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <%= if field.required do %>
-                      <span class="text-green-600 dark:text-green-400">{gettext("Yes")}</span>
-                    <% else %>
-                      <span class="text-zinc-500 dark:text-zinc-400">No</span>
-                    <% end %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      phx-click="edit_field"
-                      phx-value-field_id={field.id}
-                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
-                    >
-                      {gettext("Edit")}
-                    </button>
-                    <button
-                      phx-click="confirm_delete"
-                      phx-value-id={field.id}
-                      phx-value-title={gettext("Delete field")}
-                      phx-value-message={
-                        gettext(
-                          "Are you sure you want to delete this custom field? This action cannot be undone."
-                        )
-                      }
-                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                    >
-                      {gettext("Delete")}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <.table id="custom-fields" rows={@custom_fields} row_id={fn f -> "field-#{f.id}" end}>
+            <:col :let={field} label={gettext("Name")}>
+              <span class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                {field.name}
+              </span>
+            </:col>
+            <:col :let={field} label={gettext("Type")}>
+              <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                {field.field_type}
+              </span>
+            </:col>
+            <:col :let={field} label={gettext("Applies To")}>
+              <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                {field.applies_to}
+              </span>
+            </:col>
+            <:col :let={field} label={gettext("Required")}>
+              <%= if field.required do %>
+                <span class="text-green-600 dark:text-green-400">{gettext("Yes")}</span>
+              <% else %>
+                <span class="text-zinc-500 dark:text-zinc-400">No</span>
+              <% end %>
+            </:col>
+            <:action :let={field}>
+              <button
+                phx-click="edit_field"
+                phx-value-field_id={field.id}
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+              >
+                {gettext("Edit")}
+              </button>
+              <button
+                phx-click="confirm_delete"
+                phx-value-id={field.id}
+                phx-value-title={gettext("Delete field")}
+                phx-value-message={
+                  gettext(
+                    "Are you sure you want to delete this custom field? This action cannot be undone."
+                  )
+                }
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+              >
+                {gettext("Delete")}
+              </button>
+            </:action>
+          </.table>
             <div :if={@custom_fields == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
               {gettext("No custom fields defined yet. Add your first custom field!")}
             </div>
-          </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

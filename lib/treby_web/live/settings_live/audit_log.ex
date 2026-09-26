@@ -208,64 +208,40 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
             </div>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700" id="audit-table">
-                <thead class="bg-zinc-50 dark:bg-zinc-800">
-                  <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                      {gettext("Time")}
-                    </th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                      {gettext("Action")}
-                    </th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                      {gettext("Entity")}
-                    </th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">
-                      {gettext("Actor")}
-                    </th>
-                    <th class="px-4 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody
-                  class="divide-y divide-zinc-100 dark:divide-zinc-700"
-                  id="audit-events"
-                  phx-update="stream"
-                >
-                  <tr
-                    :for={{dom_id, event} <- @streams.events}
-                    id={dom_id}
-                    class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-                  >
-                    <td class="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
-                      {Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M:%S UTC")}
-                    </td>
-                    <td class="px-4 py-3">
-                      <span class="inline-flex items-center rounded-full border text-xs font-medium bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-600 px-2 py-0.5">{event.action}</span>
-                    </td>
-                    <td class="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100">
-                      {event.entity_type}: {String.slice(event.entity_id, 0, 8)}
-                    </td>
-                    <td class="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100">
-                      {(event.actor && event.actor.email) || event.actor_type}
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                      <button
-                        phx-click="show_detail"
-                        phx-value-id={event.id}
-                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
-                      >
-                        {gettext("View")}
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div :if={@events == []} class="text-center py-8 text-zinc-500 dark:text-zinc-400">
-                {gettext("No audit events found")}
-              </div>
-            </div>
+          <div id="audit-table">
+          <.table id="audit-events" rows={@streams.events}>
+            <:col :let={{_dom_id, event}} label={gettext("Time")}>
+              <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                {Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M:%S UTC")}
+              </span>
+            </:col>
+            <:col :let={{_dom_id, event}} label={gettext("Action")}>
+              <.badge variant="default">{event.action}</.badge>
+            </:col>
+            <:col :let={{_dom_id, event}} label={gettext("Entity")}>
+              <span class="text-sm text-zinc-900 dark:text-zinc-100">
+                {event.entity_type}: {String.slice(event.entity_id, 0, 8)}
+              </span>
+            </:col>
+            <:col :let={{_dom_id, event}} label={gettext("Actor")}>
+              <span class="text-sm text-zinc-900 dark:text-zinc-100">
+                {(event.actor && event.actor.email) || event.actor_type}
+              </span>
+            </:col>
+            <:action :let={{_dom_id, event}}>
+              <button
+                phx-click="show_detail"
+                phx-value-id={event.id}
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+              >
+                {gettext("View")}
+              </button>
+            </:action>
+          </.table>
+          </div>
+          <div :if={@events == []} class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+            {gettext("No audit events found")}
+          </div>
 
             <div class="p-4 flex items-center justify-between border-t border-zinc-200 dark:border-zinc-700">
               <span class="text-sm text-zinc-500 dark:text-zinc-400">
@@ -288,7 +264,6 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
                 </button>
               </div>
             </div>
-          </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
 

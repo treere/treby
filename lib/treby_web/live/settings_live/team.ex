@@ -149,66 +149,46 @@ defmodule TrebyWeb.SettingsLive.Team do
             </.form>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto mb-8">
-            <div class="px-6 py-4 border-b">
-              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                {gettext("Team Members")}
-              </h2>
-            </div>
-            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Name")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Email")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Role")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-                <tr :for={user <- @users} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                  <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                    {user.name}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                    {user.email}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <% member = Enum.find(@memberships, &(&1.user_id == user.id)) %>
-                    <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if member && member.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100/90"}"}>
-                      {member && member.role}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <%= if user.id != @current_user.id do %>
-                      <button
-                        phx-click="confirm_delete"
-                        phx-value-id={user.id}
-                        phx-value-title={gettext("Remove team member")}
-                        phx-value-message={
-                          gettext(
-                            "Are you sure you want to remove this team member? They will lose access to the account."
-                          )
-                        }
-                        class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                      >
-                        {gettext("Remove")}
-                      </button>
-                    <% else %>
-                      <span class="text-zinc-500 dark:text-zinc-400">{gettext("You")}</span>
-                    <% end %>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            {gettext("Team Members")}
+          </h2>
+          <.table id="team-members" rows={@users} row_id={fn user -> "team-#{user.id}" end}>
+            <:col :let={user} label={gettext("Name")}>
+              <span class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                {user.name}
+              </span>
+            </:col>
+            <:col :let={user} label={gettext("Email")}>
+              <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                {user.email}
+              </span>
+            </:col>
+            <:col :let={user} label={gettext("Role")}>
+              <% member = Enum.find(@memberships, &(&1.user_id == user.id)) %>
+              <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if member && member.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100/90"}"}>
+                {member && member.role}
+              </span>
+            </:col>
+            <:action :let={user}>
+              <%= if user.id != @current_user.id do %>
+                <button
+                  phx-click="confirm_delete"
+                  phx-value-id={user.id}
+                  phx-value-title={gettext("Remove team member")}
+                  phx-value-message={
+                    gettext(
+                      "Are you sure you want to remove this team member? They will lose access to the account."
+                    )
+                  }
+                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                >
+                  {gettext("Remove")}
+                </button>
+              <% else %>
+                <span class="text-zinc-500 dark:text-zinc-400">{gettext("You")}</span>
+              <% end %>
+            </:action>
+          </.table>
 
           <div
             id="roles-permissions-matrix"
@@ -296,63 +276,42 @@ defmodule TrebyWeb.SettingsLive.Team do
             </div>
           </div>
 
-          <div
-            :if={@invites != []}
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto"
-          >
-            <div class="px-6 py-4 border-b">
-              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                {gettext("Pending Invites")}
-              </h2>
-            </div>
-            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Email")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Role")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Expires")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-                <tr :for={invite <- @invites} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                  <td class="px-6 py-4 whitespace-nowrap text-zinc-900 dark:text-zinc-100">
-                    {invite.email}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if invite.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100/90"}"}>
-                      {invite.role}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
-                    {Calendar.strftime(invite.expires_at, "%b %d, %Y")}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      phx-click="confirm_delete"
-                      phx-value-id={invite.id}
-                      phx-value-title={gettext("Revoke invitation")}
-                      phx-value-message={
-                        gettext(
-                          "Are you sure you want to revoke this invitation? The invitee will no longer be able to join."
-                        )
-                      }
-                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                    >
-                      {gettext("Revoke")}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div :if={@invites != []}>
+            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+              {gettext("Pending Invites")}
+            </h2>
+            <.table id="pending-invites" rows={@invites} row_id={fn i -> "invite-#{i.id}" end}>
+              <:col :let={invite} label={gettext("Email")}>
+                <span class="whitespace-nowrap text-zinc-900 dark:text-zinc-100">
+                  {invite.email}
+                </span>
+              </:col>
+              <:col :let={invite} label={gettext("Role")}>
+                <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{if invite.role == "admin", do: "bg-purple-100 text-purple-800", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100/90"}"}>
+                  {invite.role}
+                </span>
+              </:col>
+              <:col :let={invite} label={gettext("Expires")}>
+                <span class="whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
+                  {Calendar.strftime(invite.expires_at, "%b %d, %Y")}
+                </span>
+              </:col>
+              <:action :let={invite}>
+                <button
+                  phx-click="confirm_delete"
+                  phx-value-id={invite.id}
+                  phx-value-title={gettext("Revoke invitation")}
+                  phx-value-message={
+                    gettext(
+                      "Are you sure you want to revoke this invitation? The invitee will no longer be able to join."
+                    )
+                  }
+                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                >
+                  {gettext("Revoke")}
+                </button>
+              </:action>
+            </.table>
           </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>

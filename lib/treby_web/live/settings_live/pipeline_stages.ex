@@ -222,118 +222,96 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             </.form>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Color")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Name")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Type")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Roles")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-                <tr
-                  :for={{stage, idx} <- Enum.with_index(@stages)}
-                  class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+          <.table
+            id="pipeline-stages"
+            rows={Enum.with_index(@stages)}
+            row_id={fn {stage, _idx} -> "stage-#{stage.id}" end}
+          >
+            <:col :let={{stage, _idx}} label={gettext("Color")}>
+              <div class="w-6 h-6 rounded-full" style={"background-color: #{stage.color}"} />
+            </:col>
+            <:col :let={{stage, _idx}} label={gettext("Name")}>
+              <span class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                {stage.name}
+              </span>
+            </:col>
+            <:col :let={{stage, _idx}} label={gettext("Type")}>
+              <span
+                :if={stage.stage_type}
+                class="inline-flex items-center rounded-md bg-zinc-50 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-500 dark:text-zinc-400"
+              >
+                {stage.stage_type}
+              </span>
+            </:col>
+            <:col :let={{stage, _idx}} label={gettext("Roles")}>
+              <div class="flex flex-wrap gap-1">
+                <span
+                  :if={stage.stage_type == "interview" && stage.min_examiners > 1}
+                  class="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
                 >
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="w-6 h-6 rounded-full" style={"background-color: #{stage.color}"} />
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                    {stage.name}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                    <span
-                      :if={stage.stage_type}
-                      class="inline-flex items-center rounded-md bg-zinc-50 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-500 dark:text-zinc-400"
-                    >
-                      {stage.stage_type}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-zinc-500 dark:text-zinc-400">
-                    <div class="flex flex-wrap gap-1">
-                      <span
-                        :if={stage.stage_type == "interview" && stage.min_examiners > 1}
-                        class="inline-flex items-center rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
-                      >
-                        {gettext("%{count} examiners", count: stage.min_examiners)}
-                      </span>
-                      <span
-                        :if={stage.examiner_count > 0}
-                        class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
-                      >
-                        {gettext("%{count}E", count: stage.examiner_count)}
-                      </span>
-                      <span
-                        :if={stage.reviewer_count > 0}
-                        class="inline-flex items-center rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
-                      >
-                        {gettext("%{count}R", count: stage.reviewer_count)}
-                      </span>
-                      <span
-                        :if={stage.advancer_count > 0}
-                        class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700"
-                      >
-                        {gettext("%{count}A", count: stage.advancer_count)}
-                      </span>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      :if={idx > 0}
-                      phx-click="move_stage_up"
-                      phx-value-stage_id={stage.id}
-                      class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
-                    >
-                      &uarr;
-                    </button>
-                    <button
-                      :if={idx < length(@stages) - 1}
-                      phx-click="move_stage_down"
-                      phx-value-stage_id={stage.id}
-                      class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
-                    >
-                      &darr;
-                    </button>
-                    <button
-                      phx-click="edit_stage"
-                      phx-value-stage_id={stage.id}
-                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-2"
-                    >
-                      {gettext("Edit")}
-                    </button>
-                    <button
-                      :if={stage.stage_type == "interview"}
-                      phx-click="show_roles"
-                      phx-value-stage_id={stage.id}
-                      class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-2"
-                    >
-                      {gettext("Roles")}
-                    </button>
-                    <button
-                      phx-click="delete_stage"
-                      phx-value-stage_id={stage.id}
-                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                    >
-                      {gettext("Delete")}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  {gettext("%{count} examiners", count: stage.min_examiners)}
+                </span>
+                <span
+                  :if={stage.examiner_count > 0}
+                  class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
+                >
+                  {gettext("%{count}E", count: stage.examiner_count)}
+                </span>
+                <span
+                  :if={stage.reviewer_count > 0}
+                  class="inline-flex items-center rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700"
+                >
+                  {gettext("%{count}R", count: stage.reviewer_count)}
+                </span>
+                <span
+                  :if={stage.advancer_count > 0}
+                  class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700"
+                >
+                  {gettext("%{count}A", count: stage.advancer_count)}
+                </span>
+              </div>
+            </:col>
+            <:action :let={{stage, idx}}>
+              <button
+                :if={idx > 0}
+                phx-click="move_stage_up"
+                phx-value-stage_id={stage.id}
+                class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
+              >
+                &uarr;
+              </button>
+              <button
+                :if={idx < length(@stages) - 1}
+                phx-click="move_stage_down"
+                phx-value-stage_id={stage.id}
+                class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 mr-2"
+              >
+                &darr;
+              </button>
+              <button
+                phx-click="edit_stage"
+                phx-value-stage_id={stage.id}
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-2"
+              >
+                {gettext("Edit")}
+              </button>
+              <button
+                :if={stage.stage_type == "interview"}
+                phx-click="show_roles"
+                phx-value-stage_id={stage.id}
+                class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-2"
+              >
+                {gettext("Roles")}
+              </button>
+              <button
+                phx-click="delete_stage"
+                phx-value-stage_id={stage.id}
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+              >
+                {gettext("Delete")}
+              </button>
+            </:action>
+          </.table>
 
           <div class="mt-4">
             <.button phx-click="show_create_form" variant="primary">

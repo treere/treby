@@ -201,58 +201,43 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
             </form>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-            <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Name")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Criteria Count")}
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                    {gettext("Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-                <tr :for={template <- @templates} class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-                  <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                    {template.name}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                    {length(template.criteria || [])}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      phx-click="edit_template"
-                      phx-value-template_id={template.id}
-                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
-                    >
-                      {gettext("Edit")}
-                    </button>
-                    <button
-                      phx-click="confirm_delete"
-                      phx-value-id={template.id}
-                      phx-value-title={gettext("Delete template")}
-                      phx-value-message={
-                        gettext(
-                          "Are you sure you want to delete this scorecard template? This action cannot be undone."
-                        )
-                      }
-                      class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                    >
-                      {gettext("Delete")}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <.table id="scorecard-templates" rows={@templates} row_id={fn t -> "template-#{t.id}" end}>
+            <:col :let={template} label={gettext("Name")}>
+              <span class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                {template.name}
+              </span>
+            </:col>
+            <:col :let={template} label={gettext("Criteria Count")}>
+              <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                {length(template.criteria || [])}
+              </span>
+            </:col>
+            <:action :let={template}>
+              <button
+                phx-click="edit_template"
+                phx-value-template_id={template.id}
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
+              >
+                {gettext("Edit")}
+              </button>
+              <button
+                phx-click="confirm_delete"
+                phx-value-id={template.id}
+                phx-value-title={gettext("Delete template")}
+                phx-value-message={
+                  gettext(
+                    "Are you sure you want to delete this scorecard template? This action cannot be undone."
+                  )
+                }
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+              >
+                {gettext("Delete")}
+              </button>
+            </:action>
+          </.table>
             <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
               {gettext("No scorecard templates yet. Create your first template!")}
             </div>
-          </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

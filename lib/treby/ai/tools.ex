@@ -45,15 +45,17 @@ defmodule Treby.AI.Tools do
   @doc "True when the context belongs to a workspace admin."
   def admin?(ctx), do: ctx[:role] in ["admin", :admin]
 
-  @doc "The membership actor to pass to contexts (falls back to the raw user)."
-  def actor(ctx), do: ctx[:actor] || ctx[:user]
+  @doc "The membership actor to pass to contexts (normalized via Actor)."
+  def actor(ctx), do: Treby.Authorization.Actor.from(ctx)
 
   @doc "The id of the membership actor, or nil."
   def actor_id(ctx) do
     case actor(ctx) do
-      nil -> nil
-      actor -> actor.id
+      %{id: id} -> id
+      _ -> nil
     end
+  rescue
+    _ -> nil
   end
 
   @doc """
@@ -79,36 +81,24 @@ defmodule Treby.AI.Tools do
     Enum.filter(tools, fn tool ->
       case required_action(tool) do
         nil -> false
-        action -> Treby.Authorization.can?(effective, action)
+        action -> Treby.Authorization.Policy.can?(effective, action)
       end
     end)
   end
 
-  @doc "Effective permission set for a context (permissions key wins, else role+overrides)."
+  @doc "Effective permission set for a context (delegates to Actor)."
   def effective(%{permissions: %MapSet{} = effective}), do: effective
 
   def effective(%{} = ctx) do
-    role = ctx[:role]
-    overrides = Map.get(ctx, :permission_overrides, %{})
-
-    cond do
-      is_nil(role) ->
-        MapSet.new()
-
-      map_size_safe(overrides) and ctx[:tenant_id] not in [nil, ""] and overrides == %{} ->
-        # Prefer DB-backed resolution when a tenant is known so admin toggles
-        # apply even if the caller forgot to preload overrides.
-        Treby.Authorization.effective_for(ctx[:tenant_id], role)
-
-      true ->
-        Treby.Authorization.effective_permissions(role, overrides)
+    case Treby.Authorization.Actor.from(ctx) do
+      %{permissions: %MapSet{} = perms} -> perms
+      _ -> MapSet.new()
     end
+  rescue
+    _ -> MapSet.new()
   end
 
   def effective(_), do: MapSet.new()
-
-  defp map_size_safe(%{} = m), do: map_size(m) == 0
-  defp map_size_safe(_), do: false
 
   @doc "Return `:ok` when the context permissions satisfy the tool's required action."
   def authorize(tool, ctx) do
@@ -117,7 +107,7 @@ defmodule Treby.AI.Tools do
         {:error, :unauthorized}
 
       action ->
-        if Treby.Authorization.can?(effective(ctx), action),
+        if Treby.Authorization.Policy.can?(Treby.Authorization.Actor.from(ctx), action),
           do: :ok,
           else: {:error, :unauthorized}
     end

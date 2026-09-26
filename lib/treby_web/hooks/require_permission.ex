@@ -54,14 +54,14 @@ defmodule TrebyWeb.Hooks.RequirePermission do
     membership =
       socket.assigns[:current_membership] || current_membership(socket, tenant)
 
-    effective =
-      if is_nil(tenant) or is_nil(membership) do
-        MapSet.new()
-      else
-        Treby.Authorization.effective_for(tenant.id, membership.role)
-      end
+    actor =
+      Treby.Authorization.Actor.from(%{
+        current_membership: membership,
+        current_tenant: tenant,
+        current_user: socket.assigns[:current_user]
+      })
 
-    if Enum.any?(actions, &Treby.Authorization.can?(effective, &1)) do
+    if Enum.any?(actions, &Treby.Authorization.Policy.can?(actor, &1)) do
       {:cont, socket}
     else
       redirect_to = if slug, do: "/#{slug}/app", else: "/choose-tenant"

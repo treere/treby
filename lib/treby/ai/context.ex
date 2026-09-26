@@ -26,15 +26,16 @@ defmodule Treby.AI.Context do
     user = assigns[:current_user]
     tenant = assigns[:current_tenant]
     membership = assigns[:current_membership]
+    actor = Treby.Authorization.Actor.from(assigns)
 
     ctx = %{
       tenant_id: tenant && tenant.id,
       user: user,
       user_id: user && user.id,
       role: membership && membership.role,
-      permissions: permissions_for(tenant, membership),
+      permissions: Map.get(actor, :permissions, MapSet.new()),
       permission_overrides: %{},
-      actor: actor(user, membership),
+      actor: actor,
       page: inspect(view),
       url: assigns[:current_path],
       params: assigns[:current_params] || %{},
@@ -46,31 +47,6 @@ defmodule Treby.AI.Context do
     }
 
     Map.put(ctx, :system_prompt, system_prompt(ctx))
-  end
-
-  defp actor(_user, nil), do: nil
-
-  defp actor(user, membership) do
-    %{id: user && user.id, role: membership.role, permissions: permissions_for_id(membership)}
-  end
-
-  defp permissions_for_id(%{role: role} = membership) do
-    tenant_id = Map.get(membership, :tenant_id)
-
-    if tenant_id,
-      do: Treby.Authorization.effective_for(tenant_id, role),
-      else: Treby.Authorization.effective_permissions(role, %{})
-  rescue
-    _ -> Treby.Authorization.effective_permissions(role, %{})
-  end
-
-  defp permissions_for(nil, _membership), do: MapSet.new()
-  defp permissions_for(_tenant, nil), do: MapSet.new()
-
-  defp permissions_for(tenant, membership) do
-    Treby.Authorization.effective_for(tenant.id, membership.role)
-  rescue
-    _ -> Treby.Authorization.effective_permissions(membership.role, %{})
   end
 
   defp snapshot(assigns) do

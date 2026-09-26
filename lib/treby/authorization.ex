@@ -136,18 +136,11 @@ defmodule Treby.Authorization do
     effective_permissions(role, overrides) |> can?(action)
   end
 
+  # Legacy entry-point, delegates to Policy. Use Policy.can?/2 with Actor.from/1 for new code.
   def allowed?(%{} = ctx, action) do
-    cond do
-      is_map_key(ctx, :permissions) and match?(%MapSet{}, ctx.permissions) ->
-        can?(ctx.permissions, normalize_action(action))
-
-      is_map_key(ctx, :role) ->
-        overrides = Map.get(ctx, :permission_overrides, %{})
-        can?(ctx.role, normalize_action(action), overrides)
-
-      true ->
-        false
-    end
+    Treby.Authorization.Policy.can?(Treby.Authorization.Actor.from(ctx), action)
+  rescue
+    _ -> false
   end
 
   def allowed?(role, action, overrides) when is_binary(role) or is_atom(role) do
@@ -473,26 +466,18 @@ defmodule Treby.Authorization do
   @doc """
   Permission check for a context actor map (`%{role:, permissions?}`).
 
-  Uses the actor's precomputed `:permissions` MapSet when present, otherwise
-  resolves preset defaults + workspace overrides via `effective_for/2`.
-  Fails closed on nil actor/tenant/unknown action.
+  Delegates to `Treby.Authorization.Policy`. Kept for backward compatibility.
+  Use `Policy.can?/2` with `Actor.from/1` for new code.
   """
   def can_actor?(nil, _tenant_id, _action), do: false
   def can_actor?(_actor, nil, _action), do: false
 
-  def can_actor?(%{permissions: %MapSet{} = effective}, _tenant_id, action)
-      when is_atom(action) do
-    can?(effective, action)
+  def can_actor?(%{permissions: %MapSet{}} = actor, _tenant_id, action) do
+    Treby.Authorization.Policy.can?(actor, action)
   end
 
-  def can_actor?(%{role: role}, tenant_id, action) when is_atom(action) do
-    can?(effective_for(tenant_id, role), action)
-  rescue
-    _ -> false
-  end
-
-  def can_actor?(%{"role" => role}, tenant_id, action) when is_atom(action) do
-    can?(effective_for(tenant_id, role), action)
+  def can_actor?(%{} = actor, tenant_id, action) do
+    Treby.Authorization.Policy.can?(Map.put(actor, :tenant_id, tenant_id), action)
   rescue
     _ -> false
   end

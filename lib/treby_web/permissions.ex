@@ -1,20 +1,17 @@
 defmodule TrebyWeb.Permissions do
   @moduledoc """
-  Template-friendly permission checks backed by `Treby.Authorization`.
+  Template-friendly permission checks backed by `Treby.Authorization.Policy`.
   Denies on nil membership/tenant (fail-closed).
   """
 
+  alias Treby.Authorization.{Actor, Policy}
+
+  # Legacy entry-point, delegates to Policy. Use Policy.can?/2 with Actor.from/1 for new code.
   def can?(nil, _tenant, _action), do: false
   def can?(_membership, nil, _action), do: false
 
-  def can?(%{role: role}, %{id: tenant_id}, action) when is_atom(action) do
-    Treby.Authorization.can?(Treby.Authorization.effective_for(tenant_id, role), action)
-  rescue
-    _ -> false
-  end
-
-  def can?(%{"role" => role}, %{"id" => tenant_id}, action) when is_atom(action) do
-    Treby.Authorization.can?(Treby.Authorization.effective_for(tenant_id, role), action)
+  def can?(%{} = membership, %{} = tenant, action) when is_atom(action) do
+    membership |> Actor.from(tenant) |> Policy.can?(action)
   rescue
     _ -> false
   end
@@ -24,30 +21,23 @@ defmodule TrebyWeb.Permissions do
   @doc """
   Membership-derived actor for domain calls (`%{id, role, permissions}`).
   Falls back to the raw user when no membership is present.
+  Legacy entry-point, delegates to Actor. Use Actor.from/1 for new code.
   """
-  def actor(%{assigns: assigns}), do: actor(assigns)
+  # Legacy entry-point, delegates to Actor. Use Actor.from/1 for new code.
+  def actor(%{assigns: _} = socket), do: Actor.from(socket)
 
   def actor(%{} = assigns) do
-    membership = Map.get(assigns, :current_membership)
-    tenant = Map.get(assigns, :current_tenant)
-    user = Map.get(assigns, :current_user)
+    actor = Actor.from(assigns)
 
     cond do
-      membership && tenant ->
-        role = Map.get(membership, :role) || Map.get(membership, "role")
+      is_nil(actor[:role]) ->
+        Map.get(assigns, :current_user)
 
-        %{
-          id: user && Map.get(user, :id),
-          role: role,
-          permissions: Treby.Authorization.effective_for(tenant.id, role)
-        }
-
-      membership ->
-        role = Map.get(membership, :role) || Map.get(membership, "role")
-        %{id: user && Map.get(user, :id), role: role}
+      Map.get(actor, :permissions) == MapSet.new() and is_nil(actor[:role]) ->
+        Map.get(assigns, :current_user)
 
       true ->
-        user
+        actor
     end
   rescue
     _ -> Map.get(assigns, :current_user)

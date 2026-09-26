@@ -15,7 +15,8 @@ defmodule Treby.Workers.SendScheduledMessage do
         max_attempts: max_attempts,
         args: %{"scheduled_message_id" => id}
       }) do
-    scheduled_message = Repo.get(ScheduledMessage, id)
+    scheduled_message = Repo.get(ScheduledMessage, id, skip_tenant_id: true)
+    if scheduled_message, do: Repo.put_tenant_id(scheduled_message.tenant_id)
 
     case scheduled_message do
       nil ->

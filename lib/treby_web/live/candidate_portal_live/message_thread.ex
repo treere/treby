@@ -5,6 +5,8 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
 
   @impl true
   def mount(%{"id" => conversation_id, "tenant_slug" => slug}, session, socket) do
+    Treby.Repo.put_tenant_id_from_session(session)
+
     case CandidatePortal.get_conversation(conversation_id) do
       nil ->
         {:ok, redirect(socket, to: ~p"/404")}

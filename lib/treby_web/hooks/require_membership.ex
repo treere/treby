@@ -20,7 +20,9 @@ defmodule TrebyWeb.Hooks.RequireMembership do
       ) do
     case Treby.Memberships.access_for(user_id, slug) do
       {:ok, %{tenant: tenant, membership: membership, available: available}} ->
-        user = Treby.Repo.get!(Treby.Accounts.User, user_id)
+        # Identity lookup by PK; membership enforced right below.
+        user = Treby.Repo.get!(Treby.Accounts.User, user_id, skip_tenant_id: true)
+        Treby.Repo.put_tenant_id(tenant.id)
 
         {:cont,
          socket
@@ -39,12 +41,15 @@ defmodule TrebyWeb.Hooks.RequireMembership do
   end
 
   def on_mount(:default, _params, %{"user_id" => user_id}, socket) do
-    # Legacy /app fallback: pick first membership's tenant
-    user = Treby.Repo.get!(Treby.Accounts.User, user_id)
-    available = Treby.Memberships.list_tenants_for_user(user_id)
+    # Legacy /app fallback: pick first membership's tenant.
+    # Identity lookup by PK; membership enforced right below.
+    user = Treby.Repo.get!(Treby.Accounts.User, user_id, skip_tenant_id: true)
+    available = Treby.Memberships.list_tenants_for_user(user_id, skip_tenant_id: true)
 
     case available do
       [%{tenant: tenant, membership: membership} | _] ->
+        Treby.Repo.put_tenant_id(tenant.id)
+
         {:cont,
          socket
          |> assign(:current_user, user)

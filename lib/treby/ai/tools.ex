@@ -140,9 +140,20 @@ defmodule Treby.AI.Tools do
   through here so role and input checks are uniform.
   """
   def run(tool, args, ctx) do
+    establish_ctx_tenant(ctx)
+
     with :ok <- authorize(tool, ctx),
          {:ok, valid} <- validate(tool, args) do
       tool.run(valid, ctx)
+    end
+  end
+
+  # Agent processes may outlive the request that set the tenant; the ctx
+  # tenant is authoritative for the tool call.
+  defp establish_ctx_tenant(ctx) do
+    case ctx[:tenant_id] || ctx["tenant_id"] do
+      nil -> :ok
+      tenant_id -> Treby.Repo.put_tenant_id(tenant_id)
     end
   end
 

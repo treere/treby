@@ -238,6 +238,7 @@ defmodule Treby.DashboardTest do
         slug: "dash-ctx-#{System.unique_integer([:positive])}"
       })
 
+    Repo.put_tenant_id(tenant.id)
     Treby.Pipeline.create_default_pipeline_stages(tenant)
     {:ok, tenant}
   end

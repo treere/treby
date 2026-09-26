@@ -22,6 +22,9 @@ defmodule TrebyWeb.Plugs.CandidateAuth do
         redirect_to_login(conn)
 
       candidate_id ->
+        # Session is the capability; slug consistency enforced below.
+        establish_session_tenant(conn)
+
         if session_expired?(conn) do
           conn
           |> delete_session("candidate_id")
@@ -29,7 +32,7 @@ defmodule TrebyWeb.Plugs.CandidateAuth do
           |> delete_session("candidate_expires_at")
           |> redirect_to_login()
         else
-          case Repo.get(Candidate, candidate_id) do
+          case Repo.get(Candidate, candidate_id, skip_tenant_id: true) do
             nil ->
               conn
               |> delete_session("candidate_id")
@@ -70,6 +73,13 @@ defmodule TrebyWeb.Plugs.CandidateAuth do
               end
           end
         end
+    end
+  end
+
+  defp establish_session_tenant(conn) do
+    case get_session(conn, "candidate_tenant_id") do
+      nil -> :ok
+      tenant_id -> Repo.put_tenant_id(tenant_id)
     end
   end
 

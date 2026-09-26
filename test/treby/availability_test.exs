@@ -437,11 +437,14 @@ defmodule Treby.AvailabilityTest do
   end
 
   defp insert_tenant do
-    Treby.Repo.insert!(%Treby.Tenants.Tenant{
-      name: "Test Tenant",
-      slug: "test-#{System.unique_integer([:positive])}"
-    })
-    |> then(&{:ok, &1})
+    tenant =
+      Treby.Repo.insert!(%Treby.Tenants.Tenant{
+        name: "Test Tenant",
+        slug: "test-#{System.unique_integer([:positive])}"
+      })
+
+    Treby.Repo.put_tenant_id(tenant.id)
+    {:ok, tenant}
   end
 
   defp insert_user(tenant_id) do

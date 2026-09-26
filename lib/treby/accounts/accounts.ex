@@ -21,14 +21,22 @@ defmodule Treby.Accounts do
 
   def get_user_by_email(email) when is_binary(email) do
     normalized = String.downcase(email)
-    Repo.one(from u in User, where: fragment("lower(?)", u.email) == ^normalized)
+
+    # Pre-auth lookup spans tenants by design; callers scope afterwards.
+    Repo.one(from(u in User, where: fragment("lower(?)", u.email) == ^normalized),
+      skip_tenant_id: true
+    )
   end
 
   def get_user_by_email(_email), do: nil
 
   def email_registered?(email) when is_binary(email) do
     normalized = String.downcase(email)
-    Repo.exists?(from(u in User, where: fragment("lower(?)", u.email) == ^normalized))
+
+    # Pre-auth lookup spans tenants by design.
+    Repo.exists?(from(u in User, where: fragment("lower(?)", u.email) == ^normalized),
+      skip_tenant_id: true
+    )
   end
 
   def email_registered?(_email), do: false
@@ -171,7 +179,8 @@ defmodule Treby.Accounts do
         {:error, :invalid_token}
 
       token ->
-        user = Repo.get!(User, token.user_id)
+        # Pre-auth: token already validated, user lookup spans tenants by design.
+        user = Repo.get!(User, token.user_id, skip_tenant_id: true)
         {:ok, user, token}
     end
   end

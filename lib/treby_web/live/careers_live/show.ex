@@ -7,6 +7,7 @@ defmodule TrebyWeb.CareersLive.Show do
   def mount(%{"tenant_slug" => tenant_slug, "job_id" => job_id} = params, session, socket) do
     socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug!(tenant_slug)
+    Treby.Repo.put_tenant_id(tenant.id)
 
     case Jobs.get_job(tenant.id, job_id) do
       nil ->

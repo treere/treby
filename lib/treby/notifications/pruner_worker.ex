@@ -12,6 +12,7 @@ defmodule Treby.Notifications.PrunerWorker do
     tenants = Repo.all(Tenant)
 
     Enum.each(tenants, fn tenant ->
+      Repo.put_tenant_id(tenant.id)
       days = Notifications.get_retention_days(tenant)
       {:ok, _} = Inbox.delete_read_older_than(tenant.id, days)
     end)

@@ -5,6 +5,7 @@ defmodule TrebyWeb.CareersLive.GlobalIndex do
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
+    Treby.Repo.put_tenant_id_from_session(session)
     applied_job_ids = applied_job_ids_for_session(session)
 
     {:ok,

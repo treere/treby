@@ -59,10 +59,14 @@ defmodule Treby.CandidatesTest do
         |> Task.async_stream(
           fn i ->
             Sandbox.allow(Repo, test_pid, self())
+            # Async tasks do not inherit the process-dictionary tenant.
+            Repo.put_tenant_id(tenant.id)
 
             Candidates.create_or_find(tenant.id, %{name: "Racer #{i}", email: email})
           end,
-          max_concurrency: 10,
+          # Sandbox shares a single connection with all tasks; keep
+          # parallelism modest so queue timeouts don't flake the race.
+          max_concurrency: 5,
           timeout: 30_000
         )
         |> Enum.map(fn {:ok, result} -> result end)

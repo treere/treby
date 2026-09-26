@@ -319,6 +319,8 @@ defmodule Treby.PipelineTest do
         |> Task.async_stream(
           fn j ->
             Sandbox.allow(Repo, test_pid, self())
+            # Async tasks do not inherit the process-dictionary tenant.
+            Repo.put_tenant_id(tenant.id)
             Pipeline.detach_job_pipeline(Repo.reload!(j))
           end,
           max_concurrency: 2,
@@ -415,6 +417,7 @@ defmodule Treby.PipelineTest do
         slug: "test-#{System.unique_integer([:positive])}"
       })
 
+    Repo.put_tenant_id(tenant.id)
     Treby.Pipeline.create_default_pipeline_stages(tenant)
 
     {:ok, tenant}

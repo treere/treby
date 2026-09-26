@@ -27,6 +27,9 @@ defmodule Treby.Tenants do
     |> Repo.insert()
     |> case do
       {:ok, tenant} ->
+        # Establish tenant scope for the cascade below (and callers in this process)
+        Repo.put_tenant_id(tenant.id)
+
         # Set default notification preferences
         settings =
           Map.put(tenant.settings || %{}, "notifications", %{

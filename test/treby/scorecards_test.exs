@@ -13,6 +13,7 @@ defmodule Treby.ScorecardsTest do
         slug: "scorecards-#{System.unique_integer([:positive])}"
       })
 
+    Repo.put_tenant_id(tenant.id)
     Treby.Pipeline.create_default_pipeline_stages(tenant)
 
     user =

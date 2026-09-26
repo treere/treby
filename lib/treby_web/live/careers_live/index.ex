@@ -6,6 +6,7 @@ defmodule TrebyWeb.CareersLive.Index do
   def mount(%{"tenant_slug" => tenant_slug}, session, socket) do
     socket = set_locale_from_session(socket, session)
     tenant = Tenants.get_tenant_by_slug(tenant_slug)
+    if tenant, do: Treby.Repo.put_tenant_id(tenant.id)
 
     {:ok,
      socket

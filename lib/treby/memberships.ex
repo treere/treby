@@ -9,12 +9,12 @@ defmodule Treby.Memberships do
   alias Treby.Tenants.Tenant
   alias Treby.Accounts.User
 
-  def get_membership(user_id, tenant_id) do
-    Repo.get_by(Membership, user_id: user_id, tenant_id: tenant_id)
+  def get_membership(user_id, tenant_id, opts \\ []) do
+    Repo.get_by(Membership, [user_id: user_id, tenant_id: tenant_id], opts)
   end
 
-  def get_membership!(user_id, tenant_id) do
-    Repo.get_by!(Membership, user_id: user_id, tenant_id: tenant_id)
+  def get_membership!(user_id, tenant_id, opts \\ []) do
+    Repo.get_by!(Membership, [user_id: user_id, tenant_id: tenant_id], opts)
   end
 
   def member?(user_id, tenant_id) do
@@ -27,7 +27,7 @@ defmodule Treby.Memberships do
         {:error, :no_tenant}
 
       %Tenant{} = tenant ->
-        case get_membership(user_id, tenant.id) do
+        case get_membership(user_id, tenant.id, tenant_id: tenant.id) do
           nil ->
             {:error, :no_membership}
 
@@ -59,14 +59,16 @@ defmodule Treby.Memberships do
     end
   end
 
-  def list_tenants_for_user(user_id) do
+  # Workspace switcher: spans the user's tenants by design, so scoping it
+  # to a single tenant would be nonsense. Explicit tenant_id opt still honored.
+  def list_tenants_for_user(user_id, opts \\ []) do
     from(t in Tenant,
       join: m in Membership,
       on: m.tenant_id == t.id,
       where: m.user_id == ^user_id,
       select: %{tenant: t, membership: m}
     )
-    |> Repo.all()
+    |> Repo.all(Keyword.put_new(opts, :skip_tenant_id, true))
     |> Enum.map(fn %{tenant: tenant, membership: m} ->
       %{tenant: tenant, role: m.role, membership: m}
     end)

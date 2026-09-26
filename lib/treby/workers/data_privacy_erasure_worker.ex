@@ -13,7 +13,8 @@ defmodule Treby.Workers.DataPrivacyErasureWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"data_privacy_request_id" => id}}) do
-    request = Repo.get(DataPrivacyRequest, id)
+    request = Repo.get(DataPrivacyRequest, id, skip_tenant_id: true)
+    if request, do: Repo.put_tenant_id(request.tenant_id)
 
     case request do
       nil ->

@@ -194,6 +194,7 @@ defmodule Treby.JobViewsTest do
     test "tenant mismatch is skipped" do
       {tenant_a, _} = setup_tenant()
       {tenant_b, _} = setup_tenant()
+      Repo.put_tenant_id(tenant_a.id)
       {job, _} = create_job(tenant_a)
       hash = JobViews.session_hash("6.6.6.6", "Mozilla")
 
@@ -210,6 +211,7 @@ defmodule Treby.JobViewsTest do
     test "tenant isolation on aggregates" do
       {tenant_a, _} = setup_tenant()
       {tenant_b, _} = setup_tenant()
+      Repo.put_tenant_id(tenant_a.id)
       {job, _} = create_job(tenant_a)
       hash = JobViews.session_hash("7.7.7.7", "Mozilla")
 
@@ -222,6 +224,7 @@ defmodule Treby.JobViewsTest do
           user_agent: "Mozilla"
         })
 
+      Repo.put_tenant_id(tenant_b.id)
       assert {:error, :not_found} = JobViews.get_summary(tenant_b.id, job.id)
     end
 

@@ -38,6 +38,8 @@ defmodule Treby.AI.Tools.CatalogToolsTest do
   end
 
   defp application(tenant, admin) do
+    Repo.put_tenant_id(tenant.id)
+
     {:ok, job} =
       Treby.Jobs.create_job(%{
         tenant_id: tenant.id,

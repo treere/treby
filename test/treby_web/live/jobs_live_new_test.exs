@@ -359,7 +359,10 @@ defmodule TrebyWeb.JobsLive.NewTest do
       {:ok, _view, html} = live(conn, "/#{tenant_a.slug}/app/jobs/new")
 
       # Should contain tenant A's default pipeline but not tenant B's extra
+      # Note: the LiveView static render above runs in this process and sets
+      # the process tenant to A; re-establish B explicitly.
       pipelines_a = Pipeline.list_pipelines(tenant_a.id) |> Enum.map(& &1.name)
+      Repo.put_tenant_id(tenant_b.id)
       pipelines_b = Pipeline.list_pipelines(tenant_b.id) |> Enum.map(& &1.name)
 
       for name <- pipelines_a do

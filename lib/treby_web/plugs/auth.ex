@@ -18,7 +18,8 @@ defmodule TrebyWeb.Plugs.Auth do
         |> halt()
 
       user_id ->
-        case Treby.Repo.get(Treby.Accounts.User, user_id) do
+        # Identity lookup by PK; tenant membership enforced downstream.
+        case Treby.Repo.get(Treby.Accounts.User, user_id, skip_tenant_id: true) do
           nil ->
             conn
             |> delete_session("user_id")

@@ -42,6 +42,12 @@ defmodule TrebyWeb.SessionController do
       {:ok, user} ->
         tenants = Memberships.list_tenants_for_user(user.id)
 
+        # Scope audit + downstream reads to the first workspace.
+        case List.first(tenants) do
+          %{tenant: %{id: tenant_id}} -> Treby.Repo.put_tenant_id(tenant_id)
+          _ -> :ok
+        end
+
         # audit login per first tenant if available
         case List.first(tenants) do
           %{tenant: t} ->

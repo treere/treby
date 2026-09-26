@@ -6,6 +6,7 @@ defmodule TrebyWeb.CandidatePortalLive.RequestLink do
   @impl true
   def mount(%{"tenant_slug" => slug}, _session, socket) do
     tenant = Tenants.get_tenant_by_slug!(slug)
+    Treby.Repo.put_tenant_id(tenant.id)
 
     {:ok,
      socket

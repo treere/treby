@@ -14,9 +14,12 @@ defmodule TrebyWeb.InviteController do
 
       invite ->
         tenant = Tenants.get_tenant!(invite.tenant_id)
+        Repo.put_tenant_id(tenant.id)
         existing_user = Accounts.get_user_by_email(invite.email)
         current_user_id = get_session(conn, "user_id")
-        current_user = if current_user_id, do: Repo.get(User, current_user_id), else: nil
+        # Identity lookup by PK; invite membership enforced below.
+        current_user =
+          if current_user_id, do: Repo.get(User, current_user_id, skip_tenant_id: true), else: nil
 
         cond do
           is_nil(existing_user) ->
@@ -96,12 +99,14 @@ defmodule TrebyWeb.InviteController do
   defp get_current_user(conn) do
     case get_session(conn, "user_id") do
       nil -> nil
-      id -> Repo.get(User, id)
+      # Identity lookup by PK; invite membership enforced by callers.
+      id -> Repo.get(User, id, skip_tenant_id: true)
     end
   end
 
   defp handle_create_with_user(conn, invite, user_params) do
     tenant = Tenants.get_tenant!(invite.tenant_id)
+    Repo.put_tenant_id(tenant.id)
     existing_user = Accounts.get_user_by_email(invite.email)
     current_user = get_current_user(conn)
     dispatch_create_with_user(conn, invite, tenant, existing_user, current_user, user_params)
@@ -185,6 +190,7 @@ defmodule TrebyWeb.InviteController do
 
   defp handle_create_without_user(conn, invite) do
     tenant = Tenants.get_tenant!(invite.tenant_id)
+    Repo.put_tenant_id(tenant.id)
     existing_user = Accounts.get_user_by_email(invite.email)
     current_user = get_current_user(conn)
     dispatch_create_without_user(conn, invite, tenant, existing_user, current_user)

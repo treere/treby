@@ -12,6 +12,7 @@ defmodule TrebyWeb.CandidateOtpController do
   """
   def create(conn, %{"tenant_slug" => slug} = params) do
     tenant = Tenants.get_tenant_by_slug!(slug)
+    Treby.Repo.put_tenant_id(tenant.id)
     email = params["email"] |> to_string() |> String.trim() |> String.downcase()
 
     if email == "" do
@@ -86,6 +87,7 @@ defmodule TrebyWeb.CandidateOtpController do
       |> String.trim()
 
     tenant = Tenants.get_tenant_by_slug!(slug)
+    Treby.Repo.put_tenant_id(tenant.id)
     ip = Treby.Audit.attrs_from_conn(conn)[:ip] || "unknown"
 
     if email == "" do

@@ -6,6 +6,7 @@ defmodule TrebyWeb.CandidatePortalLive.Verify do
   @impl true
   def mount(%{"tenant_slug" => slug}, session, socket) do
     tenant = Tenants.get_tenant_by_slug!(slug)
+    Treby.Repo.put_tenant_id(tenant.id)
     email = session["otp_email"]
 
     {:ok,

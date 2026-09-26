@@ -125,8 +125,10 @@ defmodule Treby.Notifications.InboxTest do
     test "tenant isolation" do
       {tenant1, [user1 | _]} = setup_tenant_with_members(1)
       {tenant2, [user2 | _]} = setup_tenant_with_members(1)
+      Repo.put_tenant_id(tenant1.id)
       {:ok, _} = Inbox.create_for_tenant(tenant1.id, %{type: "new_application", title: "t"})
       assert length(Inbox.list_for_user(user1.id, tenant1.id)) == 1
+      Repo.put_tenant_id(tenant2.id)
       assert Inbox.list_for_user(user2.id, tenant2.id) == []
       assert Inbox.list_for_user(user1.id, tenant2.id) == []
     end

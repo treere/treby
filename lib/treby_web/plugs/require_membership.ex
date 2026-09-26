@@ -19,6 +19,8 @@ defmodule TrebyWeb.Plugs.RequireMembership do
 
     case Treby.Memberships.access_for(user && user.id, tenant_slug) do
       {:ok, %{tenant: tenant, membership: membership, available: available}} ->
+        Treby.Repo.put_tenant_id(tenant.id)
+
         conn
         |> assign(:current_tenant, tenant)
         |> assign(:current_membership, membership)

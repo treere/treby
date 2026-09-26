@@ -195,6 +195,7 @@ defmodule Treby.InterviewsTest do
         slug: "test-#{System.unique_integer([:positive])}"
       })
 
+    Treby.Repo.put_tenant_id(tenant.id)
     Treby.Pipeline.create_default_pipeline_stages(tenant)
 
     {:ok, tenant}

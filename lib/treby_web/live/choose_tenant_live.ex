@@ -2,8 +2,9 @@ defmodule TrebyWeb.ChooseTenantLive do
   use TrebyWeb, :live_view
 
   def mount(_params, %{"user_id" => user_id} = _session, socket) do
-    user = Treby.Repo.get!(Treby.Accounts.User, user_id)
-    tenants = Treby.Memberships.list_tenants_for_user(user_id)
+    # Identity lookup by PK plus cross-tenant switcher list, by design.
+    user = Treby.Repo.get!(Treby.Accounts.User, user_id, skip_tenant_id: true)
+    tenants = Treby.Memberships.list_tenants_for_user(user_id, skip_tenant_id: true)
 
     case tenants do
       [%{tenant: tenant}] ->

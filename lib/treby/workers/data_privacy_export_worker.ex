@@ -9,7 +9,8 @@ defmodule Treby.Workers.DataPrivacyExportWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"data_privacy_request_id" => id}}) do
-    request = Repo.get(Treby.DataPrivacy.DataPrivacyRequest, id)
+    request = Repo.get(Treby.DataPrivacy.DataPrivacyRequest, id, skip_tenant_id: true)
+    if request, do: Repo.put_tenant_id(request.tenant_id)
 
     case request do
       nil ->

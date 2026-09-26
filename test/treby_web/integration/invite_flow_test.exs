@@ -63,7 +63,8 @@ defmodule TrebyWeb.InviteFlowTest do
       assert Repo.aggregate(
                from(u in User, where: fragment("lower(?)", u.email) == ^lower),
                :count,
-               :id
+               :id,
+               skip_tenant_id: true
              ) == 1
 
       # Membership created
@@ -103,7 +104,8 @@ defmodule TrebyWeb.InviteFlowTest do
                  where: m.user_id == ^user.id and m.tenant_id == ^tenant_b.id
                ),
                :count,
-               :id
+               :id,
+               skip_tenant_id: true
              ) == 1
 
       # Show with same token after accept should be invalid (already accepted) - redirect to login

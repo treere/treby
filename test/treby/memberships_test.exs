@@ -69,8 +69,8 @@ defmodule Treby.MembershipsTest do
       {:ok, _} =
         Memberships.create_membership(%{user_id: user.id, tenant_id: tenant_b.id, role: "admin"})
 
-      m_a = Memberships.get_membership(user.id, tenant_a.id)
-      m_b = Memberships.get_membership(user.id, tenant_b.id)
+      m_a = Memberships.get_membership(user.id, tenant_a.id, tenant_id: tenant_a.id)
+      m_b = Memberships.get_membership(user.id, tenant_b.id, tenant_id: tenant_b.id)
       # Legacy "member" role is normalized to its replacement preset.
       assert m_a.role == "recruiter"
       assert m_b.role == "admin"

@@ -77,11 +77,15 @@ defmodule Treby.AuditTest do
       {t1, _} = setup_tenant()
       {t2, _} = setup_tenant()
 
+      Repo.put_tenant_id(t1.id)
+
       {:ok, _} =
         Audit.log_event("job.created", "job", Ecto.UUID.generate(), %{
           tenant_id: t1.id,
           metadata: %{}
         })
+
+      Repo.put_tenant_id(t2.id)
 
       {:ok, _} =
         Audit.log_event("job.created", "job", Ecto.UUID.generate(), %{
@@ -89,7 +93,9 @@ defmodule Treby.AuditTest do
           metadata: %{}
         })
 
+      Repo.put_tenant_id(t1.id)
       {events1, _} = Audit.list_events(t1.id, [])
+      Repo.put_tenant_id(t2.id)
       {events2, _} = Audit.list_events(t2.id, [])
 
       assert Enum.all?(events1, &(&1.tenant_id == t1.id))

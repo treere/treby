@@ -48,12 +48,16 @@ defmodule TrebyWeb.NotificationsLiveTest do
       {tenant1, user1} = setup_tenant_with_user()
       {tenant2, _user2} = setup_tenant_with_user()
 
+      Repo.put_tenant_id(tenant1.id)
+
       {:ok, _} =
         Inbox.create_for_tenant(tenant1.id, %{
           type: "new_application",
           title: "For user1",
           body: "b"
         })
+
+      Repo.put_tenant_id(tenant2.id)
 
       {:ok, _} =
         Inbox.create_for_tenant(tenant2.id, %{

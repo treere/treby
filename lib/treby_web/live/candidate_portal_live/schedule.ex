@@ -6,6 +6,7 @@ defmodule TrebyWeb.CandidatePortalLive.Schedule do
 
   @impl true
   def mount(%{"tenant_slug" => slug}, session, socket) do
+    Treby.Repo.put_tenant_id_from_session(session)
     candidate_id = session["candidate_id"]
     candidate = Repo.get!(Treby.Candidates.Candidate, candidate_id)
     tenant = Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)

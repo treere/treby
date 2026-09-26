@@ -105,6 +105,7 @@ defmodule Treby.AI.ToolsTest do
 
     create_job(tenant_a, %{title: "A job"})
     create_job(tenant_b, %{title: "B job"})
+    Repo.put_tenant_id(tenant_a.id)
 
     {:ok, jobs} = ListJobs.run(%{}, %{tenant_id: tenant_a.id})
 
@@ -115,6 +116,7 @@ defmodule Treby.AI.ToolsTest do
     {tenant_a, _} = tenant_with_user()
     {tenant_b, _} = tenant_with_user()
     job_b = create_job(tenant_b, %{title: "B job"})
+    Repo.put_tenant_id(tenant_a.id)
 
     assert {:error, "job not found"} =
              DeleteJob.run(%{"job_id" => job_b.id}, %{tenant_id: tenant_a.id, role: "admin"})
@@ -125,12 +127,14 @@ defmodule Treby.AI.ToolsTest do
                %{tenant_id: tenant_a.id}
              )
 
+    Repo.put_tenant_id(tenant_b.id)
     assert Repo.get!(Job, job_b.id).title == "B job"
   end
 
   test "create_job uses tenant_id from ctx, never from args" do
     {tenant_a, user} = tenant_with_user()
     {tenant_b, _} = tenant_with_user()
+    Repo.put_tenant_id(tenant_a.id)
 
     {:ok, job} =
       CreateJob.run(

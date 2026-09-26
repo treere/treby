@@ -16,10 +16,11 @@ defmodule Treby.Invites do
   end
 
   def get_invite_by_token(token) do
+    # Public capability link: the token identifies the tenant, looked up after.
     Invite
     |> where([i], i.token == ^token and is_nil(i.accepted_at))
     |> where([i], i.expires_at > ^DateTime.utc_now())
-    |> Repo.one()
+    |> Repo.one(skip_tenant_id: true)
   end
 
   def create_invite(attrs \\ %{}, actor \\ nil) do

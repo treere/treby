@@ -51,12 +51,13 @@ defmodule Treby.Jobs do
   end
 
   def list_all_visible_jobs do
+    # Public cross-tenant listing by design.
     Job
     |> join(:inner, [j], t in assoc(j, :tenant))
     |> where([j, t], j.status == "open" and j.visible == true)
     |> preload([j, t], tenant: t)
     |> order_by([j, t], asc: t.name, asc: j.title)
-    |> Repo.all()
+    |> Repo.all(skip_tenant_id: true)
   end
 
   def search_visible_jobs(tenant_id, query) do
@@ -76,6 +77,7 @@ defmodule Treby.Jobs do
   def search_all_visible_jobs(query) do
     ilike_query = "%#{Queries.escape_like(query)}%"
 
+    # Public cross-tenant listing by design.
     Job
     |> join(:inner, [j], t in assoc(j, :tenant))
     |> where(
@@ -86,7 +88,7 @@ defmodule Treby.Jobs do
     )
     |> preload([j, t], tenant: t)
     |> order_by([j, t], asc: t.name, asc: j.title)
-    |> Repo.all()
+    |> Repo.all(skip_tenant_id: true)
   end
 
   def get_job!(id), do: Repo.get!(Job, id)

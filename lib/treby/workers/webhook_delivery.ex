@@ -15,6 +15,7 @@ defmodule Treby.Workers.WebhookDelivery do
   def perform(%Oban.Job{args: args, attempt: attempt}) do
     event_id = Map.get(args, "audit_event_id") || Map.get(args, :audit_event_id)
     tenant_id = Map.get(args, "tenant_id") || Map.get(args, :tenant_id)
+    if tenant_id, do: Repo.put_tenant_id(tenant_id)
 
     case Repo.get(AuditEvent, event_id) do
       nil ->

@@ -51,6 +51,7 @@ import Ecto.Query, only: [from: 2]
 alias Treby.{Repo, Tenants, Jobs, Candidates, Pipeline}
 tenant = Repo.all(Tenants.Tenant) |> List.first()
 if tenant do
+  Repo.put_tenant_id(tenant.id)
   IO.puts("__TRBY_TENANT__")
   IO.puts("#{tenant.slug}|#{tenant.id}")
   jobs = Jobs.list_jobs(tenant.id)
@@ -148,6 +149,7 @@ Logger.configure(level: :critical)
 import Ecto.Query, only: [from: 2]
 alias Treby.{Repo, Tenants, Candidates, CandidatePortal}
 tenant = Repo.all(Tenants.Tenant) |> Enum.find(&(&1.slug == "${seedIds.tenantSlug}"))
+Repo.put_tenant_id(tenant.id)
 cand = Repo.one(from c in Candidates.Candidate, where: c.tenant_id == ^tenant.id and c.email == ^"${email}", limit: 1)
 if cand do
   Repo.delete_all(from o in CandidatePortal.CandidateOtp, where: o.candidate_id == ^cand.id)

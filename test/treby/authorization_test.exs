@@ -140,6 +140,8 @@ defmodule Treby.AuthorizationTest do
       {tenant_a, _} = tenant_with_role("recruiter")
       {tenant_b, _} = tenant_with_role("recruiter")
 
+      Treby.Repo.put_tenant_id(tenant_a.id)
+
       {:ok, _} =
         Authorization.set_override(tenant_a.id, "recruiter", :pipeline_manage, true, nil)
 
@@ -147,6 +149,8 @@ defmodule Treby.AuthorizationTest do
                Authorization.effective_for(tenant_a.id, "recruiter"),
                :pipeline_manage
              )
+
+      Treby.Repo.put_tenant_id(tenant_b.id)
 
       refute Authorization.can?(
                Authorization.effective_for(tenant_b.id, "recruiter"),

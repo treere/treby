@@ -44,6 +44,8 @@ defmodule TrebyWeb.CandidatePortalSecurityTest do
 
   defp setup_application(tenant, candidate, job) do
     # ensure pipeline exists
+    Repo.put_tenant_id(tenant.id)
+
     if is_nil(Pipeline.default_pipeline_id(tenant.id)) do
       Treby.Pipeline.create_default_pipeline_stages(tenant)
     end
@@ -103,6 +105,8 @@ defmodule TrebyWeb.CandidatePortalSecurityTest do
       tenant_b = setup_tenant("cross-b")
 
       for t <- [tenant_a, tenant_b] do
+        Repo.put_tenant_id(t.id)
+
         if is_nil(Pipeline.default_pipeline_id(t.id)),
           do: Treby.Pipeline.create_default_pipeline_stages(t)
       end

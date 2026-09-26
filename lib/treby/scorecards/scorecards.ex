@@ -26,7 +26,10 @@ defmodule Treby.Scorecards do
   end
 
   def create_scorecard_template(attrs \\ %{}, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    tenant_id = Map.get(attrs, "tenant_id") || Map.get(attrs, :tenant_id)
+
+    if actor &&
+         not Treby.Authorization.can_actor?(actor, tenant_id, :scorecards_manage) do
       {:error, :unauthorized}
     else
       case %ScorecardTemplate{tenant_id: attrs["tenant_id"]}
@@ -48,7 +51,12 @@ defmodule Treby.Scorecards do
   end
 
   def update_scorecard_template(%ScorecardTemplate{} = scorecard_template, attrs, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(
+           actor,
+           scorecard_template.tenant_id,
+           :scorecards_manage
+         ) do
       {:error, :unauthorized}
     else
       before = Map.take(scorecard_template, [:name])
@@ -70,7 +78,12 @@ defmodule Treby.Scorecards do
   end
 
   def delete_scorecard_template(%ScorecardTemplate{} = scorecard_template, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(
+           actor,
+           scorecard_template.tenant_id,
+           :scorecards_manage
+         ) do
       {:error, :unauthorized}
     else
       case Repo.delete(scorecard_template) do

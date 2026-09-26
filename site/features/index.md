@@ -72,3 +72,6 @@ In-app inbox with bell and badge, dropdown, full-page list with filters/search/p
 
 ## [Data & Privacy](/features/data-privacy)
 Async data export (ZIP via signed URL, 7-day window) and erasure with 7-day grace — admin and self-service, fully audited. Find it at **Settings → Data & Privacy**.
+
+## [Team Roles & Permissions](/features/team-roles)
+Admin, recruiter, and interviewer presets with a per-workspace permission matrix at **Settings → Team** — menus, pages, buttons, and assistant actions all follow the same permissions.

@@ -3,7 +3,12 @@ defmodule TrebyWeb.Hooks.RequireRole do
 
   @moduledoc """
   LiveView on_mount hook that checks membership role against required role.
+
+  Deprecated: prefer `TrebyWeb.Hooks.RequirePermission` with an action key so
+  checks follow workspace overrides instead of the raw role string.
   """
+
+  @deprecated "Use TrebyWeb.Hooks.RequirePermission with an action key instead"
 
   import Phoenix.LiveView, only: [put_flash: 3, redirect: 2]
 

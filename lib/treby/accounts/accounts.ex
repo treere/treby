@@ -55,7 +55,7 @@ defmodule Treby.Accounts do
       actor && actor.id == user.id && Map.has_key?(attrs, "role") && attrs["role"] != "admin" ->
         {:error, :cannot_demote_self}
 
-      actor && actor.role != "admin" && Map.has_key?(attrs, "role") ->
+      actor && Map.has_key?(attrs, "role") && not role_manager?(actor) ->
         {:error, :unauthorized}
 
       true ->
@@ -76,7 +76,7 @@ defmodule Treby.Accounts do
   end
 
   def remove_user_from_tenant(%User{} = user, actor \\ nil) do
-    if actor && Map.get(actor, :role) && actor.role != "admin" do
+    if actor && Map.get(actor, :role) && not role_manager?(actor) do
       {:error, :unauthorized}
     else
       from(m in Treby.Memberships.Membership, where: m.user_id == ^user.id)
@@ -96,6 +96,16 @@ defmodule Treby.Accounts do
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
+
+  # Global user-role management has no tenant scope: honor precomputed
+  # permissions when present, else fall back to the legacy admin role.
+  defp role_manager?(%{permissions: %MapSet{} = effective}) do
+    Treby.Authorization.can?(effective, :team_manage)
+  end
+
+  defp role_manager?(%{role: role}), do: role in ["admin", :admin]
+  defp role_manager?(%{"role" => role}), do: role in ["admin", :admin]
+  defp role_manager?(_), do: false
 
   def authenticate_user(email, password) do
     user = get_user_by_email(email)

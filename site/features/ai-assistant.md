@@ -17,7 +17,7 @@ The widget remembers whether it was open and where you placed it: leave it open,
 
 ## What it can do
 
-The assistant acts **as you**: it can read and change exactly what your role allows in the current workspace, and nothing more. What it offers therefore depends on whether you are an **admin** or a **member**:
+The assistant acts **as you**: it can read and change exactly what your role allows in the current workspace, and nothing more. What it offers therefore depends on your role — **admin**, **recruiter**, or **interviewer** (see **Settings → Team → Roles & permissions**):
 
 - **Recruiting** — list and open jobs, candidates and applications; search candidates; create candidates and applications; move applications between pipeline stages; mark applications reviewed; add, edit and delete notes; schedule, reschedule, complete and cancel interviews; submit scorecards; compare candidates; read pipelines and stage assignments.
 - **Analytics** — pipeline statistics, conversion and hiring-funnel reports, job-view counts, candidate comparisons, and a workspace dashboard summary.
@@ -31,7 +31,7 @@ The assistant also keeps the general abilities:
 - **Propose form text fixes** — when you are editing a form, it can suggest corrected or pre-filled values. Confirm the suggestion and the values are applied to the form on the page for you.
 - **Switch specialist** — if your request spans more than one area, ask the assistant to switch and it hands the conversation to the relevant specialist.
 
-Admins see the full set of tools. Members never see or run admin-only actions, even if they ask: those requests are refused.
+Admins see the full set of tools. Recruiters and interviewers never see or run denied actions, even if they ask: those requests are refused, and the corresponding menus and buttons are hidden too.
 
 
 ## Chatting
@@ -67,5 +67,5 @@ Click **Reset** at the top right of the chat and confirm. This starts a fresh co
 ## Limits
 
 - Messages are rate-limited per user to keep usage predictable.
-- The assistant works on the current workspace only, and only within your role. It never reads or changes another workspace, and a member cannot trigger admin-only actions.
+- The assistant works on the current workspace only, and only within your role. It never reads or changes another workspace, and nobody can trigger actions their role denies.
 - Every action it performs on your behalf is written to the **Audit Log** (admin only, under **Settings → Audit Log**) so you can always see what happened and who approved it.

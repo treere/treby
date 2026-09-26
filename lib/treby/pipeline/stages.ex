@@ -293,10 +293,30 @@ defmodule Treby.Pipeline.Stages do
 
   defp remap_job_applications(_job_id, _id_map), do: :ok
 
+  defp stage_tenant(%PipelineStage{pipeline_id: pipeline_id}), do: pipeline_tenant(pipeline_id)
+
+  defp stage_tenant(%{} = attrs) do
+    pipeline_id = Map.get(attrs, "pipeline_id") || Map.get(attrs, :pipeline_id)
+    pipeline_tenant(pipeline_id)
+  end
+
+  defp stage_tenant(_), do: nil
+
+  defp pipeline_tenant(nil), do: nil
+
+  defp pipeline_tenant(pipeline_id) do
+    case Repo.get(PipelineDef, pipeline_id) do
+      nil -> nil
+      pipeline -> pipeline.tenant_id
+    end
+  rescue
+    _ -> nil
+  end
+
   def get_pipeline_stage!(id), do: Repo.get!(PipelineStage, id)
 
   def create_pipeline_stage(attrs \\ %{}, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor && not Treby.Authorization.can_actor?(actor, stage_tenant(attrs), :pipeline_manage) do
       {:error, :unauthorized}
     else
       case %PipelineStage{} |> PipelineStage.changeset(attrs) |> Repo.insert() do
@@ -318,7 +338,12 @@ defmodule Treby.Pipeline.Stages do
   end
 
   def update_pipeline_stage(%PipelineStage{} = pipeline_stage, attrs, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(
+           actor,
+           stage_tenant(pipeline_stage),
+           :pipeline_manage
+         ) do
       {:error, :unauthorized}
     else
       before = Map.take(pipeline_stage, [:name, :position, :color, :stage_type])
@@ -344,7 +369,12 @@ defmodule Treby.Pipeline.Stages do
   end
 
   def delete_pipeline_stage(%PipelineStage{} = pipeline_stage, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(
+           actor,
+           stage_tenant(pipeline_stage),
+           :pipeline_manage
+         ) do
       {:error, :unauthorized}
     else
       case Repo.delete(pipeline_stage) do

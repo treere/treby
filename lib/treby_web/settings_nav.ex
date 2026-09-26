@@ -185,34 +185,77 @@ defmodule TrebyWeb.SettingsNav do
     Enum.flat_map(@groups, & &1.items)
   end
 
-  def groups_for_role(role) when role in [:admin, "admin"] do
-    @groups
-  end
+  @item_actions %{
+    team: :team_manage,
+    branding: :settings_manage,
+    company_availability: :settings_manage,
+    pipeline: :pipeline_manage,
+    fields: :fields_manage,
+    scorecards: :scorecards_manage,
+    email_templates: :settings_manage,
+    notifications: :settings_manage,
+    webhooks: :webhooks_manage,
+    messages_queue: :comms_send,
+    calendar: :jobs_view,
+    availability: :availability_manage,
+    audit_log: :audit_view,
+    data_privacy: :jobs_view,
+    language: :jobs_view
+  }
 
-  def groups_for_role(_role) do
+  def item_action(key), do: Map.get(@item_actions, key, :team_manage)
+
+  @doc "Filter navigation by effective permission set (MapSet). Hides denied items and empty groups."
+  def groups_for_permissions(%MapSet{} = effective) do
     @groups
     |> Enum.map(fn group ->
-      items = Enum.filter(group.items, &(&1.role == :member))
-      # Data & Privacy personal entry: members see it even though admin-gated;
-      # we expose it via the same path but allow navigation — the page itself
-      # handles personal vs admin view.
-      items =
-        if group.id == :privacy_system do
-          # Ensure Data & Privacy shows for members as "Manage my data"
-          data_privacy = Enum.find(all_items(), &(&1.key == :data_privacy))
-
-          if data_privacy && !Enum.any?(items, &(&1.key == :data_privacy)) do
-            items ++ [%{data_privacy | subtitle: "Manage my data"}]
-          else
-            items
-          end
-        else
-          items
-        end
-
+      items = Enum.filter(group.items, &Treby.Authorization.can?(effective, item_action(&1.key)))
       %{group | items: items}
     end)
     |> Enum.reject(&(&1.items == []))
+  end
+
+  def groups_for_permissions(_), do: []
+
+  @doc "Filter navigation for a membership role in a workspace (DB-backed overrides)."
+  def groups_for_membership(nil, _role), do: []
+
+  def groups_for_membership(tenant_id, role) do
+    groups_for_permissions(Treby.Authorization.effective_for(tenant_id, role))
+  rescue
+    _ -> groups_for_role(role)
+  end
+
+  def groups_for_role(role) when role in [:admin, "admin"] do
+    groups_for_permissions(Treby.Authorization.effective_permissions("admin", %{}))
+  end
+
+  def groups_for_role(role) do
+    effective = Treby.Authorization.effective_permissions(role, %{})
+
+    filtered = groups_for_permissions(effective)
+
+    # Data & Privacy personal entry: members see it even though admin-gated;
+    # we expose it via the same path but allow navigation — the page itself
+    # handles personal vs admin view.
+    if Enum.any?(filtered, fn g -> Enum.any?(g.items, &(&1.key == :data_privacy)) end) do
+      filtered
+    else
+      data_privacy = Enum.find(all_items(), &(&1.key == :data_privacy))
+
+      if data_privacy do
+        [
+          %{
+            id: :privacy_system,
+            label: "Privacy & System",
+            icon: "hero-shield-check",
+            items: [%{data_privacy | subtitle: "Manage my data"}]
+          }
+        ]
+      else
+        filtered
+      end
+    end
   end
 
   def path_with_tenant(path, nil), do: "/app" <> path

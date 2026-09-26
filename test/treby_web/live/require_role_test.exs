@@ -49,6 +49,38 @@ defmodule TrebyWeb.RequireRoleTest do
     end
   end
 
+  test "recruiter blocked on admin settings by default", %{conn: conn} do
+    {tenant, recruiter} = tenant_with("recruiter")
+    conn = init_test_session(conn, %{"user_id" => recruiter.id})
+
+    assert {:error, {:redirect, _}} = live(conn, "/#{tenant.slug}/app/settings/team")
+    assert {:error, {:redirect, _}} = live(conn, "/#{tenant.slug}/app/settings/audit-log")
+  end
+
+  test "recruiter with granted pipeline permission passes pipeline page", %{conn: conn} do
+    {tenant, recruiter} = tenant_with("recruiter")
+    membership = Memberships.get_membership(recruiter.id, tenant.id)
+
+    {:ok, _} =
+      Treby.Authorization.set_override(tenant.id, "recruiter", :pipeline_manage, true, %{
+        id: recruiter.id,
+        role: membership.role
+      })
+
+    conn = init_test_session(conn, %{"user_id" => recruiter.id})
+    assert {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/pipeline")
+    assert html =~ "Pipeline"
+  end
+
+  test "interviewer blocked on team page but allowed on data-privacy", %{conn: conn} do
+    {tenant, interviewer} = tenant_with("interviewer")
+    conn = init_test_session(conn, %{"user_id" => interviewer.id})
+
+    assert {:error, {:redirect, _}} = live(conn, "/#{tenant.slug}/app/settings/team")
+    assert {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/data-privacy")
+    assert html =~ "Data"
+  end
+
   test "member allowed on data-privacy (own data scope)", %{conn: conn} do
     {tenant, member} = tenant_with("member")
     conn = init_test_session(conn, %{"user_id" => member.id})

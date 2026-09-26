@@ -4,16 +4,34 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
   alias Treby.DataPrivacy.Requests
 
   def mount(_params, _session, socket) do
-    tenant = socket.assigns.current_tenant
+    tenant = socket.assigns[:current_tenant]
     requests = if tenant, do: Requests.list_requests(tenant.id), else: []
-    {:ok, assign(socket, requests: requests, settings_active: true)}
+
+    can_manage_privacy =
+      TrebyWeb.Permissions.can?(
+        socket.assigns[:current_membership],
+        tenant,
+        :privacy_manage
+      )
+
+    {:ok,
+     assign(socket,
+       requests: requests,
+       settings_active: true,
+       can_manage_privacy: can_manage_privacy
+     )}
   end
 
   def handle_event("request_export", %{"scope" => scope}, socket) do
     tenant = socket.assigns.current_tenant
     user = socket.assigns.current_user
 
-    if scope == "tenant" and socket.assigns.current_membership.role != "admin" do
+    if scope == "tenant" and
+         not TrebyWeb.Permissions.can?(
+           socket.assigns.current_membership,
+           socket.assigns.current_tenant,
+           :privacy_manage
+         ) do
       {:noreply, put_flash(socket, :error, gettext("Only admins can export tenant data"))}
     else
       attrs = %{
@@ -43,7 +61,12 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
     user = socket.assigns.current_user
 
     cond do
-      scope == "tenant" and socket.assigns.current_membership.role != "admin" ->
+      scope == "tenant" and
+          not TrebyWeb.Permissions.can?(
+            socket.assigns.current_membership,
+            socket.assigns.current_tenant,
+            :privacy_manage
+          ) ->
         {:noreply, put_flash(socket, :error, gettext("Only admins can erase company data"))}
 
       scope == "tenant" and confirm != tenant.slug ->
@@ -148,7 +171,7 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
               </.button>
             </form>
             <form
-              :if={@current_membership.role == "admin"}
+              :if={assigns[:can_manage_privacy]}
               phx-submit="request_export"
               class="flex gap-2"
             >
@@ -170,7 +193,7 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
                 </.button>
               </form>
               <form
-                :if={@current_membership.role == "admin"}
+                :if={assigns[:can_manage_privacy]}
                 phx-submit="request_erasure"
                 class="flex gap-2 items-end"
               >

@@ -161,7 +161,7 @@ defmodule Treby.Candidates do
   end
 
   def delete_candidate(%Candidate{} = candidate, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor && not Treby.Authorization.can_actor?(actor, candidate.tenant_id, :candidates_delete) do
       {:error, :unauthorized}
     else
       case Repo.delete(candidate) do

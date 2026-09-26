@@ -32,6 +32,8 @@ defmodule Treby.AI.Context do
       user: user,
       user_id: user && user.id,
       role: membership && membership.role,
+      permissions: permissions_for(tenant, membership),
+      permission_overrides: %{},
       actor: actor(user, membership),
       page: inspect(view),
       url: assigns[:current_path],
@@ -47,7 +49,29 @@ defmodule Treby.AI.Context do
   end
 
   defp actor(_user, nil), do: nil
-  defp actor(user, membership), do: %{id: user && user.id, role: membership.role}
+
+  defp actor(user, membership) do
+    %{id: user && user.id, role: membership.role, permissions: permissions_for_id(membership)}
+  end
+
+  defp permissions_for_id(%{role: role} = membership) do
+    tenant_id = Map.get(membership, :tenant_id)
+
+    if tenant_id,
+      do: Treby.Authorization.effective_for(tenant_id, role),
+      else: Treby.Authorization.effective_permissions(role, %{})
+  rescue
+    _ -> Treby.Authorization.effective_permissions(role, %{})
+  end
+
+  defp permissions_for(nil, _membership), do: MapSet.new()
+  defp permissions_for(_tenant, nil), do: MapSet.new()
+
+  defp permissions_for(tenant, membership) do
+    Treby.Authorization.effective_for(tenant.id, membership.role)
+  rescue
+    _ -> Treby.Authorization.effective_permissions(membership.role, %{})
+  end
 
   defp snapshot(assigns) do
     assigns
@@ -134,6 +158,7 @@ defmodule Treby.AI.Context do
     You help the user manage jobs, understand the platform, and co-edit forms.
 
     Current user: #{ctx.user && ctx.user.name} (#{ctx.user && ctx.user.email}), role: #{ctx.role}.
+    Allowed actions: #{allowed_actions_label(ctx)}.
     Current workspace: #{ctx.tenant_id}. Always operate on this workspace; never
     ask for or accept a tenant id from the conversation.
     Current page: #{ctx.page} (#{ctx.url || "unknown"}).
@@ -144,6 +169,15 @@ defmodule Treby.AI.Context do
     is never executed by you directly. Keep replies concise and in markdown.
     """
   end
+
+  defp allowed_actions_label(%{permissions: %MapSet{} = permissions}) do
+    case permissions |> MapSet.to_list() |> Enum.sort() |> Enum.map_join(", ", &to_string/1) do
+      "" -> "none"
+      list -> list
+    end
+  end
+
+  defp allowed_actions_label(_), do: "none"
 
   defp form_section(nil), do: ""
 

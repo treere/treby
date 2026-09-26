@@ -2,17 +2,21 @@
 
 ## Purpose
 
-Manage team members including invitations, role-based access control, and member listing.
+Manage team members including invitations, preset roles, per-role permission configuration, and member listing.
 
 ## Requirements
 
 ### Requirement: Send team invite
-The system SHALL allow admins to invite new team members via email. Invites SHALL target the current workspace identified by the URL slug.
+The system SHALL allow memberships passing `team_manage` to invite new team members via email with preset roles `admin`, `recruiter`, or `interviewer`. Invites SHALL target the current workspace identified by the URL slug.
 
 #### Scenario: Send invite
-- **WHEN** an admin on `/:tenant_slug/app/settings/team` enters an email address and role
+- **WHEN** a user with `team_manage` on `/:tenant_slug/app/settings/team` enters an email address and a preset role
 - **THEN** an invite record is created with a unique token for that tenant
 - **AND** an email is sent to the invitee with a registration link
+
+#### Scenario: Denied user cannot invite
+- **WHEN** a user without `team_manage` attempts to invite
+- **THEN** the system returns a permission error
 
 #### Scenario: Invite expires
 - **WHEN** an invite is older than 7 days
@@ -48,30 +52,46 @@ The system SHALL allow invitees to join the workspace via the invite link. If th
 - **THEN** the system redirects to the login page and displays the error "Invalid or expired invite link" there, so the invitee actually sees why they landed on login
 
 ### Requirement: Role-based access control
-The system SHALL enforce role-based access for admin and member roles. The role SHALL be taken from the current membership for the active workspace, not from the user row.
+The system SHALL enforce action-based access for `admin`, `recruiter`, and `interviewer` preset roles. The role SHALL be taken from the current membership for the active workspace, not from the user row, and resolved to effective permissions with workspace overrides. The retired `member` role SHALL normalize to `recruiter`.
 
 #### Scenario: Admin permissions
 - **WHEN** the current membership has role "admin" for the active workspace
-- **THEN** the user can manage settings, team members, pipeline stages, and custom fields in that workspace
+- **THEN** the user passes every action check in that workspace
 
-#### Scenario: Member permissions
-- **WHEN** the current membership has role "member" for the active workspace
-- **THEN** they can view and edit jobs, candidates, applications, and notes
-- **AND** they cannot access settings or team management in that workspace
+#### Scenario: Recruiter permissions
+- **WHEN** the current membership has role "recruiter" for the active workspace
+- **THEN** they can perform hiring operations per preset defaults plus workspace overrides
+- **AND** they cannot perform denied administrative actions in that workspace
+
+#### Scenario: Interviewer permissions
+- **WHEN** the current membership has role "interviewer" for the active workspace
+- **THEN** they can view scoped jobs/candidates, list interviews, submit scorecards, and manage own availability
+- **AND** they cannot perform hiring mutations or administration outside their grant
 
 #### Scenario: Mixed roles across workspaces
-- **WHEN** a user is admin in tenant A and member in tenant B
-- **THEN** navigating to `/:slug_A/app` grants admin access and navigating to `/:slug_B/app` grants member access
+- **WHEN** a user is admin in tenant A and recruiter in tenant B
+- **THEN** navigating to `/:slug_A/app` grants full access and navigating to `/:slug_B/app` grants the recruiter effective set
+
+### Requirement: Roles and permissions matrix
+The system SHALL provide a Roles & permissions matrix on the team page for `team_manage` holders to toggle editable actions per non-admin role, with `admin` shown as locked and every save audit-logged.
+
+#### Scenario: Admin toggles a permission
+- **WHEN** an admin allows `pipeline_manage` for `recruiter` and saves
+- **THEN** recruiters in that workspace pass the check and other workspaces are unaffected
+
+#### Scenario: Denied user attempts toggle
+- **WHEN** a user without `team_manage` attempts to change a permission
+- **THEN** the system returns a permission error
 
 ### Requirement: List team members
 The system SHALL display all memberships in the current workspace identified by the URL slug.
 
 #### Scenario: Team page
-- **WHEN** an admin navigates to `/:tenant_slug/app/settings/team`
-- **THEN** all members with a membership for that tenant are listed with name, email, and role
+- **WHEN** a user with `team_manage` navigates to `/:tenant_slug/app/settings/team`
+- **THEN** all members with a membership for that tenant are listed with name, email, and preset role
 
 #### Scenario: Remove team member
-- **WHEN** an admin removes a team member from the current workspace
+- **WHEN** a user with `team_manage` removes a team member from the current workspace
 - **THEN** the membership linking that user to the tenant is removed
 - **AND** the user row remains and the user keeps memberships in other tenants
 - **AND** their notes remain visible (attributed to "Former member")

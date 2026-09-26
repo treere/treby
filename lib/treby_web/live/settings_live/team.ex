@@ -53,7 +53,16 @@ defmodule TrebyWeb.SettingsLive.Team do
        |> assign(memberships: memberships, users: users)
        |> assign(invites: invites)
        |> assign(show_invite_form: false)
-       |> assign(invite_form: to_form(%{"email" => "", "role" => "member"}))
+       |> assign(invite_form: to_form(%{"email" => "", "role" => "recruiter"}))
+       |> assign(perm_groups: Treby.Authorization.groups())
+       |> assign(perm_actions: Treby.Authorization.actions())
+       |> assign(perm_overrides: Treby.Authorization.list_overrides(tenant.id))
+       |> assign(
+         perm_effective: %{
+           "recruiter" => Treby.Authorization.effective_for(tenant.id, "recruiter"),
+           "interviewer" => Treby.Authorization.effective_for(tenant.id, "interviewer")
+         }
+       )
        |> assign(confirm_delete: nil)
        |> assign(confirm_delete_type: nil)}
     end
@@ -125,7 +134,11 @@ defmodule TrebyWeb.SettingsLive.Team do
                 field={@invite_form[:role]}
                 type="select"
                 label={gettext("Role")}
-                options={[{"Member", "member"}, {"Admin", "admin"}]}
+                options={[
+                  {"Recruiter", "recruiter"},
+                  {"Interviewer", "interviewer"},
+                  {"Admin", "admin"}
+                ]}
               />
               <div class="flex gap-2">
                 <.button type="submit" loading_text={gettext("Sending...")}>{gettext("Send Invite")}</.button>
@@ -195,6 +208,92 @@ defmodule TrebyWeb.SettingsLive.Team do
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div
+            id="roles-permissions-matrix"
+            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto mb-8"
+          >
+            <div class="px-6 py-4 border-b">
+              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                {gettext("Roles & permissions")}
+              </h2>
+              <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                {gettext("Admins have every permission and cannot be restricted.")}
+              </p>
+            </div>
+            <div :for={group <- @perm_groups} class="px-6 py-4 border-b last:border-0">
+              <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+                {group.label}
+              </h3>
+              <ul class="mt-3 space-y-2">
+                <li
+                  :for={
+                    action <-
+                      Enum.filter(@perm_actions, &(&1.group == group.id))
+                  }
+                  class="flex items-center justify-between gap-4"
+                >
+                  <span class="text-sm text-zinc-700 dark:text-zinc-300">
+                    {action.label}
+                    <span
+                      :if={Map.get(action, :locked, false)}
+                      class="ml-2 inline-flex items-center rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium text-purple-800"
+                    >
+                      Admin only
+                    </span>
+                  </span>
+                  <span class="flex items-center gap-4">
+                    <span
+                      :for={role <- ["recruiter", "interviewer"]}
+                      class="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400"
+                    >
+                      {String.capitalize(role)}
+                      <%= if Map.get(action, :locked, false) do %>
+                        <span class="text-zinc-900 dark:text-zinc-100/30">—</span>
+                      <% else %>
+                        <button
+                          id={"perm-toggle-#{role}-#{action.key}"}
+                          type="button"
+                          phx-click="toggle_permission"
+                          phx-value-role={role}
+                          phx-value-action={action.key}
+                          phx-value-allowed={
+                            if(MapSet.member?(@perm_effective[role], action.key),
+                              do: "false",
+                              else: "true"
+                            )
+                          }
+                          role="switch"
+                          aria-checked={
+                            if(MapSet.member?(@perm_effective[role], action.key),
+                              do: "true",
+                              else: "false"
+                            )
+                          }
+                          aria-label={"#{action.label} for #{role}"}
+                          class={[
+                            "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
+                            if(MapSet.member?(@perm_effective[role], action.key),
+                              do: "bg-orange-600",
+                              else: "bg-zinc-200 dark:bg-zinc-700"
+                            )
+                          ]}
+                        >
+                          <span class={[
+                            "inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
+                            if(MapSet.member?(@perm_effective[role], action.key),
+                              do: "translate-x-4",
+                              else: "translate-x-0.5"
+                            )
+                          ]} />
+                        </button>
+                      <% end %>
+                    </span>
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div
@@ -287,7 +386,7 @@ defmodule TrebyWeb.SettingsLive.Team do
       "tenant_id" => socket.assigns.current_tenant.id
     }
 
-    case Invites.create_invite(attrs, socket.assigns.current_user) do
+    case Invites.create_invite(attrs, TrebyWeb.Permissions.actor(socket)) do
       {:ok, _invite} ->
         invites = Invites.list_invites(socket.assigns.current_tenant.id)
 
@@ -306,6 +405,45 @@ defmodule TrebyWeb.SettingsLive.Team do
            :error,
            gettext("Failed to send invite. Email may already be invited.")
          )}
+    end
+  end
+
+  def handle_event(
+        "toggle_permission",
+        %{"role" => role, "action" => action, "allowed" => allowed},
+        socket
+      ) do
+    tenant = socket.assigns.current_tenant
+    actor = TrebyWeb.Permissions.actor(socket)
+
+    if TrebyWeb.Permissions.can?(socket.assigns[:current_membership], tenant, :team_manage) do
+      case Treby.Authorization.set_override(
+             tenant.id,
+             role,
+             action,
+             allowed in ["true", true],
+             actor
+           ) do
+        {:ok, _} ->
+          {:noreply,
+           socket
+           |> assign(perm_overrides: Treby.Authorization.list_overrides(tenant.id))
+           |> assign(
+             perm_effective: %{
+               "recruiter" => Treby.Authorization.effective_for(tenant.id, "recruiter"),
+               "interviewer" => Treby.Authorization.effective_for(tenant.id, "interviewer")
+             }
+           )
+           |> put_flash(:info, gettext("Permission updated"))}
+
+        {:error, :locked_action} ->
+          {:noreply, put_flash(socket, :error, gettext("This permission is reserved for admins"))}
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, gettext("Failed to update permission"))}
+      end
+    else
+      {:noreply, put_flash(socket, :error, gettext("Only admins can manage permissions"))}
     end
   end
 
@@ -336,7 +474,7 @@ defmodule TrebyWeb.SettingsLive.Team do
       "user" ->
         user = Accounts.get_user!(id)
 
-        case Accounts.remove_user_from_tenant(user, socket.assigns.current_user) do
+        case Accounts.remove_user_from_tenant(user, TrebyWeb.Permissions.actor(socket)) do
           {:ok, _} ->
             users = Accounts.list_users(socket.assigns.current_tenant.id)
 
@@ -355,7 +493,7 @@ defmodule TrebyWeb.SettingsLive.Team do
       "invite" ->
         invite = Invites.get_invite_by_token(id) || %Invites.Invite{id: id}
 
-        case Invites.delete_invite(invite, socket.assigns.current_user) do
+        case Invites.delete_invite(invite, TrebyWeb.Permissions.actor(socket)) do
           {:ok, _} ->
             invites = Invites.list_invites(socket.assigns.current_tenant.id)
 

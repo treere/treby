@@ -31,15 +31,27 @@ The system SHALL render the Settings hub as a two-column layout with a sticky le
 - **WHEN** a user opens `/app/settings/pipeline` directly via bookmark
 - **THEN** the sidebar renders with Pipeline as the active item and the main pane shows pipeline content within the same single-scroll layout
 
-### Requirement: Sidebar items are role-aware
-The system SHALL filter sidebar items by the viewer's role, showing only items the viewer is authorized to open, and hide empty groups.
+### Requirement: Sidebar items are permission-aware
+The system SHALL filter sidebar items by the viewer's effective action permissions, showing only items the viewer is authorized to open, and hide empty groups. No affordance SHALL be rendered for denied actions. Every permission-gated route SHALL also redirect server-side with a permission-denied flash.
 
-#### Scenario: Member sees reduced settings
-- **WHEN** a non-admin member visits `/app/settings`
-- **THEN** the sidebar shows only Language, Calendar, My Availability, and Data & Privacy (personal entry)
+#### Scenario: Recruiter sees allowed settings
+- **WHEN** a recruiter visits `/app/settings`
+- **THEN** the sidebar shows only items whose required action is allowed (e.g. Calendar, My Availability, Language, Message Queue, Data & Privacy personal entry)
 - **AND** empty groups are hidden
-- **AND** a callout explains that some settings require admin
-- **AND** Message Queue is not visible
+- **AND** a callout explains that some settings require additional permissions
+
+#### Scenario: Interviewer sees scoped settings
+- **WHEN** an interviewer visits `/app/settings`
+- **THEN** the sidebar shows only Language, Calendar, My Availability, and Data & Privacy (personal entry)
+- **AND** Team, Pipeline Stages, and Message Queue are not visible
+
+#### Scenario: Recruiter with granted pipeline permission sees it
+- **WHEN** a recruiter with explicitly allowed `pipeline_manage` visits `/app/settings`
+- **THEN** Pipeline Stages appears alongside their other allowed items
+
+#### Scenario: Denied direct navigation redirects
+- **WHEN** a user without the page's required action opens its bookmark
+- **THEN** the system redirects to the dashboard with a permission-denied flash
 
 #### Scenario: Admin sees all items including Message Queue
 - **WHEN** an admin visits `/app/settings`

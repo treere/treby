@@ -11,9 +11,33 @@ defmodule TrebyWeb.SettingsLayout do
   slot :inner_block, required: true
 
   def settings_shell(assigns) do
-    role = (assigns.current_membership && Map.get(assigns.current_membership, :role)) || "member"
-    groups = SettingsNav.groups_for_role(role)
-    assigns = assigns |> assign(:nav_groups, groups) |> assign(:nav_role, role)
+    role =
+      (assigns.current_membership && Map.get(assigns.current_membership, :role)) || "recruiter"
+
+    tenant_id = assigns.current_tenant && Map.get(assigns.current_tenant, :id)
+
+    groups =
+      if tenant_id do
+        SettingsNav.groups_for_membership(tenant_id, role)
+      else
+        SettingsNav.groups_for_role(role)
+      end
+
+    can_manage_settings =
+      if tenant_id do
+        Treby.Authorization.can?(
+          Treby.Authorization.effective_for(tenant_id, role),
+          :settings_manage
+        )
+      else
+        role in ["admin", :admin]
+      end
+
+    assigns =
+      assigns
+      |> assign(:nav_groups, groups)
+      |> assign(:nav_role, role)
+      |> assign(:nav_can_manage_settings, can_manage_settings)
 
     ~H"""
     <div
@@ -66,7 +90,7 @@ defmodule TrebyWeb.SettingsLayout do
                 <!-- Cross-link for Company Availability under Scheduling -->
                 <li :if={
                   group.id == :scheduling and @active_key != :company_availability and
-                    @nav_role in ["admin", :admin]
+                    @nav_can_manage_settings
                 }>
                   <.link
                     navigate={

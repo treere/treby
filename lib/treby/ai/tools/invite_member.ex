@@ -5,7 +5,8 @@ defmodule Treby.AI.Tools.InviteMember do
 
   def name, do: "invite_member"
 
-  def description, do: "Invite a new team member (admin or member) to the workspace by email."
+  def description,
+    do: "Invite a new team member (admin, recruiter, or interviewer) to the workspace by email."
 
   def destructive?, do: true
 
@@ -16,7 +17,7 @@ defmodule Treby.AI.Tools.InviteMember do
       "type" => "object",
       "properties" => %{
         "email" => %{"type" => "string"},
-        "role" => %{"type" => "string", "enum" => ["admin", "member"]}
+        "role" => %{"type" => "string", "enum" => ["admin", "recruiter", "interviewer"]}
       },
       "required" => ["email"]
     }
@@ -25,7 +26,7 @@ defmodule Treby.AI.Tools.InviteMember do
   def run(args, ctx) do
     attrs = %{
       "email" => args["email"],
-      "role" => args["role"] || "member",
+      "role" => args["role"] || "recruiter",
       "tenant_id" => ctx[:tenant_id]
     }
 

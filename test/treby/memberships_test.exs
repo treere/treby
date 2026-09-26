@@ -71,8 +71,33 @@ defmodule Treby.MembershipsTest do
 
       m_a = Memberships.get_membership(user.id, tenant_a.id)
       m_b = Memberships.get_membership(user.id, tenant_b.id)
-      assert m_a.role == "member"
+      # Legacy "member" role is normalized to its replacement preset.
+      assert m_a.role == "recruiter"
       assert m_b.role == "admin"
+    end
+
+    test "legacy member role normalizes to recruiter" do
+      tenant = create_tenant("Legacy")
+
+      {:ok, user} =
+        tenant
+        |> Ecto.build_assoc(:users)
+        |> User.changeset(%{
+          email: "legacy-#{System.unique_integer([:positive])}@test.com",
+          password: "password123",
+          name: "Legacy",
+          role: "member"
+        })
+        |> Repo.insert()
+
+      assert {:ok, membership} =
+               Memberships.create_membership(%{
+                 user_id: user.id,
+                 tenant_id: tenant.id,
+                 role: "member"
+               })
+
+      assert membership.role == "recruiter"
     end
   end
 

@@ -70,6 +70,8 @@ defmodule Treby.AI.Tools.RecruiterToolsTest do
       tenant_id: tenant.id,
       user_id: user.id,
       user: user,
+      role: "admin",
+      actor: %{id: user.id, role: "admin"},
       session_token: "tok-rec-tools"
     }
 

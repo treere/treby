@@ -34,21 +34,26 @@ defmodule Treby.Candidates.Merge do
   def merge_candidates(%Candidate{} = primary, absorbed_list, actor \\ nil) do
     absorbed_list = List.wrap(absorbed_list)
 
-    case validate_merge_targets(primary, absorbed_list) do
-      :ok ->
-        Repo.transaction(fn ->
-          merge_logs =
-            Enum.map(absorbed_list, fn absorbed ->
-              do_merge(primary, absorbed, actor)
-            end)
+    if actor &&
+         not Treby.Authorization.can_actor?(actor, primary.tenant_id, :candidates_merge) do
+      {:error, :unauthorized}
+    else
+      case validate_merge_targets(primary, absorbed_list) do
+        :ok ->
+          Repo.transaction(fn ->
+            merge_logs =
+              Enum.map(absorbed_list, fn absorbed ->
+                do_merge(primary, absorbed, actor)
+              end)
 
-          Treby.Pipeline.recompute_duplicate_flags(primary.id)
+            Treby.Pipeline.recompute_duplicate_flags(primary.id)
 
-          %{primary: primary, merge_logs: merge_logs}
-        end)
+            %{primary: primary, merge_logs: merge_logs}
+          end)
 
-      {:error, reason} ->
-        {:error, reason}
+        {:error, reason} ->
+          {:error, reason}
+      end
     end
   end
 

@@ -34,7 +34,7 @@ defmodule Treby.AI.Agent do
         Conversations.create_message(conversation, %{role: "user", content: text})
 
       messages = build_messages(conversation, ctx, profile)
-      tools = Tools.for_role(profile.tools, ctx[:role])
+      tools = Tools.for_role(profile.tools, ctx)
 
       debug_log("start", %{user_id: ctx.user_id, tools: length(tools)})
 

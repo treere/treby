@@ -114,6 +114,8 @@ defmodule TrebyWeb do
       # Common modules used in templates
       alias Phoenix.LiveView.JS
       alias TrebyWeb.Layouts
+      alias TrebyWeb.Permissions
+      import TrebyWeb.Permissions, only: [can?: 3, actor: 1]
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())

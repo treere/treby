@@ -23,7 +23,9 @@ defmodule Treby.Invites do
   end
 
   def create_invite(attrs \\ %{}, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    tenant_id = Map.get(attrs, "tenant_id") || Map.get(attrs, :tenant_id)
+
+    if actor && not Treby.Authorization.can_actor?(actor, tenant_id, :team_manage) do
       {:error, :unauthorized}
     else
       token = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
@@ -59,7 +61,7 @@ defmodule Treby.Invites do
   end
 
   def delete_invite(%Invite{} = invite, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor && not Treby.Authorization.can_actor?(actor, invite.tenant_id, :team_manage) do
       {:error, :unauthorized}
     else
       case Repo.delete(invite) do

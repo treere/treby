@@ -344,7 +344,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
-                    :if={@current_membership.role == "admin"}
+                    :if={can?(@current_membership, @current_tenant, :candidates_delete)}
                     phx-click="confirm_delete"
                     phx-value-id={candidate.id}
                     phx-value-title={gettext("Delete candidate")}
@@ -926,7 +926,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
 
   def handle_event("do_bulk_execute_merge", _params, socket) do
     %{selected_ids: ids, merge_primary_id: primary_id, current_tenant: tenant} = socket.assigns
-    actor = socket.assigns.current_user
+    actor = TrebyWeb.Permissions.actor(socket)
 
     primary = Candidates.get_candidate!(tenant.id, primary_id)
 
@@ -1167,7 +1167,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
          |> put_flash(:info, gettext("Candidate already deleted"))}
 
       candidate ->
-        case Candidates.delete_candidate(candidate, socket.assigns.current_user) do
+        case Candidates.delete_candidate(candidate, TrebyWeb.Permissions.actor(socket)) do
           {:ok, _candidate} ->
             {:noreply,
              socket
@@ -1179,7 +1179,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
             {:noreply,
              socket
              |> assign(confirm_delete: nil)
-             |> put_flash(:error, gettext("Only admins can delete candidates"))}
+             |> put_flash(:error, gettext("You don't have permission to delete candidates"))}
 
           {:error, _} ->
             {:noreply,

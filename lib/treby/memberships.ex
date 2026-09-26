@@ -67,7 +67,8 @@ defmodule Treby.Memberships do
   end
 
   def update_membership(%Membership{} = membership, attrs, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(actor, membership.tenant_id, :team_manage) do
       {:error, :unauthorized}
     else
       case membership |> Membership.changeset(attrs) |> Repo.update() do

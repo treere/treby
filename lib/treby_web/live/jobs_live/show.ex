@@ -511,7 +511,7 @@ defmodule TrebyWeb.JobsLive.Show do
               </p>
             </div>
             <.button
-              :if={@current_membership.role == "admin"}
+              :if={can?(@current_membership, @current_tenant, :pipeline_manage)}
               phx-click="toggle_manage_pipeline"
               variant={if @manage_pipeline, do: "primary", else: "ghost"}
             >
@@ -764,7 +764,10 @@ defmodule TrebyWeb.JobsLive.Show do
                     </div>
                   </div>
                 </div>
-                <div :if={@current_membership.role == "admin"} class="flex items-center gap-1 text-sm">
+                <div
+                  :if={can?(@current_membership, @current_tenant, :pipeline_manage)}
+                  class="flex items-center gap-1 text-sm"
+                >
                   <button
                     :if={idx > 0}
                     phx-click="move_stage_up"
@@ -1009,15 +1012,21 @@ defmodule TrebyWeb.JobsLive.Show do
   end
 
   def handle_event("toggle_manage_pipeline", _, socket) do
-    {:noreply,
-     socket
-     |> assign(
-       manage_pipeline: not socket.assigns.manage_pipeline,
-       show_form: false,
-       editing_stage: nil,
-       deleting_stage: nil,
-       editing_roles: nil
-     )}
+    case require_action(socket, :pipeline_manage) do
+      :ok ->
+        {:noreply,
+         socket
+         |> assign(
+           manage_pipeline: not socket.assigns.manage_pipeline,
+           show_form: false,
+           editing_stage: nil,
+           deleting_stage: nil,
+           editing_roles: nil
+         )}
+
+      {:error, socket} ->
+        {:noreply, socket}
+    end
   end
 
   def handle_event(
@@ -1029,16 +1038,23 @@ defmodule TrebyWeb.JobsLive.Show do
     user = socket.assigns.current_user
     source_stage = Enum.find(socket.assigns.stages, &(&1.id == application.pipeline_stage_id))
 
-    if source_stage && not can_manage_stage?(source_stage, user.id) do
+    permitted? =
+      TrebyWeb.Permissions.can?(
+        socket.assigns[:current_membership],
+        socket.assigns[:current_tenant],
+        :applications_move
+      )
+
+    if not permitted? or (source_stage && not can_manage_stage?(source_stage, user.id)) do
       {:noreply,
        put_flash(
          socket,
          :error,
-         gettext("Only advancers can move candidates in interview stages")
+         gettext("You don't have permission to move candidates")
        )}
     else
       case Pipeline.move_application(application, stage_id,
-             actor: user,
+             actor: actor(socket),
              audit: TrebyWeb.LiveAudit.attrs_from_socket(socket)
            ) do
         {:ok, _application} ->
@@ -1106,7 +1122,7 @@ defmodule TrebyWeb.JobsLive.Show do
         attrs = %{rejection_reason: rejection_reason}
 
         case Pipeline.move_application(application, rejected_stage.id,
-               actor: socket.assigns.current_user,
+               actor: actor(socket),
                attrs: attrs,
                audit: TrebyWeb.LiveAudit.attrs_from_socket(socket)
              ) do
@@ -1221,146 +1237,123 @@ defmodule TrebyWeb.JobsLive.Show do
     {:noreply, assign(socket, show_form: false, editing_stage: nil)}
   end
 
-  def handle_event(
-        "save_stage",
-        _params,
-        %{assigns: %{current_user: %{role: role}}} = socket
-      )
-      when role != "admin" do
-    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
-  end
-
-  def handle_event(
-        "delete_stage",
-        _params,
-        %{assigns: %{current_user: %{role: role}}} = socket
-      )
-      when role != "admin" do
-    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
-  end
-
-  def handle_event(
-        "move_stage_up",
-        _params,
-        %{assigns: %{current_user: %{role: role}}} = socket
-      )
-      when role != "admin" do
-    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
-  end
-
-  def handle_event(
-        "move_stage_down",
-        _params,
-        %{assigns: %{current_user: %{role: role}}} = socket
-      )
-      when role != "admin" do
-    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
-  end
-
-  def handle_event(
-        event,
-        _params,
-        %{assigns: %{current_user: %{role: role}}} = socket
-      )
-      when event in [
-             "add_examiner",
-             "remove_examiner",
-             "add_reviewer",
-             "remove_reviewer",
-             "add_advancer",
-             "remove_advancer"
-           ] and role != "admin" do
-    {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
-  end
-
   def handle_event("edit_stage", %{"stage_id" => stage_id}, socket) do
-    {socket, stage} = detach_and_map_stage(socket, stage_id)
-    form = to_form(Pipeline.change_pipeline_stage(stage))
-    {:noreply, assign(socket, show_form: true, editing_stage: stage, stage_form: form)}
+    case require_action(socket, :pipeline_manage) do
+      :ok ->
+        {socket, stage} = detach_and_map_stage(socket, stage_id)
+        form = to_form(Pipeline.change_pipeline_stage(stage))
+        {:noreply, assign(socket, show_form: true, editing_stage: stage, stage_form: form)}
+
+      {:error, socket} ->
+        {:noreply, socket}
+    end
   end
 
   def handle_event("save_stage", %{"pipeline_stage" => stage_params}, socket) do
-    socket = detach_pipeline(socket)
-    pipeline_id = pipeline_id_for(socket.assigns.job)
-    max_position = length(socket.assigns.stages)
+    case require_action(socket, :pipeline_manage) do
+      :ok ->
+        socket = detach_pipeline(socket)
+        pipeline_id = pipeline_id_for(socket.assigns.job)
+        max_position = length(socket.assigns.stages)
 
-    attrs =
-      stage_params
-      |> Map.put("pipeline_id", pipeline_id)
-      |> Map.put_new("position", max_position)
-      |> Map.put_new("color", "#3b82f6")
+        attrs =
+          stage_params
+          |> Map.put("pipeline_id", pipeline_id)
+          |> Map.put_new("position", max_position)
+          |> Map.put_new("color", "#3b82f6")
 
-    result =
-      case socket.assigns.editing_stage do
-        nil -> Pipeline.create_pipeline_stage(attrs, socket.assigns.current_user)
-        stage -> Pipeline.update_pipeline_stage(stage, attrs, socket.assigns.current_user)
-      end
+        result =
+          case socket.assigns.editing_stage do
+            nil -> Pipeline.create_pipeline_stage(attrs, actor(socket))
+            stage -> Pipeline.update_pipeline_stage(stage, attrs, actor(socket))
+          end
 
-    case result do
-      {:ok, _stage} ->
-        {:noreply,
-         socket
-         |> assign(
-           stages: stages_with_counts(pipeline_id),
-           show_form: false,
-           editing_stage: nil
-         )
-         |> refresh_overview()
-         |> put_flash(:info, gettext("Stage saved"))}
+        case result do
+          {:ok, _stage} ->
+            {:noreply,
+             socket
+             |> assign(
+               stages: stages_with_counts(pipeline_id),
+               show_form: false,
+               editing_stage: nil
+             )
+             |> refresh_overview()
+             |> put_flash(:info, gettext("Stage saved"))}
 
-      {:error, :unauthorized} ->
-        {:noreply, put_flash(socket, :error, gettext("Only admins can manage pipeline stages"))}
+          {:error, :unauthorized} ->
+            {:noreply,
+             put_flash(socket, :error, gettext("You don't have permission to manage pipelines"))}
 
-      {:error, changeset} ->
-        {:noreply,
-         socket
-         |> assign(stage_form: to_form(changeset))
-         |> put_flash(:error, gettext("Please review the errors below"))}
+          {:error, changeset} ->
+            {:noreply,
+             socket
+             |> assign(stage_form: to_form(changeset))
+             |> put_flash(:error, gettext("Please review the errors below"))}
+        end
+
+      {:error, socket} ->
+        {:noreply, socket}
     end
   end
 
   def handle_event("delete_stage", %{"stage_id" => stage_id}, socket) do
-    {socket, stage} = detach_and_map_stage(socket, stage_id)
-    active_count = Pipeline.active_applications_count(stage.id)
-    stages = socket.assigns.stages
+    case require_action(socket, :pipeline_manage) do
+      :ok ->
+        {socket, stage} = detach_and_map_stage(socket, stage_id)
+        active_count = Pipeline.active_applications_count(stage.id)
+        stages = socket.assigns.stages
 
-    cond do
-      stage.stage_type == "new" and
-          Enum.count(stages, &(&1.stage_type == "new")) == 1 ->
-        {:noreply, put_flash(socket, :error, gettext("Cannot delete the only entry stage."))}
+        cond do
+          stage.stage_type == "new" and
+              Enum.count(stages, &(&1.stage_type == "new")) == 1 ->
+            {:noreply, put_flash(socket, :error, gettext("Cannot delete the only entry stage."))}
 
-      active_count > 0 ->
-        deleting_stage = %{id: stage.id, name: stage.name, active_count: active_count}
-        {:noreply, assign(socket, deleting_stage: deleting_stage)}
+          active_count > 0 ->
+            deleting_stage = %{id: stage.id, name: stage.name, active_count: active_count}
+            {:noreply, assign(socket, deleting_stage: deleting_stage)}
 
-      true ->
-        case Pipeline.delete_pipeline_stage(stage, socket.assigns.current_user) do
-          {:ok, _} ->
-            stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
+          true ->
+            case Pipeline.delete_pipeline_stage(stage, actor(socket)) do
+              {:ok, _} ->
+                stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
 
-            {:noreply,
-             socket
-             |> assign(stages: stages)
-             |> refresh_overview()
-             |> put_flash(:info, gettext("Stage deleted"))}
+                {:noreply,
+                 socket
+                 |> assign(stages: stages)
+                 |> refresh_overview()
+                 |> put_flash(:info, gettext("Stage deleted"))}
 
-          {:error, :unauthorized} ->
-            {:noreply,
-             put_flash(socket, :error, gettext("Only admins can delete pipeline stages"))}
+              {:error, :unauthorized} ->
+                {:noreply,
+                 put_flash(
+                   socket,
+                   :error,
+                   gettext("You don't have permission to manage pipelines")
+                 )}
+            end
         end
+
+      {:error, socket} ->
+        {:noreply, socket}
     end
   end
 
   def handle_event("confirm_reassign", %{"target_stage_id" => target_id}, socket) do
-    stage = Pipeline.get_pipeline_stage!(socket.assigns.deleting_stage.id)
-    Pipeline.reassign_and_delete_stage(stage, target_id)
-    stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
+    case require_action(socket, :pipeline_manage) do
+      :ok ->
+        stage = Pipeline.get_pipeline_stage!(socket.assigns.deleting_stage.id)
+        Pipeline.reassign_and_delete_stage(stage, target_id)
+        stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
 
-    {:noreply,
-     socket
-     |> assign(stages: stages, deleting_stage: nil)
-     |> refresh_overview()
-     |> put_flash(:info, gettext("Candidates reassigned and stage deleted"))}
+        {:noreply,
+         socket
+         |> assign(stages: stages, deleting_stage: nil)
+         |> refresh_overview()
+         |> put_flash(:info, gettext("Candidates reassigned and stage deleted"))}
+
+      {:error, socket} ->
+        {:noreply, socket}
+    end
   end
 
   def handle_event("cancel_delete", _, socket) do
@@ -1368,71 +1361,78 @@ defmodule TrebyWeb.JobsLive.Show do
   end
 
   def handle_event("move_stage_up", %{"stage_id" => stage_id}, socket) do
-    {socket, stage} = detach_and_map_stage(socket, stage_id)
-    stages = socket.assigns.stages
-    idx = Enum.find_index(stages, &(&1.id == stage.id))
+    case require_action(socket, :pipeline_manage) do
+      :ok ->
+        {socket, stage} = detach_and_map_stage(socket, stage_id)
+        stages = socket.assigns.stages
+        idx = Enum.find_index(stages, &(&1.id == stage.id))
 
-    if idx && idx > 0 do
-      above = Enum.at(stages, idx - 1)
-      current = Enum.at(stages, idx)
+        if idx && idx > 0 do
+          above = Enum.at(stages, idx - 1)
+          current = Enum.at(stages, idx)
 
-      Pipeline.update_pipeline_stage(
-        above,
-        %{position: current.position},
-        socket.assigns.current_user
-      )
+          Pipeline.update_pipeline_stage(above, %{position: current.position}, actor(socket))
 
-      Pipeline.update_pipeline_stage(
-        current,
-        %{position: above.position},
-        socket.assigns.current_user
-      )
+          Pipeline.update_pipeline_stage(current, %{position: above.position}, actor(socket))
 
-      stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
-      {:noreply, socket |> assign(stages: stages) |> refresh_overview()}
-    else
-      {:noreply, socket}
+          stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
+          {:noreply, socket |> assign(stages: stages) |> refresh_overview()}
+        else
+          {:noreply, socket}
+        end
+
+      {:error, socket} ->
+        {:noreply, socket}
     end
   end
 
   def handle_event("move_stage_down", %{"stage_id" => stage_id}, socket) do
-    {socket, stage} = detach_and_map_stage(socket, stage_id)
-    stages = socket.assigns.stages
-    idx = Enum.find_index(stages, &(&1.id == stage.id))
+    case require_action(socket, :pipeline_manage) do
+      :ok ->
+        {socket, stage} = detach_and_map_stage(socket, stage_id)
+        stages = socket.assigns.stages
+        idx = Enum.find_index(stages, &(&1.id == stage.id))
 
-    if idx && idx < length(stages) - 1 do
-      below = Enum.at(stages, idx + 1)
-      current = Enum.at(stages, idx)
+        if idx && idx < length(stages) - 1 do
+          below = Enum.at(stages, idx + 1)
+          current = Enum.at(stages, idx)
 
-      Pipeline.update_pipeline_stage(
-        below,
-        %{position: current.position},
-        socket.assigns.current_user
-      )
+          Pipeline.update_pipeline_stage(below, %{position: current.position}, actor(socket))
 
-      Pipeline.update_pipeline_stage(
-        current,
-        %{position: below.position},
-        socket.assigns.current_user
-      )
+          Pipeline.update_pipeline_stage(current, %{position: below.position}, actor(socket))
 
-      stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
-      {:noreply, socket |> assign(stages: stages) |> refresh_overview()}
-    else
-      {:noreply, socket}
+          stages = stages_with_counts(pipeline_id_for(socket.assigns.job))
+          {:noreply, socket |> assign(stages: stages) |> refresh_overview()}
+        else
+          {:noreply, socket}
+        end
+
+      {:error, socket} ->
+        {:noreply, socket}
     end
   end
 
   def handle_event("show_roles", %{"stage_id" => stage_id}, socket) do
-    {socket, stage} = detach_and_map_stage(socket, stage_id)
+    case require_action(socket, :pipeline_assign) do
+      :ok ->
+        {socket, stage} = detach_and_map_stage(socket, stage_id)
 
-    examiners = Pipeline.list_examiners(stage)
-    reviewers = Pipeline.list_reviewers(stage)
-    advancers = Pipeline.list_advancers(stage)
+        examiners = Pipeline.list_examiners(stage)
+        reviewers = Pipeline.list_reviewers(stage)
+        advancers = Pipeline.list_advancers(stage)
 
-    editing_roles = %{stage | examiners: examiners, reviewers: reviewers, advancers: advancers}
+        editing_roles = %{
+          stage
+          | examiners: examiners,
+            reviewers: reviewers,
+            advancers: advancers
+        }
 
-    {:noreply, assign(socket, editing_roles: editing_roles)}
+        {:noreply, assign(socket, editing_roles: editing_roles)}
+
+      {:error, socket} ->
+        {:noreply, socket}
+    end
   end
 
   def handle_event("close_roles", _, socket) do
@@ -1440,45 +1440,27 @@ defmodule TrebyWeb.JobsLive.Show do
   end
 
   def handle_event("add_examiner", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
-    stage = Pipeline.get_pipeline_stage!(stage_id)
-    Pipeline.assign_examiner(stage, user_id)
-    editing_roles = refresh_roles(socket.assigns.editing_roles)
-    {:noreply, assign(socket, editing_roles: editing_roles)}
+    mutate_roles(socket, stage_id, &Pipeline.assign_examiner(&1, user_id))
   end
 
   def handle_event("remove_examiner", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
-    stage = Pipeline.get_pipeline_stage!(stage_id)
-    Pipeline.remove_examiner(stage, user_id)
-    editing_roles = refresh_roles(socket.assigns.editing_roles)
-    {:noreply, assign(socket, editing_roles: editing_roles)}
+    mutate_roles(socket, stage_id, &Pipeline.remove_examiner(&1, user_id))
   end
 
   def handle_event("add_reviewer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
-    stage = Pipeline.get_pipeline_stage!(stage_id)
-    Pipeline.assign_reviewer(stage, user_id)
-    editing_roles = refresh_roles(socket.assigns.editing_roles)
-    {:noreply, assign(socket, editing_roles: editing_roles)}
+    mutate_roles(socket, stage_id, &Pipeline.assign_reviewer(&1, user_id))
   end
 
   def handle_event("remove_reviewer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
-    stage = Pipeline.get_pipeline_stage!(stage_id)
-    Pipeline.remove_reviewer(stage, user_id)
-    editing_roles = refresh_roles(socket.assigns.editing_roles)
-    {:noreply, assign(socket, editing_roles: editing_roles)}
+    mutate_roles(socket, stage_id, &Pipeline.remove_reviewer(&1, user_id))
   end
 
   def handle_event("add_advancer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
-    stage = Pipeline.get_pipeline_stage!(stage_id)
-    Pipeline.assign_advancer(stage, user_id)
-    editing_roles = refresh_roles(socket.assigns.editing_roles)
-    {:noreply, assign(socket, editing_roles: editing_roles)}
+    mutate_roles(socket, stage_id, &Pipeline.assign_advancer(&1, user_id))
   end
 
   def handle_event("remove_advancer", %{"stage_id" => stage_id, "user_id" => user_id}, socket) do
-    stage = Pipeline.get_pipeline_stage!(stage_id)
-    Pipeline.remove_advancer(stage, user_id)
-    editing_roles = refresh_roles(socket.assigns.editing_roles)
-    {:noreply, assign(socket, editing_roles: editing_roles)}
+    mutate_roles(socket, stage_id, &Pipeline.remove_advancer(&1, user_id))
   end
 
   defp detach_pipeline(socket) do
@@ -1654,6 +1636,31 @@ defmodule TrebyWeb.JobsLive.Show do
 
   defp can_manage_stage?(stage, user_id) do
     stage.stage_type != "interview" or Pipeline.user_is_advancer?(stage, user_id)
+  end
+
+  defp require_action(socket, action) do
+    if TrebyWeb.Permissions.can?(
+         socket.assigns[:current_membership],
+         socket.assigns[:current_tenant],
+         action
+       ) do
+      :ok
+    else
+      {:error,
+       put_flash(socket, :error, gettext("You don't have permission to perform this action"))}
+    end
+  end
+
+  defp mutate_roles(socket, stage_id, fun) do
+    case require_action(socket, :pipeline_assign) do
+      :ok ->
+        stage = Pipeline.get_pipeline_stage!(stage_id)
+        fun.(stage)
+        {:noreply, assign(socket, editing_roles: refresh_roles(socket.assigns.editing_roles))}
+
+      {:error, socket} ->
+        {:noreply, socket}
+    end
   end
 
   defp new_stage_changeset(pipeline_id) do

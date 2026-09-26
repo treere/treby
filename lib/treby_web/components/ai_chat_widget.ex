@@ -102,7 +102,10 @@ defmodule TrebyWeb.AiChatWidget do
         confirm_ctx = %{
           tenant_id: tenant.id,
           user: user,
+          user_id: user.id,
           role: role,
+          permissions: Treby.Authorization.effective_for(tenant.id, role),
+          permission_overrides: %{},
           actor: %{id: user.id, role: role}
         }
 

@@ -5,7 +5,8 @@ defmodule Treby.AI.Tools.AddMember do
 
   def name, do: "add_member"
 
-  def description, do: "Add an existing user to the workspace as admin or member."
+  def description,
+    do: "Add an existing user to the workspace as admin, recruiter, or interviewer."
 
   def destructive?, do: true
 
@@ -16,7 +17,7 @@ defmodule Treby.AI.Tools.AddMember do
       "type" => "object",
       "properties" => %{
         "user_id" => %{"type" => "string", "description" => "Existing user id"},
-        "role" => %{"type" => "string", "enum" => ["admin", "member"]}
+        "role" => %{"type" => "string", "enum" => ["admin", "recruiter", "interviewer"]}
       },
       "required" => ["user_id"]
     }
@@ -27,7 +28,7 @@ defmodule Treby.AI.Tools.AddMember do
       attrs = %{
         "user_id" => args["user_id"],
         "tenant_id" => ctx[:tenant_id],
-        "role" => args["role"] || "member"
+        "role" => args["role"] || "recruiter"
       }
 
       case Treby.Memberships.create_membership(attrs) do

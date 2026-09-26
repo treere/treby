@@ -30,7 +30,10 @@ defmodule Treby.Customization do
   end
 
   def create_custom_field(attrs \\ %{}, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    tenant_id = Map.get(attrs, "tenant_id") || Map.get(attrs, :tenant_id)
+
+    if actor &&
+         not Treby.Authorization.can_actor?(actor, tenant_id, :fields_manage) do
       {:error, :unauthorized}
     else
       case %CustomField{} |> CustomField.changeset(attrs) |> Repo.insert() do
@@ -50,7 +53,8 @@ defmodule Treby.Customization do
   end
 
   def update_custom_field(%CustomField{} = custom_field, attrs, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(actor, custom_field.tenant_id, :fields_manage) do
       {:error, :unauthorized}
     else
       before = Map.take(custom_field, [:name, :applies_to])
@@ -72,7 +76,8 @@ defmodule Treby.Customization do
   end
 
   def delete_custom_field(%CustomField{} = custom_field, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(actor, custom_field.tenant_id, :fields_manage) do
       {:error, :unauthorized}
     else
       case Repo.delete(custom_field) do

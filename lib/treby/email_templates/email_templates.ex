@@ -25,7 +25,10 @@ defmodule Treby.EmailTemplates do
   end
 
   def upsert_email_template(attrs, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    tenant_id = Map.get(attrs, "tenant_id") || Map.get(attrs, :tenant_id)
+
+    if actor &&
+         not Treby.Authorization.can_actor?(actor, tenant_id, :settings_manage) do
       {:error, :unauthorized}
     else
       tenant_id = attrs["tenant_id"]
@@ -46,7 +49,12 @@ defmodule Treby.EmailTemplates do
   end
 
   def delete_email_template(%EmailTemplate{} = email_template, actor \\ nil) do
-    if actor && actor.role != "admin" do
+    if actor &&
+         not Treby.Authorization.can_actor?(
+           actor,
+           email_template.tenant_id,
+           :settings_manage
+         ) do
       {:error, :unauthorized}
     else
       Repo.delete(email_template)

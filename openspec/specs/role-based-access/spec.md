@@ -2,153 +2,106 @@
 
 ## Purpose
 
-Enforce admin vs member permissions across all LiveViews and context functions so that only admins can configure the system while members can perform day-to-day hiring actions.
+Enforce action-based permissions across all LiveViews and context functions so workspaces can delegate operational work without granting full admin, while the UI hides every denied action.
 
 ## Requirements
 
-### Requirement: Admin-only settings access
-The system SHALL restrict settings pages to admin users only.
+### Requirement: Permission-gated settings access
+The system SHALL restrict each settings page by its declared action (e.g. pipeline pages require `pipeline_manage`, webhooks require `webhooks_manage`, audit log requires `audit_view`, team requires `team_manage`). Direct navigation without the action SHALL redirect to the dashboard with a permission-denied flash, and the sidebar SHALL hide denied items and empty groups.
 
-#### Scenario: Admin accesses settings
-- **WHEN** an admin navigates to any `/app/settings/*` page
+#### Scenario: Permitted user accesses settings
+- **WHEN** a recruiter with explicitly allowed `pipeline_manage` navigates to the pipeline settings page
 - **THEN** the page loads normally
 
-#### Scenario: Member accesses settings
-- **WHEN** a member navigates to any `/app/settings/*` page
-- **THEN** the system redirects to the dashboard with a "permission denied" flash message
+#### Scenario: Denied user accesses settings
+- **WHEN** a user without the page's required action navigates to that settings page
+- **THEN** the system redirects to the dashboard with a permission-denied flash message
 
-### Requirement: Admin-only team management
-The system SHALL restrict team invitations and removals to admin users.
+### Requirement: Team management requires team_manage
+The system SHALL restrict team invitations, role changes, and removals to memberships passing `team_manage` (admin by default).
 
-#### Scenario: Admin invites team member
-- **WHEN** an admin sends a team invitation
+#### Scenario: Permitted user invites team member
+- **WHEN** a user with `team_manage` sends a team invitation
 - **THEN** the invitation is created and emailed
 
-#### Scenario: Member attempts to invite
-- **WHEN** a member attempts to invite a team member
+#### Scenario: Denied user attempts to invite
+- **WHEN** a user without `team_manage` attempts to invite a team member
 - **THEN** the system returns a permission error
 
-#### Scenario: Admin removes team member
-- **WHEN** an admin removes a team member
+#### Scenario: Permitted user removes team member
+- **WHEN** a user with `team_manage` removes a team member
 - **THEN** the member is removed from the tenant
 
-#### Scenario: Member attempts to remove
-- **WHEN** a member attempts to remove a team member
-- **THEN** the system returns a permission error
+### Requirement: Pipeline configuration requires pipeline permissions
+The system SHALL restrict pipeline stage management to `pipeline_manage` and stage-people assignment to `pipeline_assign`.
 
-### Requirement: Admin-only pipeline configuration
-The system SHALL restrict pipeline stage management and role assignment to admin users.
-
-#### Scenario: Admin manages pipeline stages
-- **WHEN** an admin creates, edits, reorders, or deletes pipeline stages
+#### Scenario: Permitted user manages pipeline stages
+- **WHEN** a user with `pipeline_manage` creates, edits, reorders, or deletes pipeline stages
 - **THEN** the changes are applied
 
-#### Scenario: Member attempts pipeline configuration
-- **WHEN** a member attempts to create, edit, or delete pipeline stages
+#### Scenario: Denied user attempts pipeline configuration
+- **WHEN** a user without `pipeline_manage` attempts to manage pipeline stages
 - **THEN** the system returns a permission error
 
-#### Scenario: Admin manages stage roles
-- **WHEN** an admin assigns examiners, reviewers, or advancers to pipeline stages
+#### Scenario: Permitted user manages stage roles
+- **WHEN** a user with `pipeline_assign` assigns examiners, reviewers, or advancers
 - **THEN** the assignments are saved
 
-#### Scenario: Member attempts stage role assignment
-- **WHEN** a member attempts to assign examiners, reviewers, or advancers to pipeline stages
-- **THEN** the system returns a permission error
+### Requirement: Destructive candidate actions require explicit grants
+The system SHALL restrict candidate deletion to `candidates_delete` and merging to `candidates_merge` (both admin-only by default, grantable per workspace).
 
-#### Scenario: Admin configures min_examiners
-- **WHEN** an admin sets the minimum examiner count on an interview-type stage
-- **THEN** the value is saved
-
-### Requirement: Admin-only custom field management
-The system SHALL restrict custom field management to admin users.
-
-#### Scenario: Admin manages custom fields
-- **WHEN** an admin creates, edits, or deletes custom fields
-- **THEN** the changes are applied
-
-#### Scenario: Member attempts custom field management
-- **WHEN** a member attempts to create, edit, or delete custom fields
-- **THEN** the system returns a permission error
-
-### Requirement: Admin-only candidate deletion
-The system SHALL restrict candidate deletion to admin users.
-
-#### Scenario: Admin deletes candidate
-- **WHEN** an admin deletes a candidate
+#### Scenario: Permitted user deletes candidate
+- **WHEN** a user with `candidates_delete` deletes a candidate
 - **THEN** the candidate is removed
 
-#### Scenario: Member attempts deletion
-- **WHEN** a member attempts to delete a candidate
+#### Scenario: Denied user attempts deletion
+- **WHEN** a user without `candidates_delete` attempts to delete a candidate
 - **THEN** the system returns a permission error
 
-### Requirement: Admin-only email template and scorecard management
-The system SHALL restrict email template and scorecard template management to admin users.
+### Requirement: Template management split by action
+The system SHALL restrict email template management to `settings_manage`, scorecard template management to `scorecards_manage`, and allow scorecard submission with only `scorecards_submit`. Custom field management SHALL require `fields_manage`.
 
-#### Scenario: Admin manages templates
-- **WHEN** an admin creates, edits, or deletes email templates or scorecard templates
-- **THEN** the changes are applied
+#### Scenario: Interviewer submits scorecard
+- **WHEN** an interviewer with `scorecards_submit` submits a scorecard for an assigned interview
+- **THEN** the submission is saved
 
-#### Scenario: Member attempts template management
-- **WHEN** a member attempts to manage email templates or scorecard templates
+#### Scenario: Denied user attempts template management
+- **WHEN** a user without the matching manage action attempts to manage templates or custom fields
 - **THEN** the system returns a permission error
 
-### Requirement: Member permissions
-The system SHALL allow members to perform day-to-day hiring actions.
+### Requirement: Preset operational permissions
+`recruiter` defaults SHALL cover notes, stage moves (subject to advancer rules), interview scheduling, job and candidate create/update, messaging, availability, and analytics. `interviewer` defaults SHALL cover scoped viewing, interview listing, scorecard submission, and own availability.
 
-#### Scenario: Member creates note
-- **WHEN** a member adds a note to an application
-- **THEN** the note is saved
+#### Scenario: Recruiter works daily hiring flow
+- **WHEN** a recruiter adds a note, moves a candidate (as advancer), or schedules an interview
+- **THEN** each action succeeds
 
-#### Scenario: Member moves candidate
-- **WHEN** a member drags a candidate to a new pipeline stage
-- **THEN** the candidate's stage is updated
+#### Scenario: Interviewer cannot mutate hiring flow
+- **WHEN** an interviewer without `applications_move` attempts to move a candidate
+- **THEN** the system returns a permission error even if they examine for the stage
 
-#### Scenario: Member schedules interview
-- **WHEN** a member schedules an interview
-- **THEN** the interview is booked and notifications are sent
-
-#### Scenario: Member creates job
-- **WHEN** a member creates a new job posting
-- **THEN** the job is created
-
-#### Scenario: Member views analytics
-- **WHEN** a member navigates to the analytics page
-- **THEN** the analytics page loads normally
-
-### Requirement: Advancer-only stage advancement
-The system SHALL restrict candidate advancement from a stage to assigned advancers only.
+### Requirement: Advancer plus action for stage advancement
+Candidate advancement from a stage SHALL require the user to be an assigned advancer (or hold `pipeline_manage`) AND to pass `applications_move`. Both conditions must hold.
 
 #### Scenario: Advancer advances candidate
-- **WHEN** a user who is an advancer for the current stage attempts to advance a candidate
-- **AND** all examiners have submitted scorecards (for interview-type stages)
+- **WHEN** a stage advancer with `applications_move` advances a candidate with complete requirements
 - **THEN** the advancement proceeds
 
-#### Scenario: Non-advancer attempts advancement
-- **WHEN** a user who is not an advancer for the current stage attempts to advance a candidate
+#### Scenario: Advancer without action permission attempts advancement
+- **WHEN** a stage advancer lacks `applications_move`
 - **THEN** the system prevents the action with a permission error
 
-### Requirement: Admin-only template management
-The system SHALL restrict pipeline template creation, editing, and deletion to admin users.
+#### Scenario: Non-advancer attempts advancement
+- **WHEN** a user who is neither an advancer for the stage nor a pipeline manager attempts to advance
+- **THEN** the system prevents the action with a permission error
 
-#### Scenario: Admin manages templates
-- **WHEN** an admin creates, edits, or deletes pipeline templates
-- **THEN** the changes are applied
+### Requirement: Audit log requires audit_view
+The system SHALL restrict the audit log view and audit query API to memberships passing `audit_view` (admin-only, not grantable in v1).
 
-#### Scenario: Member attempts template management
-- **WHEN** a member attempts to create, edit, or delete pipeline templates
-- **THEN** the system returns a permission error
+#### Scenario: Permitted user accesses audit log
+- **WHEN** a user with `audit_view` opens the audit log or queries audit events
+- **THEN** the request succeeds with tenant-scoped events
 
-### Requirement: Admin-only audit log access
-The system SHALL restrict the audit log view and audit query API to admin users only, consistent with other settings pages.
-
-#### Scenario: Admin accesses audit log
-- **WHEN** an admin navigates to `/:company/app/settings/audit-log` or queries audit events with a valid admin scope
-- **THEN** the request succeeds and returns tenant-scoped audit events
-
-#### Scenario: Member denied audit log access
-- **WHEN** a member navigates to `/:company/app/settings/audit-log` or attempts to query audit events
-- **THEN** the system denies access and redirects to the dashboard with a permission-denied flash or returns a permission error for API/context calls
-
-#### Scenario: Audit log respects workspace role
-- **WHEN** a user is admin in tenant A but member in tenant B
-- **THEN** the audit log is accessible only when the current workspace is tenant A, and denied when the current workspace is tenant B
+#### Scenario: Denied user denied audit log access
+- **WHEN** a user without `audit_view` opens the audit log
+- **THEN** the system denies access with a permission-denied flash or error

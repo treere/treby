@@ -14,14 +14,31 @@ defmodule Treby.AI.Tools do
   end
 
   @doc """
-  Required workspace role for a tool: `:admin` when the tool exports
-  `required_role/0` returning `:admin`, otherwise `:any`.
+  Required action for a tool (fail-closed atom or nil when unmapped).
+  Delegates to `Treby.Authorization.action_for_tool/1`, which honors an
+  optional `required_action/0` callback on the tool module.
   """
+  def required_action(tool), do: Treby.Authorization.action_for_tool(tool)
+
+  @doc """
+  Required workspace role for a tool (deprecated).
+
+  Kept for backward compatibility: returns `:admin` when the tool's required
+  action is outside recruiter defaults, otherwise `:any`.
+  Prefer `required_action/1` + `authorize/2`.
+  """
+  @deprecated "Use required_action/1 with authorize/2 instead"
   def required_role(tool) do
     if Code.ensure_loaded?(tool) and function_exported?(tool, :required_role, 0) do
       tool.required_role()
     else
-      :any
+      case required_action(tool) do
+        nil ->
+          :admin
+
+        action ->
+          if action in Treby.Authorization.preset_defaults("recruiter"), do: :any, else: :admin
+      end
     end
   end
 
@@ -39,15 +56,71 @@ defmodule Treby.AI.Tools do
     end
   end
 
-  @doc "Filter a toolset by role, hiding admin-only tools from non-admins."
-  def for_role(tools, role) when is_list(tools) do
-    admin? = role in ["admin", :admin]
-    Enum.filter(tools, fn tool -> admin? or required_role(tool) == :any end)
+  @doc """
+  Filter a toolset by effective permissions, hiding denied tools from the model.
+
+  Accepts a MapSet, a context map carrying `:permissions` / `:role`, or a
+  legacy role string (preset defaults, no overrides).
+  """
+  def for_role(tools, role) when (is_list(tools) and is_binary(role)) or is_atom(role) do
+    effective = Treby.Authorization.effective_permissions(role, %{})
+    for_permissions(tools, effective)
   end
 
-  @doc "Return `:ok` when the context role satisfies the tool's requirement."
+  def for_role(tools, %MapSet{} = effective) when is_list(tools) do
+    for_permissions(tools, effective)
+  end
+
+  def for_role(tools, %{} = ctx) when is_list(tools) do
+    for_permissions(tools, effective(ctx))
+  end
+
+  def for_permissions(tools, %MapSet{} = effective) when is_list(tools) do
+    Enum.filter(tools, fn tool ->
+      case required_action(tool) do
+        nil -> false
+        action -> Treby.Authorization.can?(effective, action)
+      end
+    end)
+  end
+
+  @doc "Effective permission set for a context (permissions key wins, else role+overrides)."
+  def effective(%{permissions: %MapSet{} = effective}), do: effective
+
+  def effective(%{} = ctx) do
+    role = ctx[:role]
+    overrides = Map.get(ctx, :permission_overrides, %{})
+
+    cond do
+      is_nil(role) ->
+        MapSet.new()
+
+      map_size_safe(overrides) and ctx[:tenant_id] not in [nil, ""] and overrides == %{} ->
+        # Prefer DB-backed resolution when a tenant is known so admin toggles
+        # apply even if the caller forgot to preload overrides.
+        Treby.Authorization.effective_for(ctx[:tenant_id], role)
+
+      true ->
+        Treby.Authorization.effective_permissions(role, overrides)
+    end
+  end
+
+  def effective(_), do: MapSet.new()
+
+  defp map_size_safe(%{} = m), do: map_size(m) == 0
+  defp map_size_safe(_), do: false
+
+  @doc "Return `:ok` when the context permissions satisfy the tool's required action."
   def authorize(tool, ctx) do
-    if required_role(tool) == :any or admin?(ctx), do: :ok, else: {:error, :unauthorized}
+    case required_action(tool) do
+      nil ->
+        {:error, :unauthorized}
+
+      action ->
+        if Treby.Authorization.can?(effective(ctx), action),
+          do: :ok,
+          else: {:error, :unauthorized}
+    end
   end
 
   @doc """

@@ -83,15 +83,42 @@ defmodule TrebyWeb.SettingsNavigationTest do
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
 
-      assert html =~ "Some settings require admin"
+      assert html =~ "Some settings require additional permissions"
       assert html =~ "Calendar"
       assert html =~ "My Availability"
       assert html =~ "Language"
 
-      # Member should not see admin-only items
+      # Recruiters handle messaging, so the queue is visible; admin config is not.
+      assert html =~ "Message Queue"
+      refute html =~ "Team"
+      refute html =~ "Pipeline Stages"
+    end
+
+    test "interviewer sees scoped settings without hiring menus", %{conn: conn} do
+      {tenant, user} = setup_tenant("interviewer")
+      conn = login_user(conn, user)
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
+
+      assert html =~ "My Availability"
+      assert html =~ "Language"
       refute html =~ "Team"
       refute html =~ "Pipeline Stages"
       refute html =~ "Message Queue"
+    end
+
+    test "recruiter with granted pipeline permission sees Pipeline Stages", %{conn: conn} do
+      {tenant, user} = setup_tenant("recruiter")
+
+      {:ok, _} =
+        Treby.Authorization.set_override(tenant.id, "recruiter", :pipeline_manage, true, %{
+          id: user.id
+        })
+
+      conn = login_user(conn, user)
+      {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings")
+
+      assert html =~ "Pipeline Stages"
+      refute html =~ "Team"
     end
 
     test "active item is highlighted with aria-current", %{conn: conn} do

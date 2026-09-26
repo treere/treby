@@ -77,14 +77,39 @@ defmodule Treby.AI.SpecializedAgentsTest do
 
     member_recruiter =
       Profiles.get(:recruiter).tools
-      |> Tools.for_role("member")
+      |> Tools.for_role("recruiter")
       |> Enum.map(& &1.name())
       |> MapSet.new()
 
     refute MapSet.member?(member_recruiter, "delete_candidate")
-    refute MapSet.member?(member_recruiter, "find_interview_substitutes")
+    refute MapSet.member?(member_recruiter, "merge_candidates")
+    refute MapSet.member?(member_recruiter, "create_webhook")
+    # Operational interview tools are visible to recruiters.
+    assert MapSet.member?(member_recruiter, "find_interview_substitutes")
     assert MapSet.member?(member_recruiter, "create_candidate")
     assert MapSet.member?(member_recruiter, "schedule_interview")
+
+    member_interviewer =
+      Profiles.get(:recruiter).tools
+      |> Tools.for_role("interviewer")
+      |> Enum.map(& &1.name())
+      |> MapSet.new()
+
+    assert MapSet.member?(member_interviewer, "list_jobs")
+    assert MapSet.member?(member_interviewer, "submit_scorecard")
+    refute MapSet.member?(member_interviewer, "create_candidate")
+    refute MapSet.member?(member_interviewer, "delete_candidate")
+    refute MapSet.member?(member_interviewer, "schedule_interview")
+  end
+
+  test "every registered tool maps to exactly one known action" do
+    for tool <- Tools.all() do
+      action = Treby.Authorization.action_for_tool(tool)
+      assert is_atom(action), "tool #{inspect(tool)} has no action mapping"
+
+      assert action in Treby.Authorization.action_keys(),
+             "tool #{inspect(tool)} maps to unknown action #{inspect(action)}"
+    end
   end
 
   test "handoff switches the session domain for the next turn" do

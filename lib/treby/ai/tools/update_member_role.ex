@@ -5,7 +5,8 @@ defmodule Treby.AI.Tools.UpdateMemberRole do
 
   def name, do: "update_member_role"
 
-  def description, do: "Change a team member's role in the workspace to admin or member."
+  def description,
+    do: "Change a team member's role in the workspace to admin, recruiter, or interviewer."
 
   def destructive?, do: true
 
@@ -16,7 +17,7 @@ defmodule Treby.AI.Tools.UpdateMemberRole do
       "type" => "object",
       "properties" => %{
         "user_id" => %{"type" => "string"},
-        "role" => %{"type" => "string", "enum" => ["admin", "member"]}
+        "role" => %{"type" => "string", "enum" => ["admin", "recruiter", "interviewer"]}
       },
       "required" => ["user_id", "role"]
     }

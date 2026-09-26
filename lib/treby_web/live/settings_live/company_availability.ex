@@ -31,37 +31,9 @@ defmodule TrebyWeb.SettingsLive.CompanyAvailability do
 
   def mount(_params, session, socket) do
     socket = set_locale_from_session(socket, session)
+    {user, tenant} = resolve_user_tenant(socket, session)
 
-    {user, tenant} =
-      cond do
-        socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
-          {socket.assigns.current_user, socket.assigns.current_tenant}
-
-        session["user_id"] && session["tenant_id"] ->
-          {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
-
-        session["user_id"] ->
-          u = Accounts.get_user!(session["user_id"])
-
-          case Treby.Memberships.list_tenants_for_user(u.id) do
-            [%{tenant: t} | _] -> {u, t}
-            [] -> {u, nil}
-          end
-
-        true ->
-          {nil, nil}
-      end
-
-    if user.role != "admin" do
-      {:noreply,
-       push_navigate(socket,
-         to:
-           if(socket.assigns.current_tenant,
-             do: "/#{socket.assigns.current_tenant.slug}/app/settings/availability",
-             else: ~p"/app/settings/availability"
-           )
-       )}
-    else
+    if permitted?(socket, user, tenant) do
       rules = Availability.list_company_rules(tenant.id)
 
       {:ok,
@@ -81,7 +53,49 @@ defmodule TrebyWeb.SettingsLive.CompanyAvailability do
        |> assign(days_of_week: @days_of_week)
        |> assign(timezones: @timezones)
        |> assign(confirm_delete: nil)}
+    else
+      {:noreply,
+       push_navigate(socket,
+         to:
+           if(socket.assigns.current_tenant,
+             do: "/#{socket.assigns.current_tenant.slug}/app/settings/availability",
+             else: ~p"/app/settings/availability"
+           )
+       )}
     end
+  end
+
+  defp resolve_user_tenant(socket, session) do
+    cond do
+      socket.assigns[:current_user] && socket.assigns[:current_tenant] ->
+        {socket.assigns.current_user, socket.assigns.current_tenant}
+
+      session["user_id"] && session["tenant_id"] ->
+        {Accounts.get_user!(session["user_id"]), Tenants.get_tenant!(session["tenant_id"])}
+
+      session["user_id"] ->
+        u = Accounts.get_user!(session["user_id"])
+
+        case Treby.Memberships.list_tenants_for_user(u.id) do
+          [%{tenant: t} | _] -> {u, t}
+          [] -> {u, nil}
+        end
+
+      true ->
+        {nil, nil}
+    end
+  end
+
+  defp permitted?(socket, user, tenant) do
+    membership =
+      socket.assigns[:current_membership] ||
+        (user && tenant && Treby.Memberships.get_membership(user.id, tenant.id))
+
+    TrebyWeb.Permissions.can?(
+      membership,
+      socket.assigns[:current_tenant] || tenant,
+      :settings_manage
+    )
   end
 
   defp day_name(0), do: gettext("Sunday")

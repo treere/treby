@@ -68,6 +68,7 @@ export default withMermaid(
           { text: "Notification Center", link: "/features/notification-center" },
           { text: "Data & Privacy", link: "/features/data-privacy" },
           { text: "Webhooks", link: "/features/webhooks" },
+          { text: "Team Roles & Permissions", link: "/features/team-roles" },
         ],
       },
     ],

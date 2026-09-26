@@ -67,7 +67,10 @@ defmodule Treby.AI.ContextTest do
     ctx = Context.build(socket)
 
     assert ctx.role == "member"
-    assert ctx.actor == %{id: user.id, role: "member"}
+    assert ctx.actor.id == user.id
+    assert ctx.actor.role == "member"
+    assert %MapSet{} = ctx.permissions
+    assert %MapSet{} = ctx.actor.permissions
   end
 
   test "assigns snapshot excludes sensitive/internal keys" do

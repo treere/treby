@@ -57,7 +57,9 @@ defmodule TrebyWeb.SettingsLive.Index do
           :if={@current_membership && @current_membership.role != "admin"}
           class="mt-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"
         >
-          {gettext("Some settings require admin access. You see only your personal settings below.")}
+          {gettext(
+            "Some settings require additional permissions. You see only your allowed settings below."
+          )}
         </div>
 
         <div class="mt-6">
@@ -81,9 +83,16 @@ defmodule TrebyWeb.SettingsLive.Index do
               <div
                 :for={
                   group <-
-                    SettingsNav.groups_for_role(
-                      (@current_membership && @current_membership.role) || "member"
-                    )
+                    if @current_tenant && @current_membership,
+                      do:
+                        SettingsNav.groups_for_membership(
+                          @current_tenant.id,
+                          @current_membership.role
+                        ),
+                      else:
+                        SettingsNav.groups_for_role(
+                          (@current_membership && @current_membership.role) || "recruiter"
+                        )
                 }
                 class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-6"
               >

@@ -121,116 +121,91 @@ defmodule TrebyWeb.JobsLive.Index do
           </button>
         </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-            <thead class="bg-zinc-50 dark:bg-zinc-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Title")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Salary")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Status")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Public")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Views")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Candidates")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr
-                :for={job <- @jobs}
-                class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors"
-              >
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <.link
-                    navigate={
-                      if @current_tenant,
-                        do: "/#{@current_tenant.slug}/app/jobs/#{job.id}",
-                        else: ~p"/app/jobs/#{job.id}"
-                    }
-                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-medium"
-                  >
-                    {job.title}
-                  </.link>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                  {job.salary_range || "-"}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <.status_badge status={job.status} label={job.status} />
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <button
-                    phx-click="toggle_visibility"
-                    phx-value-job_id={job.id}
-                    disabled={job.status != "open"}
-                    class={"inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium #{if job.visible, do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-800", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"} #{if job.status != "open", do: "opacity-50 cursor-not-allowed"}"}
-                  >
-                    <.icon
-                      name={if job.visible, do: "hero-globe-alt", else: "hero-lock-closed"}
-                      class="w-3 h-3"
-                    />
-                    {if job.visible, do: gettext("Public"), else: gettext("Private")}
-                  </button>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
-                  <% summary =
-                    Map.get(@view_summaries, job.id, %{total_views: 0, views_last_7_days: 0}) %>
-                  <%= if summary.total_views > 0 do %>
-                    <span class="inline-flex items-center gap-1 text-xs">
-                      <.icon name="hero-eye" class="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
-                      {summary.total_views} · {gettext("%{count} last 7d",
-                        count: summary.views_last_7_days
-                      )}
-                    </span>
-                  <% else %>
-                    <span class="text-xs text-zinc-500 dark:text-zinc-400">{gettext("No views yet")}</span>
-                  <% end %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
-                  {Map.get(@candidate_counts, job.id, 0)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <.link
-                    navigate={
-                      if @current_tenant,
-                        do: "/#{@current_tenant.slug}/app/pipeline/#{job.id}",
-                        else: ~p"/app/pipeline/#{job.id}"
-                    }
-                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3 inline-flex items-center gap-1"
-                  >
-                    <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> {gettext(
-                      "Pipeline"
-                    )}
-                  </.link>
-                  <button
-                    phx-click="toggle_status"
-                    phx-value-job_id={job.id}
-                    class="text-yellow-600 hover:text-yellow-900 inline-flex items-center gap-1"
-                  >
-                    <.icon
-                      name={if job.status == "open", do: "hero-x-mark", else: "hero-arrow-path"}
-                      class="w-4 h-4"
-                    />
-                    {if job.status == "open", do: gettext("Close"), else: gettext("Reopen")}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="mt-4">
+        <.table
+          id="jobs"
+          rows={@jobs}
+          row_id={fn job -> "jobs-#{job.id}" end}
+        >
+          <:col :let={job} label={gettext("Title")}>
+            <.link
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/jobs/#{job.id}",
+                  else: ~p"/app/jobs/#{job.id}"
+              }
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-medium"
+            >
+              {job.title}
+            </.link>
+          </:col>
+          <:col :let={job} label={gettext("Salary")}>
+            <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+              {job.salary_range || "-"}
+            </span>
+          </:col>
+          <:col :let={job} label={gettext("Status")}>
+            <.status_badge status={job.status} label={job.status} />
+          </:col>
+          <:col :let={job} label={gettext("Public")}>
+            <button
+              phx-click="toggle_visibility"
+              phx-value-job_id={job.id}
+              disabled={job.status != "open"}
+              class={"inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium #{if job.visible, do: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 hover:bg-blue-200 dark:hover:bg-blue-800", else: "bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"} #{if job.status != "open", do: "opacity-50 cursor-not-allowed"}"}
+            >
+              <.icon
+                name={if job.visible, do: "hero-globe-alt", else: "hero-lock-closed"}
+                class="w-3 h-3"
+              />
+              {if job.visible, do: gettext("Public"), else: gettext("Private")}
+            </button>
+          </:col>
+          <:col :let={job} label={gettext("Views")}>
+            <% summary =
+              Map.get(@view_summaries, job.id, %{total_views: 0, views_last_7_days: 0}) %>
+            <%= if summary.total_views > 0 do %>
+              <span class="inline-flex items-center gap-1 text-xs">
+                <.icon name="hero-eye" class="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
+                {summary.total_views} · {gettext("%{count} last 7d",
+                  count: summary.views_last_7_days
+                )}
+              </span>
+            <% else %>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">{gettext("No views yet")}</span>
+            <% end %>
+          </:col>
+          <:col :let={job} label={gettext("Candidates")}>
+            <span class="text-sm text-zinc-500 dark:text-zinc-400">
+              {Map.get(@candidate_counts, job.id, 0)}
+            </span>
+          </:col>
+          <:action :let={job}>
+            <.link
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/pipeline/#{job.id}",
+                  else: ~p"/app/pipeline/#{job.id}"
+              }
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3 inline-flex items-center gap-1"
+            >
+              <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> {gettext(
+                "Pipeline"
+              )}
+            </.link>
+            <button
+              phx-click="toggle_status"
+              phx-value-job_id={job.id}
+              class="text-yellow-600 hover:text-yellow-900 inline-flex items-center gap-1"
+            >
+              <.icon
+                name={if job.status == "open", do: "hero-x-mark", else: "hero-arrow-path"}
+                class="w-4 h-4"
+              />
+              {if job.status == "open", do: gettext("Close"), else: gettext("Reopen")}
+            </button>
+          </:action>
+        </.table>
+        <div class="mt-4">
             <.pagination
               id="pagination"
               page={@page_info.page}
@@ -263,7 +238,6 @@ defmodule TrebyWeb.JobsLive.Index do
               </.button>
             </:cta>
           </.empty_state>
-        </div>
       </div>
     </Layouts.app>
     """

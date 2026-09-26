@@ -169,9 +169,7 @@ defmodule TrebyWeb.JobsLive.Index do
                   {job.salary_range || "-"}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <.badge variant={if job.status == "open", do: "success", else: "default"}>
-                    {job.status}
-                  </.badge>
+                  <.status_badge status={job.status} label={job.status} />
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <button

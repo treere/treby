@@ -290,9 +290,7 @@ defmodule TrebyWeb.JobsLive.Show do
               <div>
                 <dt class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Status")}</dt>
                 <dd>
-                  <.badge variant={if @job.status == "open", do: "success", else: "default"}>
-                    {@job.status}
-                  </.badge>
+                  <.status_badge status={@job.status} label={@job.status} />
                 </dd>
               </div>
               <div>

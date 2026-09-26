@@ -15,20 +15,18 @@ defmodule TrebyWeb.Hooks.RequireMembership do
         %{"user_id" => user_id} = _session,
         socket
       ) do
-    with %Treby.Tenants.Tenant{} = tenant <- Treby.Tenants.get_tenant_by_slug(slug),
-         %Treby.Memberships.Membership{} = membership <-
-           Treby.Memberships.get_membership(user_id, tenant.id) do
-      user = Treby.Repo.get!(Treby.Accounts.User, user_id)
-      available = Treby.Memberships.list_tenants_for_user(user_id)
+    case Treby.Memberships.access_for(user_id, slug) do
+      {:ok, %{tenant: tenant, membership: membership, available: available}} ->
+        user = Treby.Repo.get!(Treby.Accounts.User, user_id)
 
-      {:cont,
-       socket
-       |> assign(:current_user, user)
-       |> assign(:current_tenant, tenant)
-       |> assign(:current_membership, membership)
-       |> assign(:available_tenants, available)}
-    else
-      _ ->
+        {:cont,
+         socket
+         |> assign(:current_user, user)
+         |> assign(:current_tenant, tenant)
+         |> assign(:current_membership, membership)
+         |> assign(:available_tenants, available)}
+
+      {:error, _} ->
         {:halt,
          socket
          |> put_flash(:error, gettext("You don't belong to that workspace"))

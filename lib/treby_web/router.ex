@@ -42,13 +42,15 @@ defmodule TrebyWeb.Router do
   scope "/:tenant_slug/app", TrebyWeb do
     pipe_through [:browser, :require_auth, :require_membership, :data_privacy_grace]
 
+    @base_mount [
+      {TrebyWeb.Hooks.SetLocale, :set_locale},
+      {TrebyWeb.Hooks.RequireMembership, :default},
+      {TrebyWeb.Hooks.AiChat, :default},
+      {TrebyWeb.Hooks.Notifications, :default}
+    ]
+
     live_session :default,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default}
-      ] do
+      on_mount: @base_mount do
       live "/", DashboardLive
       live "/ai", AiChatLive
       live "/jobs", JobsLive.Index
@@ -73,80 +75,66 @@ defmodule TrebyWeb.Router do
     end
 
     live_session :perm_import,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :import_csv}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :import_csv}}
+          ] do
       live "/import", ImportLive.Index
     end
 
     live_session :perm_comms,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :comms_send}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :comms_send}}
+          ] do
       live "/messages-queue", MessagesQueueLive.Index
     end
 
     live_session :perm_team,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :team_manage}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :team_manage}}
+          ] do
       live "/settings/team", SettingsLive.Team
     end
 
     live_session :perm_pipeline,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :pipeline_manage}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :pipeline_manage}}
+          ] do
       live "/settings/pipeline", SettingsLive.Pipeline
       live "/settings/pipeline/:id", SettingsLive.PipelineStages
     end
 
     live_session :perm_fields,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :fields_manage}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :fields_manage}}
+          ] do
       live "/settings/fields", SettingsLive.Fields
     end
 
     live_session :perm_scorecards,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :scorecards_manage}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :scorecards_manage}}
+          ] do
       live "/settings/scorecards", SettingsLive.Scorecards
     end
 
     live_session :perm_settings,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :settings_manage}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :settings_manage}}
+          ] do
       live "/settings/branding", SettingsLive.Branding
       live "/settings/company-availability", SettingsLive.CompanyAvailability
       live "/settings/emails", SettingsLive.EmailTemplates
@@ -154,34 +142,25 @@ defmodule TrebyWeb.Router do
     end
 
     live_session :perm_webhooks,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :webhooks_manage}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :webhooks_manage}}
+          ] do
       live "/settings/webhooks", SettingsLive.Webhooks
     end
 
     live_session :perm_audit,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default},
-        {TrebyWeb.Hooks.RequirePermission, %{action: :audit_view}}
-      ] do
+      on_mount:
+        @base_mount ++
+          [
+            {TrebyWeb.Hooks.RequirePermission, %{action: :audit_view}}
+          ] do
       live "/settings/audit-log", SettingsLive.AuditLog
     end
 
     live_session :data_privacy,
-      on_mount: [
-        {TrebyWeb.Hooks.SetLocale, :set_locale},
-        {TrebyWeb.Hooks.RequireMembership, :default},
-        {TrebyWeb.Hooks.AiChat, :default},
-        {TrebyWeb.Hooks.Notifications, :default}
-      ] do
+      on_mount: @base_mount do
       live "/settings/data-privacy", SettingsLive.DataPrivacy
     end
   end

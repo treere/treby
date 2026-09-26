@@ -9,50 +9,38 @@ defmodule TrebyWeb.Hooks.RequirePermission do
 
   import Phoenix.LiveView, only: [put_flash: 3, redirect: 2]
 
-  def on_mount(
-        %{action: action},
-        %{"tenant_slug" => slug} = _params,
-        %{"user_id" => _} = _session,
-        socket
-      ) do
-    check(socket, slug, List.wrap(action), :slug)
+  def on_mount(%{action: action}, params, session, socket) do
+    check(socket, slug_from(params, session, socket), List.wrap(action), session["user_id"])
   end
 
-  def on_mount(
-        %{actions: actions},
-        %{"tenant_slug" => slug} = _params,
-        %{"user_id" => _} = _session,
-        socket
-      ) do
-    check(socket, slug, List.wrap(actions), :slug)
-  end
-
-  def on_mount(%{action: action}, _params, %{"user_id" => _} = session, socket) do
-    slug =
-      session["tenant_slug"] ||
-        (socket.assigns[:current_tenant] && socket.assigns.current_tenant.slug)
-
-    check(socket, slug, List.wrap(action), :session)
-  end
-
-  def on_mount(%{actions: actions}, _params, %{"user_id" => _} = session, socket) do
-    slug =
-      session["tenant_slug"] ||
-        (socket.assigns[:current_tenant] && socket.assigns.current_tenant.slug)
-
-    check(socket, slug, List.wrap(actions), :session)
+  def on_mount(%{actions: actions}, params, session, socket) do
+    check(socket, slug_from(params, session, socket), List.wrap(actions), session["user_id"])
   end
 
   def on_mount(_arg, _params, _session, socket) do
     {:cont, socket}
   end
 
-  defp check(socket, slug, actions, _source) do
-    tenant =
-      (slug && Treby.Tenants.get_tenant_by_slug(slug)) || socket.assigns[:current_tenant]
+  defp slug_from(params, session, socket) do
+    params["tenant_slug"] || session["tenant_slug"] ||
+      (socket.assigns[:current_tenant] && socket.assigns.current_tenant.slug)
+  end
 
-    membership =
-      socket.assigns[:current_membership] || current_membership(socket, tenant)
+  defp check(socket, _slug, _actions, nil) do
+    # No user session: RequireMembership owns the login redirect; stay neutral.
+    {:cont, socket}
+  end
+
+  defp check(socket, slug, actions, user_id) do
+    {tenant, membership} =
+      if socket.assigns[:current_tenant] && socket.assigns[:current_membership] do
+        {socket.assigns.current_tenant, socket.assigns.current_membership}
+      else
+        case Treby.Memberships.access_for(user_id, slug) do
+          {:ok, %{tenant: tenant, membership: membership}} -> {tenant, membership}
+          {:error, _} -> {socket.assigns[:current_tenant], nil}
+        end
+      end
 
     actor =
       Treby.Authorization.Actor.from(%{
@@ -72,15 +60,6 @@ defmodule TrebyWeb.Hooks.RequirePermission do
         |> redirect(to: redirect_to)
 
       {:halt, socket}
-    end
-  end
-
-  defp current_membership(socket, tenant) do
-    user_id =
-      socket.assigns[:current_user] && socket.assigns.current_user.id
-
-    if user_id && tenant do
-      Treby.Memberships.get_membership(user_id, tenant.id)
     end
   end
 end

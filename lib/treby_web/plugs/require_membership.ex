@@ -7,46 +7,31 @@ defmodule TrebyWeb.Plugs.RequireMembership do
   """
 
   import Plug.Conn
-  alias Treby.Tenants
-  alias Treby.Memberships
 
   def init(opts), do: opts
 
   def call(conn, _opts) do
     tenant_slug = conn.path_params["tenant_slug"] || conn.params["tenant_slug"]
+    user = conn.assigns[:current_user]
 
-    tenant =
-      if tenant_slug do
-        Tenants.get_tenant_by_slug(tenant_slug)
-      else
-        nil
-      end
+    case Treby.Memberships.access_for(user && user.id, tenant_slug) do
+      {:ok, %{tenant: tenant, membership: membership, available: available}} ->
+        conn
+        |> assign(:current_tenant, tenant)
+        |> assign(:current_membership, membership)
+        |> assign(:available_tenants, available)
 
-    case tenant do
-      nil ->
+      {:error, :no_tenant} ->
         conn
         |> put_resp_content_type("text/html")
         |> send_resp(404, "Not found")
         |> halt()
 
-      tenant ->
-        user = conn.assigns[:current_user]
-
-        case Memberships.get_membership(user.id, tenant.id) do
-          nil ->
-            conn
-            |> Phoenix.Controller.put_flash(:error, gettext("You don't belong to that workspace"))
-            |> Phoenix.Controller.redirect(to: "/choose-tenant")
-            |> halt()
-
-          membership ->
-            available = Memberships.list_tenants_for_user(user.id)
-
-            conn
-            |> assign(:current_tenant, tenant)
-            |> assign(:current_membership, membership)
-            |> assign(:available_tenants, available)
-        end
+      {:error, :no_membership} ->
+        conn
+        |> Phoenix.Controller.put_flash(:error, gettext("You don't belong to that workspace"))
+        |> Phoenix.Controller.redirect(to: "/choose-tenant")
+        |> halt()
     end
   end
 end

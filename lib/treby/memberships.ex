@@ -21,6 +21,29 @@ defmodule Treby.Memberships do
     Repo.exists?(from m in Membership, where: m.user_id == ^user_id and m.tenant_id == ^tenant_id)
   end
 
+  def access_for(user_id, slug) when is_binary(slug) do
+    case Treby.Tenants.get_tenant_by_slug(slug) do
+      nil ->
+        {:error, :no_tenant}
+
+      %Tenant{} = tenant ->
+        case get_membership(user_id, tenant.id) do
+          nil ->
+            {:error, :no_membership}
+
+          membership ->
+            {:ok,
+             %{
+               tenant: tenant,
+               membership: membership,
+               available: list_tenants_for_user(user_id)
+             }}
+        end
+    end
+  end
+
+  def access_for(_user_id, _slug), do: {:error, :no_tenant}
+
   def create_membership(attrs) do
     case %Membership{} |> Membership.changeset(attrs) |> Repo.insert() do
       {:ok, membership} ->

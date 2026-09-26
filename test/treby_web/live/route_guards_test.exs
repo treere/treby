@@ -1,4 +1,4 @@
-defmodule TrebyWeb.RequireRoleTest do
+defmodule TrebyWeb.RouteGuardsTest do
   use TrebyWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
@@ -93,6 +93,12 @@ defmodule TrebyWeb.RequireRoleTest do
     conn = init_test_session(conn, %{"user_id" => admin.id})
     {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/settings/team")
     assert html =~ "Team"
+  end
+
+  test "anonymous visitor redirected to login", %{conn: conn} do
+    {tenant, _} = tenant_with("member")
+    assert {:error, {:redirect, %{to: to}}} = live(conn, "/#{tenant.slug}/app/settings/team")
+    assert to =~ "/login"
   end
 
   test "legacy /app admin blocked for member", %{conn: conn} do

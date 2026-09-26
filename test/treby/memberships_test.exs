@@ -129,4 +129,35 @@ defmodule Treby.MembershipsTest do
       assert hd(members).user_id == user.id
     end
   end
+
+  describe "access_for/2" do
+    test "returns tenant, membership, and available workspaces" do
+      tenant = create_tenant("Access")
+      user = create_user(tenant, "access-#{System.unique_integer([:positive])}@test.com")
+
+      assert {:ok, %{tenant: t, membership: m, available: available}} =
+               Memberships.access_for(user.id, tenant.slug)
+
+      assert t.id == tenant.id
+      assert m.user_id == user.id
+      assert Enum.any?(available, &(&1.tenant.id == tenant.id))
+    end
+
+    test "unknown slug returns :no_tenant" do
+      tenant = create_tenant("Access2")
+      user = create_user(tenant, "notenant-#{System.unique_integer([:positive])}@test.com")
+      assert {:error, :no_tenant} = Memberships.access_for(user.id, "missing-slug-xyz")
+    end
+
+    test "user without membership returns :no_membership" do
+      tenant = create_tenant("Access3")
+      other = create_tenant("AccessOther")
+      user = create_user(tenant, "nomem2-#{System.unique_integer([:positive])}@test.com")
+      assert {:error, :no_membership} = Memberships.access_for(user.id, other.slug)
+    end
+
+    test "non-binary slug returns :no_tenant" do
+      assert {:error, :no_tenant} = Memberships.access_for(123, nil)
+    end
+  end
 end

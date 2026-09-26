@@ -177,9 +177,10 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
                     >{ev}</span>
                   </td>
                   <td class="px-6 py-4">
-                    <.badge variant={if sub.active, do: "success", else: "default"}>
-                      {if sub.active, do: gettext("Active"), else: gettext("Paused")}
-                    </.badge>
+                    <.status_badge
+                      status={if sub.active, do: "active", else: "paused"}
+                      label={if sub.active, do: gettext("Active"), else: gettext("Paused")}
+                    />
                   </td>
                   <td class="px-6 py-4 text-sm whitespace-nowrap">
                     <button
@@ -241,9 +242,7 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
                 <tbody>
                   <tr :for={log <- @logs} class="divide-x divide-zinc-100 dark:divide-zinc-700">
                     <td class="px-2 py-1">
-                      <.badge variant={if log.status == "success", do: "success", else: "danger"}>
-                        {log.status}
-                      </.badge>
+                      <.status_badge status={log.status} label={log.status} />
                     </td>
                     <td class="px-2 py-1 text-zinc-600 dark:text-zinc-300">{log.action}</td>
                     <td class="px-2 py-1 text-zinc-500 dark:text-zinc-400">{log.last_response}</td>

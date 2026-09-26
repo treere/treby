@@ -231,47 +231,31 @@ defmodule TrebyWeb.ImportLive.Index do
           </p>
 
           <div class="mt-6 overflow-x-auto">
-            <table class="w-full text-sm border">
-              <thead class="bg-zinc-50 dark:bg-zinc-800">
-                <tr>
-                  <th class="px-3 py-2 text-left border">{gettext("Status")}</th>
-                  <th
-                    :for={{_header, field} <- @mapping}
-                    class="px-3 py-2 text-left border"
-                  >
-                    {field}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  :for={row <- @preview}
-                  class={[
-                    "border",
-                    row.is_duplicate && "bg-yellow-50 dark:bg-yellow-950"
-                  ]}
+            <.table
+              id="import-preview"
+              rows={Enum.with_index(@preview)}
+              row_id={fn {_row, idx} -> "preview-#{idx}" end}
+            >
+              <:col :let={{row, _idx}} label={gettext("Status")}>
+                <.status_badge :if={row.is_duplicate} status="duplicate" label={gettext("Duplicate")} />
+                <.status_badge
+                  :if={match?({:error, _}, row.validation)}
+                  status="error"
+                  label={gettext("Error")}
+                />
+                <.badge
+                  :if={row.validation == :ok and not row.is_duplicate}
+                  variant="success"
                 >
-                  <td class="px-3 py-2 border">
-                    <.badge :if={row.is_duplicate} variant="warning">{gettext("Duplicate")}</.badge>
-                    <.badge :if={match?({:error, _}, row.validation)} variant="danger">
-                      {gettext("Error")}
-                    </.badge>
-                    <.badge
-                      :if={row.validation == :ok and not row.is_duplicate}
-                      variant="success"
-                    >
-                      {gettext("New")}
-                    </.badge>
-                  </td>
-                  <td
-                    :for={{_header, field} <- @mapping}
-                    class="px-3 py-2 border text-zinc-900 dark:text-zinc-100/80"
-                  >
-                    {Map.get(row.candidate_attrs, field, "")}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  {gettext("New")}
+                </.badge>
+              </:col>
+              <:col :for={{_header, field} <- @mapping} :let={{row, _idx}} label={field}>
+                <span class="text-zinc-900 dark:text-zinc-100/80">
+                  {Map.get(row.candidate_attrs, field, "")}
+                </span>
+              </:col>
+            </.table>
           </div>
 
           <.card :if={@jobs != []} class="mt-8 bg-zinc-50 dark:bg-zinc-800 border-0 shadow-none">

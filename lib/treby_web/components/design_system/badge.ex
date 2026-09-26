@@ -1,7 +1,7 @@
 defmodule TrebyWeb.DesignSystem.Badge do
   use Phoenix.Component
 
-  import TrebyWeb.DesignSystem, only: [badge_classes: 1]
+  import TrebyWeb.DesignSystem, only: [badge_classes: 1, status_variant: 1]
 
   attr :variant, :string,
     values: ~w(default success warning danger info),
@@ -40,6 +40,36 @@ defmodule TrebyWeb.DesignSystem.Badge do
       />
       {render_slot(@inner_block)}
     </span>
+    """
+  end
+
+  attr :status, :any, required: true, doc: "domain status string/atom mapped via status_variant/1"
+  attr :label, :string, default: nil, doc: "override label, defaults to status"
+  attr :dot, :boolean, default: false
+  attr :class, :any, default: nil
+  attr :rest, :global
+
+  @doc ~S'''
+  Renders a status badge with centralized status-to-variant mapping.
+
+  ## Examples
+
+      <.status_badge status="hired" />
+      <.status_badge status={@job.status} />
+      <.status_badge status="rejected" label="Not selected" />
+
+  Uses `TrebyWeb.DesignSystem.status_variant/1`; no per-screen `case` maps.
+  '''
+  def status_badge(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:label, fn -> to_string(assigns.status) end)
+      |> assign(:variant, status_variant(assigns.status))
+
+    ~H"""
+    <.badge variant={@variant} dot={@dot} class={@class} {@rest}>
+      {@label}
+    </.badge>
     """
   end
 end

@@ -81,6 +81,41 @@ defmodule TrebyWeb.DesignSystem do
       "inline-flex items-center rounded-full border text-xs font-medium bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
 
   @doc """
+  Maps a domain status string/atom to a badge variant.
+
+  Canonical vocabulary (case-insensitive): pipeline stages
+  (`new`, `screening`, `interview`, `offer`, `hired`, `rejected`),
+  job status (`open`, `closed`, `draft`, `archived`), import/audit
+  (`imported`, `skipped`, `success`, `completed`, `scheduled`,
+  `pending`, `processing`, `errors`), flags (`duplicate`, `high`,
+  `medium`). Unknown statuses fall back to `"default"`.
+  """
+  def status_variant(status) when is_atom(status), do: status_variant(Atom.to_string(status))
+
+  def status_variant(status) when is_binary(status) do
+    case String.downcase(status) do
+      s when s in ["offer", "hired", "open", "active", "success", "imported", "completed", "high"] ->
+        "success"
+
+      s
+      when s
+           in ["interview", "pending", "processing", "medium", "skipped", "duplicate", "duplicated"] ->
+        "warning"
+
+      s when s in ["rejected", "error", "errors", "failed", "failure", "cancelled"] ->
+        "danger"
+
+      s when s in ["screening", "scheduled", "info"] ->
+        "info"
+
+      _ ->
+        "default"
+    end
+  end
+
+  def status_variant(_), do: "default"
+
+  @doc """
   Returns size modifier classes for buttons and inputs.
   """
   def size_classes("sm"), do: "h-8 px-3 text-xs"

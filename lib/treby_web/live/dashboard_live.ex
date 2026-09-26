@@ -343,7 +343,7 @@ defmodule TrebyWeb.DashboardLive do
                   <p class="text-sm text-zinc-500 dark:text-zinc-400">{app.job.title}</p>
                 </div>
                 <div class="text-right">
-                  <.badge variant="warning">{app.pipeline_stage.name}</.badge>
+                  <.status_badge status={app.pipeline_stage.name} label={app.pipeline_stage.name} />
                   <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                     {gettext("Updated %{date}", date: Calendar.strftime(app.updated_at, "%b %d"))}
                   </p>

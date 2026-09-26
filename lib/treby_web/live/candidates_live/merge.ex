@@ -117,62 +117,55 @@ defmodule TrebyWeb.CandidatesLive.Merge do
             </.badge>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="text-left text-xs text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700">
-                  <th class="py-2 pr-3">{gettext("Primary")}</th>
-                  <th class="py-2 pr-3">{gettext("Name")}</th>
-                  <th class="py-2 pr-3">{gettext("Email")}</th>
-                  <th class="py-2 pr-3">{gettext("Phone")}</th>
-                  <th class="py-2 pr-3">{gettext("LinkedIn")}</th>
-                  <th class="py-2">{gettext("Applications")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  :for={candidate <- group.candidates}
-                  class="border-b border-zinc-200 dark:border-zinc-700 last:border-0"
+          <.table
+            id={"merge-group-#{group.id}"}
+            rows={group.candidates}
+            row_id={fn c -> "merge-#{group.id}-#{c.id}" end}
+          >
+            <:col :let={candidate} label={gettext("Primary")}>
+              <input
+                type="radio"
+                name={"primary-#{group.id}"}
+                value={candidate.id}
+                phx-click="select_primary"
+                phx-value-group_id={group.id}
+                phx-value-candidate_id={candidate.id}
+                checked={@selected_primary[group.id] == candidate.id}
+                class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
+              />
+            </:col>
+            <:col :let={candidate} label={gettext("Name")}>
+              <span class="font-medium text-zinc-900 dark:text-zinc-100">
+                <span
+                  :if={@selected_primary[group.id] == candidate.id}
+                  class="text-xs text-blue-600 font-semibold mr-1"
                 >
-                  <td class="py-2 pr-3">
-                    <input
-                      type="radio"
-                      name={"primary-#{group.id}"}
-                      value={candidate.id}
-                      phx-click="select_primary"
-                      phx-value-group_id={group.id}
-                      phx-value-candidate_id={candidate.id}
-                      checked={@selected_primary[group.id] == candidate.id}
-                      class="radio radio-sm"
-                    />
-                  </td>
-                  <td class="py-2 pr-3 font-medium text-zinc-900 dark:text-zinc-100">
-                    <span
-                      :if={@selected_primary[group.id] == candidate.id}
-                      class="text-xs text-blue-600 font-semibold mr-1"
-                    >
-                      ●
-                    </span>
-                    {candidate.name}
-                  </td>
-                  <td class="py-2 pr-3 text-zinc-500 dark:text-zinc-400">{candidate.email}</td>
-                  <td class="py-2 pr-3 text-zinc-500 dark:text-zinc-400">{candidate.phone || "—"}</td>
-                  <td class="py-2 pr-3 text-zinc-500 dark:text-zinc-400">
-                    <a
-                      :if={candidate.linkedin_url}
-                      href={candidate.linkedin_url}
-                      target="_blank"
-                      class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
-                    >
-                      Profile
-                    </a>
-                    <span :if={!candidate.linkedin_url}>—</span>
-                  </td>
-                  <td class="py-2 text-zinc-500 dark:text-zinc-400">{candidate.application_count}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  ●
+                </span>
+                {candidate.name}
+              </span>
+            </:col>
+            <:col :let={candidate} label={gettext("Email")}>
+              <span class="text-zinc-500 dark:text-zinc-400">{candidate.email}</span>
+            </:col>
+            <:col :let={candidate} label={gettext("Phone")}>
+              <span class="text-zinc-500 dark:text-zinc-400">{candidate.phone || "—"}</span>
+            </:col>
+            <:col :let={candidate} label={gettext("LinkedIn")}>
+              <a
+                :if={candidate.linkedin_url}
+                href={candidate.linkedin_url}
+                target="_blank"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+              >
+                Profile
+              </a>
+              <span :if={!candidate.linkedin_url}>—</span>
+            </:col>
+            <:col :let={candidate} label={gettext("Applications")}>
+              <span class="text-zinc-500 dark:text-zinc-400">{candidate.application_count}</span>
+            </:col>
+          </.table>
 
           <div class="flex items-center gap-3 mt-5">
             <.button

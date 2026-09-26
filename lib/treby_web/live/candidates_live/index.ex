@@ -275,131 +275,108 @@ defmodule TrebyWeb.CandidatesLive.Index do
           </.form>
         </div>
 
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto">
-          <table class="min-w-full divide-y divide-zinc-100 dark:divide-zinc-700">
-            <thead class="bg-zinc-50 dark:bg-zinc-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider w-10">
-                  <input
-                    type="checkbox"
-                    phx-click="toggle_select_all"
-                    checked={length(@selected_ids) == length(@candidates) and @candidates != []}
-                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
-                  />
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Name")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Email")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Phone")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Applications")}
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {gettext("Actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-700">
-              <tr
-                :for={candidate <- @candidates}
-                class={[
-                  "hover:bg-zinc-50 dark:hover:bg-zinc-700/50",
-                  candidate.id in @selected_ids && "bg-blue-50 dark:bg-blue-950"
-                ]}
-              >
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    phx-click="toggle_candidate"
-                    phx-value-id={candidate.id}
-                    checked={candidate.id in @selected_ids}
-                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
-                  />
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                  <.link
-                    navigate={
-                      if @current_tenant,
-                        do: "/#{@current_tenant.slug}/app/candidates/#{candidate.id}",
-                        else: ~p"/app/candidates/#{candidate.id}"
-                    }
-                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
-                  >
-                    {candidate.name}
-                  </.link>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                  {candidate.email}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                  {candidate.phone || "-"}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
-                  {Map.get(candidate, :application_count, 0)}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <button
-                    :if={can?(@current_membership, @current_tenant, :candidates_delete)}
-                    phx-click="confirm_delete"
-                    phx-value-id={candidate.id}
-                    phx-value-title={gettext("Delete candidate")}
-                    phx-value-message={
-                      gettext(
-                        "Are you sure you want to delete %{name}? This action cannot be undone.",
-                        name: candidate.name
-                      )
-                    }
-                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                  >
-                    {gettext("Delete")}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <.empty_state
-            :if={@candidates == []}
-            icon="hero-user-group"
-            title={gettext("No candidates yet")}
-            description={
-              gettext(
-                "Add candidates manually, import from a CSV file, or let them apply through your career page. Candidates will appear here once added."
-              )
-            }
-          >
-            <:cta>
-              <.button phx-click="show_create_form" variant="primary">
-                {gettext("Add a candidate")}
-              </.button>
-              <.button
-                variant="secondary"
-                navigate={
-                  if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
-                }
-              >
-                {gettext("Import from CSV")}
-              </.button>
-            </:cta>
-          </.empty_state>
-          <div class="mt-4">
-            <.pagination
-              id="pagination"
-              page={@page_info.page}
-              total_pages={@page_info.total_pages}
-              total_count={@page_info.total_count}
-              page_size={@page_info.page_size}
-              patch={
-                fn p ->
-                  page_url(@request_path, @search, @filter_job_id, @filter_stage_id, p)
-                end
-              }
+        <div class="mb-2 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+          <input
+            type="checkbox"
+            id="candidates-select-all"
+            phx-click="toggle_select_all"
+            checked={length(@selected_ids) == length(@candidates) and @candidates != []}
+            class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
+          />
+          <label for="candidates-select-all">{gettext("Select all")}</label>
+        </div>
+        <.table id="candidates" rows={@candidates} row_id={fn c -> "candidates-#{c.id}" end}>
+          <:col :let={candidate} label="">
+            <input
+              type="checkbox"
+              phx-click="toggle_candidate"
+              phx-value-id={candidate.id}
+              checked={candidate.id in @selected_ids}
+              class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
             />
-          </div>
+          </:col>
+          <:col :let={candidate} label={gettext("Name")}>
+            <.link
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/candidates/#{candidate.id}",
+                  else: ~p"/app/candidates/#{candidate.id}"
+              }
+              class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 font-medium"
+            >
+              {candidate.name}
+            </.link>
+          </:col>
+          <:col :let={candidate} label={gettext("Email")}>
+            <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+              {candidate.email}
+            </span>
+          </:col>
+          <:col :let={candidate} label={gettext("Phone")}>
+            <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+              {candidate.phone || "-"}
+            </span>
+          </:col>
+          <:col :let={candidate} label={gettext("Applications")}>
+            <span class="whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+              {Map.get(candidate, :application_count, 0)}
+            </span>
+          </:col>
+          <:action :let={candidate}>
+            <button
+              :if={can?(@current_membership, @current_tenant, :candidates_delete)}
+              phx-click="confirm_delete"
+              phx-value-id={candidate.id}
+              phx-value-title={gettext("Delete candidate")}
+              phx-value-message={
+                gettext(
+                  "Are you sure you want to delete %{name}? This action cannot be undone.",
+                  name: candidate.name
+                )
+              }
+              class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+            >
+              {gettext("Delete")}
+            </button>
+          </:action>
+        </.table>
+        <.empty_state
+          :if={@candidates == []}
+          icon="hero-user-group"
+          title={gettext("No candidates yet")}
+          description={
+            gettext(
+              "Add candidates manually, import from a CSV file, or let them apply through your career page. Candidates will appear here once added."
+            )
+          }
+        >
+          <:cta>
+            <.button phx-click="show_create_form" variant="primary">
+              {gettext("Add a candidate")}
+            </.button>
+            <.button
+              variant="secondary"
+              navigate={
+                if @current_tenant, do: "/#{@current_tenant.slug}/app/import", else: ~p"/app/import"
+              }
+            >
+              {gettext("Import from CSV")}
+            </.button>
+          </:cta>
+        </.empty_state>
+        <div class="mt-4">
+          <.pagination
+            id="pagination"
+            page={@page_info.page}
+            total_pages={@page_info.total_pages}
+            total_count={@page_info.total_count}
+            page_size={@page_info.page_size}
+            patch={
+              fn p ->
+                page_url(@request_path, @search, @filter_job_id, @filter_stage_id, p)
+              end
+            }
+          />
         </div>
 
         <%!-- Bulk Action Bar --%>

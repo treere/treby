@@ -890,34 +890,16 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </.form>
           </div>
 
-          <div
-            :if={@completing_interview}
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            phx-click="cancel_complete_interview"
-          >
-            <div
-              class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-lg w-full mx-4"
-              phx-click=""
-            >
-              <div class="p-6">
-                <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-                  {gettext("Mark Interview as Completed")}
-                </h2>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                  This marks the interview as done. The candidate's stage will not change automatically;
-                  you can collect scorecards before advancing.
-                </p>
-                <div class="flex justify-end gap-2">
-                  <.button phx-click="cancel_complete_interview" variant="ghost" size="sm">
-                    Cancel
-                  </.button>
-                  <.button phx-click="confirm_complete_interview" variant="primary" size="sm">
-                    Mark as completed
-                  </.button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <.confirm_dialog
+            id="complete-interview-dialog"
+            show={@completing_interview != nil}
+            title={gettext("Mark Interview as Completed")}
+            message="This marks the interview as done. The candidate's stage will not change automatically; you can collect scorecards before advancing."
+            confirm_label="Mark as completed"
+            confirm_variant="primary"
+            on_confirm="confirm_complete_interview"
+            on_cancel="cancel_complete_interview"
+          />
 
           <div :for={conversation <- @conversations} class="border rounded-lg mb-4 last:mb-0">
             <div class="p-4 border-b bg-zinc-50 dark:bg-zinc-800 rounded-t-lg">
@@ -933,12 +915,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   </span>
                 </div>
                 <div class="flex items-center gap-2">
-                  <.badge
-                    variant={if conversation.status == "open", do: "success", else: "default"}
-                    class="text-xs"
-                  >
-                    {conversation.status}
-                  </.badge>
+                  <.status_badge status={conversation.status} label={conversation.status} />
                   <span class="text-xs text-zinc-500 dark:text-zinc-400">
                     {if conversation.last_message_at do
                       Calendar.strftime(conversation.last_message_at, "%b %d, %Y at %H:%M")

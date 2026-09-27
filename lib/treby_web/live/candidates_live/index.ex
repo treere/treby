@@ -518,7 +518,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     checked={@bulk_email_mode == "now"}
                     phx-click="bulk_email_set_mode"
                     phx-value-mode="now"
-                    class="radio radio-sm"
+                    class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
                   />
                   <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80">{gettext(
                     "Send now"
@@ -532,7 +532,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     checked={@bulk_email_mode == "schedule"}
                     phx-click="bulk_email_set_mode"
                     phx-value-mode="schedule"
-                    class="radio radio-sm"
+                    class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
                   />
                   <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100/80">
                     {gettext("Schedule for later")}
@@ -611,20 +611,18 @@ defmodule TrebyWeb.CandidatesLive.Index do
         </div>
 
         <%!-- Merge Primary Picker Modal --%>
-        <div
-          :if={@merge_modal_open}
-          class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        <.modal
+          id="merge-picker-modal"
+          show={@merge_modal_open}
+          title={gettext("Merge candidates")}
+          size="lg"
+          close_event="cancel_merge_modal"
         >
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-lg w-full mx-4">
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
-                {gettext("Merge candidates")}
-              </h3>
-              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-                Choose the primary profile. Its data and history are kept; the other {length(
-                  @selected_ids
-                ) - 1} profiles are archived into it.
-              </p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+            Choose the primary profile. Its data and history are kept; the other {length(
+              @selected_ids
+            ) - 1} profiles are archived into it.
+          </p>
               <div class="space-y-2 max-h-80 overflow-y-auto">
                 <label
                   :for={candidate <- Enum.filter(@candidates, &(&1.id in @selected_ids))}
@@ -637,7 +635,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                     phx-click="select_merge_primary"
                     phx-value-candidate_id={candidate.id}
                     checked={@merge_primary_id == candidate.id}
-                    class="radio radio-sm"
+                    class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
                   />
                   <div class="flex-1">
                     <p class="font-medium text-zinc-900 dark:text-zinc-100">{candidate.name}</p>
@@ -648,17 +646,15 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   </span>
                 </label>
               </div>
-              <div class="flex justify-end gap-3 mt-6">
-                <.button phx-click="cancel_merge_modal" variant="ghost" size="sm">
-                  {gettext("Cancel")}
-                </.button>
-                <.button phx-click="do_bulk_execute_merge" variant="primary" size="sm">
-                  {gettext("Merge")}
-                </.button>
-              </div>
-            </div>
-          </div>
-        </div>
+          <:footer>
+            <.button phx-click="cancel_merge_modal" variant="ghost" size="sm">
+              {gettext("Cancel")}
+            </.button>
+            <.button phx-click="do_bulk_execute_merge" variant="primary" size="sm">
+              {gettext("Merge")}
+            </.button>
+          </:footer>
+        </.modal>
       </div>
     </Layouts.app>
     <.confirm_dialog

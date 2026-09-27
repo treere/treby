@@ -127,13 +127,15 @@ defmodule TrebyWeb.NotificationsLive do
               name="search"
               value={@search}
               placeholder={gettext("Search title or body...")}
-              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
+              aria-label={gettext("Search title or body...")}
+              class={input_classes()}
             />
           </form>
           <form id="notifications-type-filter" phx-change="filter_type">
             <select
               name="type"
-              class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
+              aria-label={gettext("All types")}
+              class={select_classes()}
             >
               <option value="" selected={@type_filter == ""}>{gettext("All types")}</option>
               <option value="new_application" selected={@type_filter == "new_application"}>

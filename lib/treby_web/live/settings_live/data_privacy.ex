@@ -202,6 +202,7 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
                   type="text"
                   name="confirm"
                   placeholder={@current_tenant && @current_tenant.slug}
+                  aria-label={gettext("Type your workspace slug to confirm")}
                   class={input_classes()}
                   id="data-privacy-erasure-confirm"
                 />
@@ -214,12 +215,12 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
 
           <div class="mt-8">
             <form phx-change="filter" id="data-privacy-filter" class="flex gap-2 mb-4">
-              <select name="type" class={select_classes()}>
+              <select name="type" aria-label={gettext("All types")} class={select_classes()}>
                 <option value="">{gettext("All types")}</option>
                 <option value="export">{gettext("Export")}</option>
                 <option value="erasure">{gettext("Erasure")}</option>
               </select>
-              <select name="status" class={select_classes()}>
+              <select name="status" aria-label={gettext("All status")} class={select_classes()}>
                 <option value="">{gettext("All status")}</option>
                 <option value="pending">pending</option>
                 <option value="processing">processing</option>

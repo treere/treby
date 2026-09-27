@@ -23,6 +23,8 @@
             <button
               phx-click="switch_tab"
               phx-value-tab="scheduled"
+              role="tab"
+              aria-selected={@tab == "scheduled"}
               class={[
                 "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
                 @tab == "scheduled" &&
@@ -36,6 +38,8 @@
             <button
               phx-click="switch_tab"
               phx-value-tab="sent"
+              role="tab"
+              aria-selected={@tab == "sent"}
               class={[
                 "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
                 @tab == "sent" &&
@@ -49,6 +53,8 @@
             <button
               phx-click="switch_tab"
               phx-value-tab="failed"
+              role="tab"
+              aria-selected={@tab == "failed"}
               class={[
                 "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
                 @tab == "failed" &&
@@ -62,6 +68,8 @@
             <button
               phx-click="switch_tab"
               phx-value-tab="cancelled"
+              role="tab"
+              aria-selected={@tab == "cancelled"}
               class={[
                 "py-3 px-1 text-sm font-medium border-b-2 transition-colors",
                 @tab == "cancelled" &&
@@ -149,6 +157,7 @@
                     phx-click="toggle_select"
                     phx-value-id={message.id}
                     checked={MapSet.member?(@selected_ids, message.id)}
+                    aria-label={gettext("Select message")}
                     class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
                   />
                 <% end %>

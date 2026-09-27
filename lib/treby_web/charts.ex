@@ -187,10 +187,19 @@ defmodule TrebyWeb.Charts do
   @doc """
   Render a Contex plot to safe SVG HTML.
   Returns `nil` when plot is `nil`.
+  Injects an accessible `<title>` (Contex omits one, failing axe svg-img-alt).
   """
-  def to_svg(nil), do: nil
+  def to_svg(plot, label \\ "Chart")
+  def to_svg(nil, _label), do: nil
 
-  def to_svg(%Plot{} = plot) do
-    Plot.to_svg(plot)
+  def to_svg(%Plot{} = plot, label) do
+    {:safe, iodata} = Plot.to_svg(plot)
+
+    svg =
+      iodata
+      |> IO.iodata_to_binary()
+      |> String.replace(">", "><title>#{label}</title>", global: false)
+
+    {:safe, svg}
   end
 end

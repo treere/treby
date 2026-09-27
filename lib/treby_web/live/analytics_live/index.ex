@@ -66,7 +66,8 @@ defmodule TrebyWeb.AnalyticsLive.Index do
             <.form for={%{}} phx-change="select_pipeline" id="pipeline-selector-form">
               <select
                 name="pipeline_id"
-                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                aria-label={gettext("All pipelines")}
+                class={select_classes()}
               >
                 <option value="" selected={@selected_pipeline_id == nil}>
                   {gettext("All pipelines")}

@@ -165,12 +165,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
               name="search"
               value={@search}
               placeholder={gettext("Search by name or email...")}
+              aria-label={gettext("Search by name or email...")}
               class={input_classes()}
             />
           </form>
           <form id="candidates-filter-job-form" phx-change="filter_job" class="min-w-[180px]">
             <select
               name="job_id"
+              aria-label={gettext("All Jobs")}
               class={select_classes()}
             >
               <option value="">{gettext("All Jobs")}</option>
@@ -182,6 +184,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <form id="candidates-filter-stage-form" phx-change="filter_stage" class="min-w-[180px]">
             <select
               name="stage_id"
+              aria-label={gettext("All Stages")}
               class={select_classes()}
             >
               <option value="">{gettext("All Stages")}</option>
@@ -289,6 +292,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               phx-click="toggle_candidate"
               phx-value-id={candidate.id}
               checked={candidate.id in @selected_ids}
+              aria-label={gettext("Select %{name}", name: candidate.name)}
               class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4 bg-white dark:bg-zinc-800"
             />
           </:col>
@@ -386,6 +390,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 <select
                   phx-change="bulk_select_action"
                   name="bulk_action"
+                  aria-label={gettext("Actions...")}
                   class={select_classes("text-white border-zinc-700")}
                 >
                   <option value="">{gettext("Actions...")}</option>
@@ -404,6 +409,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   :if={@bulk_action == "move_stage"}
                   phx-change="bulk_select_stage"
                   name="bulk_stage_id"
+                  aria-label={gettext("Select stage...")}
                   class={select_classes("text-white border-zinc-700")}
                 >
                   <option value="">{gettext("Select stage...")}</option>

@@ -190,11 +190,11 @@ defmodule TrebyWeb.CareersLive.Apply do
             <div id="resume-upload">
               <label class="block text-sm font-medium text-zinc-900 dark:text-zinc-100/80 mb-1">
                 Resume (PDF, DOC, DOCX - max 10MB)
+                <.live_file_input
+                  upload={@uploads.resume}
+                  class="block w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 min-h-[44px]"
+                />
               </label>
-              <.live_file_input
-                upload={@uploads.resume}
-                class="block w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 min-h-[44px]"
-              />
               <div
                 :for={entry <- @uploads.resume.entries}
                 class="mt-3 flex flex-col gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 p-3"

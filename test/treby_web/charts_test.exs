@@ -19,9 +19,9 @@ defmodule TrebyWeb.ChartsTest do
 
       plot = Charts.daily_plot(daily, 7)
       assert %Contex.Plot{} = plot
-      assert {:safe, _} = Charts.to_svg(plot)
-      svg = Charts.to_svg(plot) |> Phoenix.HTML.safe_to_string()
+      {:safe, svg} = Charts.to_svg(plot)
       assert svg =~ "<svg"
+      assert svg =~ "<title>"
       assert svg =~ "Views"
     end
   end
@@ -40,7 +40,9 @@ defmodule TrebyWeb.ChartsTest do
 
       plot = Charts.monthly_plot(monthly)
       assert %Contex.Plot{} = plot
-      assert {:safe, _} = Charts.to_svg(plot)
+      {:safe, svg} = Charts.to_svg(plot)
+      assert svg =~ "<svg"
+      assert svg =~ "<title>"
     end
   end
 
@@ -57,7 +59,9 @@ defmodule TrebyWeb.ChartsTest do
 
       plot = Charts.sources_plot(sources)
       assert %Contex.Plot{} = plot
-      assert {:safe, _} = Charts.to_svg(plot)
+      {:safe, svg} = Charts.to_svg(plot)
+      assert svg =~ "<svg"
+      assert svg =~ "<title>"
     end
   end
 
@@ -74,7 +78,9 @@ defmodule TrebyWeb.ChartsTest do
 
       plot = Charts.pipeline_plot(counts)
       assert %Contex.Plot{} = plot
-      assert {:safe, _} = Charts.to_svg(plot)
+      {:safe, svg} = Charts.to_svg(plot)
+      assert svg =~ "<svg"
+      assert svg =~ "<title>"
     end
   end
 
@@ -91,7 +97,9 @@ defmodule TrebyWeb.ChartsTest do
 
       plot = Charts.time_in_stage_plot(data)
       assert %Contex.Plot{} = plot
-      assert {:safe, _} = Charts.to_svg(plot)
+      {:safe, svg} = Charts.to_svg(plot)
+      assert svg =~ "<svg"
+      assert svg =~ "<title>"
     end
   end
 end

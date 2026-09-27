@@ -125,6 +125,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
                 phx-value-group_id={group.id}
                 phx-value-candidate_id={candidate.id}
                 checked={@selected_primary[group.id] == candidate.id}
+                aria-label={gettext("Use %{name} as primary", name: candidate.name)}
                 class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
               />
             </:col>

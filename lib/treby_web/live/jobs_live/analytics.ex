@@ -196,6 +196,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 <label class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Period")}</label>
                 <select
                   name="period"
+                  aria-label={gettext("Period")}
                   class={select_classes()}
                 >
                   <option value="7" selected={@selected_period == 7}>{gettext("Last 7 days")}</option>

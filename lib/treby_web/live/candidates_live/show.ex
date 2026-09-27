@@ -157,7 +157,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           &larr; Back to {@return_label}
         </.link>
 
-        <div class="mt-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-8">
+        <.card class="mt-6">
           <%= if @editing? do %>
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Edit Candidate")}
@@ -295,7 +295,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </dl>
             </div>
           <% end %>
-        </div>
+        </.card>
 
         <%= if @applications != [] do %>
           <% primary = hd(@applications) %>
@@ -304,7 +304,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
             <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100/90 mb-4">
               {gettext("Progress")}
             </h2>
-            <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+            <.card>
               <div class="flex items-center gap-2 mb-3">
                 <.icon name="hero-flag" class="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
                 <span class="text-sm text-zinc-500 dark:text-zinc-400">
@@ -346,7 +346,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   <% end %>
                 </div>
               <% end %>
-            </div>
+          </.card>
           </div>
         <% end %>
 
@@ -357,10 +357,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
             </h2>
             <div class="space-y-3">
               <%= for interview <- @interviews do %>
-                <div class={[
-                  "bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4",
-                  interview.status == "cancelled" && "opacity-60"
-                ]}>
+                <.card class={[interview.status == "cancelled" && "opacity-60"]}>
                   <div class="flex items-start justify-between">
                     <div>
                       <p class={[
@@ -430,7 +427,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                       <% end %>
                     </div>
                   </div>
-                </div>
+                </.card>
               <% end %>
             </div>
           </div>
@@ -443,10 +440,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
           <div :if={@applications == []} class="text-zinc-500 dark:text-zinc-400">
             No applications yet.
           </div>
-          <div
-            :for={application <- @applications}
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-4"
-          >
+          <.card :for={application <- @applications} class="mb-4">
             <div class="flex justify-between items-center">
               <div>
                 <div class="flex items-center gap-2">
@@ -630,22 +624,19 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 </div>
               </.form>
             </div>
-          </div>
+          </.card>
         </div>
 
         <%!-- Activity Timeline --%>
-        <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+        <.card class="mt-8">
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Activity")}
           </h2>
           <.activity_timeline events={@activities} />
-        </div>
+        </.card>
 
         <%!-- Scorecards --%>
-        <div
-          :if={@scorecards != [] || @aggregate_scores.total_scorecards > 0}
-          class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-        >
+        <.card :if={@scorecards != [] || @aggregate_scores.total_scorecards > 0} class="mt-8">
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Scorecards")}
           </h2>
@@ -736,10 +727,10 @@ defmodule TrebyWeb.CandidatesLive.Show do
               </div>
             </div>
           </div>
-        </div>
+        </.card>
 
         <%!-- Portal Conversations --%>
-        <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+        <.card class="mt-8">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               {gettext("Portal Conversations")}
@@ -1029,7 +1020,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
               <% end %>
             </div>
           </div>
-        </div>
+        </.card>
       </div>
     </Layouts.app>
     <.scorecard_form

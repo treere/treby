@@ -170,31 +170,28 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
           id="portal-summary"
           class="mt-4 grid grid-cols-3 gap-3 mb-6"
         >
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 text-center">
+          <.card class="text-center">
             <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{@stats.total}</p>
             <p class="text-xs font-medium tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
               {gettext("Applications")}
             </p>
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 text-center">
+          </.card>
+          <.card class="text-center">
             <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{@stats.unread}</p>
             <p class="text-xs font-medium tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
               {gettext("Unread")}
             </p>
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 text-center">
+          </.card>
+          <.card class="text-center">
             <p class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{@stats.pending}</p>
             <p class="text-xs font-medium tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
               {gettext("Pending actions")}
             </p>
-          </div>
+          </.card>
         </div>
 
-        <div
-          :if={@applications != []}
-          id="portal-company-info"
-          class="mb-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4 flex items-start gap-3"
-        >
+        <.card :if={@applications != []} id="portal-company-info" class="mb-6">
+          <div class="flex items-start gap-3">
           <%= if @current_tenant.settings["logo_url"] do %>
             <img
               src={@current_tenant.settings["logo_url"]}
@@ -227,7 +224,8 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
               >{support_email(@current_tenant)}</a>
             </p>
           </div>
-        </div>
+          </div>
+        </.card>
 
         <%= if @selected_application do %>
           <.card class="mb-6">

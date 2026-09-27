@@ -196,10 +196,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           </form>
         </div>
 
-        <div
-          :if={@show_form}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-        >
+        <.card :if={@show_form} class="mb-8">
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Add Candidate")}
           </h2>
@@ -273,7 +270,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
               </.button>
             </div>
           </.form>
-        </div>
+        </.card>
 
         <div class="mb-2 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
           <input

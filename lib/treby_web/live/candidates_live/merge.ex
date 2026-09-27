@@ -82,10 +82,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
           </div>
         </div>
 
-        <div
-          :if={@groups == []}
-          class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-10 text-center"
-        >
+        <.card :if={@groups == []} class="mt-8 text-center">
           <div class="mx-auto w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
             <.icon name="hero-check-circle" class="w-8 h-8 text-green-600 dark:text-green-400" />
           </div>
@@ -95,12 +92,9 @@ defmodule TrebyWeb.CandidatesLive.Merge do
           <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
             We didn't find any candidates that look like duplicates right now. New candidates are checked automatically as they come in.
           </p>
-        </div>
+        </.card>
 
-        <div
-          :for={group <- @groups}
-          class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6 mb-6"
-        >
+        <.card :for={group <- @groups} class="mb-6">
           <div class="flex items-center gap-3 mb-4">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               {length(group.candidates)} profiles may be the same person
@@ -188,7 +182,7 @@ defmodule TrebyWeb.CandidatesLive.Merge do
               The primary profile keeps all applications, email threads, and activity. The others are archived.
             </p>
           </div>
-        </div>
+        </.card>
       </div>
     </Layouts.app>
     """

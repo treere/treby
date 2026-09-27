@@ -2,6 +2,7 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
   use TrebyWeb, :live_view
 
   alias Treby.CandidatePortal
+  alias TrebyWeb.CandidatePortalLive.PortalHelpers
 
   @impl true
   def mount(%{"id" => conversation_id, "tenant_slug" => slug}, session, socket) do
@@ -12,32 +13,25 @@ defmodule TrebyWeb.CandidatePortalLive.MessageThread do
         {:ok, redirect(socket, to: ~p"/404")}
 
       conversation ->
-        tenant = Treby.Tenants.get_tenant_by_slug!(slug)
-        candidate = Treby.Repo.get!(Treby.Candidates.Candidate, session["candidate_id"])
+        case PortalHelpers.mount_portal(socket, session, slug, "/portal/messages") do
+          {:redirect, socket} ->
+            {:ok, socket}
 
-        cond do
-          tenant.id != candidate.tenant_id ->
-            real_tenant = Treby.Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)
+          {:ok, tenant, candidate} ->
+            if conversation.tenant_id != candidate.tenant_id or
+                 conversation.candidate_id != candidate.id do
+              {:ok, redirect(socket, to: ~p"/404")}
+            else
+              CandidatePortal.subscribe_to_conversation(conversation.id)
 
-            {:ok,
-             socket
-             |> put_flash(:error, gettext("Wrong workspace. Redirected to your portal."))
-             |> redirect(to: "/#{real_tenant.slug}/portal/messages")}
-
-          conversation.tenant_id != candidate.tenant_id or
-              conversation.candidate_id != candidate.id ->
-            {:ok, redirect(socket, to: ~p"/404")}
-
-          true ->
-            CandidatePortal.subscribe_to_conversation(conversation.id)
-
-            {:ok,
-             socket
-             |> assign(:conversation, conversation)
-             |> assign(:current_tenant, tenant)
-             |> assign(:current_candidate, candidate)
-             |> assign(:page_title, "Conversation")
-             |> assign(:new_message, "")}
+              {:ok,
+               socket
+               |> assign(:conversation, conversation)
+               |> assign(:current_tenant, tenant)
+               |> assign(:current_candidate, candidate)
+               |> assign(:page_title, "Conversation")
+               |> assign(:new_message, "")}
+            end
         end
     end
   end

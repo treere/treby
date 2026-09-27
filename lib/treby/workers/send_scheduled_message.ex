@@ -3,11 +3,14 @@ defmodule Treby.Workers.SendScheduledMessage do
     queue: :messages,
     max_attempts: 5
 
+  @backoff_by_attempt %{2 => 60, 3 => 240, 4 => 900, 5 => 3600}
+  @backoff_default 3600
+
+  use Treby.Workers.BaseWorker
+
   alias Treby.Repo
   alias Treby.ScheduledMessages
   alias Treby.ScheduledMessages.ScheduledMessage
-
-  @backoff_by_attempt %{2 => 60, 3 => 240, 4 => 900, 5 => 3600}
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -28,11 +31,6 @@ defmodule Treby.Workers.SendScheduledMessage do
       %{status: status} ->
         {:discard, "message already #{status} (not sending)"}
     end
-  end
-
-  @impl Oban.Worker
-  def backoff(%Oban.Job{attempt: attempt}) do
-    Map.get(@backoff_by_attempt, attempt, 3600)
   end
 
   defp do_send(scheduled_message, attempt, max_attempts) do

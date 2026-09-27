@@ -1,6 +1,11 @@
 defmodule Treby.Workers.DataPrivacyErasureWorker do
   use Oban.Worker, queue: :default, max_attempts: 3
 
+  @backoff_by_attempt %{2 => 120, 3 => 600}
+  @backoff_default 600
+
+  use Treby.Workers.BaseWorker
+
   import Ecto.Query, warn: false
   alias Treby.Accounts.User
   alias Treby.Candidates.Candidate
@@ -8,8 +13,6 @@ defmodule Treby.Workers.DataPrivacyErasureWorker do
   alias Treby.DataPrivacy.Requests
   alias Treby.Memberships.Membership
   alias Treby.Repo
-
-  @backoff_by_attempt %{2 => 120, 3 => 600}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"data_privacy_request_id" => id}}) do
@@ -32,15 +35,12 @@ defmodule Treby.Workers.DataPrivacyErasureWorker do
   end
 
   def perform(%Oban.Job{args: args}) do
-    id = args["data_privacy_request_id"] || args[:data_privacy_request_id]
+    id = arg(args, :data_privacy_request_id)
 
     if id,
       do: perform(%Oban.Job{args: %{"data_privacy_request_id" => id}}),
       else: {:discard, "missing data_privacy_request_id"}
   end
-
-  @impl Oban.Worker
-  def backoff(%Oban.Job{attempt: attempt}), do: Map.get(@backoff_by_attempt, attempt, 600)
 
   defp do_erasure(request) do
     grace_until =

@@ -36,11 +36,11 @@ defmodule Treby.Scorecards do
            |> ScorecardTemplate.changeset(attrs)
            |> Repo.insert() do
         {:ok, tmpl} ->
-          Treby.Audit.log_event("scorecard_template.created", "scorecard_template", tmpl.id, %{
+          Treby.Audit.log_change("scorecard_template.created", "scorecard_template", tmpl.id,
             tenant_id: tmpl.tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{after: %{name: tmpl.name}}
-          })
+            after: %{name: tmpl.name}
+          )
 
           {:ok, tmpl}
 
@@ -63,11 +63,12 @@ defmodule Treby.Scorecards do
 
       case scorecard_template |> ScorecardTemplate.changeset(attrs) |> Repo.update() do
         {:ok, updated} ->
-          Treby.Audit.log_event("scorecard_template.updated", "scorecard_template", updated.id, %{
+          Treby.Audit.log_change("scorecard_template.updated", "scorecard_template", updated.id,
             tenant_id: updated.tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{before: before, after: Map.take(updated, [:name])}
-          })
+            before: before,
+            after: Map.take(updated, [:name])
+          )
 
           {:ok, updated}
 
@@ -88,11 +89,11 @@ defmodule Treby.Scorecards do
     else
       case Repo.delete(scorecard_template) do
         {:ok, deleted} ->
-          Treby.Audit.log_event("scorecard_template.deleted", "scorecard_template", deleted.id, %{
+          Treby.Audit.log_change("scorecard_template.deleted", "scorecard_template", deleted.id,
             tenant_id: deleted.tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{before: %{name: deleted.name}}
-          })
+            before: %{name: deleted.name}
+          )
 
           {:ok, deleted}
 
@@ -147,16 +148,14 @@ defmodule Treby.Scorecards do
             "scorecard.submitted"
           end
 
-        Treby.Audit.log_event(action, "scorecard", scorecard.id, %{
+        Treby.Audit.log_change(action, "scorecard", scorecard.id,
           tenant_id: tenant_id,
           actor_id: interviewer_id,
-          metadata: %{
-            after: %{
-              interview_event_id: interview_event_id,
-              recommendation: scorecard.recommendation
-            }
+          after: %{
+            interview_event_id: interview_event_id,
+            recommendation: scorecard.recommendation
           }
-        })
+        )
 
         {:ok, scorecard}
 

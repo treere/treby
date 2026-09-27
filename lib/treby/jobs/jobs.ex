@@ -110,11 +110,11 @@ defmodule Treby.Jobs do
 
     case %Job{tenant_id: tenant_id} |> Job.changeset(attrs) |> Repo.insert() do
       {:ok, job} ->
-        Treby.Audit.log_event("job.created", "job", job.id, %{
+        Treby.Audit.log_change("job.created", "job", job.id,
           tenant_id: job.tenant_id,
           actor_id: attrs["actor_id"] || attrs[:actor_id],
-          metadata: %{after: Map.take(job, [:title, :status])}
-        })
+          after: Map.take(job, [:title, :status])
+        )
 
         {:ok, job}
 
@@ -128,11 +128,12 @@ defmodule Treby.Jobs do
 
     case job |> Job.changeset(attrs) |> Repo.update() do
       {:ok, updated} ->
-        Treby.Audit.log_event("job.updated", "job", updated.id, %{
+        Treby.Audit.log_change("job.updated", "job", updated.id,
           tenant_id: updated.tenant_id,
           actor_id: attrs["actor_id"] || attrs[:actor_id],
-          metadata: %{before: before, after: Map.take(updated, [:title, :status, :visible])}
-        })
+          before: before,
+          after: Map.take(updated, [:title, :status, :visible])
+        )
 
         {:ok, updated}
 
@@ -144,10 +145,10 @@ defmodule Treby.Jobs do
   def delete_job(%Job{} = job) do
     case Repo.delete(job) do
       {:ok, deleted} ->
-        Treby.Audit.log_event("job.deleted", "job", deleted.id, %{
+        Treby.Audit.log_change("job.deleted", "job", deleted.id,
           tenant_id: deleted.tenant_id,
-          metadata: %{before: %{title: deleted.title}}
-        })
+          before: %{title: deleted.title}
+        )
 
         {:ok, deleted}
 

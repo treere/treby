@@ -2,33 +2,28 @@ defmodule TrebyWeb.CandidatePortalLive.Messages do
   use TrebyWeb, :live_view
 
   alias Treby.CandidatePortal
+  alias TrebyWeb.CandidatePortalLive.PortalHelpers
 
   @impl true
   def mount(%{"tenant_slug" => slug}, session, socket) do
-    Treby.Repo.put_tenant_id_from_session(session)
     candidate_id = session["candidate_id"]
     tenant_id = session["candidate_tenant_id"]
-    tenant = Treby.Tenants.get_tenant_by_slug!(slug)
-    candidate = Treby.Repo.get!(Treby.Candidates.Candidate, candidate_id)
 
-    if tenant.id != candidate.tenant_id do
-      real_tenant = Treby.Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)
+    case PortalHelpers.mount_portal(socket, session, slug, "/portal/messages") do
+      {:redirect, socket} ->
+        {:ok, socket}
 
-      {:ok,
-       socket
-       |> put_flash(:error, gettext("Wrong workspace. Redirected to your portal."))
-       |> redirect(to: "/#{real_tenant.slug}/portal/messages")}
-    else
-      conversations = CandidatePortal.list_conversations_for_candidate(candidate_id, tenant_id)
+      {:ok, tenant, candidate} ->
+        conversations = CandidatePortal.list_conversations_for_candidate(candidate_id, tenant_id)
 
-      CandidatePortal.subscribe_to_candidate_conversations(candidate_id)
+        CandidatePortal.subscribe_to_candidate_conversations(candidate_id)
 
-      {:ok,
-       socket
-       |> assign(:conversations, conversations)
-       |> assign(:current_tenant, tenant)
-       |> assign(:current_candidate, candidate)
-       |> assign(:page_title, "Messages")}
+        {:ok,
+         socket
+         |> assign(:conversations, conversations)
+         |> assign(:current_tenant, tenant)
+         |> assign(:current_candidate, candidate)
+         |> assign(:page_title, "Messages")}
     end
   end
 

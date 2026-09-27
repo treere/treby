@@ -25,12 +25,12 @@ defmodule Treby.AI.Tools.ImportCsv do
   end
 
   def run(args, ctx) do
-    with :ok <- Tools.authorize(__MODULE__, ctx) do
+    with :ok <- Tools.authorize(__MODULE__, ctx),
+         {:ok, lines} <- Treby.CsvImport.parse_lines(args["csv_text"]) do
       rows =
-        args["csv_text"]
-        |> String.split(~r/\R/)
-        |> Enum.reject(&(&1 |> String.trim() == ""))
-        |> then(fn lines -> if args["has_header"], do: tl(lines), else: lines end)
+        lines
+        |> Enum.reject(&(match?([], &1) or Enum.all?(&1, fn cell -> cell == "" end)))
+        |> then(fn rows -> if args["has_header"], do: tl(rows), else: rows end)
 
       {created, errors} =
         Enum.reduce(rows, {0, []}, fn line, {ok, errs} ->
@@ -50,22 +50,19 @@ defmodule Treby.AI.Tools.ImportCsv do
     end
   end
 
-  defp parse_row(line) do
-    case line |> String.split(~r/,/) |> Enum.map(&String.trim/1) do
-      [name, email] when name != "" and email != "" ->
-        {:ok, %{"name" => name, "email" => email}}
-
-      [name, email | rest] when name != "" and email != "" ->
-        attrs = %{"name" => name, "email" => email}
-        attrs = if Enum.at(rest, 0), do: Map.put(attrs, "phone", Enum.at(rest, 0)), else: attrs
-
-        attrs =
-          if Enum.at(rest, 1), do: Map.put(attrs, "linkedin_url", Enum.at(rest, 1)), else: attrs
-
-        {:ok, attrs}
-
-      _ ->
-        :skip
-    end
+  defp parse_row([name, email]) when name != "" and email != "" do
+    {:ok, %{"name" => name, "email" => email}}
   end
+
+  defp parse_row([name, email | rest]) when name != "" and email != "" do
+    attrs = %{"name" => name, "email" => email}
+    attrs = if Enum.at(rest, 0), do: Map.put(attrs, "phone", Enum.at(rest, 0)), else: attrs
+
+    attrs =
+      if Enum.at(rest, 1), do: Map.put(attrs, "linkedin_url", Enum.at(rest, 1)), else: attrs
+
+    {:ok, attrs}
+  end
+
+  defp parse_row(_), do: :skip
 end

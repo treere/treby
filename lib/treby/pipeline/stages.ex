@@ -32,10 +32,10 @@ defmodule Treby.Pipeline.Stages do
   def create_pipeline(attrs \\ %{}) do
     case %PipelineDef{} |> PipelineDef.changeset(attrs) |> Repo.insert() do
       {:ok, pipeline} ->
-        Treby.Audit.log_event("pipeline.created", "pipeline", pipeline.id, %{
+        Treby.Audit.log_change("pipeline.created", "pipeline", pipeline.id,
           tenant_id: pipeline.tenant_id,
-          metadata: %{after: %{name: pipeline.name}}
-        })
+          after: %{name: pipeline.name}
+        )
 
         {:ok, pipeline}
 
@@ -49,10 +49,11 @@ defmodule Treby.Pipeline.Stages do
 
     case pipeline |> PipelineDef.changeset(attrs) |> Repo.update() do
       {:ok, updated} ->
-        Treby.Audit.log_event("pipeline.updated", "pipeline", updated.id, %{
+        Treby.Audit.log_change("pipeline.updated", "pipeline", updated.id,
           tenant_id: updated.tenant_id,
-          metadata: %{before: before, after: Map.take(updated, [:name, :is_default])}
-        })
+          before: before,
+          after: Map.take(updated, [:name, :is_default])
+        )
 
         {:ok, updated}
 
@@ -64,10 +65,10 @@ defmodule Treby.Pipeline.Stages do
   def delete_pipeline(%PipelineDef{} = pipeline) do
     case Repo.delete(pipeline) do
       {:ok, deleted} ->
-        Treby.Audit.log_event("pipeline.deleted", "pipeline", deleted.id, %{
+        Treby.Audit.log_change("pipeline.deleted", "pipeline", deleted.id,
           tenant_id: deleted.tenant_id,
-          metadata: %{before: %{name: deleted.name}}
-        })
+          before: %{name: deleted.name}
+        )
 
         {:ok, deleted}
 
@@ -321,13 +322,13 @@ defmodule Treby.Pipeline.Stages do
     else
       case %PipelineStage{} |> PipelineStage.changeset(attrs) |> Repo.insert() do
         {:ok, stage} ->
-          Treby.Audit.log_event("pipeline.stage_created", "pipeline_stage", stage.id, %{
+          Treby.Audit.log_change("pipeline.stage_created", "pipeline_stage", stage.id,
             tenant_id:
               stage.pipeline_id &&
                 (Repo.get(PipelineDef, stage.pipeline_id) || %{tenant_id: nil}).tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{after: Map.take(stage, [:name, :position, :color, :stage_type])}
-          })
+            after: Map.take(stage, [:name, :position, :color, :stage_type])
+          )
 
           {:ok, stage}
 
@@ -350,15 +351,13 @@ defmodule Treby.Pipeline.Stages do
 
       case pipeline_stage |> PipelineStage.changeset(attrs) |> Repo.update() do
         {:ok, updated} ->
-          Treby.Audit.log_event("pipeline.stage_updated", "pipeline_stage", updated.id, %{
+          Treby.Audit.log_change("pipeline.stage_updated", "pipeline_stage", updated.id,
             tenant_id:
               (Repo.get(PipelineDef, updated.pipeline_id) || %{tenant_id: nil}).tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{
-              before: before,
-              after: Map.take(updated, [:name, :position, :color, :stage_type])
-            }
-          })
+            before: before,
+            after: Map.take(updated, [:name, :position, :color, :stage_type])
+          )
 
           {:ok, updated}
 
@@ -379,12 +378,12 @@ defmodule Treby.Pipeline.Stages do
     else
       case Repo.delete(pipeline_stage) do
         {:ok, deleted} ->
-          Treby.Audit.log_event("pipeline.stage_deleted", "pipeline_stage", deleted.id, %{
+          Treby.Audit.log_change("pipeline.stage_deleted", "pipeline_stage", deleted.id,
             tenant_id:
               (Repo.get(PipelineDef, deleted.pipeline_id) || %{tenant_id: nil}).tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{before: Map.take(deleted, [:name, :position, :color])}
-          })
+            before: Map.take(deleted, [:name, :position, :color])
+          )
 
           {:ok, deleted}
 

@@ -1,11 +1,14 @@
 defmodule Treby.Workers.DataPrivacyExportWorker do
   use Oban.Worker, queue: :default, max_attempts: 3
 
+  @backoff_by_attempt %{2 => 60, 3 => 300}
+  @backoff_default 300
+
+  use Treby.Workers.BaseWorker
+
   alias Treby.Accounts.User
   alias Treby.DataPrivacy.Requests
   alias Treby.Repo
-
-  @backoff_by_attempt %{2 => 60, 3 => 300}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"data_privacy_request_id" => id}}) do
@@ -25,15 +28,12 @@ defmodule Treby.Workers.DataPrivacyExportWorker do
   end
 
   def perform(%Oban.Job{args: args}) do
-    id = args["data_privacy_request_id"] || args[:data_privacy_request_id]
+    id = arg(args, :data_privacy_request_id)
 
     if id,
       do: perform(%Oban.Job{args: %{"data_privacy_request_id" => id}}),
       else: {:discard, "missing data_privacy_request_id"}
   end
-
-  @impl Oban.Worker
-  def backoff(%Oban.Job{attempt: attempt}), do: Map.get(@backoff_by_attempt, attempt, 300)
 
   defp do_export(request) do
     {:ok, _processing} = Requests.transition(request, "processing")

@@ -9,6 +9,22 @@ defmodule Treby.CsvImport do
 
   NimbleCSV.define(CsvParser, separator: ",", escape: "\"")
 
+  @doc """
+  Single split entry point: parses CSV text into trimmed row lists
+  (no header interpretation). Used by both preview and import paths
+  so quoted fields split identically.
+  """
+  def parse_lines(csv_binary) do
+    rows =
+      csv_binary
+      |> CsvParser.parse_string(skip_headers: false)
+      |> Enum.map(fn row -> Enum.map(row, &String.trim/1) end)
+
+    {:ok, rows}
+  rescue
+    e -> {:error, "CSV parsing failed: #{Exception.message(e)}"}
+  end
+
   def parse_csv(csv_binary) do
     lines =
       csv_binary

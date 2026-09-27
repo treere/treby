@@ -114,11 +114,11 @@ defmodule Treby.Candidates do
           %{tenant_id: candidate.tenant_id}
         )
 
-        Treby.Audit.log_event("candidate.created", "candidate", candidate.id, %{
+        Treby.Audit.log_change("candidate.created", "candidate", candidate.id,
           tenant_id: candidate.tenant_id,
           actor_id: attrs["actor_id"] || attrs[:actor_id],
-          metadata: %{after: %{name: candidate.name, email: candidate.email}}
-        })
+          after: %{name: candidate.name, email: candidate.email}
+        )
 
         {:ok, candidate}
 
@@ -144,14 +144,12 @@ defmodule Treby.Candidates do
           Map.merge(metadata, %{tenant_id: updated.tenant_id})
         )
 
-        Treby.Audit.log_event("candidate.updated", "candidate", updated.id, %{
+        Treby.Audit.log_change("candidate.updated", "candidate", updated.id,
           tenant_id: updated.tenant_id,
           actor_id: metadata[:actor_id] || metadata["actor_id"],
-          metadata: %{
-            before: before,
-            after: Map.take(updated, [:name, :email, :phone])
-          }
-        })
+          before: before,
+          after: Map.take(updated, [:name, :email, :phone])
+        )
 
         {:ok, updated}
 
@@ -166,11 +164,11 @@ defmodule Treby.Candidates do
     else
       case Repo.delete(candidate) do
         {:ok, deleted} ->
-          Treby.Audit.log_event("candidate.deleted", "candidate", deleted.id, %{
+          Treby.Audit.log_change("candidate.deleted", "candidate", deleted.id,
             tenant_id: deleted.tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{before: %{name: deleted.name, email: deleted.email}}
-          })
+            before: %{name: deleted.name, email: deleted.email}
+          )
 
           {:ok, deleted}
 

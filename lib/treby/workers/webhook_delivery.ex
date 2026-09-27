@@ -3,18 +3,21 @@ defmodule Treby.Workers.WebhookDelivery do
     queue: :webhooks,
     max_attempts: 5
 
+  @backoff_by_attempt %{2 => 60, 3 => 300, 4 => 900, 5 => 3600}
+  @backoff_default 3600
+
+  use Treby.Workers.BaseWorker
+
   alias Ecto.UUID
   alias Treby.Repo
   alias Treby.Audit.AuditEvent
   alias Treby.Webhooks
   alias Treby.Webhooks.Entities
 
-  @backoff_by_attempt %{2 => 60, 3 => 300, 4 => 900, 5 => 3600}
-
   @impl Oban.Worker
   def perform(%Oban.Job{args: args, attempt: attempt}) do
-    event_id = Map.get(args, "audit_event_id") || Map.get(args, :audit_event_id)
-    tenant_id = Map.get(args, "tenant_id") || Map.get(args, :tenant_id)
+    event_id = arg(args, :audit_event_id)
+    tenant_id = arg(args, :tenant_id)
     if tenant_id, do: Repo.put_tenant_id(tenant_id)
 
     case Repo.get(AuditEvent, event_id) do
@@ -27,11 +30,6 @@ defmodule Treby.Workers.WebhookDelivery do
         Enum.each(subscriptions, &deliver(&1, event, attempt))
         :ok
     end
-  end
-
-  @impl Oban.Worker
-  def backoff(%Oban.Job{attempt: attempt}) do
-    Map.get(@backoff_by_attempt, attempt, 3600)
   end
 
   defp deliver(

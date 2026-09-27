@@ -38,11 +38,11 @@ defmodule Treby.Customization do
     else
       case %CustomField{} |> CustomField.changeset(attrs) |> Repo.insert() do
         {:ok, cf} ->
-          Treby.Audit.log_event("custom_field.created", "custom_field", cf.id, %{
+          Treby.Audit.log_change("custom_field.created", "custom_field", cf.id,
             tenant_id: cf.tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{after: %{name: cf.name, applies_to: cf.applies_to}}
-          })
+            after: %{name: cf.name, applies_to: cf.applies_to}
+          )
 
           {:ok, cf}
 
@@ -61,11 +61,12 @@ defmodule Treby.Customization do
 
       case custom_field |> CustomField.changeset(attrs) |> Repo.update() do
         {:ok, updated} ->
-          Treby.Audit.log_event("custom_field.updated", "custom_field", updated.id, %{
+          Treby.Audit.log_change("custom_field.updated", "custom_field", updated.id,
             tenant_id: updated.tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{before: before, after: Map.take(updated, [:name, :applies_to])}
-          })
+            before: before,
+            after: Map.take(updated, [:name, :applies_to])
+          )
 
           {:ok, updated}
 
@@ -82,11 +83,11 @@ defmodule Treby.Customization do
     else
       case Repo.delete(custom_field) do
         {:ok, deleted} ->
-          Treby.Audit.log_event("custom_field.deleted", "custom_field", deleted.id, %{
+          Treby.Audit.log_change("custom_field.deleted", "custom_field", deleted.id,
             tenant_id: deleted.tenant_id,
             actor_id: Treby.Authorization.Actor.id(actor),
-            metadata: %{before: %{name: deleted.name}}
-          })
+            before: %{name: deleted.name}
+          )
 
           {:ok, deleted}
 

@@ -1,17 +1,13 @@
 defmodule TrebyWeb.CandidatePortalLive.RequestLink do
   use TrebyWeb, :live_view
 
-  alias Treby.Tenants
+  alias TrebyWeb.CandidatePortalLive.PortalHelpers
 
   @impl true
   def mount(%{"tenant_slug" => slug}, _session, socket) do
-    tenant = Tenants.get_tenant_by_slug!(slug)
-    Treby.Repo.put_tenant_id(tenant.id)
+    {:ok, socket} = PortalHelpers.mount_public_portal(socket, slug)
 
-    {:ok,
-     socket
-     |> assign(:tenant, tenant)
-     |> assign(:page_title, gettext("Access Portal"))}
+    {:ok, assign(socket, :page_title, gettext("Access Portal"))}
   end
 
   @impl true

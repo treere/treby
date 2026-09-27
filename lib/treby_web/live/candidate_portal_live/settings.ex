@@ -2,31 +2,24 @@ defmodule TrebyWeb.CandidatePortalLive.Settings do
   use TrebyWeb, :live_view
 
   alias Treby.CandidatePortal
+  alias TrebyWeb.CandidatePortalLive.PortalHelpers
 
   @impl true
   def mount(%{"tenant_slug" => slug}, session, socket) do
-    Treby.Repo.put_tenant_id_from_session(session)
-    candidate_id = session["candidate_id"]
-    candidate = Treby.Repo.get!(Treby.Candidates.Candidate, candidate_id)
-    tenant = Treby.Tenants.get_tenant_by_slug!(slug)
+    case PortalHelpers.mount_portal(socket, session, slug, "/portal/settings") do
+      {:redirect, socket} ->
+        {:ok, socket}
 
-    if tenant.id != candidate.tenant_id do
-      real_tenant = Treby.Repo.get!(Treby.Tenants.Tenant, candidate.tenant_id)
+      {:ok, tenant, candidate} ->
+        prefs = CandidatePortal.get_notification_preferences(candidate)
 
-      {:ok,
-       socket
-       |> put_flash(:error, gettext("Wrong workspace. Redirected to your portal."))
-       |> redirect(to: "/#{real_tenant.slug}/portal/settings")}
-    else
-      prefs = CandidatePortal.get_notification_preferences(candidate)
-
-      {:ok,
-       socket
-       |> assign(:candidate, candidate)
-       |> assign(:current_tenant, tenant)
-       |> assign(:current_candidate, candidate)
-       |> assign(:preferences, prefs)
-       |> assign(:page_title, "Settings")}
+        {:ok,
+         socket
+         |> assign(:candidate, candidate)
+         |> assign(:current_tenant, tenant)
+         |> assign(:current_candidate, candidate)
+         |> assign(:preferences, prefs)
+         |> assign(:page_title, "Settings")}
     end
   end
 

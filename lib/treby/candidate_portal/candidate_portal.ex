@@ -12,6 +12,11 @@ defmodule Treby.CandidatePortal do
 
   @messages_query from(m in Message, order_by: [asc: m.inserted_at])
 
+  @doc """
+  Shared preload keyword for conversations with messages in insertion order.
+  """
+  def messages_preload, do: [messages: @messages_query]
+
   @otp_validity_minutes Application.compile_env(
                           :treby,
                           [Treby.CandidatePortal, :otp_validity_minutes],
@@ -266,7 +271,7 @@ defmodule Treby.CandidatePortal do
     |> where([c], c.candidate_id == ^candidate_id and c.tenant_id == ^tenant_id)
     |> order_by([c], desc: c.last_message_at)
     |> Repo.all()
-    |> Repo.preload(messages: @messages_query)
+    |> Repo.preload(messages_preload())
   end
 
   @doc """
@@ -277,7 +282,7 @@ defmodule Treby.CandidatePortal do
     |> where([c], c.application_id == ^application_id and c.tenant_id == ^tenant_id)
     |> order_by([c], desc: c.last_message_at)
     |> Repo.all()
-    |> Repo.preload(messages: @messages_query)
+    |> Repo.preload(messages_preload())
   end
 
   @doc """
@@ -286,13 +291,13 @@ defmodule Treby.CandidatePortal do
   def get_conversation!(id) do
     Conversation
     |> Repo.get!(id)
-    |> Repo.preload(messages: @messages_query)
+    |> Repo.preload(messages_preload())
   end
 
   def get_conversation(id) do
     Conversation
     |> Repo.get(id)
-    |> Repo.preload(messages: @messages_query)
+    |> Repo.preload(messages_preload())
   end
 
   @doc """

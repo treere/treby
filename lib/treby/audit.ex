@@ -31,6 +31,29 @@ defmodule Treby.Audit do
   end
 
   @doc """
+  Thin envelope over `log_event/4` for change records.
+
+  Builds only `%{tenant_id, actor_id, metadata %{before, after}}`, omitting
+  nil keys so the inserted event matches the literal it replaces.
+  Event strings and extra payload stay at call sites.
+  """
+  def log_change(action, entity_type, entity_id, opts \\ []) do
+    metadata =
+      %{}
+      |> maybe_meta(:before, Keyword.get(opts, :before))
+      |> maybe_meta(:after, Keyword.get(opts, :after))
+
+    attrs =
+      %{tenant_id: Keyword.fetch!(opts, :tenant_id), metadata: metadata}
+      |> maybe_meta(:actor_id, Keyword.get(opts, :actor_id))
+
+    log_event(action, entity_type, entity_id, attrs)
+  end
+
+  defp maybe_meta(map, _key, nil), do: map
+  defp maybe_meta(map, key, value), do: Map.put(map, key, value)
+
+  @doc """
   Add an audit insert to an `Ecto.Multi` for atomic mutation+audit.
 
   Example: `multi |> Audit.log_event_multi(:audit, "job.updated", "job", job.id, %{tenant_id: t.id, actor_id: u.id, metadata: %{before: ..., after: ...}})`

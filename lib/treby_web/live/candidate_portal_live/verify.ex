@@ -1,17 +1,15 @@
 defmodule TrebyWeb.CandidatePortalLive.Verify do
   use TrebyWeb, :live_view
 
-  alias Treby.Tenants
+  alias TrebyWeb.CandidatePortalLive.PortalHelpers
 
   @impl true
   def mount(%{"tenant_slug" => slug}, session, socket) do
-    tenant = Tenants.get_tenant_by_slug!(slug)
-    Treby.Repo.put_tenant_id(tenant.id)
+    {:ok, socket} = PortalHelpers.mount_public_portal(socket, slug)
     email = session["otp_email"]
 
     {:ok,
      socket
-     |> assign(:tenant, tenant)
      |> assign(:email, email)
      |> assign(:has_email?, is_binary(email))
      |> assign(:page_title, gettext("Enter your code"))}

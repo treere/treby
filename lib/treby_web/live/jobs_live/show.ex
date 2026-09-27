@@ -141,10 +141,7 @@ defmodule TrebyWeb.JobsLive.Show do
           <% end %>
         </div>
 
-        <div
-          :if={@editing}
-          class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-        >
+        <.card :if={@editing} class="mb-8">
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Edit Job")}
           </h2>
@@ -251,16 +248,16 @@ defmodule TrebyWeb.JobsLive.Show do
               </.button>
             </div>
           </.form>
-        </div>
+        </.card>
 
         <div class="grid grid-cols-3 gap-6">
-          <div class="col-span-2 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          <.card class="col-span-2">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Description")}
             </h2>
             <.markdown text={@job.description} />
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          </.card>
+          <.card>
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Details")}
             </h2>
@@ -314,11 +311,11 @@ defmodule TrebyWeb.JobsLive.Show do
                 </dl>
               </div>
             </dl>
-          </div>
+          </.card>
         </div>
 
         <%!-- Candidates Section --%>
-        <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+        <.card class="mt-8">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
@@ -495,10 +492,10 @@ defmodule TrebyWeb.JobsLive.Show do
               </div>
             </div>
           </div>
-        </div>
+        </.card>
 
         <%!-- Pipeline Editor Section --%>
-        <div class="mt-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+        <.card class="mt-8">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
@@ -810,7 +807,7 @@ defmodule TrebyWeb.JobsLive.Show do
               </div>
             </div>
           </div>
-        </div>
+        </.card>
 
         <.modal
           :if={@manage_pipeline and @editing_roles}

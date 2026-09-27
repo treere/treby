@@ -115,47 +115,47 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
         <%!-- KPI Cards --%>
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+          <.card>
             <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Total Views
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {@summary.total_views}
             </p>
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+          </.card>
+          <.card>
             <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Unique Views
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {@summary.unique_views}
             </p>
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+          </.card>
+          <.card>
             <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Last 7 Days
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {@summary.views_last_7_days}
             </p>
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+          </.card>
+          <.card>
             <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Last 30 Days
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {@summary.views_last_30_days}
             </p>
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+          </.card>
+          <.card>
             <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Avg / Day
             </h3>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               {if @summary.avg_daily_views == 0.0, do: "N/A", else: "#{@summary.avg_daily_views}"}
             </p>
-          </div>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4">
+          </.card>
+          <.card>
             <h3 class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
               Conversion
             </h3>
@@ -165,7 +165,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
             <p class="text-xs text-zinc-500 dark:text-zinc-400">
               {@funnel.total_applications} applications
             </p>
-          </div>
+          </.card>
         </div>
 
         <.empty_state
@@ -182,10 +182,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
 
         <div class="space-y-8">
           <%!-- Daily chart --%>
-          <div
-            id="daily-views-card"
-            class="chart-card bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-          >
+          <.card id="daily-views-card" class="chart-card">
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {gettext("Daily Views")}
@@ -233,13 +230,10 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 </div>
               <% end %>
             </div>
-          </div>
+          </.card>
 
           <%!-- Monthly breakdown --%>
-          <div
-            id="monthly-views-card"
-            class="chart-card bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-          >
+          <.card id="monthly-views-card" class="chart-card">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Monthly Views (Last 12 Months)")}
             </h2>
@@ -263,13 +257,10 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 </div>
               <% end %>
             </div>
-          </div>
+          </.card>
 
           <%!-- Source breakdown --%>
-          <div
-            id="traffic-sources-card"
-            class="chart-card bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-          >
+          <.card id="traffic-sources-card" class="chart-card">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Traffic Sources")}
             </h2>
@@ -293,13 +284,10 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 </div>
               <% end %>
             </div>
-          </div>
+          </.card>
 
           <%!-- Funnel --%>
-          <div
-            id="funnel-card"
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-          >
+          <.card id="funnel-card">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("View → Application Funnel")}
             </h2>
@@ -337,7 +325,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
             >
               No tenant average yet — more views needed.
             </p>
-          </div>
+          </.card>
         </div>
       </div>
     </Layouts.app>

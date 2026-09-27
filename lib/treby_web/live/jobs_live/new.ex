@@ -107,7 +107,7 @@ defmodule TrebyWeb.JobsLive.New do
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <%!-- Left: Form --%>
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          <.card>
             <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
               {gettext("Job details")}
             </h2>
@@ -307,7 +307,7 @@ defmodule TrebyWeb.JobsLive.New do
                 </.link>
               </div>
             </.form>
-          </div>
+          </.card>
 
           <%!-- Right: Live Preview --%>
           <div class="lg:sticky lg:top-6">
@@ -319,10 +319,7 @@ defmodule TrebyWeb.JobsLive.New do
               </span>
             </h2>
 
-            <div
-              id="job-preview-card"
-              class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden"
-            >
+            <.card id="job-preview-card">
               <div class="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-5 py-2 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-red-400"></span>
                 <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
@@ -438,7 +435,7 @@ defmodule TrebyWeb.JobsLive.New do
                     else: gettext("Position closed")}
                 </button>
               </div>
-            </div>
+            </.card>
 
             <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400 text-center">
               {gettext("Preview updates as you type. Markdown is rendered as on the public page.")}

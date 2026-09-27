@@ -28,7 +28,7 @@
 ## 6. Guardrail + verification + docs
 
 - [x] 6.1 Extend `treby.check_design_system` with copied-card-shell, raw-table, raw-modal-shell, raw-input, copied-badge patterns — verify with `mix treby.check_design_system` green
-- [ ] 6.2 Regenerate screenshots via `node scripts/screenshots.mjs`, diff light + `25-dark-mode.png`, then run `node scripts/screenshots.mjs --axe` with zero serious/critical violations
-- [ ] 6.3 Update `openspec/specs/design-system/spec.md` with Purpose/Requirements and Scenario WHEN/THEN for card/input/table/modal/badge + guardrail
-- [ ] 6.4 Sync user manual: confirm no user-visible change in `site/features/` else update page + sidebar in `site/.vitepress/config.ts` + `site/features/index.md`
-- [ ] 6.5 Run `mix precommit` and `openspec validate --strict` and fix all issues
+- [x] 6.2 Regenerate screenshots via `node scripts/screenshots.mjs`, diff light + `25-dark-mode.png`, then run `node scripts/screenshots.mjs --axe` with zero serious/critical violations
+- [x] 6.3 Update `openspec/specs/design-system/spec.md` with Purpose/Requirements and Scenario WHEN/THEN for card/input/table/modal/badge + guardrail
+- [x] 6.4 Sync user manual: confirm no user-visible change in `site/features/` else update page + sidebar in `site/.vitepress/config.ts` + `site/features/index.md`
+- [x] 6.5 Run `mix precommit` and `openspec validate --strict` and fix all issues

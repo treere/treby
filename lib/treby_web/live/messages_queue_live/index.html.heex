@@ -251,8 +251,9 @@
   </div>
 
   <.modal
+    :if={@edit_message != nil}
     id="edit-scheduled-message-modal"
-    show={@edit_message != nil}
+    show={true}
     title="Edit Scheduled Message"
     size="lg"
     close_event="close_edit"

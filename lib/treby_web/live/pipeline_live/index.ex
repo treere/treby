@@ -525,15 +525,13 @@ defmodule TrebyWeb.PipelineLive.Index do
       </.modal>
 
       <%!-- Message Confirmation Dialog --%>
-      <div
-        :if={@show_email_dialog}
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      <.modal
+        id="email-dialog"
+        show={@show_email_dialog}
+        title={gettext("Send Message Notification?")}
+        size="lg"
+        close_event="close-modal"
       >
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-lg w-full mx-4">
-          <div class="p-6">
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-              {gettext("Send Message Notification?")}
-            </h2>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
               <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
                 A stage transition message template exists. A message will be posted to the candidate's portal automatically when you move this candidate. You can preview it below or skip posting.
@@ -659,9 +657,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                 Send & Move
               </.button>
             </div>
-          </div>
-        </div>
-      </div>
+      </.modal>
 
       <%!-- Bulk Action Bar --%>
       <div :if={@selected_ids != []} class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
@@ -862,6 +858,10 @@ defmodule TrebyWeb.PipelineLive.Index do
       "schedule" -> handle_stage_move_schedule(socket)
       "cancel" -> handle_stage_move_cancel(socket)
     end
+  end
+
+  def handle_event("close-modal", _, socket) do
+    {:noreply, clear_stage_move_dialog(socket)}
   end
 
   def handle_event("toggle_schedule", _params, socket) do

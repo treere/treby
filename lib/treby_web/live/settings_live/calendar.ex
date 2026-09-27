@@ -77,9 +77,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
               <div class="flex items-center justify-between">
                 <div>
                   <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Connected
-                    </span>
+                    <.badge variant="success">Connected</.badge>
                   </div>
                   <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                     Connected as <strong>{@connection.provider_email}</strong>

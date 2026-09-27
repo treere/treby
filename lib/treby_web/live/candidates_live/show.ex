@@ -310,9 +310,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                 <span class="text-sm text-zinc-500 dark:text-zinc-400">
                   Current stage:
                 </span>
-                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                  {state.stage.name}
-                </span>
+                <.badge variant="info">{state.stage.name}</.badge>
               </div>
 
               <%= if state.blocked? do %>

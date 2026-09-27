@@ -493,7 +493,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           :if={@bulk_action == "send_message"}
           class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50"
         >
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-2xl p-6 w-96">
+          <.card class="w-96 shadow-2xl">
             <form
               id="bulk-message-composer"
               phx-submit="bulk_email_composer_submit"
@@ -607,7 +607,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 </label>
               </div>
             </form>
-          </div>
+          </.card>
         </div>
 
         <%!-- Merge Primary Picker Modal --%>

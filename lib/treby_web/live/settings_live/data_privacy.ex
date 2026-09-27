@@ -202,7 +202,7 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
                   type="text"
                   name="confirm"
                   placeholder={@current_tenant && @current_tenant.slug}
-                  class="border rounded-xl px-3 py-2"
+                  class={input_classes()}
                   id="data-privacy-erasure-confirm"
                 />
                 <.button type="submit" variant="danger" id="data-privacy-erasure-tenant">

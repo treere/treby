@@ -196,7 +196,7 @@ defmodule TrebyWeb.JobsLive.Analytics do
                 <label class="text-sm text-zinc-500 dark:text-zinc-400">{gettext("Period")}</label>
                 <select
                   name="period"
-                  class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 select-sm"
+                  class={select_classes()}
                 >
                   <option value="7" selected={@selected_period == 7}>{gettext("Last 7 days")}</option>
                   <option value="30" selected={@selected_period == 30}>

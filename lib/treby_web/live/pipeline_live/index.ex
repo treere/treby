@@ -486,7 +486,7 @@ defmodule TrebyWeb.PipelineLive.Index do
         </p>
         <textarea
           id="rejection-reason"
-          class="w-full border rounded-lg p-2 text-sm mb-4"
+          class={textarea_classes("mb-4")}
           rows="3"
           placeholder={gettext("Reason for rejection (required)")}
           required

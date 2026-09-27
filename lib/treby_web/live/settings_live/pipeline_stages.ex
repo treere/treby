@@ -314,19 +314,14 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
           </div>
 
           <%!-- Role Assignment Modal --%>
-          <div
-            :if={@editing_roles}
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            phx-click="close_roles"
+          <.modal
+            :if={@editing_roles != nil}
+            id="roles-modal"
+            show={true}
+            title={gettext("Roles for") <> " " <> @editing_roles.name}
+            size="lg"
+            close_event="close_roles"
           >
-            <div
-              class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-              phx-click=""
-            >
-              <div class="p-6">
-                <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-                  {gettext("Roles for")} {@editing_roles.name}
-                </h2>
 
                 <div class="mb-6">
                   <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
@@ -490,9 +485,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                 <div class="flex justify-end">
                   <.button type="button" phx-click="close_roles">{gettext("Done")}</.button>
                 </div>
-              </div>
-            </div>
-          </div>
+          </.modal>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

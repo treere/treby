@@ -267,22 +267,14 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
 
-      <div
-        :if={@selected}
-        class="fixed inset-0 z-50 flex items-center justify-center"
+      <.modal
+        :if={@selected != nil}
         id="audit-detail-modal"
+        show={true}
+        title={@selected.action <> " — " <> @selected.entity_type}
+        size="lg"
+        close_event="close_detail"
       >
-        <div class="fixed inset-0 bg-black/50" phx-click="close_detail"></div>
-        <div class="relative bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto p-6">
-          <div class="flex justify-between items-start">
-            <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {@selected.action} — {@selected.entity_type}
-            </h3>
-            <button
-              phx-click="close_detail"
-              class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-transparent text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 border border-transparent"
-            >✕</button>
-          </div>
           <div class="mt-4 space-y-3 text-sm">
             <p>
               <span class="font-medium">{gettext("Entity:")}</span> {@selected.entity_type} / {@selected.entity_id}
@@ -325,8 +317,7 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
               >{Jason.encode!(@selected.metadata["after"] || @selected.metadata[:after] || %{}, pretty: true)}</pre>
             </div>
           </div>
-        </div>
-      </div>
+      </.modal>
     </Layouts.app>
     """
   end

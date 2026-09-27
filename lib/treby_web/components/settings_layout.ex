@@ -48,8 +48,8 @@ defmodule TrebyWeb.SettingsLayout do
     >
       <!-- Sidebar -->
       <aside class="w-full lg:w-72 lg:shrink-0">
-        <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm lg:sticky lg:top-20">
-          <nav class="p-4 space-y-6" aria-label="Settings">
+        <.card class="lg:sticky lg:top-20">
+          <nav class="space-y-6" aria-label="Settings">
             <div :for={group <- @nav_groups}>
               <div class="flex items-center gap-2 px-2 py-1">
                 <.icon name={group.icon} class="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
@@ -105,7 +105,7 @@ defmodule TrebyWeb.SettingsLayout do
               </ul>
             </div>
           </nav>
-        </div>
+        </.card>
       </aside>
       <!-- Main pane -->
       <div id="settings-main" class="flex-1 min-w-0">

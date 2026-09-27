@@ -29,6 +29,7 @@ defmodule TrebyWeb.CoreComponents do
   alias Phoenix.LiveView.JS
 
   import TrebyWeb.DesignSystem.Badge, only: [badge: 1]
+  import TrebyWeb.DesignSystem.Card, only: [card: 1]
 
   @doc """
   Renders flash notices.
@@ -672,11 +673,7 @@ defmodule TrebyWeb.CoreComponents do
     assigns = assign(assigns, done: done, total: total, all_done: done == total)
 
     ~H"""
-    <div
-      :if={@show && !@all_done}
-      id="onboarding-checklist"
-      class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm border border-zinc-200 dark:border-zinc-700 p-6 mb-8"
-    >
+    <.card :if={@show && !@all_done} id="onboarding-checklist" class="mb-8">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
           <div class="rounded-full bg-blue-100 p-2">
@@ -757,7 +754,7 @@ defmodule TrebyWeb.CoreComponents do
           Don't show again
         </button>
       </div>
-    </div>
+    </.card>
     """
   end
 end

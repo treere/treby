@@ -73,30 +73,30 @@ defmodule TrebyWeb.SettingsLive.Notifications do
           </div>
 
           <.card class="mb-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    {gettext("Retention of read notifications")}
-                  </h3>
-                  <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    {gettext(
-                      "How long read notifications are kept before automatic deletion (unread are never deleted)"
-                    )}
-                  </p>
-                </div>
-                <form id="retention-form" phx-change="set_retention">
-                  <select
-                    name="retention"
-                    class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
-                  >
-                    <option value="7" selected={@retention == 7}>7 {gettext("days")}</option>
-                    <option value="14" selected={@retention == 14}>14 {gettext("days")}</option>
-                    <option value="30" selected={@retention == 30}>30 {gettext("days")}</option>
-                    <option value="60" selected={@retention == 60}>60 {gettext("days")}</option>
-                    <option value="90" selected={@retention == 90}>90 {gettext("days")}</option>
-                  </select>
-                </form>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  {gettext("Retention of read notifications")}
+                </h3>
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  {gettext(
+                    "How long read notifications are kept before automatic deletion (unread are never deleted)"
+                  )}
+                </p>
               </div>
+              <form id="retention-form" phx-change="set_retention">
+                <select
+                  name="retention"
+                  class="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"
+                >
+                  <option value="7" selected={@retention == 7}>7 {gettext("days")}</option>
+                  <option value="14" selected={@retention == 14}>14 {gettext("days")}</option>
+                  <option value="30" selected={@retention == 30}>30 {gettext("days")}</option>
+                  <option value="60" selected={@retention == 60}>60 {gettext("days")}</option>
+                  <option value="90" selected={@retention == 90}>90 {gettext("days")}</option>
+                </select>
+              </form>
+            </div>
           </.card>
 
           <.card>

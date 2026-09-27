@@ -94,12 +94,20 @@ defmodule TrebyWeb.DesignSystem do
 
   def status_variant(status) when is_binary(status) do
     case String.downcase(status) do
-      s when s in ["offer", "hired", "open", "active", "success", "imported", "completed", "high"] ->
+      s
+      when s in ["offer", "hired", "open", "active", "success", "imported", "completed", "high"] ->
         "success"
 
       s
-      when s
-           in ["interview", "pending", "processing", "medium", "skipped", "duplicate", "duplicated"] ->
+      when s in [
+             "interview",
+             "pending",
+             "processing",
+             "medium",
+             "skipped",
+             "duplicate",
+             "duplicated"
+           ] ->
         "warning"
 
       s when s in ["rejected", "error", "errors", "failed", "failure", "cancelled"] ->

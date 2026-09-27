@@ -110,71 +110,71 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
           <div class="space-y-4">
             <.card :for={pipeline <- @pipelines}>
               <div class="flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <div class="flex-shrink-0">
-                  <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                      {pipeline.name}
-                    </h3>
-                    <span
-                      :if={pipeline.is_default}
-                      class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-100 ring-1 ring-inset ring-blue-700/10"
-                    >
-                      {gettext("Default")}
-                    </span>
+                <div class="flex items-center gap-4">
+                  <div class="flex-shrink-0">
+                    <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
                   </div>
-                  <p class="text-sm text-zinc-500 dark:text-zinc-400">
-                    {gettext("%{count} stages", count: length(pipeline.pipeline_stages))} &middot; {gettext(
-                      "%{count} active jobs",
-                      count: Pipeline.count_active_jobs(pipeline.id)
-                    )}
-                  </p>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                        {pipeline.name}
+                      </h3>
+                      <span
+                        :if={pipeline.is_default}
+                        class="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-950 px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-100 ring-1 ring-inset ring-blue-700/10"
+                      >
+                        {gettext("Default")}
+                      </span>
+                    </div>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                      {gettext("%{count} stages", count: length(pipeline.pipeline_stages))} &middot; {gettext(
+                        "%{count} active jobs",
+                        count: Pipeline.count_active_jobs(pipeline.id)
+                      )}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <.link
-                  navigate={
-                    if @current_tenant,
-                      do: "/#{@current_tenant.slug}/app/settings/pipeline/#{pipeline.id}",
-                      else: ~p"/app/settings/pipeline/#{pipeline.id}"
-                  }
-                  class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium"
-                >
-                  {gettext("Edit")}
-                </.link>
-                <button
-                  :if={not pipeline.is_default}
-                  phx-click="set_default"
-                  phx-value-pipeline_id={pipeline.id}
-                  class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
-                >
-                  {gettext("Set Default")}
-                </button>
-                <button
-                  phx-click="duplicate_pipeline"
-                  phx-value-pipeline_id={pipeline.id}
-                  class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
-                >
-                  {gettext("Duplicate")}
-                </button>
-                <button
-                  :if={not pipeline.is_default}
-                  phx-click="confirm_delete"
-                  phx-value-id={pipeline.id}
-                  phx-value-title={gettext("Delete pipeline")}
-                  phx-value-message={
-                    gettext(
-                      "Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
-                    )
-                  }
-                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm"
-                >
-                  {gettext("Delete")}
-                </button>
-              </div>
+                <div class="flex items-center gap-2">
+                  <.link
+                    navigate={
+                      if @current_tenant,
+                        do: "/#{@current_tenant.slug}/app/settings/pipeline/#{pipeline.id}",
+                        else: ~p"/app/settings/pipeline/#{pipeline.id}"
+                    }
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium"
+                  >
+                    {gettext("Edit")}
+                  </.link>
+                  <button
+                    :if={not pipeline.is_default}
+                    phx-click="set_default"
+                    phx-value-pipeline_id={pipeline.id}
+                    class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
+                  >
+                    {gettext("Set Default")}
+                  </button>
+                  <button
+                    phx-click="duplicate_pipeline"
+                    phx-value-pipeline_id={pipeline.id}
+                    class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 text-sm"
+                  >
+                    {gettext("Duplicate")}
+                  </button>
+                  <button
+                    :if={not pipeline.is_default}
+                    phx-click="confirm_delete"
+                    phx-value-id={pipeline.id}
+                    phx-value-title={gettext("Delete pipeline")}
+                    phx-value-message={
+                      gettext(
+                        "Are you sure you want to delete this pipeline? Candidates will be reassigned to the default pipeline."
+                      )
+                    }
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm"
+                  >
+                    {gettext("Delete")}
+                  </button>
+                </div>
               </div>
             </.card>
           </div>

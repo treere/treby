@@ -192,38 +192,38 @@ defmodule TrebyWeb.CandidatePortalLive.Index do
 
         <.card :if={@applications != []} id="portal-company-info" class="mb-6">
           <div class="flex items-start gap-3">
-          <%= if @current_tenant.settings["logo_url"] do %>
-            <img
-              src={@current_tenant.settings["logo_url"]}
-              class="h-10 w-10 rounded-lg object-cover border border-zinc-200 dark:border-zinc-700"
-              alt=""
-            />
-          <% end %>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-              {@current_tenant.name}
-            </p>
-            <p
-              :if={
-                @current_tenant.settings["company_description"] ||
-                  @current_tenant.settings["description"]
-              }
-              class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2"
-            >
-              {@current_tenant.settings["company_description"] ||
-                @current_tenant.settings["description"]}
-            </p>
-            <p
-              :if={support_email(@current_tenant)}
-              class="text-xs text-zinc-500 dark:text-zinc-400 mt-1"
-            >
-              {gettext("Need help?")}
-              <a
-                href={"mailto:#{support_email(@current_tenant)}"}
-                class="font-medium text-primary hover:underline"
-              >{support_email(@current_tenant)}</a>
-            </p>
-          </div>
+            <%= if @current_tenant.settings["logo_url"] do %>
+              <img
+                src={@current_tenant.settings["logo_url"]}
+                class="h-10 w-10 rounded-lg object-cover border border-zinc-200 dark:border-zinc-700"
+                alt=""
+              />
+            <% end %>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                {@current_tenant.name}
+              </p>
+              <p
+                :if={
+                  @current_tenant.settings["company_description"] ||
+                    @current_tenant.settings["description"]
+                }
+                class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2"
+              >
+                {@current_tenant.settings["company_description"] ||
+                  @current_tenant.settings["description"]}
+              </p>
+              <p
+                :if={support_email(@current_tenant)}
+                class="text-xs text-zinc-500 dark:text-zinc-400 mt-1"
+              >
+                {gettext("Need help?")}
+                <a
+                  href={"mailto:#{support_email(@current_tenant)}"}
+                  class="font-medium text-primary hover:underline"
+                >{support_email(@current_tenant)}</a>
+              </p>
+            </div>
           </div>
         </.card>
 

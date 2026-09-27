@@ -532,131 +532,131 @@ defmodule TrebyWeb.PipelineLive.Index do
         size="lg"
         close_event="close-modal"
       >
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
-                A stage transition message template exists. A message will be posted to the candidate's portal automatically when you move this candidate. You can preview it below or skip posting.
-              <% else %>
-                A stage transition message template exists. Would you like to post it?
-              <% end %>
-            </p>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+          <%= if Treby.Notifications.notification_preferences_enabled?(@current_tenant, "stage_change_candidate") do %>
+            A stage transition message template exists. A message will be posted to the candidate's portal automatically when you move this candidate. You can preview it below or skip posting.
+          <% else %>
+            A stage transition message template exists. Would you like to post it?
+          <% end %>
+        </p>
 
-            <div :if={@email_preview} class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg mb-4">
-              <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
-                <strong>{gettext("Subject:")}</strong> {@email_preview.subject}
-              </p>
-              <div class="text-sm text-zinc-500 dark:text-zinc-400" phx-no-curly-interpolation>
-                {@email_preview.body}
-              </div>
+        <div :if={@email_preview} class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg mb-4">
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+            <strong>{gettext("Subject:")}</strong> {@email_preview.subject}
+          </p>
+          <div class="text-sm text-zinc-500 dark:text-zinc-400" phx-no-curly-interpolation>
+            {@email_preview.body}
+          </div>
+        </div>
+
+        <%= if @show_schedule_picker do %>
+          <div class="space-y-3 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg mb-4">
+            <div class="flex flex-wrap gap-2">
+              <.button
+                type="button"
+                phx-click="preset_schedule"
+                phx-value-label="tomorrow_9"
+                variant="ghost"
+                size="sm"
+              >
+                Tomorrow 9:00
+              </.button>
+              <.button
+                type="button"
+                phx-click="preset_schedule"
+                phx-value-label="tomorrow_14"
+                variant="ghost"
+                size="sm"
+              >
+                Tomorrow 14:00
+              </.button>
+              <.button
+                type="button"
+                phx-click="preset_schedule"
+                phx-value-label="next_monday"
+                variant="ghost"
+                size="sm"
+              >
+                Next Monday
+              </.button>
             </div>
-
-            <%= if @show_schedule_picker do %>
-              <div class="space-y-3 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg mb-4">
-                <div class="flex flex-wrap gap-2">
-                  <.button
-                    type="button"
-                    phx-click="preset_schedule"
-                    phx-value-label="tomorrow_9"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    Tomorrow 9:00
-                  </.button>
-                  <.button
-                    type="button"
-                    phx-click="preset_schedule"
-                    phx-value-label="tomorrow_14"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    Tomorrow 14:00
-                  </.button>
-                  <.button
-                    type="button"
-                    phx-click="preset_schedule"
-                    phx-value-label="next_monday"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    Next Monday
-                  </.button>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-                      {gettext("Date")}
-                    </label>
-                    <input
-                      type="date"
-                      value={@schedule_date}
-                      phx-change="update_schedule_date"
-                      class={input_classes()}
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-                      {gettext("Time")}
-                    </label>
-                    <input
-                      type="time"
-                      value={@schedule_time}
-                      phx-change="update_schedule_time"
-                      class={input_classes()}
-                    />
-                  </div>
-                </div>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={@schedule_jitter > 0}
-                    phx-click="toggle_schedule_jitter"
-                    class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4"
-                  />
-                  <span class="text-sm text-zinc-500 dark:text-zinc-400">
-                    Add randomness (±{@schedule_jitter} min)
-                  </span>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+                  {gettext("Date")}
                 </label>
+                <input
+                  type="date"
+                  value={@schedule_date}
+                  phx-change="update_schedule_date"
+                  class={input_classes()}
+                />
               </div>
-            <% end %>
-
-            <div class="flex gap-2 justify-end">
-              <.button
-                phx-click="confirm_stage_move"
-                phx-value-action="cancel"
-                variant="ghost"
-                size="sm"
-              >
-                Cancel
-              </.button>
-              <.button
-                phx-click="confirm_stage_move"
-                phx-value-action="skip"
-                variant="ghost"
-                size="sm"
-              >
-                Skip Message
-              </.button>
-              <.button phx-click="toggle_schedule" variant="secondary" size="sm">
-                {if @show_schedule_picker, do: gettext("Remove Schedule"), else: "Schedule"}
-              </.button>
-              <.button
-                :if={@show_schedule_picker}
-                phx-click="confirm_stage_move"
-                phx-value-action="schedule"
-                variant="primary"
-                size="sm"
-              >
-                Schedule & Move
-              </.button>
-              <.button
-                :if={not @show_schedule_picker}
-                phx-click="confirm_stage_move"
-                phx-value-action="send"
-                variant="primary"
-                size="sm"
-              >
-                Send & Move
-              </.button>
+              <div>
+                <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+                  {gettext("Time")}
+                </label>
+                <input
+                  type="time"
+                  value={@schedule_time}
+                  phx-change="update_schedule_time"
+                  class={input_classes()}
+                />
+              </div>
             </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={@schedule_jitter > 0}
+                phx-click="toggle_schedule_jitter"
+                class="rounded border-zinc-300 dark:border-zinc-600 text-orange-600 focus:ring-orange-500 h-4 w-4"
+              />
+              <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                Add randomness (±{@schedule_jitter} min)
+              </span>
+            </label>
+          </div>
+        <% end %>
+
+        <div class="flex gap-2 justify-end">
+          <.button
+            phx-click="confirm_stage_move"
+            phx-value-action="cancel"
+            variant="ghost"
+            size="sm"
+          >
+            Cancel
+          </.button>
+          <.button
+            phx-click="confirm_stage_move"
+            phx-value-action="skip"
+            variant="ghost"
+            size="sm"
+          >
+            Skip Message
+          </.button>
+          <.button phx-click="toggle_schedule" variant="secondary" size="sm">
+            {if @show_schedule_picker, do: gettext("Remove Schedule"), else: "Schedule"}
+          </.button>
+          <.button
+            :if={@show_schedule_picker}
+            phx-click="confirm_stage_move"
+            phx-value-action="schedule"
+            variant="primary"
+            size="sm"
+          >
+            Schedule & Move
+          </.button>
+          <.button
+            :if={not @show_schedule_picker}
+            phx-click="confirm_stage_move"
+            phx-value-action="send"
+            variant="primary"
+            size="sm"
+          >
+            Send & Move
+          </.button>
+        </div>
       </.modal>
 
       <%!-- Bulk Action Bar --%>

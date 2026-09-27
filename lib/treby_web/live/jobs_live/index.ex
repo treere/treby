@@ -188,9 +188,7 @@ defmodule TrebyWeb.JobsLive.Index do
               }
               class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3 inline-flex items-center gap-1"
             >
-              <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> {gettext(
-                "Pipeline"
-              )}
+              <.icon name="hero-arrow-top-right-on-square" class="w-4 h-4" /> {gettext("Pipeline")}
             </.link>
             <button
               phx-click="toggle_status"
@@ -206,38 +204,38 @@ defmodule TrebyWeb.JobsLive.Index do
           </:action>
         </.table>
         <div class="mt-4">
-            <.pagination
-              id="pagination"
-              page={@page_info.page}
-              total_pages={@page_info.total_pages}
-              total_count={@page_info.total_count}
-              page_size={@page_info.page_size}
-              patch={fn p -> page_url(@request_path, @filter, p) end}
-            />
-          </div>
-          <.empty_state
-            :if={@jobs == []}
-            icon="hero-briefcase"
-            title={gettext("No job postings yet")}
-            description={
-              gettext(
-                "Job postings let candidates apply through your career page and help you track applicants through each stage of your hiring pipeline."
-              )
-            }
-          >
-            <:cta>
-              <.button
-                variant="primary"
-                navigate={
-                  if @current_tenant,
-                    do: "/#{@current_tenant.slug}/app/jobs/new",
-                    else: ~p"/app/jobs/new"
-                }
-              >
-                {gettext("Create your first job")}
-              </.button>
-            </:cta>
-          </.empty_state>
+          <.pagination
+            id="pagination"
+            page={@page_info.page}
+            total_pages={@page_info.total_pages}
+            total_count={@page_info.total_count}
+            page_size={@page_info.page_size}
+            patch={fn p -> page_url(@request_path, @filter, p) end}
+          />
+        </div>
+        <.empty_state
+          :if={@jobs == []}
+          icon="hero-briefcase"
+          title={gettext("No job postings yet")}
+          description={
+            gettext(
+              "Job postings let candidates apply through your career page and help you track applicants through each stage of your hiring pipeline."
+            )
+          }
+        >
+          <:cta>
+            <.button
+              variant="primary"
+              navigate={
+                if @current_tenant,
+                  do: "/#{@current_tenant.slug}/app/jobs/new",
+                  else: ~p"/app/jobs/new"
+              }
+            >
+              {gettext("Create your first job")}
+            </.button>
+          </:cta>
+        </.empty_state>
       </div>
     </Layouts.app>
     """

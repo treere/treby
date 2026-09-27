@@ -130,112 +130,112 @@ defmodule TrebyWeb.SettingsLive.Webhooks do
             {gettext("Subscriptions")}
           </h2>
 
-            <div
-              :if={Enum.empty?(@subscriptions)}
-              class="px-6 py-10 text-center text-zinc-500 dark:text-zinc-400"
-            >
-              {gettext("No webhooks configured yet.")}
-            </div>
+          <div
+            :if={Enum.empty?(@subscriptions)}
+            class="px-6 py-10 text-center text-zinc-500 dark:text-zinc-400"
+          >
+            {gettext("No webhooks configured yet.")}
+          </div>
 
-            <.table
-              :if={not Enum.empty?(@subscriptions)}
-              id="webhooks"
-              rows={@subscriptions}
-              row_id={fn sub -> "webhook-#{sub.id}" end}
-            >
-              <:col :let={sub} label={gettext("Target URL")}>
-                <div class="font-medium text-zinc-900 dark:text-zinc-100 break-all">
-                  {sub.target_url}
-                </div>
-                <div :if={sub.description != ""} class="text-xs text-zinc-500 dark:text-zinc-400">
-                  {sub.description}
-                </div>
-              </:col>
-              <:col :let={sub} label={gettext("Events")}>
-                <span
-                  :for={ev <- sub.events}
-                  class="inline-block px-2 py-0.5 mr-1 mb-1 text-xs rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200"
-                >{ev}</span>
-              </:col>
-              <:col :let={sub} label={gettext("Status")}>
-                <.status_badge
-                  status={if sub.active, do: "active", else: "paused"}
-                  label={if sub.active, do: gettext("Active"), else: gettext("Paused")}
-                />
-              </:col>
-              <:action :let={sub}>
-                <button
-                  phx-click="toggle_active"
-                  phx-value-id={sub.id}
-                  class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 mr-3"
-                >
-                  {if sub.active, do: gettext("Pause"), else: gettext("Resume")}
-                </button>
-                <button
-                  phx-click="test_saved"
-                  phx-value-id={sub.id}
-                  class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 mr-3"
-                >
-                  {gettext("Send test")}
-                </button>
-                <button
-                  phx-click="edit"
-                  phx-value-id={sub.id}
-                  class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 mr-3"
-                >
-                  {gettext("Edit")}
-                </button>
-                <button
-                  phx-click="confirm_delete"
-                  phx-value-id={sub.id}
-                  phx-value-title={gettext("Delete webhook")}
-                  phx-value-message={gettext("Are you sure? This cannot be undone.")}
-                  class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                >
-                  {gettext("Delete")}
-                </button>
-                <button
-                  phx-click="toggle_logs"
-                  phx-value-id={sub.id}
-                  class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 ml-3"
-                >
-                  {gettext("Logs")}
-                </button>
-              </:action>
-            </.table>
-
-            <div
-              :if={@expanded_logs}
-              class="px-6 py-4 bg-zinc-50 dark:bg-zinc-900/50 border-t overflow-x-auto"
-            >
-              <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-                {gettext("Recent deliveries")}
-              </h3>
-              <div :if={Enum.empty?(@logs)} class="text-sm text-zinc-500 dark:text-zinc-400">
-                {gettext("No deliveries yet.")}
+          <.table
+            :if={not Enum.empty?(@subscriptions)}
+            id="webhooks"
+            rows={@subscriptions}
+            row_id={fn sub -> "webhook-#{sub.id}" end}
+          >
+            <:col :let={sub} label={gettext("Target URL")}>
+              <div class="font-medium text-zinc-900 dark:text-zinc-100 break-all">
+                {sub.target_url}
               </div>
-              <.table
-                :if={not Enum.empty?(@logs)}
-                id="webhook-logs"
-                rows={@logs}
-                row_id={fn log -> "webhook-log-#{log.id}" end}
+              <div :if={sub.description != ""} class="text-xs text-zinc-500 dark:text-zinc-400">
+                {sub.description}
+              </div>
+            </:col>
+            <:col :let={sub} label={gettext("Events")}>
+              <span
+                :for={ev <- sub.events}
+                class="inline-block px-2 py-0.5 mr-1 mb-1 text-xs rounded-full bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200"
+              >{ev}</span>
+            </:col>
+            <:col :let={sub} label={gettext("Status")}>
+              <.status_badge
+                status={if sub.active, do: "active", else: "paused"}
+                label={if sub.active, do: gettext("Active"), else: gettext("Paused")}
+              />
+            </:col>
+            <:action :let={sub}>
+              <button
+                phx-click="toggle_active"
+                phx-value-id={sub.id}
+                class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 mr-3"
               >
-                <:col :let={log} label={gettext("Status")}>
-                  <.status_badge status={log.status} label={log.status} />
-                </:col>
-                <:col :let={log} label={gettext("Action")}>
-                  <span class="text-zinc-600 dark:text-zinc-300">{log.action}</span>
-                </:col>
-                <:col :let={log} label={gettext("Response")}>
-                  <span class="text-zinc-500 dark:text-zinc-400">{log.last_response}</span>
-                </:col>
-                <:col :let={log} label={gettext("Time")}>
-                  <span class="text-zinc-400">
-                    {Calendar.strftime(log.inserted_at, "%Y-%m-%d %H:%M")}
-                  </span>
-                </:col>
-              </.table>
+                {if sub.active, do: gettext("Pause"), else: gettext("Resume")}
+              </button>
+              <button
+                phx-click="test_saved"
+                phx-value-id={sub.id}
+                class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 mr-3"
+              >
+                {gettext("Send test")}
+              </button>
+              <button
+                phx-click="edit"
+                phx-value-id={sub.id}
+                class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 mr-3"
+              >
+                {gettext("Edit")}
+              </button>
+              <button
+                phx-click="confirm_delete"
+                phx-value-id={sub.id}
+                phx-value-title={gettext("Delete webhook")}
+                phx-value-message={gettext("Are you sure? This cannot be undone.")}
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+              >
+                {gettext("Delete")}
+              </button>
+              <button
+                phx-click="toggle_logs"
+                phx-value-id={sub.id}
+                class="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 ml-3"
+              >
+                {gettext("Logs")}
+              </button>
+            </:action>
+          </.table>
+
+          <div
+            :if={@expanded_logs}
+            class="px-6 py-4 bg-zinc-50 dark:bg-zinc-900/50 border-t overflow-x-auto"
+          >
+            <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+              {gettext("Recent deliveries")}
+            </h3>
+            <div :if={Enum.empty?(@logs)} class="text-sm text-zinc-500 dark:text-zinc-400">
+              {gettext("No deliveries yet.")}
             </div>
+            <.table
+              :if={not Enum.empty?(@logs)}
+              id="webhook-logs"
+              rows={@logs}
+              row_id={fn log -> "webhook-log-#{log.id}" end}
+            >
+              <:col :let={log} label={gettext("Status")}>
+                <.status_badge status={log.status} label={log.status} />
+              </:col>
+              <:col :let={log} label={gettext("Action")}>
+                <span class="text-zinc-600 dark:text-zinc-300">{log.action}</span>
+              </:col>
+              <:col :let={log} label={gettext("Response")}>
+                <span class="text-zinc-500 dark:text-zinc-400">{log.last_response}</span>
+              </:col>
+              <:col :let={log} label={gettext("Time")}>
+                <span class="text-zinc-400">
+                  {Calendar.strftime(log.inserted_at, "%Y-%m-%d %H:%M")}
+                </span>
+              </:col>
+            </.table>
+          </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
 

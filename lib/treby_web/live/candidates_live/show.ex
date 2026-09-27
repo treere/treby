@@ -344,7 +344,7 @@ defmodule TrebyWeb.CandidatesLive.Show do
                   <% end %>
                 </div>
               <% end %>
-          </.card>
+            </.card>
           </div>
         <% end %>
 

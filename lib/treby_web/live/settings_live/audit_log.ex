@@ -209,61 +209,61 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
           </.card>
 
           <div id="audit-table">
-          <.table id="audit-events" rows={@streams.events}>
-            <:col :let={{_dom_id, event}} label={gettext("Time")}>
-              <span class="text-sm text-zinc-500 dark:text-zinc-400">
-                {Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M:%S UTC")}
-              </span>
-            </:col>
-            <:col :let={{_dom_id, event}} label={gettext("Action")}>
-              <.badge variant="default">{event.action}</.badge>
-            </:col>
-            <:col :let={{_dom_id, event}} label={gettext("Entity")}>
-              <span class="text-sm text-zinc-900 dark:text-zinc-100">
-                {event.entity_type}: {String.slice(event.entity_id, 0, 8)}
-              </span>
-            </:col>
-            <:col :let={{_dom_id, event}} label={gettext("Actor")}>
-              <span class="text-sm text-zinc-900 dark:text-zinc-100">
-                {(event.actor && event.actor.email) || event.actor_type}
-              </span>
-            </:col>
-            <:action :let={{_dom_id, event}}>
-              <button
-                phx-click="show_detail"
-                phx-value-id={event.id}
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
-              >
-                {gettext("View")}
-              </button>
-            </:action>
-          </.table>
+            <.table id="audit-events" rows={@streams.events}>
+              <:col :let={{_dom_id, event}} label={gettext("Time")}>
+                <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                  {Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M:%S UTC")}
+                </span>
+              </:col>
+              <:col :let={{_dom_id, event}} label={gettext("Action")}>
+                <.badge variant="default">{event.action}</.badge>
+              </:col>
+              <:col :let={{_dom_id, event}} label={gettext("Entity")}>
+                <span class="text-sm text-zinc-900 dark:text-zinc-100">
+                  {event.entity_type}: {String.slice(event.entity_id, 0, 8)}
+                </span>
+              </:col>
+              <:col :let={{_dom_id, event}} label={gettext("Actor")}>
+                <span class="text-sm text-zinc-900 dark:text-zinc-100">
+                  {(event.actor && event.actor.email) || event.actor_type}
+                </span>
+              </:col>
+              <:action :let={{_dom_id, event}}>
+                <button
+                  phx-click="show_detail"
+                  phx-value-id={event.id}
+                  class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm"
+                >
+                  {gettext("View")}
+                </button>
+              </:action>
+            </.table>
           </div>
           <div :if={@events == []} class="text-center py-8 text-zinc-500 dark:text-zinc-400">
             {gettext("No audit events found")}
           </div>
 
-            <div class="p-4 flex items-center justify-between border-t border-zinc-200 dark:border-zinc-700">
-              <span class="text-sm text-zinc-500 dark:text-zinc-400">
-                {gettext("Total: %{count}", count: @total)} — {gettext("Page %{page}", page: @page)}
-              </span>
-              <div class="flex gap-2">
-                <button
-                  :if={@page > 1}
-                  phx-click="prev_page"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-                >
-                  {gettext("Previous")}
-                </button>
-                <button
-                  :if={@events != [] and length(@events) == @page_size}
-                  phx-click="next_page"
-                  class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-                >
-                  {gettext("Next")}
-                </button>
-              </div>
+          <div class="p-4 flex items-center justify-between border-t border-zinc-200 dark:border-zinc-700">
+            <span class="text-sm text-zinc-500 dark:text-zinc-400">
+              {gettext("Total: %{count}", count: @total)} — {gettext("Page %{page}", page: @page)}
+            </span>
+            <div class="flex gap-2">
+              <button
+                :if={@page > 1}
+                phx-click="prev_page"
+                class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+              >
+                {gettext("Previous")}
+              </button>
+              <button
+                :if={@events != [] and length(@events) == @page_size}
+                phx-click="next_page"
+                class="inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+              >
+                {gettext("Next")}
+              </button>
             </div>
+          </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
 
@@ -275,48 +275,48 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
         size="lg"
         close_event="close_detail"
       >
-          <div class="mt-4 space-y-3 text-sm">
-            <p>
-              <span class="font-medium">{gettext("Entity:")}</span> {@selected.entity_type} / {@selected.entity_id}
-            </p>
-            <p>
-              <span class="font-medium">{gettext("Actor:")}</span> {(@selected.actor &&
-                                                                       @selected.actor.email) ||
-                @selected.actor_type}
-              <span class="text-zinc-500 dark:text-zinc-400">({@selected.actor_type})</span>
-            </p>
-            <p>
-              <span class="font-medium">{gettext("Time:")}</span> {Calendar.strftime(
-                @selected.inserted_at,
-                "%Y-%m-%d %H:%M:%S UTC"
-              )}
-            </p>
-            <p :if={@selected.ip}><span class="font-medium">{gettext("IP:")}</span> {@selected.ip}</p>
-            <p :if={@selected.user_agent}>
-              <span class="font-medium">{gettext("User Agent:")}</span> {@selected.user_agent}
-            </p>
-            <div class="mt-4">
-              <h4 class="font-medium">{gettext("Metadata")}</h4>
-              <pre
-                class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto text-zinc-900 dark:text-zinc-100"
-                phx-no-curly-interpolation
-              >{Jason.encode!(@selected.metadata, pretty: true)}</pre>
-            </div>
-            <div :if={@selected.metadata["before"] || @selected.metadata[:before]} class="mt-2">
-              <h4 class="font-medium">{gettext("Before")}</h4>
-              <pre
-                class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto text-zinc-900 dark:text-zinc-100"
-                phx-no-curly-interpolation
-              >{Jason.encode!(@selected.metadata["before"] || @selected.metadata[:before] || %{}, pretty: true)}</pre>
-            </div>
-            <div :if={@selected.metadata["after"] || @selected.metadata[:after]} class="mt-2">
-              <h4 class="font-medium">{gettext("After")}</h4>
-              <pre
-                class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto text-zinc-900 dark:text-zinc-100"
-                phx-no-curly-interpolation
-              >{Jason.encode!(@selected.metadata["after"] || @selected.metadata[:after] || %{}, pretty: true)}</pre>
-            </div>
+        <div class="mt-4 space-y-3 text-sm">
+          <p>
+            <span class="font-medium">{gettext("Entity:")}</span> {@selected.entity_type} / {@selected.entity_id}
+          </p>
+          <p>
+            <span class="font-medium">{gettext("Actor:")}</span> {(@selected.actor &&
+                                                                     @selected.actor.email) ||
+              @selected.actor_type}
+            <span class="text-zinc-500 dark:text-zinc-400">({@selected.actor_type})</span>
+          </p>
+          <p>
+            <span class="font-medium">{gettext("Time:")}</span> {Calendar.strftime(
+              @selected.inserted_at,
+              "%Y-%m-%d %H:%M:%S UTC"
+            )}
+          </p>
+          <p :if={@selected.ip}><span class="font-medium">{gettext("IP:")}</span> {@selected.ip}</p>
+          <p :if={@selected.user_agent}>
+            <span class="font-medium">{gettext("User Agent:")}</span> {@selected.user_agent}
+          </p>
+          <div class="mt-4">
+            <h4 class="font-medium">{gettext("Metadata")}</h4>
+            <pre
+              class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto text-zinc-900 dark:text-zinc-100"
+              phx-no-curly-interpolation
+            >{Jason.encode!(@selected.metadata, pretty: true)}</pre>
           </div>
+          <div :if={@selected.metadata["before"] || @selected.metadata[:before]} class="mt-2">
+            <h4 class="font-medium">{gettext("Before")}</h4>
+            <pre
+              class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto text-zinc-900 dark:text-zinc-100"
+              phx-no-curly-interpolation
+            >{Jason.encode!(@selected.metadata["before"] || @selected.metadata[:before] || %{}, pretty: true)}</pre>
+          </div>
+          <div :if={@selected.metadata["after"] || @selected.metadata[:after]} class="mt-2">
+            <h4 class="font-medium">{gettext("After")}</h4>
+            <pre
+              class="mt-2 bg-zinc-50 dark:bg-zinc-800 p-3 rounded text-xs overflow-auto text-zinc-900 dark:text-zinc-100"
+              phx-no-curly-interpolation
+            >{Jason.encode!(@selected.metadata["after"] || @selected.metadata[:after] || %{}, pretty: true)}</pre>
+          </div>
+        </div>
       </.modal>
     </Layouts.app>
     """

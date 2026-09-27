@@ -623,29 +623,29 @@ defmodule TrebyWeb.CandidatesLive.Index do
               @selected_ids
             ) - 1} profiles are archived into it.
           </p>
-              <div class="space-y-2 max-h-80 overflow-y-auto">
-                <label
-                  :for={candidate <- Enum.filter(@candidates, &(&1.id in @selected_ids))}
-                  class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-                >
-                  <input
-                    type="radio"
-                    name="merge_primary"
-                    value={candidate.id}
-                    phx-click="select_merge_primary"
-                    phx-value-candidate_id={candidate.id}
-                    checked={@merge_primary_id == candidate.id}
-                    class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
-                  />
-                  <div class="flex-1">
-                    <p class="font-medium text-zinc-900 dark:text-zinc-100">{candidate.name}</p>
-                    <p class="text-sm text-zinc-500 dark:text-zinc-400">{candidate.email}</p>
-                  </div>
-                  <span class="text-xs text-zinc-500 dark:text-zinc-400">
-                    {Map.get(candidate, :application_count, 0)} applications
-                  </span>
-                </label>
+          <div class="space-y-2 max-h-80 overflow-y-auto">
+            <label
+              :for={candidate <- Enum.filter(@candidates, &(&1.id in @selected_ids))}
+              class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
+            >
+              <input
+                type="radio"
+                name="merge_primary"
+                value={candidate.id}
+                phx-click="select_merge_primary"
+                phx-value-candidate_id={candidate.id}
+                checked={@merge_primary_id == candidate.id}
+                class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800"
+              />
+              <div class="flex-1">
+                <p class="font-medium text-zinc-900 dark:text-zinc-100">{candidate.name}</p>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">{candidate.email}</p>
               </div>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                {Map.get(candidate, :application_count, 0)} applications
+              </span>
+            </label>
+          </div>
           <:footer>
             <.button phx-click="cancel_merge_modal" variant="ghost" size="sm">
               {gettext("Cancel")}

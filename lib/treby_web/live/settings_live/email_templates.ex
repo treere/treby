@@ -227,9 +227,9 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
               </button>
             </:action>
           </.table>
-            <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
-              {gettext("No message templates yet. Create your first template!")}
-            </div>
+          <div :if={@templates == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
+            {gettext("No message templates yet. Create your first template!")}
+          </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

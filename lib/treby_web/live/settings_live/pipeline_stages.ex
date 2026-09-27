@@ -322,169 +322,168 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             size="lg"
             close_event="close_roles"
           >
-
-                <div class="mb-6">
-                  <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-                    {gettext("Examiners")}
-                  </h3>
-                  <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
-                    <span
-                      :for={examiner <- @editing_roles.examiners}
-                      class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs"
-                    >
-                      {examiner.user.name}
-                      <button
-                        phx-click="remove_examiner"
-                        phx-value-stage_id={@editing_roles.id}
-                        phx-value-user_id={examiner.user_id}
-                        class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  </div>
-                  <.form
-                    for={%{}}
-                    id="add-examiner-form"
-                    phx-submit="add_examiner"
-                    class="flex gap-2 items-end"
+            <div class="mb-6">
+              <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                {gettext("Examiners")}
+              </h3>
+              <div :if={@editing_roles.examiners != []} class="flex flex-wrap gap-2 mb-2">
+                <span
+                  :for={examiner <- @editing_roles.examiners}
+                  class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs"
+                >
+                  {examiner.user.name}
+                  <button
+                    phx-click="remove_examiner"
+                    phx-value-stage_id={@editing_roles.id}
+                    phx-value-user_id={examiner.user_id}
+                    class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                   >
-                    <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                    <div class="flex-1">
-                      <.input
-                        name="user_id"
-                        type="select"
-                        options={
-                          Enum.map(
-                            available_users(@users, @editing_roles.examiners),
-                            &{&1.name, &1.id}
-                          )
-                        }
-                        prompt={gettext("Select user...")}
-                        label=""
-                      />
-                    </div>
-                    <.button
-                      type="submit"
-                      variant="primary"
-                      size="sm"
-                      class="shrink-0"
-                      loading_text={gettext("Adding...")}
-                    >
-                      {gettext("Add")}
-                    </.button>
-                  </.form>
+                    &times;
+                  </button>
+                </span>
+              </div>
+              <.form
+                for={%{}}
+                id="add-examiner-form"
+                phx-submit="add_examiner"
+                class="flex gap-2 items-end"
+              >
+                <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                <div class="flex-1">
+                  <.input
+                    name="user_id"
+                    type="select"
+                    options={
+                      Enum.map(
+                        available_users(@users, @editing_roles.examiners),
+                        &{&1.name, &1.id}
+                      )
+                    }
+                    prompt={gettext("Select user...")}
+                    label=""
+                  />
                 </div>
+                <.button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  class="shrink-0"
+                  loading_text={gettext("Adding...")}
+                >
+                  {gettext("Add")}
+                </.button>
+              </.form>
+            </div>
 
-                <div class="mb-6">
-                  <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-                    {gettext("Reviewers")}
-                  </h3>
-                  <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
-                    <span
-                      :for={reviewer <- @editing_roles.reviewers}
-                      class="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs"
-                    >
-                      {reviewer.user.name}
-                      <button
-                        phx-click="remove_reviewer"
-                        phx-value-stage_id={@editing_roles.id}
-                        phx-value-user_id={reviewer.user_id}
-                        class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  </div>
-                  <.form
-                    for={%{}}
-                    id="add-reviewer-form"
-                    phx-submit="add_reviewer"
-                    class="flex gap-2 items-end"
+            <div class="mb-6">
+              <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                {gettext("Reviewers")}
+              </h3>
+              <div :if={@editing_roles.reviewers != []} class="flex flex-wrap gap-2 mb-2">
+                <span
+                  :for={reviewer <- @editing_roles.reviewers}
+                  class="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs"
+                >
+                  {reviewer.user.name}
+                  <button
+                    phx-click="remove_reviewer"
+                    phx-value-stage_id={@editing_roles.id}
+                    phx-value-user_id={reviewer.user_id}
+                    class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
                   >
-                    <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                    <div class="flex-1">
-                      <.input
-                        name="user_id"
-                        type="select"
-                        options={
-                          Enum.map(
-                            available_users(@users, @editing_roles.reviewers),
-                            &{&1.name, &1.id}
-                          )
-                        }
-                        prompt={gettext("Select user...")}
-                        label=""
-                      />
-                    </div>
-                    <.button
-                      type="submit"
-                      variant="primary"
-                      size="sm"
-                      class="shrink-0"
-                      loading_text={gettext("Adding...")}
-                    >
-                      {gettext("Add")}
-                    </.button>
-                  </.form>
+                    &times;
+                  </button>
+                </span>
+              </div>
+              <.form
+                for={%{}}
+                id="add-reviewer-form"
+                phx-submit="add_reviewer"
+                class="flex gap-2 items-end"
+              >
+                <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                <div class="flex-1">
+                  <.input
+                    name="user_id"
+                    type="select"
+                    options={
+                      Enum.map(
+                        available_users(@users, @editing_roles.reviewers),
+                        &{&1.name, &1.id}
+                      )
+                    }
+                    prompt={gettext("Select user...")}
+                    label=""
+                  />
                 </div>
+                <.button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  class="shrink-0"
+                  loading_text={gettext("Adding...")}
+                >
+                  {gettext("Add")}
+                </.button>
+              </.form>
+            </div>
 
-                <div class="mb-6">
-                  <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-                    {gettext("Advancers")}
-                  </h3>
-                  <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
-                    <span
-                      :for={advancer <- @editing_roles.advancers}
-                      class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-1 text-xs"
-                    >
-                      {advancer.user.name}
-                      <button
-                        phx-click="remove_advancer"
-                        phx-value-stage_id={@editing_roles.id}
-                        phx-value-user_id={advancer.user_id}
-                        class="text-purple-600 hover:text-purple-900"
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  </div>
-                  <.form
-                    for={%{}}
-                    id="add-advancer-form"
-                    phx-submit="add_advancer"
-                    class="flex gap-2 items-end"
+            <div class="mb-6">
+              <h3 class="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                {gettext("Advancers")}
+              </h3>
+              <div :if={@editing_roles.advancers != []} class="flex flex-wrap gap-2 mb-2">
+                <span
+                  :for={advancer <- @editing_roles.advancers}
+                  class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-1 text-xs"
+                >
+                  {advancer.user.name}
+                  <button
+                    phx-click="remove_advancer"
+                    phx-value-stage_id={@editing_roles.id}
+                    phx-value-user_id={advancer.user_id}
+                    class="text-purple-600 hover:text-purple-900"
                   >
-                    <input type="hidden" name="stage_id" value={@editing_roles.id} />
-                    <div class="flex-1">
-                      <.input
-                        name="user_id"
-                        type="select"
-                        options={
-                          Enum.map(
-                            available_users(@users, @editing_roles.advancers),
-                            &{&1.name, &1.id}
-                          )
-                        }
-                        prompt={gettext("Select user...")}
-                        label=""
-                      />
-                    </div>
-                    <.button
-                      type="submit"
-                      variant="secondary"
-                      size="sm"
-                      class="shrink-0"
-                      loading_text={gettext("Adding...")}
-                    >
-                      {gettext("Add")}
-                    </.button>
-                  </.form>
+                    &times;
+                  </button>
+                </span>
+              </div>
+              <.form
+                for={%{}}
+                id="add-advancer-form"
+                phx-submit="add_advancer"
+                class="flex gap-2 items-end"
+              >
+                <input type="hidden" name="stage_id" value={@editing_roles.id} />
+                <div class="flex-1">
+                  <.input
+                    name="user_id"
+                    type="select"
+                    options={
+                      Enum.map(
+                        available_users(@users, @editing_roles.advancers),
+                        &{&1.name, &1.id}
+                      )
+                    }
+                    prompt={gettext("Select user...")}
+                    label=""
+                  />
                 </div>
+                <.button
+                  type="submit"
+                  variant="secondary"
+                  size="sm"
+                  class="shrink-0"
+                  loading_text={gettext("Adding...")}
+                >
+                  {gettext("Add")}
+                </.button>
+              </.form>
+            </div>
 
-                <div class="flex justify-end">
-                  <.button type="button" phx-click="close_roles">{gettext("Done")}</.button>
-                </div>
+            <div class="flex justify-end">
+              <.button type="button" phx-click="close_roles">{gettext("Done")}</.button>
+            </div>
           </.modal>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>

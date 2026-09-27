@@ -250,7 +250,7 @@ defmodule TrebyWeb.ImportLive.Index do
                   {gettext("New")}
                 </.badge>
               </:col>
-              <:col :for={{_header, field} <- @mapping} :let={{row, _idx}} label={field}>
+              <:col :let={{row, _idx}} :for={{_header, field} <- @mapping} label={field}>
                 <span class="text-zinc-900 dark:text-zinc-100/80">
                   {Map.get(row.candidate_attrs, field, "")}
                 </span>

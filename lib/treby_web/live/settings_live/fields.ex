@@ -197,9 +197,9 @@ defmodule TrebyWeb.SettingsLive.Fields do
               </button>
             </:action>
           </.table>
-            <div :if={@custom_fields == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
-              {gettext("No custom fields defined yet. Add your first custom field!")}
-            </div>
+          <div :if={@custom_fields == []} class="p-8 text-center text-zinc-500 dark:text-zinc-400">
+            {gettext("No custom fields defined yet. Add your first custom field!")}
+          </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

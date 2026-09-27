@@ -94,8 +94,8 @@ defmodule TrebyWeb.LayoutsAppTest do
       {tenant, user} = setup_tenant()
       conn = login_user(conn, user)
       {:ok, _view, html} = live(conn, "/#{tenant.slug}/app/candidates")
-      # Candidate table card switched from overflow-hidden to overflow-x-auto
-      assert html =~ "shadow-sm overflow-x-auto"
+      # Candidate table uses the DS table shell (scroll + card in one wrapper)
+      assert html =~ "overflow-x-auto rounded-xl border"
       assert html =~ "<table"
       assert html =~ "overflow-x-auto"
     end

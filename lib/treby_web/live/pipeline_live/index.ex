@@ -591,7 +591,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       type="date"
                       value={@schedule_date}
                       phx-change="update_schedule_date"
-                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      class={input_classes()}
                     />
                   </div>
                   <div>
@@ -602,7 +602,7 @@ defmodule TrebyWeb.PipelineLive.Index do
                       type="time"
                       value={@schedule_time}
                       phx-change="update_schedule_time"
-                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      class={input_classes()}
                     />
                   </div>
                 </div>
@@ -672,7 +672,7 @@ defmodule TrebyWeb.PipelineLive.Index do
             <select
               phx-change="bulk_select_action"
               name="bulk_action"
-              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 select-sm"
+              class={select_classes()}
             >
               <option value="">{gettext("Actions...")}</option>
               <option value="move_stage" disabled={@stages == []}>{gettext("Move to Stage")}</option>
@@ -685,7 +685,7 @@ defmodule TrebyWeb.PipelineLive.Index do
               :if={@bulk_action == "move_stage" && @stages != []}
               phx-change="bulk_select_stage"
               name="bulk_stage_id"
-              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 select-sm"
+              class={select_classes()}
             >
               <option value="">{gettext("Select stage...")}</option>
               <option :for={stage <- @stages} value={stage.id}>{stage.name}</option>

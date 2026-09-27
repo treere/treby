@@ -214,12 +214,12 @@ defmodule TrebyWeb.SettingsLive.DataPrivacy do
 
           <div class="mt-8">
             <form phx-change="filter" id="data-privacy-filter" class="flex gap-2 mb-4">
-              <select name="type" class="border rounded-xl px-2 py-1">
+              <select name="type" class={select_classes()}>
                 <option value="">{gettext("All types")}</option>
                 <option value="export">{gettext("Export")}</option>
                 <option value="erasure">{gettext("Erasure")}</option>
               </select>
-              <select name="status" class="border rounded-xl px-2 py-1">
+              <select name="status" class={select_classes()}>
                 <option value="">{gettext("All status")}</option>
                 <option value="pending">pending</option>
                 <option value="processing">processing</option>

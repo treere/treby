@@ -172,10 +172,7 @@ defmodule TrebyWeb.SettingsLive.CompanyAvailability do
             </.button>
           </div>
 
-          <div
-            :if={@show_form}
-            class="mb-8 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-          >
+          <.card :if={@show_form} class="mb-8">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {if @editing_rule, do: gettext("Edit Time Slot"), else: "New Time Slot"}
             </h2>
@@ -203,7 +200,7 @@ defmodule TrebyWeb.SettingsLive.CompanyAvailability do
                 </.button>
               </div>
             </.form>
-          </div>
+          </.card>
 
           <.table id="company-availability-rules" rows={@rules} row_id={fn r -> "rule-#{r.id}" end}>
             <:col :let={rule} label="Day">

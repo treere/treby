@@ -72,8 +72,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
             </p>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden mb-6">
-            <div class="p-6">
+          <.card class="mb-6">
               <div class="flex items-center justify-between">
                 <div>
                   <h3 class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
@@ -98,10 +97,9 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                   </select>
                 </form>
               </div>
-            </div>
-          </div>
+          </.card>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+          <.card>
             <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
               <.pref_row
                 title={gettext("Stage Change Notifications")}
@@ -130,7 +128,7 @@ defmodule TrebyWeb.SettingsLive.Notifications do
                 pref={@preferences["interview_reminder"]}
               />
             </div>
-          </div>
+          </.card>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

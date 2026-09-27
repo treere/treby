@@ -111,10 +111,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
             </button>
           </div>
 
-          <div
-            :if={@brand_tab == :edit}
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-          >
+          <.card :if={@brand_tab == :edit}>
             <.form
               for={@form}
               id="branding-form"
@@ -154,12 +151,9 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 {gettext("Save Branding")}
               </.button>
             </.form>
-          </div>
+          </.card>
 
-          <div
-            :if={@brand_tab == :preview}
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6"
-          >
+          <.card :if={@brand_tab == :preview}>
             <div class="max-w-3xl mx-auto py-8 px-4">
               <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -183,7 +177,7 @@ defmodule TrebyWeb.SettingsLive.Branding do
                 {gettext("Nothing to preview yet — write something in the About field.")}
               </p>
             </div>
-          </div>
+          </.card>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

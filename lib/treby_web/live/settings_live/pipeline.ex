@@ -80,10 +80,7 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
             </.button>
           </div>
 
-          <div
-            :if={@show_form}
-            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-          >
+          <.card :if={@show_form} class="mb-8">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("New Pipeline")}
             </h2>
@@ -108,13 +105,11 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                 </.button>
               </div>
             </.form>
-          </div>
+          </.card>
 
           <div class="space-y-4">
-            <div
-              :for={pipeline <- @pipelines}
-              class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6 flex items-center justify-between"
-            >
+            <.card :for={pipeline <- @pipelines}>
+              <div class="flex items-center justify-between">
               <div class="flex items-center gap-4">
                 <div class="flex-shrink-0">
                   <.icon name="hero-cog-6-tooth" class="h-8 w-8 text-zinc-500 dark:text-zinc-400" />
@@ -180,7 +175,8 @@ defmodule TrebyWeb.SettingsLive.Pipeline do
                   {gettext("Delete")}
                 </button>
               </div>
-            </div>
+              </div>
+            </.card>
           </div>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>

@@ -84,10 +84,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
             </.button>
           </div>
 
-          <div
-            :if={@show_form}
-            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-          >
+          <.card :if={@show_form} class="mb-8">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
             </h2>
@@ -199,7 +196,7 @@ defmodule TrebyWeb.SettingsLive.Scorecards do
                 </.button>
               </div>
             </form>
-          </div>
+          </.card>
 
           <.table id="scorecard-templates" rows={@templates} row_id={fn t -> "template-#{t.id}" end}>
             <:col :let={template} label={gettext("Name")}>

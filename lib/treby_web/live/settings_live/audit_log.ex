@@ -148,7 +148,7 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
             </p>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-6">
+          <.card class="mb-6">
             <.form
               for={%{}}
               id="audit-filter-form"
@@ -206,7 +206,7 @@ defmodule TrebyWeb.SettingsLive.AuditLog do
             <div class="mt-4 flex gap-2">
               <.button phx-click="clear_filters" variant="ghost">{gettext("Clear filters")}</.button>
             </div>
-          </div>
+          </.card>
 
           <div id="audit-table">
           <.table id="audit-events" rows={@streams.events}>

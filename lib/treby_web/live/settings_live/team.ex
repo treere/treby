@@ -111,10 +111,7 @@ defmodule TrebyWeb.SettingsLive.Team do
             </.button>
           </div>
 
-          <div
-            :if={@show_invite_form}
-            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-          >
+          <.card :if={@show_invite_form} class="mb-8">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {gettext("Invite Team Member")}
             </h2>
@@ -147,7 +144,7 @@ defmodule TrebyWeb.SettingsLive.Team do
                 </.button>
               </div>
             </.form>
-          </div>
+          </.card>
 
           <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
             {gettext("Team Members")}
@@ -190,18 +187,15 @@ defmodule TrebyWeb.SettingsLive.Team do
             </:action>
           </.table>
 
-          <div
-            id="roles-permissions-matrix"
-            class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-x-auto mb-8"
-          >
-            <div class="px-6 py-4 border-b">
+          <.card id="roles-permissions-matrix" class="mb-8">
+            <:header>
               <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {gettext("Roles & permissions")}
               </h2>
               <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 {gettext("Admins have every permission and cannot be restricted.")}
               </p>
-            </div>
+            </:header>
             <div :for={group <- @perm_groups} class="px-6 py-4 border-b last:border-0">
               <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
                 {group.label}
@@ -274,7 +268,7 @@ defmodule TrebyWeb.SettingsLive.Team do
                 </li>
               </ul>
             </div>
-          </div>
+          </.card>
 
           <div :if={@invites != []}>
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">

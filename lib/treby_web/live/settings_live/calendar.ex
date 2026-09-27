@@ -72,7 +72,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
             </p>
           </div>
 
-          <div class="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+          <.card>
             <%= if @connection do %>
               <div class="flex items-center justify-between">
                 <div>
@@ -124,7 +124,7 @@ defmodule TrebyWeb.SettingsLive.Calendar do
                 </div>
               </div>
             <% end %>
-          </div>
+          </.card>
         </TrebyWeb.SettingsLayout.settings_shell>
       </div>
     </Layouts.app>

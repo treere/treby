@@ -116,10 +116,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
             </p>
           </div>
 
-          <div
-            :if={@show_form}
-            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-          >
+          <.card :if={@show_form} class="mb-8">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {if @editing_stage, do: gettext("Edit Stage"), else: gettext("New Stage")}
             </h2>
@@ -181,12 +178,9 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                 </.button>
               </div>
             </.form>
-          </div>
+          </.card>
 
-          <div
-            :if={@deleting_stage}
-            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm border-l-4 border-yellow-400"
-          >
+          <.card :if={@deleting_stage} class="mb-8 border-l-4 border-yellow-400">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
               {gettext("Reassign candidates")}
             </h2>
@@ -220,7 +214,7 @@ defmodule TrebyWeb.SettingsLive.PipelineStages do
                 </.button>
               </div>
             </.form>
-          </div>
+          </.card>
 
           <.table
             id="pipeline-stages"

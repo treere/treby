@@ -84,10 +84,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
             </.button>
           </div>
 
-          <div
-            :if={@show_form}
-            class="mb-8 p-6 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm"
-          >
+          <.card :if={@show_form} class="mb-8">
             <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
               {if @editing_template, do: gettext("Edit Template"), else: gettext("New Template")}
             </h2>
@@ -189,7 +186,7 @@ defmodule TrebyWeb.SettingsLive.EmailTemplates do
                 {@preview_body}
               </div>
             </div>
-          </div>
+          </.card>
 
           <.table id="email-templates" rows={@templates} row_id={fn t -> "email-template-#{t.id}" end}>
             <:col :let={template} label={gettext("Name")}>

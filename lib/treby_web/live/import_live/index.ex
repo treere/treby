@@ -266,7 +266,7 @@ defmodule TrebyWeb.ImportLive.Index do
                   <label class="block text-sm text-zinc-500 dark:text-zinc-400">{gettext("Job")}</label>
                   <select
                     phx-change="select_job"
-                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mt-1"
+                    class={select_classes("mt-1")}
                   >
                     <option value="">{gettext("None")}</option>
                     <option :for={job <- @jobs} value={job.id}>{job.title}</option>
@@ -277,7 +277,7 @@ defmodule TrebyWeb.ImportLive.Index do
                   <label class="block text-sm text-zinc-500 dark:text-zinc-400">{gettext("Stage")}</label>
                   <select
                     phx-change="select_stage"
-                    class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mt-1"
+                    class={select_classes("mt-1")}
                   >
                     <option value="">{gettext("First stage")}</option>
                     <option :for={stage <- get_stages_for_job(@selected_job_id)} value={stage.id}>

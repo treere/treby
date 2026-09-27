@@ -90,7 +90,19 @@ defmodule TrebyWeb do
       import TrebyWeb.CoreComponents, except: [button: 1, empty_state: 1]
 
       # Design system components
-      import TrebyWeb.DesignSystem, only: [variant_classes: 1, badge_classes: 1, size_classes: 1, status_variant: 1]
+      import TrebyWeb.DesignSystem,
+        only: [
+          variant_classes: 1,
+          badge_classes: 1,
+          size_classes: 1,
+          status_variant: 1,
+          input_classes: 0,
+          input_classes: 1,
+          select_classes: 0,
+          select_classes: 1,
+          textarea_classes: 0,
+          textarea_classes: 1
+        ]
       import TrebyWeb.DesignSystem.Button, only: [button: 1]
       import TrebyWeb.DesignSystem.Badge, only: [badge: 1, status_badge: 1]
       import TrebyWeb.DesignSystem.Card, only: [card: 1]

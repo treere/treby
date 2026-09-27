@@ -165,13 +165,13 @@ defmodule TrebyWeb.CandidatesLive.Index do
               name="search"
               value={@search}
               placeholder={gettext("Search by name or email...")}
-              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              class={input_classes()}
             />
           </form>
           <form id="candidates-filter-job-form" phx-change="filter_job" class="min-w-[180px]">
             <select
               name="job_id"
-              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              class={select_classes()}
             >
               <option value="">{gettext("All Jobs")}</option>
               <option :for={job <- @jobs} value={job.id} selected={job.id == @filter_job_id}>
@@ -182,7 +182,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
           <form id="candidates-filter-stage-form" phx-change="filter_stage" class="min-w-[180px]">
             <select
               name="stage_id"
-              class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              class={select_classes()}
             >
               <option value="">{gettext("All Stages")}</option>
               <option
@@ -386,7 +386,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 <select
                   phx-change="bulk_select_action"
                   name="bulk_action"
-                  class="bg-zinc-800 dark:bg-zinc-800 text-white text-sm rounded px-3 py-1.5 border border-zinc-700"
+                  class={select_classes("text-white border-zinc-700")}
                 >
                   <option value="">{gettext("Actions...")}</option>
                   <option value="move_stage">{gettext("Move to Stage")}</option>
@@ -404,7 +404,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                   :if={@bulk_action == "move_stage"}
                   phx-change="bulk_select_stage"
                   name="bulk_stage_id"
-                  class="bg-zinc-800 dark:bg-zinc-800 text-white text-sm rounded px-3 py-1.5 border border-zinc-700"
+                  class={select_classes("text-white border-zinc-700")}
                 >
                   <option value="">{gettext("Select stage...")}</option>
                   <option :for={stage <- @pipeline_stages} value={stage.id}>{stage.name}</option>
@@ -506,7 +506,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                 phx-change="bulk_email_body_change"
                 name="bulk_email_body"
                 rows={4}
-                class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 mb-3"
+                class={input_classes("mb-3")}
               />
 
               <div class="flex gap-4 mb-3">
@@ -579,7 +579,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                       type="date"
                       value={@bulk_email_date}
                       phx-change="bulk_email_schedule_date_change"
-                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      class={input_classes()}
                     />
                   </div>
                   <div>
@@ -590,7 +590,7 @@ defmodule TrebyWeb.CandidatesLive.Index do
                       type="time"
                       value={@bulk_email_time}
                       phx-change="bulk_email_schedule_time_change"
-                      class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      class={input_classes()}
                     />
                   </div>
                 </div>

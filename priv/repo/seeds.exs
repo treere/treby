@@ -19,6 +19,7 @@ defmodule Treby.Seeds do
 
   def run do
     tenant = create_tenant()
+    Repo.put_tenant_id(tenant.id)
     pipeline = Treby.Pipeline.create_default_pipeline_stages(tenant)
     stages = stage_map(pipeline.id)
     users = create_users(tenant)
@@ -1498,6 +1499,7 @@ defmodule Treby.Seeds do
       |> Treby.Tenants.Tenant.changeset(%{name: "Beta Corp", slug: "beta", timezone: "UTC"})
       |> Repo.insert!()
 
+    Repo.put_tenant_id(beta.id)
     Treby.Pipeline.create_default_pipeline_stages(beta)
 
     beta_job =

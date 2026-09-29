@@ -93,18 +93,16 @@ defmodule Treby.Webhooks do
   """
   def dispatch(%{tenant_id: tenant_id, id: event_id} = _audit_event) do
     if active_for_tenant?(tenant_id) do
-      try do
-        %{audit_event_id: event_id, tenant_id: tenant_id}
-        |> WebhookDelivery.new()
-        |> Oban.insert()
-
-        :ok
-      rescue
-        e -> Logger.warning("Webhook dispatch failed: #{inspect(e)}")
-      end
-    else
-      :ok
+      %{audit_event_id: event_id, tenant_id: tenant_id}
+      |> WebhookDelivery.new()
+      |> Oban.insert()
     end
+
+    :ok
+  rescue
+    e ->
+      Logger.warning("Webhook dispatch failed: #{inspect(e)}")
+      :ok
   end
 
   def dispatch(_), do: :ok

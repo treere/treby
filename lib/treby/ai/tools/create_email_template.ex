@@ -27,6 +27,18 @@ defmodule Treby.AI.Tools.CreateEmailTemplate do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create email template",
+      fields: [
+        {"Name", args["name"]},
+        {"Stage type", args["stage_type"]},
+        {"Subject", args["subject"]},
+        {"Body", args["body"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     attrs = %{
       "tenant_id" => ctx[:tenant_id],

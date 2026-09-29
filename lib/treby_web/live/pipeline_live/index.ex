@@ -151,6 +151,15 @@ defmodule TrebyWeb.PipelineLive.Index do
     {:noreply, load_board(socket, socket.assigns.page)}
   end
 
+  def handle_info({:ai_entity_changed, %{type: type}}, socket)
+      when type in [:application, :pipeline, :pipeline_stage, :candidate, :interview] do
+    {:noreply, load_board(socket, socket.assigns[:page] || 1)}
+  end
+
+  def handle_info({:ai_entity_changed, entity}, socket) do
+    {:noreply, TrebyWeb.AiRefresh.put_entity_flash(socket, entity)}
+  end
+
   def render(assigns) do
     ~H"""
     <Layouts.app

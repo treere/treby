@@ -24,6 +24,16 @@ defmodule Treby.AI.Tools.ImportCsv do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Import candidates from CSV",
+      fields: [
+        {"Header row", args["has_header"]},
+        {"CSV preview", args["csv_text"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx),
          {:ok, lines} <- Treby.CsvImport.parse_lines(args["csv_text"]) do

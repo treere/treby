@@ -20,6 +20,16 @@ defmodule Treby.AI.Tools.BulkSendMessage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Send message (bulk)",
+      fields: [
+        {"Applications", args["application_ids"]},
+        {"Body", args["body"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       {:ok, result} =

@@ -23,6 +23,16 @@ defmodule Treby.AI.Tools.BulkReview do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Mark reviewed (bulk)",
+      fields: [
+        {"Applications", args["application_ids"]},
+        {"Reviewed", args["reviewed"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       {count, _} =

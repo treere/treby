@@ -22,6 +22,15 @@ defmodule Treby.AI.Tools.BulkDeleteCandidates do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete candidates (bulk)",
+      fields: [
+        {"Applications", args["application_ids"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       {:ok, count} =

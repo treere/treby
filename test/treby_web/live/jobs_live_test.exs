@@ -184,6 +184,55 @@ defmodule TrebyWeb.JobsLive.IndexTest do
     end
   end
 
+  describe "assistant live refresh" do
+    test "job created from chat appears without reload", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs")
+      refute render(view) =~ "Chat-Created Engineer"
+
+      {:ok, job} =
+        tenant
+        |> Ecto.build_assoc(:jobs)
+        |> Job.changeset(%{
+          title: "Chat-Created Engineer",
+          description: "Created from the assistant",
+          pipeline_id: Treby.Pipeline.default_pipeline_id(tenant.id)
+        })
+        |> Repo.insert()
+
+      send(view.pid, {:ai_entity_changed, user.id, %{type: :job, id: job.id}})
+      _ = render(view)
+
+      assert render(view) =~ "Chat-Created Engineer"
+    end
+
+    test "ignores entity messages for another user", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs")
+
+      send(view.pid, {:ai_entity_changed, "someone-else", %{type: :job, id: "x"}})
+      _ = render(view)
+
+      html = render(view)
+      refute html =~ "The assistant updated"
+    end
+
+    test "flashes a notice for entities the page does not display", %{conn: conn} do
+      {tenant, user} = setup_tenant()
+      conn = login_user(conn, user)
+
+      {:ok, view, _html} = live(conn, "/#{tenant.slug}/app/jobs")
+
+      send(view.pid, {:ai_entity_changed, %{type: :candidate, id: "c1"}})
+
+      assert render(view) =~ "The assistant updated a candidate."
+    end
+  end
+
   describe "copy public link" do
     test "renders an absolute career page URL on the copy button", %{conn: conn} do
       {tenant, user} = setup_tenant()

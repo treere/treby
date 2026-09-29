@@ -31,6 +31,18 @@ defmodule Treby.AI.Tools.AddPipelineStage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Add pipeline stage",
+      fields: [
+        {"Pipeline", args["pipeline_id"]},
+        {"Name", args["name"]},
+        {"Stage type", args["stage_type"]},
+        {"Color", args["color"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     pipeline_id = args["pipeline_id"] || Treby.Pipeline.default_pipeline_id(ctx[:tenant_id])
 

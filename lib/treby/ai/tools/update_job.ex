@@ -32,6 +32,23 @@ defmodule Treby.AI.Tools.UpdateJob do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update job",
+      fields: [
+        {"Job", args["job_id"]},
+        {"Title", args["title"]},
+        {"Description", args["description"]},
+        {"Status", args["status"]},
+        {"Visible", args["visible"]},
+        {"Location", args["location"]},
+        {"Employment", args["employment_type"]},
+        {"Workplace", args["workplace_type"]},
+        {"Salary", args["salary_range"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     tenant_id = ctx[:tenant_id]
 

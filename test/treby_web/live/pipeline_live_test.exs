@@ -1054,3 +1054,89 @@ defmodule TrebyWeb.PipelineLive.IndexTest do
     end
   end
 end
+
+defmodule TrebyWeb.PipelineLive.AiRefreshTest do
+  use TrebyWeb.ConnCase, async: false
+
+  import Phoenix.LiveViewTest
+
+  alias Treby.{Tenants, Repo, Pipeline}
+  alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+  alias Treby.Jobs.Job
+  alias Treby.Pipeline.PipelineStage
+
+  defp setup_tenant do
+    {:ok, tenant} =
+      Tenants.create_tenant(%{
+        name: "Pipe Refresh Corp",
+        slug: "pipe-refresh-#{System.unique_integer([:positive])}"
+      })
+
+    {:ok, user} =
+      tenant
+      |> Ecto.build_assoc(:users)
+      |> User.changeset(%{
+        email: "piperefresh-#{System.unique_integer([:positive])}@test.com",
+        password: "password123",
+        name: "Pipe Refresh User",
+        role: "admin"
+      })
+      |> Repo.insert()
+
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
+    {tenant, user}
+  end
+
+  defp login_user(conn, user) do
+    init_test_session(conn, %{"user_id" => user.id, "tenant_id" => user.tenant_id})
+  end
+
+  test "application created from chat appears on the board", %{conn: conn} do
+    {tenant, user} = setup_tenant()
+    pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+    pipeline = Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+    {:ok, stage} =
+      pipeline
+      |> Ecto.build_assoc(:pipeline_stages)
+      |> PipelineStage.changeset(%{name: "Applied", position: 0, stage_type: "applied"})
+      |> Repo.insert()
+
+    {:ok, job} =
+      tenant
+      |> Ecto.build_assoc(:jobs)
+      |> Job.changeset(%{title: "Board Job", description: "d", pipeline_id: pipeline_id})
+      |> Repo.insert()
+
+    {:ok, view, _html} =
+      conn |> login_user(user) |> live("/#{tenant.slug}/app/pipeline/#{job.id}")
+
+    assert render(view) =~ "No applications yet"
+
+    {:ok, candidate} =
+      tenant
+      |> Ecto.build_assoc(:candidates)
+      |> Candidate.changeset(%{name: "Chat Board Candidate", email: "chatboard@example.com"})
+      |> Repo.insert()
+
+    {:ok, application} =
+      Pipeline.create_application(%{
+        tenant_id: tenant.id,
+        job_id: job.id,
+        candidate_id: candidate.id,
+        pipeline_stage_id: stage.id,
+        applied_at: DateTime.utc_now()
+      })
+
+    send(view.pid, {:ai_entity_changed, %{type: :application, id: application.id}})
+
+    assert render(view) =~ "Chat Board Candidate"
+  end
+end

@@ -105,3 +105,15 @@ The floating assistant panel SHALL be movable by dragging its header and resizab
 #### Scenario: Dedicated assistant page unaffected
 - **WHEN** the assistant is shown on its dedicated full-width page
 - **THEN** no drag or resize affordances are rendered
+
+### Requirement: Readable tool confirmation cards
+
+The widget SHALL render each pending tool run as a summary card with the action title, key fields as label/value rows, and a collapsed Details section containing the full raw arguments. Confirm/Cancel semantics are unchanged.
+
+#### Scenario: Summary card with details
+- **WHEN** a pending tool run exists
+- **THEN** the card shows the action title and field rows with a collapsed Details section in both floating and page variants
+
+#### Scenario: Readable in both themes
+- **WHEN** the card is shown in light or dark theme
+- **THEN** text meets contrast requirements and long values wrap without breaking layout

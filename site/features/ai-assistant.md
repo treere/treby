@@ -54,9 +54,10 @@ Admins see the full set of tools. Recruiters and interviewers never see or run d
 Anything that writes stays pending until you approve it.
 
 1. The assistant proposes the action and shows a **confirmation card** — it appears in the chat as soon as it is ready, with no need to change page or refresh.
-2. Review the details on the card.
+2. The card shows a plain-language summary of what will happen (for example, "Create job" with the title, location, and employment type), instead of technical data. If you want the full details, expand **Details** on the card.
 3. Click **Confirm** to apply it, or **Cancel** to discard.
 4. Nothing is changed, and nothing is recorded in the audit log, until you confirm.
+5. After you confirm, the page updates itself: a job created from the chat appears in the jobs list right away, and edits show up on the detail page — no manual reload needed. If the current page does not show that kind of item, you get a short notice instead.
 
 If the widget is closed when the confirmation arrives, a red dot appears on the assistant button in the bottom-right corner — open it to review the card.
 

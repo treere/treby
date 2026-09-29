@@ -31,6 +31,22 @@ defmodule Treby.AI.Tools.CreateJob do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create job",
+      fields: [
+        {"Title", args["title"]},
+        {"Description", args["description"]},
+        {"Status", args["status"]},
+        {"Visible", args["visible"]},
+        {"Location", args["location"]},
+        {"Employment", args["employment_type"]},
+        {"Workplace", args["workplace_type"]},
+        {"Salary", args["salary_range"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     actor = Tools.actor(ctx)
 

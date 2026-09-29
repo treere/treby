@@ -26,6 +26,19 @@ defmodule Treby.AI.Tools.UpdateCareerPage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update career page",
+      fields: [
+        {"Title", args["title"]},
+        {"Description", args["description"]},
+        {"About", args["about"]},
+        {"Logo URL", args["logo_url"]},
+        {"Published", args["published"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Careers.get_career_page_by_tenant(ctx[:tenant_id]) do

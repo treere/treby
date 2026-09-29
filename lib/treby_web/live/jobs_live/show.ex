@@ -73,6 +73,32 @@ defmodule TrebyWeb.JobsLive.Show do
     end
   end
 
+  def handle_info({:ai_entity_changed, %{type: :job, id: id}}, socket) do
+    if id == socket.assigns.job.id do
+      case Jobs.get_job(socket.assigns.current_tenant.id, id) do
+        nil ->
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("This job was deleted."))
+           |> push_navigate(to: "/#{socket.assigns.current_tenant.slug}/app/jobs")}
+
+        job ->
+          {:noreply, assign(socket, job: job, form: to_form(Jobs.change_job(job)))}
+      end
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info({:ai_entity_changed, %{type: type}}, socket)
+      when type in [:application, :pipeline, :pipeline_stage] do
+    {:noreply, refresh_workspace(socket)}
+  end
+
+  def handle_info({:ai_entity_changed, entity}, socket) do
+    {:noreply, TrebyWeb.AiRefresh.put_entity_flash(socket, entity)}
+  end
+
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   def render(assigns) do

@@ -156,3 +156,14 @@ The system SHALL allow authoring job descriptions as plain Markdown in a regular
 - **WHEN** an admin writes `**bold**` or a `- list` in the job description
 - **THEN** the text is stored as-is and rendered as HTML wherever displayed
 
+
+### Requirement: Live refresh after assistant mutations
+Job list and job detail pages SHALL update live when a job is created, updated, or deleted via the assistant, without a manual page reload. A deleted job open in detail view redirects to the jobs list with a notice.
+
+#### Scenario: Chat-created job appears in list
+- **WHEN** a job is created via a confirmed assistant action while the jobs list is displayed
+- **THEN** the list shows the new job respecting the current filter without a manual reload
+
+#### Scenario: Chat edit reflected on detail page
+- **WHEN** a job is updated via a confirmed assistant action while its detail page is displayed
+- **THEN** the detail page shows the updated fields without a manual reload

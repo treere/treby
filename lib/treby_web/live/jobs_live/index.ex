@@ -279,6 +279,20 @@ defmodule TrebyWeb.JobsLive.Index do
     end
   end
 
+  def handle_info({:ai_entity_changed, %{type: :job}}, socket) do
+    tenant_id = socket.assigns.current_tenant.id
+
+    {:noreply,
+     socket
+     |> assign(candidate_counts: application_counts_by_job(tenant_id))
+     |> assign(view_summaries: JobViews.summaries_for_tenant(tenant_id))
+     |> load_page(socket.assigns[:page] || 1)}
+  end
+
+  def handle_info({:ai_entity_changed, entity}, socket) do
+    {:noreply, TrebyWeb.AiRefresh.put_entity_flash(socket, entity)}
+  end
+
   defp application_counts_by_job(tenant_id) do
     Treby.Pipeline.Application
     |> where([a], a.tenant_id == ^tenant_id)

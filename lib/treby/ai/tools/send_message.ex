@@ -20,6 +20,16 @@ defmodule Treby.AI.Tools.SendMessage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Send message",
+      fields: [
+        {"Conversation", args["conversation_id"]},
+        {"Body", args["body"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs = %{

@@ -20,6 +20,15 @@ defmodule Treby.AI.Tools.UpdateSettings do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update workspace settings",
+      fields: [
+        {"Name", args["name"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       unless Map.has_key?(args, "name") and args["name"] != "" do

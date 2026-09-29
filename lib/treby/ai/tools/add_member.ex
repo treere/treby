@@ -23,6 +23,16 @@ defmodule Treby.AI.Tools.AddMember do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Add team member",
+      fields: [
+        {"User", args["user_id"]},
+        {"Role", args["role"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs = %{

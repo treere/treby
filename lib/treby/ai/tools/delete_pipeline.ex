@@ -19,6 +19,15 @@ defmodule Treby.AI.Tools.DeletePipeline do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete pipeline",
+      fields: [
+        {"Pipeline", args["pipeline_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       pipeline = Treby.Pipeline.get_pipeline(args["pipeline_id"])

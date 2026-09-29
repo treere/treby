@@ -22,6 +22,18 @@ defmodule Treby.AI.Tools.SubmitScorecard do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Submit scorecard",
+      fields: [
+        {"Interview", args["interview_id"]},
+        {"Recommendation", args["recommendation"]},
+        {"Scores", args["scores"]},
+        {"Notes", args["notes"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       interviewer_id = Tools.actor(ctx).id

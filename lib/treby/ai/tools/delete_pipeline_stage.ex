@@ -19,6 +19,15 @@ defmodule Treby.AI.Tools.DeletePipelineStage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete pipeline stage",
+      fields: [
+        {"Stage", args["stage_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       stage = Treby.Pipeline.get_pipeline_stage!(args["stage_id"])

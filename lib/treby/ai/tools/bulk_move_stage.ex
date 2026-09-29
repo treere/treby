@@ -20,6 +20,16 @@ defmodule Treby.AI.Tools.BulkMoveStage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Move applications (bulk)",
+      fields: [
+        {"Applications", args["application_ids"]},
+        {"Stage", args["stage_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       {count, _} =

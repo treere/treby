@@ -70,6 +70,17 @@ defmodule TrebyWeb.Hooks.AiChat do
     {:halt, socket}
   end
 
+  defp handle_info({:ai_entity_changed, user_id, entity}, socket)
+       when user_id == socket.assigns.current_user.id do
+    send(self(), {:ai_entity_changed, entity})
+    {:halt, socket}
+  end
+
+  # Never leak another user's entity messages into this page.
+  defp handle_info({:ai_entity_changed, _other_user_id, _entity}, socket) do
+    {:halt, socket}
+  end
+
   defp handle_info({:ai_apply_form, %{assign_key: key, values: values}}, socket)
        when is_atom(key) do
     {:halt, apply_and_notify(socket, key, values)}

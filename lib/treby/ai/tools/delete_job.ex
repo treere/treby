@@ -21,6 +21,15 @@ defmodule Treby.AI.Tools.DeleteJob do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete job",
+      fields: [
+        {"Job", args["job_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Jobs.get_job(ctx[:tenant_id], args["job_id"]) do

@@ -22,6 +22,16 @@ defmodule Treby.AI.Tools.UpdatePipeline do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update pipeline",
+      fields: [
+        {"Pipeline", args["pipeline_id"]},
+        {"Name", args["name"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       pipeline = Treby.Pipeline.get_pipeline(args["pipeline_id"])

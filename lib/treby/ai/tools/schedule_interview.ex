@@ -28,6 +28,20 @@ defmodule Treby.AI.Tools.ScheduleInterview do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Schedule interview",
+      fields: [
+        {"Application", args["application_id"]},
+        {"Start (UTC)", args["start_at_utc"]},
+        {"End (UTC)", args["end_at_utc"]},
+        {"Duration (min)", args["duration_minutes"]},
+        {"Examiners", args["examiner_ids"]},
+        {"Notes", args["notes"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       actor = Tools.actor(ctx)

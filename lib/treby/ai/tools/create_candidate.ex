@@ -26,6 +26,18 @@ defmodule Treby.AI.Tools.CreateCandidate do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create candidate",
+      fields: [
+        {"Name", args["name"]},
+        {"Email", args["email"]},
+        {"Phone", args["phone"]},
+        {"LinkedIn URL", args["linkedin_url"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs =

@@ -1127,6 +1127,14 @@ defmodule TrebyWeb.CandidatesLive.Index do
      |> load_page(1)}
   end
 
+  def handle_info({:ai_entity_changed, %{type: :candidate}}, socket) do
+    {:noreply, load_page(socket, socket.assigns[:page] || 1)}
+  end
+
+  def handle_info({:ai_entity_changed, entity}, socket) do
+    {:noreply, TrebyWeb.AiRefresh.put_entity_flash(socket, entity)}
+  end
+
   defp apply_search(socket, search) do
     socket
     |> assign(search: search)

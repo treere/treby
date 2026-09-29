@@ -31,6 +31,17 @@ defmodule Treby.AI.Tools.SetNotificationPreference do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update notification preference",
+      fields: [
+        {"Key", args["key"]},
+        {"Email", args["email"]},
+        {"Inbox", args["inbox"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       tenant = Treby.Tenants.get_tenant!(ctx[:tenant_id])

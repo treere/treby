@@ -22,6 +22,16 @@ defmodule Treby.AI.Tools.CreatePipeline do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create pipeline",
+      fields: [
+        {"Name", args["name"]},
+        {"Default", args["is_default"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs = %{"tenant_id" => ctx[:tenant_id], "name" => args["name"]}

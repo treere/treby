@@ -99,6 +99,48 @@ defmodule Treby.AI.ToolsTest do
     assert DeleteJob.destructive?()
   end
 
+  test "every destructive tool provides a curated summary" do
+    destructive = Enum.filter(Tools.all(), & &1.destructive?())
+
+    assert length(destructive) == 62
+
+    for tool <- destructive do
+      assert Tools.curated?(tool.name()), "#{tool.name()} has no curated summary/1"
+    end
+  end
+
+  test "describe uses the curated summary and truncates long values" do
+    summary =
+      Tools.describe("create_job", %{
+        "title" => "Backend Engineer",
+        "location" => "Berlin",
+        "description" => String.duplicate("x", 200),
+        "visible" => false
+      })
+
+    assert summary.title == "Create job"
+    assert {"Title", "Backend Engineer"} in summary.fields
+    assert {"Location", "Berlin"} in summary.fields
+    assert {"Visible", "false"} in summary.fields
+
+    {_, long} = Enum.find(summary.fields, fn {label, _} -> label == "Description" end)
+    assert String.length(long) <= 121
+  end
+
+  test "describe falls back for unknown tools without crashing" do
+    summary = Tools.describe("mystery_tool", %{"weird_key_id" => "abc", "count" => 3})
+
+    assert summary.title == "Mystery tool"
+    assert {"Weird key", "abc"} in summary.fields
+  end
+
+  test "entity_of maps confirmed results to entities" do
+    assert %{type: :job, id: "j1"} = Tools.entity_of("create_job", %{"id" => "j1"})
+    assert %{type: :application, id: nil} = Tools.entity_of("bulk_review", %{"updated" => 2})
+    assert nil == Tools.entity_of("list_jobs", %{})
+    assert nil == Tools.entity_of("mystery_tool", %{"id" => "1"})
+  end
+
   test "list_jobs is scoped to the ctx tenant" do
     {tenant_a, _} = tenant_with_user()
     {tenant_b, _} = tenant_with_user()

@@ -164,6 +164,34 @@ defmodule Treby.AI.Conversations do
     Phoenix.PubSub.broadcast(Treby.PubSub, topic(tenant_id, user_id), {:ai_updated, user_id})
   end
 
+  @doc """
+  Broadcast an entity change after a confirmed tool run, so the host page
+  can refresh without a reload. Only the acting user in the acting tenant
+  receives it.
+  """
+  def broadcast_entity(%ToolRun{tenant_id: tenant_id, message_id: message_id}, entity)
+      when is_map(entity) do
+    # Explicit tenant filter; skip the ambient process-tenant scope so this
+    # works regardless of which tenant the caller process last touched.
+    query =
+      from m in Message,
+        where: m.id == ^message_id and m.tenant_id == ^tenant_id,
+        join: c in assoc(m, :conversation),
+        select: c.user_id
+
+    case Repo.one(query, skip_tenant_id: true) do
+      nil ->
+        :ok
+
+      user_id ->
+        Phoenix.PubSub.broadcast(
+          Treby.PubSub,
+          topic(tenant_id, user_id),
+          {:ai_entity_changed, user_id, entity}
+        )
+    end
+  end
+
   defp broadcast_for_tenant(tenant_id, message_id) do
     query =
       from m in Message,

@@ -20,6 +20,16 @@ defmodule Treby.AI.Tools.RescheduleScheduledMessage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Reschedule message",
+      fields: [
+        {"Id", args["id"]},
+        {"Send at", args["send_at"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx),
          {:ok, send_at, _} <- DateTime.from_iso8601(args["send_at"]) do

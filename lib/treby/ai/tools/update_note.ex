@@ -24,6 +24,18 @@ defmodule Treby.AI.Tools.UpdateNote do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update note",
+      fields: [
+        {"Note", args["note_id"]},
+        {"Content", args["content"]},
+        {"Type", args["type"]},
+        {"Rating", args["rating"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       note = Treby.Notes.get_note!(ctx[:tenant_id], args["note_id"])

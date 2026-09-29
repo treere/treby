@@ -23,6 +23,18 @@ defmodule Treby.AI.Tools.CreateAvailabilityRule do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create availability rule",
+      fields: [
+        {"Day", args["day_of_week"]},
+        {"Start", args["start_time"]},
+        {"End", args["end_time"]},
+        {"Scope", args["scope"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx),
          :ok <- require_company_admin(args["scope"], ctx) do

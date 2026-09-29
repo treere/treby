@@ -270,3 +270,124 @@ defmodule TrebyWeb.CandidatesLive.ShowTest do
     end
   end
 end
+
+defmodule TrebyWeb.CandidatesShow.AiRefreshTest do
+  use TrebyWeb.ConnCase, async: false
+
+  import Phoenix.LiveViewTest
+
+  alias Treby.{Tenants, Repo}
+  alias Treby.Accounts.User
+  alias Treby.Candidates.Candidate
+
+  defp setup_tenant do
+    {:ok, tenant} =
+      Tenants.create_tenant(%{
+        name: "Cand Refresh Corp",
+        slug: "cand-refresh-#{System.unique_integer([:positive])}"
+      })
+
+    {:ok, user} =
+      tenant
+      |> Ecto.build_assoc(:users)
+      |> User.changeset(%{
+        email: "candrefresh-#{System.unique_integer([:positive])}@test.com",
+        password: "password123",
+        name: "Cand Refresh User",
+        role: "admin"
+      })
+      |> Repo.insert()
+
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
+    {tenant, user}
+  end
+
+  defp login_user(conn, user) do
+    init_test_session(conn, %{"user_id" => user.id, "tenant_id" => user.tenant_id})
+  end
+
+  test "chat rename of the candidate is reflected on the detail page", %{conn: conn} do
+    {tenant, user} = setup_tenant()
+
+    {:ok, candidate} =
+      tenant
+      |> Ecto.build_assoc(:candidates)
+      |> Candidate.changeset(%{name: "Old Name", email: "oldname@example.com"})
+      |> Repo.insert()
+
+    {:ok, view, _html} =
+      conn |> login_user(user) |> live("/#{tenant.slug}/app/candidates/#{candidate.id}")
+
+    assert render(view) =~ "Old Name"
+
+    {:ok, _} = Treby.Candidates.update_candidate(candidate, %{"name" => "Renamed via Chat"})
+
+    send(view.pid, {:ai_entity_changed, %{type: :candidate, id: candidate.id}})
+
+    assert render(view) =~ "Renamed via Chat"
+  end
+
+  test "note added from chat appears on the candidate page", %{conn: conn} do
+    {tenant, user} = setup_tenant()
+    pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+    pipeline = Repo.get!(Treby.Pipeline.Pipeline, pipeline_id)
+
+    {:ok, stage} =
+      pipeline
+      |> Ecto.build_assoc(:pipeline_stages)
+      |> Treby.Pipeline.PipelineStage.changeset(%{
+        name: "Applied",
+        position: 0,
+        stage_type: "applied"
+      })
+      |> Repo.insert()
+
+    {:ok, job} =
+      tenant
+      |> Ecto.build_assoc(:jobs)
+      |> Treby.Jobs.Job.changeset(%{
+        title: "Notes Job",
+        description: "d",
+        pipeline_id: pipeline_id
+      })
+      |> Repo.insert()
+
+    {:ok, candidate} =
+      tenant
+      |> Ecto.build_assoc(:candidates)
+      |> Candidate.changeset(%{name: "Noted Candidate", email: "noted@example.com"})
+      |> Repo.insert()
+
+    {:ok, application} =
+      Treby.Pipeline.create_application(%{
+        tenant_id: tenant.id,
+        job_id: job.id,
+        candidate_id: candidate.id,
+        pipeline_stage_id: stage.id,
+        applied_at: DateTime.utc_now()
+      })
+
+    {:ok, view, _html} =
+      conn |> login_user(user) |> live("/#{tenant.slug}/app/candidates/#{candidate.id}")
+
+    refute render(view) =~ "Chat-added note body"
+
+    {:ok, note} =
+      Treby.Notes.create_note(%{
+        "application_id" => application.id,
+        "author_id" => user.id,
+        "tenant_id" => tenant.id,
+        "content" => "Chat-added note body"
+      })
+
+    send(view.pid, {:ai_entity_changed, %{type: :note, id: note.id}})
+
+    assert render(view) =~ "Chat-added note body"
+  end
+end

@@ -21,6 +21,15 @@ defmodule Treby.AI.Tools.RemoveMember do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Remove team member",
+      fields: [
+        {"User", args["user_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     case Treby.Memberships.remove_membership_by_ids(
            args["user_id"],

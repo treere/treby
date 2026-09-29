@@ -28,6 +28,16 @@ defmodule Treby.AI.Tools.MergeCandidates do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Merge candidates",
+      fields: [
+        {"Keep", args["primary_id"]},
+        {"Candidates", args["candidate_ids"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       tenant_id = ctx[:tenant_id]

@@ -17,6 +17,15 @@ defmodule Treby.AI.Tools.CompleteInterview do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Complete interview",
+      fields: [
+        {"Interview", args["interview_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       event = Treby.Interviews.get_event!(args["interview_id"])

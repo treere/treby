@@ -29,6 +29,21 @@ defmodule Treby.AI.Tools.UpdateCustomField do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update custom field",
+      fields: [
+        {"Field", args["field_id"]},
+        {"Name", args["name"]},
+        {"Type", args["field_type"]},
+        {"Applies to", args["applies_to"]},
+        {"Required", args["required"]},
+        {"Position", args["position"]},
+        {"Options", args["options"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       field = Treby.Customization.get_custom_field!(ctx[:tenant_id], args["field_id"])

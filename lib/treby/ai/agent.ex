@@ -66,6 +66,11 @@ defmodule Treby.AI.Agent do
               Conversations.update_tool_run(run, %{status: "executed", result: %{ok: result}})
 
             audit(run, ctx)
+
+            if entity = Tools.entity_of(run.tool, result) do
+              Conversations.broadcast_entity(run, entity)
+            end
+
             {:ok, result}
 
           {:error, reason} ->

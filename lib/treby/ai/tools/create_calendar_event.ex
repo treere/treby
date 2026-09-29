@@ -26,6 +26,21 @@ defmodule Treby.AI.Tools.CreateCalendarEvent do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create calendar event",
+      fields: [
+        {"Provider", args["provider"]},
+        {"Summary", args["summary"]},
+        {"Start at", args["start_at"]},
+        {"End at", args["end_at"]},
+        {"Timezone", args["timezone"]},
+        {"Attendees", args["attendee_emails"]},
+        {"Description", args["description"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx),
          {:ok, start_at} <- parse_datetime(args["start_at"]),

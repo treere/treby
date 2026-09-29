@@ -25,6 +25,19 @@ defmodule Treby.AI.Tools.UpdateWebhook do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update webhook",
+      fields: [
+        {"Webhook", args["webhook_id"]},
+        {"Target URL", args["target_url"]},
+        {"Events", args["events"]},
+        {"Description", args["description"]},
+        {"Active", args["active"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Webhooks.get_subscription(ctx[:tenant_id], args["webhook_id"]) do

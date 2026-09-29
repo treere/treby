@@ -170,4 +170,212 @@ defmodule Treby.AI.Tools do
   end
 
   def format_errors(other), do: inspect(other)
+
+  @max_summary_fields 8
+  @max_value_chars 120
+
+  @doc """
+  Human-readable summary of a tool call for confirmation cards.
+
+  Returns `%{title: binary, fields: [{label, value}]}`. Uses the tool's
+  curated `summary/1` when implemented, otherwise a generic humanizer over
+  the raw args. Never raises: falls back to the raw-args view on any error.
+  """
+  def describe(tool_name, args) when is_binary(tool_name) and is_map(args) do
+    case get(tool_name) do
+      nil ->
+        fallback_summary(tool_name, args)
+
+      tool ->
+        if function_exported?(tool, :summary, 1) do
+          try do
+            normalize_summary(tool.summary(args), tool_name, args)
+          rescue
+            _ -> fallback_summary(tool_name, args)
+          end
+        else
+          fallback_summary(tool_name, args)
+        end
+    end
+  end
+
+  def describe(tool_name, _args), do: %{title: humanize(tool_name), fields: []}
+
+  @doc "True when the tool provides its own curated `summary/1`."
+  def curated?(tool_name) when is_binary(tool_name) do
+    case get(tool_name) do
+      nil -> false
+      tool -> function_exported?(tool, :summary, 1)
+    end
+  end
+
+  defp normalize_summary(%{title: title, fields: fields}, tool_name, args)
+       when is_binary(title) and is_list(fields) do
+    rows =
+      fields
+      |> Enum.flat_map(fn
+        {label, value} when is_binary(label) -> [{label, format_value(value)}]
+        _ -> []
+      end)
+      |> Enum.reject(fn {_label, value} -> blank?(value) end)
+      |> Enum.take(@max_summary_fields)
+
+    if rows == [] do
+      fallback_summary(tool_name, args)
+    else
+      %{title: title, fields: rows}
+    end
+  end
+
+  defp normalize_summary(_, tool_name, args), do: fallback_summary(tool_name, args)
+
+  defp fallback_summary(tool_name, args) do
+    rows =
+      args
+      |> Enum.flat_map(fn
+        {key, value} when is_binary(key) -> [{humanize(key), format_value(value)}]
+        _ -> []
+      end)
+      |> Enum.reject(fn {_label, value} -> blank?(value) end)
+      |> Enum.take(@max_summary_fields)
+
+    %{title: humanize(tool_name), fields: rows}
+  end
+
+  defp blank?(nil), do: true
+  defp blank?(""), do: true
+  defp blank?([]), do: true
+  defp blank?(map) when is_map(map) and map_size(map) == 0, do: true
+  defp blank?(_), do: false
+
+  defp humanize(key) do
+    key
+    |> String.replace_suffix("_ids", "")
+    |> String.replace_suffix("_id", "")
+    |> String.replace("_", " ")
+    |> String.capitalize()
+  end
+
+  defp format_value(nil), do: nil
+  defp format_value(""), do: nil
+  defp format_value(value) when is_boolean(value), do: to_string(value)
+  defp format_value(value) when is_number(value), do: to_string(value)
+
+  defp format_value(value) when is_binary(value) do
+    if String.length(value) > @max_value_chars do
+      String.slice(value, 0, @max_value_chars) <> "…"
+    else
+      value
+    end
+  end
+
+  defp format_value([]), do: nil
+
+  defp format_value(values) when is_list(values) do
+    case Enum.map(values, &format_scalar/1) do
+      [] ->
+        nil
+
+      [first] ->
+        truncate("1 item: #{first}", @max_value_chars)
+
+      [first, second] when length(values) == 2 ->
+        truncate("2 items: #{first}, #{second}", @max_value_chars)
+
+      [first | _] ->
+        truncate("#{length(values)} items: #{first}, …", @max_value_chars)
+    end
+  end
+
+  defp format_value(%{} = map) when map_size(map) == 0, do: nil
+  defp format_value(%{} = map), do: "#{map_size(map)} fields"
+
+  defp format_value(other), do: truncate(inspect(other), @max_value_chars)
+
+  defp format_scalar(value) when is_binary(value), do: truncate(value, 40)
+  defp format_scalar(value) when is_number(value) or is_boolean(value), do: to_string(value)
+  defp format_scalar(_), do: "…"
+
+  defp truncate(text, max) when is_binary(text) do
+    if String.length(text) > max, do: String.slice(text, 0, max) <> "…", else: text
+  end
+
+  @entity_types %{
+    "create_job" => :job,
+    "update_job" => :job,
+    "delete_job" => :job,
+    "create_candidate" => :candidate,
+    "update_candidate" => :candidate,
+    "delete_candidate" => :candidate,
+    "merge_candidates" => :candidate,
+    "bulk_delete_candidates" => :candidate,
+    "import_candidates_csv" => :candidate,
+    "create_application" => :application,
+    "move_application" => :application,
+    "set_application_reviewed" => :application,
+    "bulk_move_stage" => :application,
+    "bulk_review" => :application,
+    "add_note" => :note,
+    "update_note" => :note,
+    "delete_note" => :note,
+    "schedule_interview" => :interview,
+    "cancel_interview" => :interview,
+    "complete_interview" => :interview,
+    "submit_scorecard" => :interview,
+    "create_pipeline" => :pipeline,
+    "update_pipeline" => :pipeline,
+    "delete_pipeline" => :pipeline,
+    "add_pipeline_stage" => :pipeline_stage,
+    "update_pipeline_stage" => :pipeline_stage,
+    "delete_pipeline_stage" => :pipeline_stage,
+    "assign_stage_person" => :pipeline_stage,
+    "unassign_stage_person" => :pipeline_stage,
+    "send_message" => :message,
+    "bulk_send_message" => :message,
+    "schedule_message" => :message,
+    "cancel_scheduled_message" => :message,
+    "reschedule_scheduled_message" => :message,
+    "retry_scheduled_message" => :message,
+    "create_email_template" => :email_template,
+    "update_email_template" => :email_template,
+    "delete_email_template" => :email_template,
+    "create_webhook" => :webhook,
+    "update_webhook" => :webhook,
+    "delete_webhook" => :webhook,
+    "test_webhook" => :webhook,
+    "create_custom_field" => :custom_field,
+    "update_custom_field" => :custom_field,
+    "delete_custom_field" => :custom_field,
+    "create_scorecard_template" => :scorecard_template,
+    "update_scorecard_template" => :scorecard_template,
+    "delete_scorecard_template" => :scorecard_template,
+    "create_availability_rule" => :availability_rule,
+    "update_availability_rule" => :availability_rule,
+    "delete_availability_rule" => :availability_rule,
+    "create_calendar_event" => :calendar_event,
+    "create_data_request" => :data_request,
+    "cancel_data_request" => :data_request,
+    "update_career_page" => :career_page,
+    "add_member" => :member,
+    "invite_member" => :member,
+    "remove_member" => :member,
+    "update_member_role" => :member,
+    "delete_invite" => :invite,
+    "update_settings" => :settings
+  }
+
+  @doc """
+  Map a confirmed tool result to the affected entity for page refresh.
+
+  Returns `%{type: atom, id: binary | nil}` or nil when the tool has no
+  mappable entity. Bulk results carry no single id (`id: nil`).
+  """
+  def entity_of(tool_name, result) when is_binary(tool_name) and is_map(result) do
+    case Map.fetch(@entity_types, tool_name) do
+      {:ok, type} -> %{type: type, id: result["id"]}
+      :error -> nil
+    end
+  end
+
+  def entity_of(_, _), do: nil
 end

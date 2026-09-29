@@ -21,6 +21,17 @@ defmodule Treby.AI.Tools.ScheduleMessage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Schedule message",
+      fields: [
+        {"Conversation", args["conversation_id"]},
+        {"Send at", args["send_at"]},
+        {"Body", args["body"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case DateTime.from_iso8601(args["send_at"]) do

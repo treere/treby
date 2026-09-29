@@ -23,6 +23,16 @@ defmodule Treby.AI.Tools.UpdateMemberRole do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update member role",
+      fields: [
+        {"User", args["user_id"]},
+        {"Role", args["role"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Memberships.get_membership(args["user_id"], ctx[:tenant_id]) do

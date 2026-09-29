@@ -17,6 +17,15 @@ defmodule Treby.AI.Tools.DeleteAvailabilityRule do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete availability rule",
+      fields: [
+        {"Rule", args["rule_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       rule = Treby.Availability.get_rule!(args["rule_id"])

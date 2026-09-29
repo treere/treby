@@ -26,6 +26,19 @@ defmodule Treby.AI.Tools.UpdateCandidate do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update candidate",
+      fields: [
+        {"Id", args["id"]},
+        {"Name", args["name"]},
+        {"Email", args["email"]},
+        {"Phone", args["phone"]},
+        {"LinkedIn URL", args["linkedin_url"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Candidates.get_candidate(ctx[:tenant_id], args["id"]) do

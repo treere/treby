@@ -198,11 +198,77 @@ defmodule TrebyWeb.AiChatWidget do
     }
   end
 
-  defp tool_label(tool) do
-    case Tools.get(tool) do
-      nil -> tool
-      module -> module.name()
-    end
+  defp tool_summary(run) do
+    Tools.describe(run.tool, run.args || %{})
+  end
+
+  attr :run, :map, required: true
+  attr :myself, :any, required: true
+
+  defp tool_confirmation(assigns) do
+    assigns = assign(assigns, :summary, tool_summary(assigns.run))
+
+    ~H"""
+    <div
+      id={"tool-run-" <> @run.id}
+      class="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4"
+    >
+      <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">
+        {gettext("Confirmation required")}
+      </p>
+      <p
+        id={"tool-summary-" <> @run.id}
+        class="mt-0.5 text-sm font-medium text-amber-900 dark:text-amber-100"
+      >
+        {@summary.title}
+      </p>
+      <dl
+        :if={@summary.fields != []}
+        class="mt-2 space-y-1 text-xs overflow-hidden"
+      >
+        <div :for={{label, value} <- @summary.fields} class="flex gap-2">
+          <dt class="shrink-0 font-medium text-amber-700 dark:text-amber-300">
+            {label}
+          </dt>
+          <dd class="min-w-0 break-words text-amber-900 dark:text-amber-100">
+            {value}
+          </dd>
+        </div>
+      </dl>
+      <details class="mt-2">
+        <summary class="cursor-pointer text-xs font-medium text-amber-700 dark:text-amber-300">
+          {gettext("Details")}
+        </summary>
+        <pre
+          id={"tool-details-" <> @run.id}
+          class="mt-1 text-xs text-amber-900 dark:text-amber-100 overflow-x-auto whitespace-pre-wrap break-words"
+        >{Jason.encode!(@run.args || %{}, pretty: true)}</pre>
+      </details>
+      <div class="mt-3 flex gap-2">
+        <button
+          :if={@run.tool != "propose_form_fill"}
+          type="button"
+          id={"confirm-" <> @run.id}
+          phx-target={@myself}
+          phx-click="confirm_tool_run"
+          phx-value-id={@run.id}
+          class="px-3 py-1.5 text-sm font-medium rounded-lg bg-orange-700 text-white hover:bg-orange-800 transition-colors"
+        >
+          {gettext("Confirm")}
+        </button>
+        <button
+          type="button"
+          id={"reject-" <> @run.id}
+          phx-target={@myself}
+          phx-click="reject_tool_run"
+          phx-value-id={@run.id}
+          class="px-3 py-1.5 text-sm font-medium rounded-lg border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+        >
+          {gettext("Cancel")}
+        </button>
+      </div>
+    </div>
+    """
   end
 
   defp error_message(reason) do
@@ -398,39 +464,11 @@ defmodule TrebyWeb.AiChatWidget do
           :if={@pending_runs != []}
           class="space-y-3"
         >
-          <div
+          <.tool_confirmation
             :for={run <- @pending_runs}
-            id={"tool-run-" <> run.id}
-            class="rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4"
-          >
-            <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">
-              {gettext("Confirmation required: %{tool}", tool: tool_label(run.tool))}
-            </p>
-            <pre class="mt-2 text-xs text-amber-900 dark:text-amber-100 overflow-x-auto">{Jason.encode!(run.args, pretty: true)}</pre>
-            <div class="mt-3 flex gap-2">
-              <button
-                :if={run.tool != "propose_form_fill"}
-                type="button"
-                id={"confirm-" <> run.id}
-                phx-target={@myself}
-                phx-click="confirm_tool_run"
-                phx-value-id={run.id}
-                class="px-3 py-1.5 text-sm font-medium rounded-lg bg-orange-700 text-white hover:bg-orange-800 transition-colors"
-              >
-                {gettext("Confirm")}
-              </button>
-              <button
-                type="button"
-                id={"reject-" <> run.id}
-                phx-target={@myself}
-                phx-click="reject_tool_run"
-                phx-value-id={run.id}
-                class="px-3 py-1.5 text-sm font-medium rounded-lg border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-              >
-                {gettext("Cancel")}
-              </button>
-            </div>
-          </div>
+            run={run}
+            myself={@myself}
+          />
         </div>
       </div>
 

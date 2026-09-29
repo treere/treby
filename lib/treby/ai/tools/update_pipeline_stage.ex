@@ -31,6 +31,20 @@ defmodule Treby.AI.Tools.UpdatePipelineStage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update pipeline stage",
+      fields: [
+        {"Stage", args["stage_id"]},
+        {"Name", args["name"]},
+        {"Position", args["position"]},
+        {"Color", args["color"]},
+        {"Stage type", args["stage_type"]},
+        {"Min examiners", args["min_examiners"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       stage = Treby.Pipeline.get_pipeline_stage!(args["stage_id"])

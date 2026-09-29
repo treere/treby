@@ -19,6 +19,15 @@ defmodule Treby.AI.Tools.DeleteInvite do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete invite",
+      fields: [
+        {"Invite", args["invite_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Enum.find(Treby.Invites.list_invites(ctx[:tenant_id]), &(&1.id == args["invite_id"])) do

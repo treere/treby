@@ -171,6 +171,117 @@ defmodule TrebyWeb.AiChatWidgetTest do
     refute render(view) =~ "top-secret"
   end
 
+  test "renders a summary card for pending tool runs", %{conn: conn} do
+    {tenant, user} = setup_tenant_with_user()
+
+    conversation = Conversations.get_or_create_conversation(tenant.id, user.id, "tok-widget")
+
+    {:ok, message} =
+      Conversations.create_message(conversation, %{
+        role: "assistant",
+        content: "I need your confirmation before continuing."
+      })
+
+    {:ok, run} =
+      Conversations.create_tool_run(message, %{
+        tool: "create_job",
+        args: %{"title" => "Backend Engineer", "location" => "Berlin"},
+        status: "pending_confirm"
+      })
+
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
+
+    assert has_element?(view, "#tool-run-#{run.id}")
+    assert has_element?(view, "#tool-summary-#{run.id}", "Create job")
+    assert render(view) =~ "Backend Engineer"
+    assert render(view) =~ "Berlin"
+    assert has_element?(view, "#tool-details-#{run.id}")
+    assert render(view) =~ "Details"
+    assert has_element?(view, "#confirm-#{run.id}")
+    assert has_element?(view, "#reject-#{run.id}")
+  end
+
+  test "confirming a summary card executes the tool and clears it", %{conn: conn} do
+    {tenant, user} = setup_tenant_with_user()
+
+    conversation = Conversations.get_or_create_conversation(tenant.id, user.id, "tok-widget")
+
+    {:ok, message} =
+      Conversations.create_message(conversation, %{
+        role: "assistant",
+        content: "I need your confirmation before continuing."
+      })
+
+    {:ok, run} =
+      Conversations.create_tool_run(message, %{
+        tool: "create_job",
+        args: %{"title" => "Confirmed via Chat", "description" => "Created after confirm"},
+        status: "pending_confirm"
+      })
+
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
+
+    assert has_element?(view, "#tool-run-#{run.id}")
+
+    view |> element("#confirm-#{run.id}") |> render_click()
+
+    assert Repo.get_by(Treby.Jobs.Job, title: "Confirmed via Chat", tenant_id: tenant.id)
+    refute has_element?(view, "#tool-run-#{run.id}")
+  end
+
+  test "rejecting a summary card changes nothing", %{conn: conn} do
+    {tenant, user} = setup_tenant_with_user()
+
+    conversation = Conversations.get_or_create_conversation(tenant.id, user.id, "tok-widget")
+
+    {:ok, message} =
+      Conversations.create_message(conversation, %{
+        role: "assistant",
+        content: "I need your confirmation before continuing."
+      })
+
+    {:ok, run} =
+      Conversations.create_tool_run(message, %{
+        tool: "create_job",
+        args: %{"title" => "Never Created", "description" => "Rejected"},
+        status: "pending_confirm"
+      })
+
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app")
+
+    view |> element("#reject-#{run.id}") |> render_click()
+
+    refute Repo.get_by(Treby.Jobs.Job, title: "Never Created", tenant_id: tenant.id)
+    refute has_element?(view, "#tool-run-#{run.id}")
+  end
+
+  test "renders the summary card on the full assistant page", %{conn: conn} do
+    {tenant, user} = setup_tenant_with_user()
+
+    conversation = Conversations.get_or_create_conversation(tenant.id, user.id, "tok-widget")
+
+    {:ok, message} =
+      Conversations.create_message(conversation, %{
+        role: "assistant",
+        content: "I need your confirmation before continuing."
+      })
+
+    {:ok, run} =
+      Conversations.create_tool_run(message, %{
+        tool: "create_job",
+        args: %{"title" => "Page Variant Job", "location" => "Berlin"},
+        status: "pending_confirm"
+      })
+
+    {:ok, view, _html} = conn |> login(user) |> live("/#{tenant.slug}/app/ai")
+
+    assert has_element?(view, "#tool-run-#{run.id}")
+    assert has_element?(view, "#tool-summary-#{run.id}", "Create job")
+    assert render(view) =~ "Page Variant Job"
+    assert has_element?(view, "#confirm-#{run.id}")
+    assert has_element?(view, "#reject-#{run.id}")
+  end
+
   test "shows assistant errors relayed from the page", %{conn: conn} do
     {tenant, user} = setup_tenant_with_user()
 

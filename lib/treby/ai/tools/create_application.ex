@@ -23,6 +23,18 @@ defmodule Treby.AI.Tools.CreateApplication do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create application",
+      fields: [
+        {"Job", args["job_id"]},
+        {"Candidate", args["candidate_id"]},
+        {"Stage", args["pipeline_stage_id"]},
+        {"Applied at", args["applied_at"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs = %{

@@ -32,6 +32,32 @@ defmodule Treby.AI.ConversationsTest do
     assert Conversations.resolve_conversation(tenant.id, user.id) == nil
   end
 
+  test "broadcast_entity notifies only the owner in the same tenant" do
+    {tenant, user} = tenant_with_user()
+    {other_tenant, other_user} = tenant_with_user()
+
+    conversation = Conversations.get_or_create_conversation(tenant.id, user.id)
+
+    {:ok, message} =
+      Conversations.create_message(conversation, %{role: "assistant", content: "done"})
+
+    {:ok, run} =
+      Conversations.create_tool_run(message, %{
+        tool: "create_job",
+        args: %{"title" => "T"},
+        status: "executed"
+      })
+
+    Phoenix.PubSub.subscribe(Treby.PubSub, Conversations.topic(tenant.id, user.id))
+    Phoenix.PubSub.subscribe(Treby.PubSub, Conversations.topic(other_tenant.id, other_user.id))
+
+    Conversations.broadcast_entity(run, %{type: :job, id: "j1"})
+
+    assert_receive {:ai_entity_changed, received_user_id, %{type: :job, id: "j1"}}
+    assert received_user_id == user.id
+    refute_received {:ai_entity_changed, _, _}
+  end
+
   test "get_or_create_conversation is scoped to tenant and user" do
     {tenant, user} = tenant_with_user()
     {other_tenant, other_user} = tenant_with_user()

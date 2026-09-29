@@ -25,6 +25,17 @@ defmodule Treby.AI.Tools.UnassignStagePerson do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Unassign stage person",
+      fields: [
+        {"Stage", args["stage_id"]},
+        {"User", args["user_id"]},
+        {"Role", args["role"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       stage = Treby.Pipeline.get_pipeline_stage!(args["stage_id"])

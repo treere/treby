@@ -22,6 +22,18 @@ defmodule Treby.AI.Tools.UpdateAvailabilityRule do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update availability rule",
+      fields: [
+        {"Rule", args["rule_id"]},
+        {"Day", args["day_of_week"]},
+        {"Start", args["start_time"]},
+        {"End", args["end_time"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       rule = Treby.Availability.get_rule!(args["rule_id"])

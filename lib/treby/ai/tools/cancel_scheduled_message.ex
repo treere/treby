@@ -17,6 +17,15 @@ defmodule Treby.AI.Tools.CancelScheduledMessage do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Cancel scheduled message",
+      fields: [
+        {"Id", args["id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       message = Treby.ScheduledMessages.get_scheduled_message!(args["id"])

@@ -24,6 +24,18 @@ defmodule Treby.AI.Tools.CreateWebhook do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create webhook",
+      fields: [
+        {"Target URL", args["target_url"]},
+        {"Events", args["events"]},
+        {"Description", args["description"]},
+        {"Active", args["active"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs = %{

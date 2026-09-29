@@ -19,6 +19,15 @@ defmodule Treby.AI.Tools.DeleteScorecardTemplate do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete scorecard template",
+      fields: [
+        {"Template", args["template_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       template = Treby.Scorecards.get_scorecard_template!(args["template_id"])

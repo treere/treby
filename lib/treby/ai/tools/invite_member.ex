@@ -23,6 +23,16 @@ defmodule Treby.AI.Tools.InviteMember do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Invite team member",
+      fields: [
+        {"Email", args["email"]},
+        {"Role", args["role"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     attrs = %{
       "email" => args["email"],

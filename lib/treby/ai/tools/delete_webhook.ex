@@ -19,6 +19,15 @@ defmodule Treby.AI.Tools.DeleteWebhook do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete webhook",
+      fields: [
+        {"Webhook", args["webhook_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Webhooks.get_subscription(ctx[:tenant_id], args["webhook_id"]) do

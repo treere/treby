@@ -26,6 +26,20 @@ defmodule Treby.AI.Tools.CreateCustomField do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create custom field",
+      fields: [
+        {"Name", args["name"]},
+        {"Type", args["field_type"]},
+        {"Applies to", args["applies_to"]},
+        {"Required", args["required"]},
+        {"Position", args["position"]},
+        {"Options", args["options"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs = Map.merge(%{"tenant_id" => ctx[:tenant_id]}, Map.drop(args, ["tenant_id"]))

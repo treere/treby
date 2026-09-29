@@ -20,6 +20,16 @@ defmodule Treby.AI.Tools.MoveApplication do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Move application",
+      fields: [
+        {"Id", args["id"]},
+        {"Stage", args["stage_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Pipeline.get_application(args["id"]) do

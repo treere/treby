@@ -19,6 +19,15 @@ defmodule Treby.AI.Tools.DeleteCandidate do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete candidate",
+      fields: [
+        {"Id", args["id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       case Treby.Candidates.get_candidate(ctx[:tenant_id], args["id"]) do

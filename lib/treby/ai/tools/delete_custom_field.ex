@@ -19,6 +19,15 @@ defmodule Treby.AI.Tools.DeleteCustomField do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete custom field",
+      fields: [
+        {"Field", args["field_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       field = Treby.Customization.get_custom_field!(ctx[:tenant_id], args["field_id"])

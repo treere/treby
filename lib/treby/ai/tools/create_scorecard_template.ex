@@ -23,6 +23,17 @@ defmodule Treby.AI.Tools.CreateScorecardTemplate do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create scorecard template",
+      fields: [
+        {"Name", args["name"]},
+        {"Criteria", args["criteria"]},
+        {"Position", args["position"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs = %{

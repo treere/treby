@@ -17,6 +17,15 @@ defmodule Treby.AI.Tools.DeleteNote do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Delete note",
+      fields: [
+        {"Note", args["note_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       note = Treby.Notes.get_note!(ctx[:tenant_id], args["note_id"])

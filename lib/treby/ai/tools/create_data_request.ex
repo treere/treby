@@ -20,6 +20,16 @@ defmodule Treby.AI.Tools.CreateDataRequest do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Create data request",
+      fields: [
+        {"Type", args["type"]},
+        {"Scope", args["scope"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx),
          :ok <- require_tenant_admin(args["scope"], ctx) do

@@ -17,6 +17,15 @@ defmodule Treby.AI.Tools.CancelDataRequest do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Cancel data request",
+      fields: [
+        {"Request", args["request_id"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       request = Treby.DataPrivacy.Requests.get_request!(ctx[:tenant_id], args["request_id"])

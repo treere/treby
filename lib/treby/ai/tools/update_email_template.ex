@@ -27,6 +27,18 @@ defmodule Treby.AI.Tools.UpdateEmailTemplate do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Update email template",
+      fields: [
+        {"Name", args["name"]},
+        {"Stage type", args["stage_type"]},
+        {"Subject", args["subject"]},
+        {"Body", args["body"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       attrs =

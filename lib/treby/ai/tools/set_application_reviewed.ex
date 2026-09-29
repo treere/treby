@@ -20,6 +20,16 @@ defmodule Treby.AI.Tools.SetApplicationReviewed do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Mark application reviewed",
+      fields: [
+        {"Id", args["id"]},
+        {"Reviewed", args["reviewed"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       application = Treby.Pipeline.get_application!(ctx[:tenant_id], args["id"])

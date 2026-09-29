@@ -26,6 +26,18 @@ defmodule Treby.AI.Tools.AddNote do
     }
   end
 
+  def summary(args) do
+    %{
+      title: "Add note",
+      fields: [
+        {"Application", args["application_id"]},
+        {"Type", args["type"]},
+        {"Rating", args["rating"]},
+        {"Content", args["content"]}
+      ]
+    }
+  end
+
   def run(args, ctx) do
     with :ok <- Tools.authorize(__MODULE__, ctx) do
       actor = Tools.actor(ctx)

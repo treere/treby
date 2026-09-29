@@ -1031,6 +1031,35 @@ defmodule TrebyWeb.CandidatesLive.Show do
     {:noreply, assign(socket, :conversations, conversations)}
   end
 
+  def handle_info({:ai_entity_changed, %{type: :candidate, id: id}}, socket) do
+    if id == socket.assigns.candidate.id do
+      case Candidates.get_candidate(socket.assigns.current_tenant.id, id) do
+        nil ->
+          {:noreply,
+           socket
+           |> put_flash(:info, gettext("This candidate no longer exists."))
+           |> push_navigate(to: "/#{socket.assigns.current_tenant.slug}/app/candidates")}
+
+        candidate ->
+          {:noreply, assign(socket, :candidate, candidate)}
+      end
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info({:ai_entity_changed, %{type: type}}, socket)
+      when type in [:note, :application, :interview] do
+    applications = reload_applications_with_notes(socket.assigns)
+    interviews = load_interviews_for_candidate(socket.assigns.candidate.id)
+
+    {:noreply, assign(socket, applications: applications, interviews: interviews)}
+  end
+
+  def handle_info({:ai_entity_changed, entity}, socket) do
+    {:noreply, TrebyWeb.AiRefresh.put_entity_flash(socket, entity)}
+  end
+
   def handle_event("toggle_note_form", %{"application_id" => app_id}, socket) do
     show = if socket.assigns.show_note_form == app_id, do: nil, else: app_id
     {:noreply, assign(socket, show_note_form: show)}

@@ -882,3 +882,84 @@ defmodule TrebyWeb.JobsLive.ShowPipelineTest do
     end
   end
 end
+
+defmodule TrebyWeb.JobsLive.AiRefreshTest do
+  use TrebyWeb.ConnCase, async: false
+
+  import Phoenix.LiveViewTest
+
+  alias Treby.{Tenants, Repo}
+  alias Treby.Accounts.User
+  alias Treby.Jobs.Job
+
+  defp setup_tenant do
+    {:ok, tenant} =
+      Tenants.create_tenant(%{
+        name: "AI Refresh Corp",
+        slug: "ai-refresh-#{System.unique_integer([:positive])}"
+      })
+
+    {:ok, user} =
+      tenant
+      |> Ecto.build_assoc(:users)
+      |> User.changeset(%{
+        email: "airefresh-#{System.unique_integer([:positive])}@test.com",
+        password: "password123",
+        name: "AI Refresh User",
+        role: "admin"
+      })
+      |> Repo.insert()
+
+    {:ok, _} =
+      Treby.Memberships.create_membership(%{
+        user_id: user.id,
+        tenant_id: tenant.id,
+        role: user.role
+      })
+
+    {tenant, user}
+  end
+
+  defp login_user(conn, user) do
+    init_test_session(conn, %{"user_id" => user.id, "tenant_id" => user.tenant_id})
+  end
+
+  test "chat edit of the job is reflected on the detail page", %{conn: conn} do
+    {tenant, user} = setup_tenant()
+    pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+    {:ok, job} =
+      tenant
+      |> Ecto.build_assoc(:jobs)
+      |> Job.changeset(%{title: "Old Title", description: "d", pipeline_id: pipeline_id})
+      |> Repo.insert()
+
+    {:ok, view, _html} = conn |> login_user(user) |> live("/#{tenant.slug}/app/jobs/#{job.id}")
+    assert render(view) =~ "Old Title"
+
+    {:ok, _} = Treby.Jobs.update_job(job, %{"title" => "Renamed via Chat"})
+
+    send(view.pid, {:ai_entity_changed, %{type: :job, id: job.id}})
+
+    assert render(view) =~ "Renamed via Chat"
+  end
+
+  test "chat deletion of the job redirects to the jobs list", %{conn: conn} do
+    {tenant, user} = setup_tenant()
+    pipeline_id = Treby.Pipeline.default_pipeline_id(tenant.id)
+
+    {:ok, job} =
+      tenant
+      |> Ecto.build_assoc(:jobs)
+      |> Job.changeset(%{title: "Doomed", description: "d", pipeline_id: pipeline_id})
+      |> Repo.insert()
+
+    {:ok, view, _html} = conn |> login_user(user) |> live("/#{tenant.slug}/app/jobs/#{job.id}")
+
+    {:ok, _} = Treby.Jobs.delete_job(job)
+
+    send(view.pid, {:ai_entity_changed, %{type: :job, id: job.id}})
+
+    assert_redirect(view, "/#{tenant.slug}/app/jobs")
+  end
+end

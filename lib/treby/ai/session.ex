@@ -27,6 +27,9 @@ defmodule Treby.AI.Session do
   @doc "Entry point used by the chat widget."
   def chat(ctx, text, opts \\ []) do
     tenant_id = ctx.tenant_id
+    # ponytail: Task.Supervisor child doesn't inherit process dict tenant, set it here
+    if tenant_id, do: Treby.Repo.put_tenant_id(tenant_id)
+
     user_id = ctx.user && ctx.user.id
     last = domain(tenant_id, user_id)
     history = recent_texts(tenant_id, user_id, ctx.session_token)

@@ -248,6 +248,13 @@ defmodule TrebyWeb.AiChatWidget do
           class="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-orange-600 px-4 py-3 text-sm font-medium text-white shadow-lg hover:bg-orange-700 transition-colors"
         >
           <.icon name="hero-sparkles" class="w-5 h-5" />
+          <span
+            :if={(@pending_runs || []) != []}
+            data-ai-pending-dot
+            aria-hidden="true"
+            title={gettext("Confirmation required")}
+            class="absolute -top-1 -right-1 flex h-3 w-3 rounded-full bg-red-500 ring-2 ring-white dark:ring-zinc-900"
+          />
         </button>
 
         <div

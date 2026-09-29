@@ -356,7 +356,7 @@ msgstr ""
 msgid "Body (HTML)"
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:423
+#: lib/treby_web/components/ai_chat_widget.ex:430
 #: lib/treby_web/live/candidates_live/index.ex:272
 #: lib/treby_web/live/candidates_live/index.ex:657
 #: lib/treby_web/live/interviews_live/index.ex:366
@@ -1690,7 +1690,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:332
+#: lib/treby_web/components/ai_chat_widget.ex:339
 #: lib/treby_web/live/candidate_portal_live/index.ex:238
 #: lib/treby_web/live/jobs_live/index.ex:202
 #, elixir-autogen, elixir-format
@@ -2698,7 +2698,7 @@ msgstr ""
 msgid "Self-Scheduling"
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:463
+#: lib/treby_web/components/ai_chat_widget.ex:470
 #: lib/treby_web/live/candidates_live/index.ex:485
 #: lib/treby_web/live/candidates_live/show.ex:975
 #, elixir-autogen, elixir-format
@@ -4970,17 +4970,17 @@ msgstr ""
 msgid "Action failed."
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:314
+#: lib/treby_web/components/ai_chat_widget.ex:321
 #, elixir-autogen, elixir-format
 msgid "Ask about jobs, the platform, or the page you are on."
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:451
+#: lib/treby_web/components/ai_chat_widget.ex:458
 #, elixir-autogen, elixir-format
 msgid "Ask the assistant..."
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:311
+#: lib/treby_web/components/ai_chat_widget.ex:318
 #: lib/treby_web/components/layouts.ex:170
 #: lib/treby_web/components/layouts.ex:384
 #: lib/treby_web/live/ai_chat_live.ex:6
@@ -4988,17 +4988,17 @@ msgstr ""
 msgid "Assistant"
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:413
+#: lib/treby_web/components/ai_chat_widget.ex:420
 #, elixir-autogen, elixir-format
 msgid "Confirm"
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:400
+#: lib/treby_web/components/ai_chat_widget.ex:407
 #, elixir-autogen, elixir-format
 msgid "Confirmation required: %{tool}"
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:326
+#: lib/treby_web/components/ai_chat_widget.ex:333
 #, elixir-autogen, elixir-format
 msgid "Reset"
 msgstr ""
@@ -5028,7 +5028,7 @@ msgstr ""
 msgid "Toggle assistant"
 msgstr ""
 
-#: lib/treby_web/components/ai_chat_widget.ex:450
+#: lib/treby_web/components/ai_chat_widget.ex:457
 #, elixir-autogen, elixir-format
 msgid "The assistant is answering..."
 msgstr ""
@@ -5557,4 +5557,9 @@ msgstr ""
 #: lib/treby_web/live/candidates_live/merge.ex:128
 #, elixir-autogen, elixir-format
 msgid "Use %{name} as primary"
+msgstr ""
+
+#: lib/treby_web/components/ai_chat_widget.ex:255
+#, elixir-autogen, elixir-format
+msgid "Confirmation required"
 msgstr ""

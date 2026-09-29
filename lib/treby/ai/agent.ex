@@ -229,6 +229,10 @@ defmodule Treby.AI.Agent do
           status: "pending_confirm"
         })
     end)
+
+    # create_message already broadcast before the runs existed, so reloads
+    # triggered by it see no pending runs; broadcast again now that they do.
+    Conversations.broadcast(conversation)
   end
 
   defp build_messages(conversation, ctx, profile) do
